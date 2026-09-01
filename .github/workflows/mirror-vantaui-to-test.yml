@@ -1,0 +1,41 @@
+name: Mirror VantaUI into VantaTest
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/mirror-vantaui-to-test.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone VantaUI source
+        run: git clone --depth 1 https://github.com/MrRos3/VantaUI.git /tmp/vantaui
+
+      - name: Mirror repository contents
+        run: |
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github/workflows/mirror-vantaui-to-test.yml' \
+            /tmp/vantaui/ ./
+
+      - name: Commit mirrored snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "VantaTest already matches VantaUI."
+            exit 0
+          fi
+          git commit -m "Mirror VantaUI into VantaTest"
+          git push origin HEAD:main
