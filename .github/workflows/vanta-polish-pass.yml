@@ -72,5 +72,6 @@ jobs:
           git restore package-lock.json 2>/dev/null || true
           git add src main.lua test.lua dist/main.lua build/package.lua
           git commit -m "Vanta visual polish pass [skip ci]"
+          git restore tools/vanta_polish.py 2>/dev/null || true
           git pull --rebase origin main
           git push origin HEAD:main
