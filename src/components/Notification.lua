@@ -3,10 +3,10 @@ local New = Creator.New
 local Tween = Creator.Tween
 
 local NotificationModule = {
-	Size = UDim2.new(0, 300, 1, -100 - 56),
-	SizeLower = UDim2.new(0, 300, 1, -56),
-	UICorner = 18,
-	UIPadding = 14,
+	Size = UDim2.new(0, 280, 1, -100 - 56),
+	SizeLower = UDim2.new(0, 280, 1, -56),
+	UICorner = 12,
+	UIPadding = 11,
 	--ButtonPadding = 9,
 	Holder = nil,
 	NotificationIndex = 0,
@@ -24,7 +24,7 @@ function NotificationModule.Init(Parent)
 	end
 
 	NotModule.Frame = New("Frame", {
-		Position = UDim2.new(1, -116 / 4, 0, 56),
+		Position = UDim2.new(1, -16, 0, 56),
 		AnchorPoint = Vector2.new(1, 0),
 		Size = NotificationModule.Size,
 		Parent = Parent,
@@ -38,10 +38,10 @@ function NotificationModule.Init(Parent)
 			HorizontalAlignment = "Center",
 			SortOrder = "LayoutOrder",
 			VerticalAlignment = "Bottom",
-			Padding = UDim.new(0, 8),
+			Padding = UDim.new(0, 6),
 		}),
 		New("UIPadding", {
-			PaddingBottom = UDim.new(0, 116 / 4),
+			PaddingBottom = UDim.new(0, 16),
 		}),
 	})
 	return NotModule
@@ -107,7 +107,7 @@ function NotificationModule.New(Config)
 			"Notification",
 			Notification.IconThemed
 		)
-		Icon.Size = UDim2.new(0, 26, 0, 26)
+		Icon.Size = UDim2.new(0, 22, 0, 22)
 		Icon.Position = UDim2.new(0, NotificationModule.UIPadding, 0, NotificationModule.UIPadding)
 		-- Icon.LayoutOrder = -1
 	end
@@ -119,7 +119,7 @@ function NotificationModule.New(Config)
 			ImageRectSize = Creator.Icon("x")[2].ImageRectSize,
 			ImageRectOffset = Creator.Icon("x")[2].ImageRectPosition,
 			BackgroundTransparency = 1,
-			Size = UDim2.new(0, 16, 0, 16),
+			Size = UDim2.new(0, 14, 0, 14),
 			Position = UDim2.new(1, -NotificationModule.UIPadding, 0, NotificationModule.UIPadding),
 			AnchorPoint = Vector2.new(1, 0),
 			ThemeTag = {
@@ -137,8 +137,10 @@ function NotificationModule.New(Config)
 		})
 	end
 
-	local Duration = Creator.NewRoundFrame(NotificationModule.UICorner, "Squircle", {
-		Size = UDim2.new(0, 0, 1, 0),
+	local Duration = Creator.NewRoundFrame(99, "Squircle", {
+		Size = UDim2.new(0, 0, 0, 2),
+		Position = UDim2.new(0, 0, 1, 0),
+		AnchorPoint = Vector2.new(0, 1),
 		ThemeTag = {
 			ImageTransparency = "NotificationDurationTransparency",
 			ImageColor3 = "NotificationDuration",
@@ -166,7 +168,7 @@ function NotificationModule.New(Config)
 			TextXAlignment = "Left",
 			RichText = true,
 			BackgroundTransparency = 1,
-			TextSize = 18,
+			TextSize = 15,
 			ThemeTag = {
 				TextColor3 = "NotificationTitle",
 				TextTransparency = "NotificationTitleTransparency",
@@ -188,7 +190,7 @@ function NotificationModule.New(Config)
 			RichText = true,
 			BackgroundTransparency = 1,
 			--TextTransparency = .4,
-			TextSize = 15,
+			TextSize = 13,
 			ThemeTag = {
 				TextColor3 = "NotificationContent",
 				TextTransparency = "NotificationContentTransparency",
@@ -204,7 +206,7 @@ function NotificationModule.New(Config)
 		Position = UDim2.new(2, 0, 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
 		AutomaticSize = "Y",
-		ImageTransparency = 0.05,
+		ImageTransparency = 0.08,
 		ThemeTag = {
 			ImageColor3 = "Notification",
 		},
@@ -277,7 +279,7 @@ function NotificationModule.New(Config)
 				Enum.EasingStyle.Quint,
 				Enum.EasingDirection.Out
 			):Play()
-			Tween(Main, 0.55, { Position = UDim2.new(2, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+			Tween(Main, 0.36, { Position = UDim2.new(2, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 			task.wait(0.45)
 			MainContainer:Destroy()
 		end
@@ -292,13 +294,13 @@ function NotificationModule.New(Config)
 			Enum.EasingStyle.Quint,
 			Enum.EasingDirection.Out
 		):Play()
-		Tween(Main, 0.45, { Position = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+		Tween(Main, 0.32, { Position = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 		if Notification.Duration then
-			Duration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 1, 0)
+			Duration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 0, 2)
 			Tween(
 				Main.DurationFrame.Frame,
 				Notification.Duration,
-				{ Size = UDim2.new(0, 0, 1, 0) },
+				{ Size = UDim2.new(0, 0, 0, 2) },
 				Enum.EasingStyle.Linear,
 				Enum.EasingDirection.InOut
 			):Play()

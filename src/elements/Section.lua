@@ -12,8 +12,8 @@ function Element:New(Config)
 		Icon = Config.Icon,
 		IconThemed = Config.IconThemed,
 		TextXAlignment = Config.TextXAlignment or "Left",
-		TextSize = Config.TextSize or 19,
-		DescTextSize = Config.DescTextSize or 16,
+		TextSize = Config.TextSize or 18,
+		DescTextSize = Config.DescTextSize or 14,
 		Box = Config.Box or false,
 		BoxBorder = Config.BoxBorder or false,
 		FontWeight = Config.FontWeight or Enum.FontWeight.SemiBold,
@@ -23,9 +23,9 @@ function Element:New(Config)
 		Opened = Config.Opened or false,
 		UIElements = {},
 
-		HeaderSize = 48,
-		IconSize = 20,
-		Padding = 10,
+		HeaderSize = 44,
+		IconSize = 18,
+		Padding = 8,
 
 		Elements = {},
 
@@ -147,7 +147,7 @@ function Element:New(Config)
 				--ImageTransparency = "SectionBoxBorderTransparency",
 				ImageColor3 = "SectionBoxBorder",
 			},
-			ImageTransparency = Section.Box and Section.BoxBorder and 0.92 or 1,
+			ImageTransparency = Section.Box and Section.BoxBorder and 0.95 or 1,
 			Name = "Outline",
 			ClipsDescendants = true,
 		}, {
@@ -161,19 +161,19 @@ function Element:New(Config)
 				Section.Box and New("UIPadding", {
 					PaddingTop = UDim.new(
 						0,
-						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 4 or 0)
+						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 2 or 0)
 					),
 					PaddingLeft = UDim.new(
 						0,
-						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 4 or 0)
+						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 2 or 0)
 					),
 					PaddingRight = UDim.new(
 						0,
-						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 4 or 0)
+						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 2 or 0)
 					),
 					PaddingBottom = UDim.new(
 						0,
-						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 4 or 0)
+						Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 2 or 0)
 					),
 				}) or nil,
 				Icon,

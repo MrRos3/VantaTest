@@ -311,7 +311,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 					Element.MenuCorner - Element.MenuPadding,
 					"Squircle",
 					{
-						Size = UDim2.new(1, 0, 0, 36),
+						Size = UDim2.new(1, 0, 0, 34),
 						AutomaticSize = TabMain.Desc and "Y",
 						ImageTransparency = 1, -- 0
 						Parent = Dropdown.UIElements.Menu.Frame.ScrollingFrame,
@@ -591,44 +591,41 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 
 	function DropdownModule:Open()
 		if not Dropdown.Locked then
+			Dropdown.Opened = true
 			Dropdown.UIElements.Menu.Visible = true
 			Dropdown.UIElements.MenuCanvas.Visible = true
 			Dropdown.UIElements.MenuCanvas.Active = true
-			Dropdown.UIElements.Menu.Size = UDim2.new(1, 0, 0, 0)
-			Tween(Dropdown.UIElements.Menu, 0.1, {
+			Dropdown.UIElements.Menu.Size = UDim2.new(1, -6, 1, -6)
+			Dropdown.UIElements.Menu.Position = UDim2.new(1, 0, 0, 6)
+			Dropdown.UIElements.Menu.ImageTransparency = 1
+			Tween(Dropdown.UIElements.Menu, 0.18, {
 				Size = UDim2.new(1, 0, 1, 0),
+				Position = UDim2.new(1, 0, 0, 0),
 				ImageTransparency = 0,
-			}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
-
-			task.spawn(function()
-				task.wait(0.1)
-				if Dropdown.Locked then
-					return
-				end
-				Dropdown.Opened = true
-			end)
-
+			}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+			if Dropdown.UIElements.DropdownIcon then
+				Tween(Dropdown.UIElements.DropdownIcon, 0.18, { Rotation = 180 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+			end
 			UpdatePosition()
 		end
 	end
 
 	function DropdownModule:Close()
 		Dropdown.Opened = false
-
-		Tween(Dropdown.UIElements.Menu, 0.25, {
-			Size = UDim2.new(1, 0, 0, 0),
+		Tween(Dropdown.UIElements.Menu, 0.14, {
+			Size = UDim2.new(1, -4, 1, -4),
+			Position = UDim2.new(1, 0, 0, 4),
 			ImageTransparency = 1,
-		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
-
-		task.spawn(function()
-			task.wait(0.1)
-			Dropdown.UIElements.Menu.Visible = false
-		end)
-
-		task.spawn(function()
-			task.wait(0.25)
-			Dropdown.UIElements.MenuCanvas.Visible = false
-			Dropdown.UIElements.MenuCanvas.Active = false
+		}, Enum.EasingStyle.Quint, Enum.EasingDirection.In):Play()
+		if Dropdown.UIElements.DropdownIcon then
+			Tween(Dropdown.UIElements.DropdownIcon, 0.14, { Rotation = 0 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+		end
+		task.delay(0.15, function()
+			if not Dropdown.Opened then
+				Dropdown.UIElements.Menu.Visible = false
+				Dropdown.UIElements.MenuCanvas.Visible = false
+				Dropdown.UIElements.MenuCanvas.Active = false
+			end
 		end)
 	end
 
@@ -638,7 +635,11 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 			or Dropdown.DropdownFrame.UIElements.Main.MouseButton1Click
 		),
 		function()
-			DropdownModule:Open()
+			if Dropdown.Opened or Dropdown.UIElements.MenuCanvas.Visible then
+				DropdownModule:Close()
+			else
+				DropdownModule:Open()
+			end
 		end
 	)
 

@@ -31,7 +31,7 @@ function Element:New(Config)
 
 		Width = Config.Width or 130,
 		TextBoxWidth = Config.Window.NewElements and 40 or 30,
-		ThumbSize = 16,
+		ThumbSize = 14,
 		IconSize = 26,
 	}
 	if Slider.Icons == {} then
@@ -120,7 +120,7 @@ function Element:New(Config)
 
 	Slider.UIElements.SliderIcon = Creator.NewRoundFrame(99, "Squircle", {
 		ImageTransparency = 0.88,
-		Size = UDim2.new(1, not Slider.IsTextbox and -TotalSliderWidth or (-Slider.TextBoxWidth - 8), 0, 3),
+		Size = UDim2.new(1, not Slider.IsTextbox and -TotalSliderWidth or (-Slider.TextBoxWidth - 8), 0, 2),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
 		Name = "Frame",
@@ -149,7 +149,7 @@ function Element:New(Config)
 					Size = UDim2.new(1, 0, 1, 0),
 					ImageColor3 = Color3.new(1, 1, 1),
 					Name = "Highlight",
-					ImageTransparency = 0.5,
+					ImageTransparency = 0.68,
 				}),
 			}),
 		}),
@@ -183,7 +183,7 @@ function Element:New(Config)
 			},
 			TextTransparency = 0.4,
 			AutomaticSize = "Y",
-			TextSize = 15,
+			TextSize = 14,
 			FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
 			BackgroundTransparency = 1,
 			LayoutOrder = -1,
@@ -393,7 +393,7 @@ function Element:New(Config)
 			if Config.Window.NewElements then
 				Tween(Slider.UIElements.SliderIcon.Frame.Thumb, 0.24, {
 					ImageTransparency = 0,
-					Size = UDim2.fromOffset(Slider.ThumbSize + 3, Slider.ThumbSize + 3),
+					Size = UDim2.fromOffset(Slider.ThumbSize + 2, Slider.ThumbSize + 2),
 				}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 			end
 			if Tooltip then
