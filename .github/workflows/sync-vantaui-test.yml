@@ -25,7 +25,7 @@ jobs:
         run: |
           rsync -a --delete \
             --exclude='.git/' \
-            --exclude='.github/workflows/sync-vantaui-test.yml' \
+            --exclude='.github/workflows/' \
             /tmp/VantaUI/ ./
 
       - name: Point test URLs at VantaTest
@@ -40,7 +40,7 @@ jobs:
           }
 
           for path in Path('.').rglob('*'):
-              if not path.is_file() or '.git' in path.parts:
+              if not path.is_file() or '.git' in path.parts or '.github/workflows' in str(path):
                   continue
               try:
                   text = path.read_text(encoding='utf-8')
