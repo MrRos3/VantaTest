@@ -20,7 +20,18 @@ jobs:
           fetch-depth: 0
 
       - name: Apply Vanta polish
-        run: python3 tools/vanta_polish.py
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("tools/vanta_polish.py")
+          s = p.read_text(encoding="utf-8")
+          old = "text = once(text, '\\t\\t\\t\\t\\t\\tor UDim2.new(0, 14, 0, 14),', '\\t\\t\\t\\t\\t\\tor UDim2.new(0, 12, 0, 12),', 'mac dot size')"
+          new = "text = once(text, 'or UDim2.new(0, 14, 0, 14),', 'or UDim2.new(0, 12, 0, 12),', 'mac dot size')"
+          if old not in s:
+              raise SystemExit("Could not relax Mac dot matcher")
+          p.write_text(s.replace(old, new, 1), encoding="utf-8")
+          PY
+          python3 tools/vanta_polish.py
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
