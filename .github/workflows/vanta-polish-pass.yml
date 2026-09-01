@@ -1,0 +1,520 @@
+name: Vanta polish pass
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/vanta-polish-pass.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply Vanta polish
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def load(path):
+              return Path(path).read_text(encoding="utf-8")
+
+          def save(path, text):
+              Path(path).write_text(text, encoding="utf-8")
+
+          def once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise RuntimeError(f"{label}: expected 1 match, found {count}")
+              return text.replace(old, new, 1)
+
+          def many(text, old, new, expected, label):
+              count = text.count(old)
+              if count != expected:
+                  raise RuntimeError(f"{label}: expected {expected} matches, found {count}")
+              return text.replace(old, new)
+
+          # ---------------------------------------------------------
+          # Window / topbar / global element geometry
+          # ---------------------------------------------------------
+          path = "src/components/window/Init.lua"
+          text = load(path)
+          text = once(text,
+              'IconSize = Config.IconSize or 22,',
+              'IconSize = Config.IconSize or 20,',
+              'topbar icon size')
+          text = once(text,
+              '\t\tUIPadding = 14,',
+              '\t\tUIPadding = UserInputService.TouchEnabled and 16 or 14,',
+              'window touch padding')
+          text = once(text,
+              '''\tWindow.TopBarButtonIconSize = Window.TopBarButtonIconSize or (Window.Topbar.ButtonsType == "Mac" and 11 or 16)''',
+              '''\tWindow.TopBarButtonIconSize = Window.TopBarButtonIconSize or (Window.Topbar.ButtonsType == "Mac" and 10 or 16)''',
+              'mac icon size')
+          text = once(text,
+              '''\tWindow.ElementConfig = {
+\t\tUIPadding = (Window.NewElements and 10 or 13),
+\t\tUICorner = Window.ElementsRadius or (Window.NewElements and 23 or 16),
+\t}''',
+              '''\tWindow.ElementConfig = {
+\t\tUIPadding = Window.NewElements and (UserInputService.TouchEnabled and 12 or 10) or 13,
+\t\tUICorner = Window.ElementsRadius or (Window.NewElements and 14 or 16),
+\t}''',
+              'element geometry')
+          text = once(text,
+              '\t\t\tTextSize = 13,',
+              '\t\t\tTextSize = 12,',
+              'author size')
+          text = once(text,
+              '\t\tTextSize = 16,',
+              '\t\tTextSize = 15,',
+              'title size')
+          text = once(text,
+              '\t\t\t\t\t\tPadding = UDim.new(0, Window.UIPadding + 4),',
+              '\t\t\t\t\t\tPadding = UDim.new(0, math.max(8, Window.UIPadding - 2)),',
+              'topbar left spacing')
+          text = once(text,
+              'Padding = UDim.new(0, Window.Topbar.ButtonsType == "Default" and 9 or 0),',
+              'Padding = UDim.new(0, Window.Topbar.ButtonsType == "Default" and 9 or 6),',
+              'mac dot spacing')
+          text = once(text,
+              '\t\t\t\t\tPaddingRight = UDim.new(0, 8),',
+              '\t\t\t\t\tPaddingRight = UDim.new(0, Window.Topbar.ButtonsType == "Mac" and 12 or 8),',
+              'topbar right padding')
+          text = once(text,
+              '\t\t\t\t\t\tor UDim2.new(0, 14, 0, 14),',
+              '\t\t\t\t\t\tor UDim2.new(0, 12, 0, 12),',
+              'mac dot size')
+
+          text = once(text,
+              '''\t\t\t\tOutline1,
+\t\t\t\t--[[New("Frame", { -- Outline''',
+              '''\t\t\t\tOutline1,
+\t\t\t\tNew("Frame", {
+\t\t\t\t\tName = "VantaHoverGlow",
+\t\t\t\t\tSize = UDim2.new(1, 0, 1, 0),
+\t\t\t\t\tBackgroundTransparency = 1,
+\t\t\t\t\tBorderSizePixel = 0,
+\t\t\t\t\tThemeTag = {
+\t\t\t\t\t\tBackgroundColor3 = "Primary",
+\t\t\t\t\t},
+\t\t\t\t}, {
+\t\t\t\t\tNew("UICorner", {
+\t\t\t\t\t\tCornerRadius = UDim.new(0, math.max(8, Window.UICorner - 4)),
+\t\t\t\t\t}),
+\t\t\t\t}),
+\t\t\t\t--[[New("Frame", { -- Outline''',
+              'topbar hover glow frame')
+
+          text = once(text,
+              '''\tCreator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal("AbsoluteSize"), function()''',
+              '''\tlocal VantaTopbarGlow = Window.UIElements.Main.Main.Topbar:FindFirstChild("VantaHoverGlow")
+\tif VantaTopbarGlow and not UserInputService.TouchEnabled then
+\t\tCreator.AddSignal(Window.UIElements.Main.Main.Topbar.MouseEnter, function()
+\t\t\tTween(VantaTopbarGlow, 0.2, { BackgroundTransparency = 0.965 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+\t\tend)
+\t\tCreator.AddSignal(Window.UIElements.Main.Main.Topbar.MouseLeave, function()
+\t\t\tTween(VantaTopbarGlow, 0.24, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+\t\tend)
+\tend
+
+\tCreator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal("AbsoluteSize"), function()''',
+              'topbar hover signals')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Sidebar tabs: subtle active fill + Vanta accent rail
+          # ---------------------------------------------------------
+          path = "src/components/window/Tab.lua"
+          text = load(path)
+          text = once(text,
+              '\t\tTabPaddingX = 4 + (Window.UIPadding / 2),',
+              '\t\tTabPaddingX = 7 + (Window.UIPadding / 2),',
+              'tab padding')
+          text = once(text,
+              '''\tlocal TabIndex = TabModule.TabCount
+\tTab.Index = TabIndex
+
+\tTab.UIElements.Main = Creator.NewRoundFrame''',
+              '''\tlocal TabIndex = TabModule.TabCount
+\tTab.Index = TabIndex
+
+\tlocal ActiveIndicator = New("Frame", {
+\t\tName = "ActiveIndicator",
+\t\tSize = UDim2.fromOffset(3, 18),
+\t\tPosition = UDim2.new(0, 3, 0.5, 0),
+\t\tAnchorPoint = Vector2.new(0, 0.5),
+\t\tBackgroundTransparency = 1,
+\t\tBorderSizePixel = 0,
+\t\tThemeTag = {
+\t\t\tBackgroundColor3 = "Primary",
+\t\t},
+\t}, {
+\t\tNew("UICorner", {
+\t\t\tCornerRadius = UDim.new(1, 0),
+\t\t}),
+\t})
+
+\tTab.UIElements.Main = Creator.NewRoundFrame''',
+              'active indicator definition')
+          text = once(text,
+              '''\t}, {
+\t\tCreator.NewRoundFrame(Tab.UICorner - 1, "Glass-1.4", {''',
+              '''\t}, {
+\t\tActiveIndicator,
+\t\tCreator.NewRoundFrame(Tab.UICorner - 1, "Glass-1.4", {''',
+              'active indicator insertion')
+          text = once(text,
+              '''\t\t\t\tTextTransparency = not Tab.Locked and 0.4 or 0.7,
+\t\t\t\tTextSize = 15,''',
+              '''\t\t\t\tTextTransparency = not Tab.Locked and 0.4 or 0.7,
+\t\t\t\tTextSize = 14,''',
+              'tab text size')
+          old_pad = 'not Window.HidePanelBackground and 20 or 10'
+          new_pad = '(not Window.HidePanelBackground and 20 or 10) + (UserInputService.TouchEnabled and 4 or 0)'
+          text = many(text, old_pad, new_pad, 4, 'content touch padding')
+
+          text = once(text,
+              '''\t\t\t\tCreator.SetThemeTag(TabObject.UIElements.Main, {
+\t\t\t\t\tImageTransparency = "TabBorderTransparency",
+\t\t\t\t}, 0.15)''',
+              '''\t\t\t\tCreator.SetThemeTag(TabObject.UIElements.Main, {
+\t\t\t\t\tImageColor3 = "TabBackground",
+\t\t\t\t}, 0.15)
+\t\t\t\tCreator.Tween(TabObject.UIElements.Main, 0.18, { ImageTransparency = 1 }):Play()
+\t\t\t\tCreator.Tween(TabObject.UIElements.Main.ActiveIndicator, 0.18, { BackgroundTransparency = 1 }):Play()''',
+              'inactive tab style')
+          text = once(text,
+              '''\t\tCreator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main, {
+\t\t\tImageColor3 = "TabBackgroundActive",
+\t\t\tImageTransparency = "TabBackgroundActiveTransparency",
+\t\t}, 0.15)''',
+              '''\t\tCreator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main, {
+\t\t\tImageColor3 = "Primary",
+\t\t}, 0.15)
+\t\tCreator.Tween(TabModule.Tabs[TabIndex].UIElements.Main, 0.18, { ImageTransparency = 0.92 }):Play()
+\t\tCreator.Tween(TabModule.Tabs[TabIndex].UIElements.Main.ActiveIndicator, 0.18, { BackgroundTransparency = 0.08 }):Play()''',
+              'active tab style')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Element cards: compact text + quieter hover
+          # ---------------------------------------------------------
+          path = "src/components/window/Element.lua"
+          text = load(path)
+          text = once(text,
+              'TextSize = Type == "Desc" and 15 or 17,',
+              'TextSize = Type == "Desc" and 14 or 16,',
+              'element text sizes')
+          text = once(text,
+              '''\t\t\t\tTween(Hover, 0.12, { ImageTransparency = 0.9 }):Play()
+\t\t\t\tTween(HoverOutline, 0.12, { ImageTransparency = 0.8 }):Play()''',
+              '''\t\t\t\tTween(Hover, 0.16, { ImageTransparency = 0.94 }):Play()
+\t\t\t\tTween(HoverOutline, 0.16, { ImageTransparency = 0.9 }):Play()''',
+              'quiet element hover')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Section cards
+          # ---------------------------------------------------------
+          path = "src/elements/Section.lua"
+          text = load(path)
+          text = once(text, '\t\tTextSize = Config.TextSize or 19,', '\t\tTextSize = Config.TextSize or 18,', 'section title size')
+          text = once(text, '\t\tDescTextSize = Config.DescTextSize or 16,', '\t\tDescTextSize = Config.DescTextSize or 14,', 'section desc size')
+          text = once(text, '\t\tHeaderSize = 48,', '\t\tHeaderSize = 44,', 'section header')
+          text = once(text, '\t\tIconSize = 20,', '\t\tIconSize = 18,', 'section icon')
+          text = once(text, '\t\tPadding = 10,', '\t\tPadding = 8,', 'section padding')
+          text = once(text,
+              '\t\t\tImageTransparency = Section.Box and Section.BoxBorder and 0.92 or 1,',
+              '\t\t\tImageTransparency = Section.Box and Section.BoxBorder and 0.95 or 1,',
+              'section border')
+          text = many(text,
+              'Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 4 or 0)',
+              'Config.Window.ElementConfig.UIPadding + (Config.Window.NewElements and 2 or 0)',
+              4,
+              'section inner padding')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Sliders: thin rail + smaller thumb
+          # ---------------------------------------------------------
+          path = "src/elements/Slider.lua"
+          text = load(path)
+          text = once(text, '\t\tThumbSize = 16,', '\t\tThumbSize = 14,', 'slider thumb')
+          text = once(text,
+              '''\t\tSize = UDim2.new(1, not Slider.IsTextbox and -TotalSliderWidth or (-Slider.TextBoxWidth - 8), 0, 3),''',
+              '''\t\tSize = UDim2.new(1, not Slider.IsTextbox and -TotalSliderWidth or (-Slider.TextBoxWidth - 8), 0, 2),''',
+              'slider rail')
+          text = once(text, '\t\t\t\t\tImageTransparency = 0.5,', '\t\t\t\t\tImageTransparency = 0.68,', 'slider thumb highlight')
+          text = once(text, '\t\t\tTextSize = 15,', '\t\t\tTextSize = 14,', 'slider value size')
+          text = once(text,
+              'Size = UDim2.fromOffset(Slider.ThumbSize + 3, Slider.ThumbSize + 3),',
+              'Size = UDim2.fromOffset(Slider.ThumbSize + 2, Slider.ThumbSize + 2),',
+              'slider press growth')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Dropdown: compact geometry, direct toggle, polished motion
+          # ---------------------------------------------------------
+          path = "src/elements/Dropdown.lua"
+          text = load(path)
+          text = once(text, '\tMenuCorner = 15,', '\tMenuCorner = 12,', 'dropdown corner')
+          text = once(text, '\tMenuPadding = 5,', '\tMenuPadding = 6,', 'dropdown menu padding')
+          text = once(text, '\tTabPadding = 10,', '\tTabPadding = 9,', 'dropdown tab padding')
+          text = once(text, '\tSearchBarHeight = 39,', '\tSearchBarHeight = 38,', 'dropdown search height')
+          text = once(text, '\tTabIcon = 18,', '\tTabIcon = 17,', 'dropdown icon')
+          text = once(text, '\t\tWidth = 150,', '\t\tWidth = UserInputService.TouchEnabled and 180 or 156,', 'dropdown responsive width')
+          text = once(text,
+              '''\n\t-- The internal dropdown button calls DropdownMenu:Open() on every click.
+\t-- Wrap Open so the same button behaves like a true toggle: click once opens,
+\t-- click again closes. MenuCanvas.Visible also catches the short opening delay.
+\tlocal BaseOpen = Dropdown.DropdownMenu.Open
+\tlocal BaseClose = Dropdown.DropdownMenu.Close
+\tfunction Dropdown.DropdownMenu:Open(...)
+\t\tif Dropdown.Opened or Dropdown.UIElements.MenuCanvas.Visible then
+\t\t\treturn BaseClose(self, ...)
+\t\tend
+\t\treturn BaseOpen(self, ...)
+\tend
+''',
+              '\n',
+              'remove dropdown wrapper')
+          text = once(text,
+              '''\tlocal DropdownIcon = New("ImageLabel", {''',
+              '''\tlocal DropdownIcon = New("ImageLabel", {''',
+              'dropdown icon anchor')
+          text = once(text,
+              '''\t})
+
+\tfunction Dropdown:Lock()''',
+              '''\t})
+\tDropdown.UIElements.DropdownIcon = DropdownIcon
+
+\tfunction Dropdown:Lock()''',
+              'expose dropdown icon')
+          save(path, text)
+
+          path = "src/components/ui/Dropdown.lua"
+          text = load(path)
+          text = once(text,
+              '\t\t\t\t\t\tSize = UDim2.new(1, 0, 0, 36),',
+              '\t\t\t\t\t\tSize = UDim2.new(1, 0, 0, 34),',
+              'dropdown item height')
+          text = once(text,
+              '''\tfunction DropdownModule:Open()
+\t\tif not Dropdown.Locked then
+\t\t\tDropdown.UIElements.Menu.Visible = true
+\t\t\tDropdown.UIElements.MenuCanvas.Visible = true
+\t\t\tDropdown.UIElements.MenuCanvas.Active = true
+\t\t\tDropdown.UIElements.Menu.Size = UDim2.new(1, 0, 0, 0)
+\t\t\tTween(Dropdown.UIElements.Menu, 0.1, {
+\t\t\t\tSize = UDim2.new(1, 0, 1, 0),
+\t\t\t\tImageTransparency = 0,
+\t\t\t}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+
+\t\t\ttask.spawn(function()
+\t\t\t\ttask.wait(0.1)
+\t\t\t\tif Dropdown.Locked then
+\t\t\t\t\treturn
+\t\t\t\tend
+\t\t\t\tDropdown.Opened = true
+\t\t\tend)
+
+\t\t\tUpdatePosition()
+\t\tend
+\tend
+
+\tfunction DropdownModule:Close()
+\t\tDropdown.Opened = false
+
+\t\tTween(Dropdown.UIElements.Menu, 0.25, {
+\t\t\tSize = UDim2.new(1, 0, 0, 0),
+\t\t\tImageTransparency = 1,
+\t\t}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+
+\t\ttask.spawn(function()
+\t\t\ttask.wait(0.1)
+\t\t\tDropdown.UIElements.Menu.Visible = false
+\t\tend)
+
+\t\ttask.spawn(function()
+\t\t\ttask.wait(0.25)
+\t\t\tDropdown.UIElements.MenuCanvas.Visible = false
+\t\t\tDropdown.UIElements.MenuCanvas.Active = false
+\t\tend)
+\tend''',
+              '''\tfunction DropdownModule:Open()
+\t\tif not Dropdown.Locked then
+\t\t\tDropdown.Opened = true
+\t\t\tDropdown.UIElements.Menu.Visible = true
+\t\t\tDropdown.UIElements.MenuCanvas.Visible = true
+\t\t\tDropdown.UIElements.MenuCanvas.Active = true
+\t\t\tDropdown.UIElements.Menu.Size = UDim2.new(1, -6, 1, -6)
+\t\t\tDropdown.UIElements.Menu.Position = UDim2.new(1, 0, 0, 6)
+\t\t\tDropdown.UIElements.Menu.ImageTransparency = 1
+\t\t\tTween(Dropdown.UIElements.Menu, 0.18, {
+\t\t\t\tSize = UDim2.new(1, 0, 1, 0),
+\t\t\t\tPosition = UDim2.new(1, 0, 0, 0),
+\t\t\t\tImageTransparency = 0,
+\t\t\t}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+\t\t\tif Dropdown.UIElements.DropdownIcon then
+\t\t\t\tTween(Dropdown.UIElements.DropdownIcon, 0.18, { Rotation = 180 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+\t\t\tend
+\t\t\tUpdatePosition()
+\t\tend
+\tend
+
+\tfunction DropdownModule:Close()
+\t\tDropdown.Opened = false
+\t\tTween(Dropdown.UIElements.Menu, 0.14, {
+\t\t\tSize = UDim2.new(1, -4, 1, -4),
+\t\t\tPosition = UDim2.new(1, 0, 0, 4),
+\t\t\tImageTransparency = 1,
+\t\t}, Enum.EasingStyle.Quint, Enum.EasingDirection.In):Play()
+\t\tif Dropdown.UIElements.DropdownIcon then
+\t\t\tTween(Dropdown.UIElements.DropdownIcon, 0.14, { Rotation = 0 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+\t\tend
+\t\ttask.delay(0.15, function()
+\t\t\tif not Dropdown.Opened then
+\t\t\t\tDropdown.UIElements.Menu.Visible = false
+\t\t\t\tDropdown.UIElements.MenuCanvas.Visible = false
+\t\t\t\tDropdown.UIElements.MenuCanvas.Active = false
+\t\t\tend
+\t\tend)
+\tend''',
+              'dropdown motion')
+          text = once(text,
+              '''\t\tfunction()
+\t\t\tDropdownModule:Open()
+\t\tend''',
+              '''\t\tfunction()
+\t\t\tif Dropdown.Opened or Dropdown.UIElements.MenuCanvas.Visible then
+\t\t\t\tDropdownModule:Close()
+\t\t\telse
+\t\t\t\tDropdownModule:Open()
+\t\t\tend
+\t\tend''',
+              'dropdown direct toggle')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Notifications: compact toast + bottom progress line
+          # ---------------------------------------------------------
+          path = "src/components/Notification.lua"
+          text = load(path)
+          text = once(text, '\tSize = UDim2.new(0, 300, 1, -100 - 56),', '\tSize = UDim2.new(0, 280, 1, -100 - 56),', 'notification width')
+          text = once(text, '\tSizeLower = UDim2.new(0, 300, 1, -56),', '\tSizeLower = UDim2.new(0, 280, 1, -56),', 'notification lower width')
+          text = once(text, '\tUICorner = 18,', '\tUICorner = 12,', 'notification corner')
+          text = once(text, '\tUIPadding = 14,', '\tUIPadding = 11,', 'notification padding')
+          text = once(text,
+              '\t\tPosition = UDim2.new(1, -116 / 4, 0, 56),',
+              '\t\tPosition = UDim2.new(1, -16, 0, 56),',
+              'notification position')
+          text = once(text,
+              '\t\t\tPadding = UDim.new(0, 8),',
+              '\t\t\tPadding = UDim.new(0, 6),',
+              'notification stack gap')
+          text = once(text,
+              '\t\t\tPaddingBottom = UDim.new(0, 116 / 4),',
+              '\t\t\tPaddingBottom = UDim.new(0, 16),',
+              'notification bottom padding')
+          text = once(text, '\t\tIcon.Size = UDim2.new(0, 26, 0, 26)', '\t\tIcon.Size = UDim2.new(0, 22, 0, 22)', 'notification icon')
+          text = once(text, '\t\t\tSize = UDim2.new(0, 16, 0, 16),', '\t\t\tSize = UDim2.new(0, 14, 0, 14),', 'notification close')
+          text = once(text,
+              '''\tlocal Duration = Creator.NewRoundFrame(NotificationModule.UICorner, "Squircle", {
+\t\tSize = UDim2.new(0, 0, 1, 0),''',
+              '''\tlocal Duration = Creator.NewRoundFrame(99, "Squircle", {
+\t\tSize = UDim2.new(0, 0, 0, 2),
+\t\tPosition = UDim2.new(0, 0, 1, 0),
+\t\tAnchorPoint = Vector2.new(0, 1),''',
+              'notification duration bar')
+          text = once(text, '\t\t\tTextSize = 18,', '\t\t\tTextSize = 15,', 'notification title')
+          text = once(text, '\t\t\tTextSize = 15,', '\t\t\tTextSize = 13,', 'notification content')
+          text = once(text, '\t\tImageTransparency = 0.05,', '\t\tImageTransparency = 0.08,', 'notification surface')
+          text = once(text,
+              'Tween(Main, 0.55, { Position = UDim2.new(2, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()',
+              'Tween(Main, 0.36, { Position = UDim2.new(2, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()',
+              'notification close motion')
+          text = once(text,
+              '''\t\tTween(Main, 0.45, { Position = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()''',
+              '''\t\tTween(Main, 0.32, { Position = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()''',
+              'notification enter motion')
+          text = once(text,
+              '\t\t\tDuration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 1, 0)',
+              '\t\t\tDuration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 0, 2)',
+              'notification duration width')
+          text = once(text,
+              '\t\t\t\t{ Size = UDim2.new(0, 0, 1, 0) },',
+              '\t\t\t\t{ Size = UDim2.new(0, 0, 0, 2) },',
+              'notification duration tween')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Theme surface subtlety in staging loader
+          # ---------------------------------------------------------
+          path = "main.lua"
+          text = load(path)
+          text = many(text,
+              'ElementBackgroundTransparency = 0,',
+              'ElementBackgroundTransparency = 0.08,',
+              4,
+              'vanta card transparency')
+          save(path, text)
+
+          # ---------------------------------------------------------
+          # Showcase: make the section-card treatment visible
+          # ---------------------------------------------------------
+          path = "test.lua"
+          text = load(path)
+          text = once(text,
+              '''Controls:Section({
+    Title = "Native Controls",
+})''',
+              '''Controls:Section({
+    Title = "Native Controls",
+    Desc = "Vanta polish preview",
+    Box = true,
+    BoxBorder = true,
+})''',
+              'showcase section card')
+          save(path, text)
+          PY
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.1"
+
+      - name: Setup Aftman
+        uses: ok-nick/setup-aftman@v0.3.0
+
+      - name: Install build tools
+        run: aftman install
+
+      - name: Build polished runtime
+        run: npm run build
+
+      - name: Commit polish and runtime
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git restore package-lock.json 2>/dev/null || true
+          git add src main.lua test.lua dist/main.lua build/package.lua
+          git commit -m "Vanta visual polish pass [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
