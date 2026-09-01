@@ -1,0 +1,95 @@
+local VantaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
+
+local Window = VantaUI:CreateWindow({
+    Title = "VantaUI Showcase",
+    Icon = "sparkles",
+    Theme = "Vanta AMOLED",
+    StartupTab = "Home",
+    HideSearchBar = false,
+    OpenButton = {
+        Title = "Open VantaUI",
+        Enabled = true,
+        Draggable = true,
+        OnlyMobile = false,
+    },
+})
+
+Window:Tag({
+    Title = "v" .. VantaUI.Version,
+    Icon = "github",
+    Color = Color3.fromHex("#171C27"),
+    Border = true,
+})
+
+local Home = Window:Tab({
+    Title = "Home",
+    Icon = "house",
+})
+
+local Themes = Window:Tab({
+    Title = "Themes",
+    Icon = "palette",
+})
+
+local About = Window:Tab({
+    Title = "About",
+    Icon = "info",
+})
+
+Home:Button({
+    Title = "VantaUI is alive",
+    Desc = "This window is loaded from the VantaUI public loader.",
+    Icon = "sparkles",
+    Callback = function()
+        VantaUI:Notify({
+            Content = "VantaUI v" .. VantaUI.Version .. " is running 🎉",
+            Icon = "sparkles",
+        })
+    end,
+})
+
+Home:Button({
+    Title = "Runtime info",
+    Desc = "Shows the current VantaUI runtime version.",
+    Icon = "package",
+    Callback = function()
+        local info = VantaUI:GetInfo()
+        VantaUI:Notify({
+            Title = "VantaUI Runtime",
+            Content = "VantaUI " .. tostring(info.Version) .. " • runtime " .. tostring(VantaUI.RuntimeVersion or info.Version),
+            Icon = "package",
+        })
+    end,
+})
+
+local function addThemeButton(themeName, icon)
+    Themes:Button({
+        Title = themeName,
+        Desc = "Switch the whole interface to " .. themeName .. ".",
+        Icon = icon,
+        Callback = function()
+            VantaUI:SetTheme(themeName)
+            VantaUI:Notify({
+                Content = "Theme changed to " .. themeName,
+                Icon = icon,
+            })
+        end,
+    })
+end
+
+addThemeButton("Vanta Smoked", "cloud-fog")
+addThemeButton("Vanta Dark", "moon")
+addThemeButton("Vanta AMOLED", "circle-dot")
+addThemeButton("Vanta Violet", "wand-sparkles")
+
+About:Button({
+    Title = "VantaUI",
+    Desc = "Custom Roblox UI library by MrRos3.",
+    Icon = "github",
+    Callback = function()
+        VantaUI:Notify({
+            Content = "VantaUI • built by MrRos3 🖤",
+            Icon = "heart",
+        })
+    end,
+})
