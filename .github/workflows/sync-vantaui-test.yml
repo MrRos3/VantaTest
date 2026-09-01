@@ -23,16 +23,10 @@ jobs:
 
       - name: Mirror files into VantaTest
         run: |
-          rsync -a --delete --exclude='.git/' /tmp/VantaUI/ ./
-          rm -rf .git
-
-      - name: Restore target repository git metadata
-        run: |
-          git init
-          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
-          git fetch origin main
-          git checkout -B main origin/main
-          rsync -a --delete --exclude='.git/' /tmp/VantaUI/ ./
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/workflows/sync-vantaui-test.yml' \
+            /tmp/VantaUI/ ./
 
       - name: Point test URLs at VantaTest
         run: |
