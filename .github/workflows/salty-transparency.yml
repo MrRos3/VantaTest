@@ -1,0 +1,41 @@
+name: Apply Salty Special card transparency
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/salty-transparency.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Salty Special transparency
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('main.lua')
+          s = p.read_text()
+          old = '''        ElementBackground = Color3.fromHex("#151116"),\n        ElementBackgroundTransparency = 0.04,'''
+          new = '''        ElementBackground = Color3.fromHex("#151116"),\n        ElementBackgroundTransparency = 0.16,'''
+          if old not in s:
+              raise SystemExit('Salty Special transparency target not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+
+      - name: Commit change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.lua
+          git commit -m "Make Salty Special cards slightly transparent [skip ci]"
+          git push origin HEAD:main
