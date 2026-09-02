@@ -5503,7 +5503,6 @@ an.TextButton.AutomaticSize=Enum.AutomaticSize.None
 an.TextButton.Size=UDim2.fromScale(1,1)
 an.TextButton.UIPadding.PaddingLeft=UDim.new(0,0)
 an.TextButton.UIPadding.PaddingRight=UDim.new(0,0)
-an.TextButton.UIListLayout.Enabled=false
 
 if ah then
 ah.Size=UDim2.fromScale(1,1)
@@ -5527,7 +5526,6 @@ an.TextButton.AutomaticSize=Enum.AutomaticSize.XY
 an.TextButton.Size=UDim2.new(0,0,0,36)
 an.TextButton.UIPadding.PaddingLeft=UDim.new(0,11)
 an.TextButton.UIPadding.PaddingRight=UDim.new(0,11)
-an.TextButton.UIListLayout.Enabled=true
 
 if ah then
 ah.Size=UDim2.new(0,22,0,22)
