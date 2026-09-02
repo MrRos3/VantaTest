@@ -216,7 +216,7 @@ function OpenButton.New(Window)
             Enabled = OpenButtonConfig.Enabled,
             Position = OpenButtonConfig.Position,
             OnlyIcon = OpenButtonConfig.OnlyIcon or false,
-            Draggable = OpenButtonConfig.Draggable or nil,
+            Draggable = OpenButtonConfig.Draggable,
             OnlyMobile = OpenButtonConfig.OnlyMobile,
             CornerRadius = OpenButtonConfig.CornerRadius or UDim.new(1, 0),
             StrokeThickness = OpenButtonConfig.StrokeThickness or 1,
@@ -235,13 +235,14 @@ function OpenButton.New(Window)
             Window.IsPC = false
         end
         
-        
-        if OpenButtonModule.Draggable == false and Drag and Divider then
-            Drag.Visible = OpenButtonModule.Draggable
-            Divider.Visible = OpenButtonModule.Draggable
+        local dragEnabled = OpenButtonModule.Draggable ~= false
+        if Drag and Divider then
+            local showDragHandle = dragEnabled and OpenButtonModule.OnlyIcon ~= true
+            Drag.Visible = showDragHandle
+            Divider.Visible = showDragHandle
             
             if DragModule then
-                DragModule:Set(OpenButtonModule.Draggable)
+                DragModule:Set(dragEnabled)
             end
         end
         
@@ -251,8 +252,8 @@ function OpenButton.New(Window)
         
         if OpenButtonModule.OnlyIcon == true and Title then
             Title.Visible = false
-            Button.TextButton.UIPadding.PaddingLeft = UDim.new(0,7)
-            Button.TextButton.UIPadding.PaddingRight = UDim.new(0,7)
+            Button.TextButton.UIPadding.PaddingLeft = UDim.new(0,4)
+            Button.TextButton.UIPadding.PaddingRight = UDim.new(0,4)
         elseif OpenButtonModule.OnlyIcon == false then
             Title.Visible = true
             Button.TextButton.UIPadding.PaddingLeft = UDim.new(0,7+4)
@@ -270,6 +271,14 @@ function OpenButton.New(Window)
         
         if OpenButtonModule.Icon then
             OpenButtonMain:SetIcon(OpenButtonModule.Icon)
+        end
+
+        if Icon then
+            if OpenButtonModule.OnlyIcon == true then
+                Icon.Size = UDim2.new(0,28,0,28)
+            else
+                Icon.Size = UDim2.new(0,22,0,22)
+            end
         end
 
         Button.UIStroke.UIGradient.Color = OpenButtonModule.Color
