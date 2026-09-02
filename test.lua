@@ -42,7 +42,7 @@ local Window = VantaUI:CreateWindow({
         OnlyMobile = false,
         CornerRadius = UDim.new(0, 11),
         StrokeThickness = 2,
-        ImageZoom = 2.2,
+        ImageZoom = 1,
         Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Color3.fromHex("#FF243A")),
             ColorSequenceKeypoint.new(0.33, Color3.fromHex("#FFFFFF")),
@@ -78,92 +78,86 @@ local Themes = Window:Tab({
 
 Home:Section({
     Title = "VantaTest",
+    TextSize = 18,
+})
+
+Home:Paragraph({
+    Title = "Staging playground",
+    Desc = "This window runs entirely from MrRos3/VantaTest so VantaUI changes can be tested safely before production.",
 })
 
 Home:Button({
-    Title = "VantaUI is running",
-    Desc = "This window is loaded entirely from the VantaTest staging repo.",
-    Icon = "circle-check",
+    Title = "Test notification",
+    Desc = "Confirm buttons and notification styling.",
     Callback = function()
         VantaUI:Notify({
             Title = "VantaTest",
             Content = "The staging runtime is alive 🖤",
-            Icon = "sparkles",
-            Duration = 3,
-        })
-    end,
-})
-
-Home:Button({
-    Title = "Test Notification",
-    Desc = "Open a VantaUI notification.",
-    Icon = "bell",
-    Callback = function()
-        VantaUI:Notify({
-            Title = "Notification Test",
-            Content = "VantaTest notification works.",
-            Icon = "bell",
             Duration = 4,
         })
     end,
 })
 
-Controls:Section({
-    Title = "Native Controls",
-})
-
 Controls:Toggle({
-    Title = "Test Toggle",
-    Desc = "Checks the compact green Vanta toggle.",
-    Value = true,
+    Title = "Vanta toggle",
+    Desc = "Green ON state test.",
+    Default = true,
     Callback = function() end,
 })
 
 Controls:Slider({
-    Title = "Test Slider",
+    Title = "Slider",
+    Desc = "Test rail, fill and thumb styling.",
+    Step = 1,
     Value = {
         Min = 0,
         Max = 100,
-        Default = 50,
+        Default = 65,
     },
-    Step = 1,
     Callback = function() end,
 })
 
 Controls:Dropdown({
-    Title = "Test Dropdown",
-    Values = { "One", "Two", "Three" },
-    Value = "One",
+    Title = "Dropdown",
+    Desc = "Test open, close and second-click behavior.",
+    Values = { "Alpha", "Beta", "Gamma", "Delta" },
+    Value = "Alpha",
     Callback = function() end,
 })
 
 Controls:Input({
-    Title = "Test Input",
-    Placeholder = "Type here...",
+    Title = "Input",
+    Desc = "Test textbox styling.",
+    Placeholder = "Type something...",
     Callback = function() end,
 })
 
-local function addTheme(themeName, icon)
-    Themes:Button({
-        Title = themeName,
-        Desc = "Switch VantaTest to " .. themeName .. ".",
-        Icon = icon,
-        Callback = function()
-            VantaUI:SetTheme(themeName)
-        end,
-    })
-end
-
-addTheme("Vanta AMOLED", "circle-dot")
-addTheme("Vanta Dark", "moon")
-addTheme("Vanta Smoked", "cloud-fog")
-addTheme("Vanta Violet", "wand-sparkles")
-
-VantaUI:Notify({
-    Title = "VantaTest",
-    Content = "Test window loaded successfully.",
-    Icon = "flask-conical",
-    Duration = 3,
+Themes:Button({
+    Title = "Vanta AMOLED",
+    Callback = function()
+        VantaUI:SetTheme("Vanta AMOLED")
+    end,
 })
 
-return Window
+Themes:Button({
+    Title = "Vanta Smoked",
+    Callback = function()
+        VantaUI:SetTheme("Vanta Smoked")
+    end,
+})
+
+Themes:Button({
+    Title = "Vanta Dark",
+    Callback = function()
+        VantaUI:SetTheme("Vanta Dark")
+    end,
+})
+
+Themes:Button({
+    Title = "Vanta Violet",
+    Callback = function()
+        VantaUI:SetTheme("Vanta Violet")
+    end,
+})
+
+Window:SelectTab(1)
