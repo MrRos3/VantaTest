@@ -19,53 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Apply Vanta Edge
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("tools/vanta_edge.py")
-          s = p.read_text(encoding="utf-8")
-          start = s.index("# Vanta Edge: topbar divider")
-          end = s.index("# Vanta Edge: button press depth")
-          replacement = '''# Vanta Edge: topbar divider
-# ---------------------------------------------------------
-path = "src/components/window/Init.lua"
-text = load(path)
-text = once(
-    text,
-    '\\t\\t\\t\\tNew("Frame", { -- Topbar Left Side',
-    ''' + "'''" + '''\\t\\t\\t\\tNew("Frame", {
-\\t\\t\\t\\t\\tName = "VantaEdgeDivider",
-\\t\\t\\t\\t\\tSize = UDim2.new(1, 0, 0, 1),
-\\t\\t\\t\\t\\tPosition = UDim2.new(0, 0, 1, 0),
-\\t\\t\\t\\t\\tAnchorPoint = Vector2.new(0, 1),
-\\t\\t\\t\\t\\tBorderSizePixel = 0,
-\\t\\t\\t\\t\\tBackgroundTransparency = 0.66,
-\\t\\t\\t\\t\\tThemeTag = {
-\\t\\t\\t\\t\\t\\tBackgroundColor3 = "Primary",
-\\t\\t\\t\\t\\t},
-\\t\\t\\t\\t\\tZIndex = 5,
-\\t\\t\\t\\t}, {
-\\t\\t\\t\\t\\tNew("UIGradient", {
-\\t\\t\\t\\t\\t\\tRotation = 0,
-\\t\\t\\t\\t\\t\\tTransparency = NumberSequence.new({
-\\t\\t\\t\\t\\t\\t\\tNumberSequenceKeypoint.new(0, 0.42),
-\\t\\t\\t\\t\\t\\t\\tNumberSequenceKeypoint.new(0.22, 0.68),
-\\t\\t\\t\\t\\t\\t\\tNumberSequenceKeypoint.new(0.62, 0.93),
-\\t\\t\\t\\t\\t\\t\\tNumberSequenceKeypoint.new(1, 1),
-\\t\\t\\t\\t\\t\\t}),
-\\t\\t\\t\\t\\t}),
-\\t\\t\\t\\t}),
-\\t\\t\\t\\tNew("Frame", { -- Topbar Left Side''' + "'''" + ''',
-    "topbar divider",
-)
-save(path, text)
-
-
-# ---------------------------------------------------------
-'''
-          p.write_text(s[:start] + replacement + s[end:], encoding="utf-8")
-          PY
-          python3 tools/vanta_edge.py
+        run: python3 tools/vanta_edge.py
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
