@@ -32,15 +32,7 @@ local Window = VantaUI:CreateWindow({
         IconSize = 24,
         IconRadius = 7,
         OpenButtonIconRadius = 7,
-        Intro = {
-            Enabled = true,
-            Title = "VANTA",
-            Subtitle = "TEST LAB // ONLINE",
-            Duration = 2.8,
-            LogoSize = 196,
-            Radius = 20,
-            Accent = Color3.fromHex("#5DE7FF"),
-        },
+        Intro = false,
     },
     OpenButton = {
         Title = "VantaTest",
