@@ -11,6 +11,9 @@ function OpenButton.New(Window)
     local OpenButtonMain = {
         Button = nil,
         Icon = nil,
+        Hitbox = nil,
+        Dragging = false,
+        WasDragged = false,
     }
 
     local Icon
@@ -131,7 +134,20 @@ function OpenButton.New(Window)
         })
     })
 
+    local Hitbox = New("TextButton", {
+        Name = "DragHitbox",
+        Size = UDim2.fromScale(1, 1),
+        Position = UDim2.fromScale(0, 0),
+        BackgroundTransparency = 1,
+        Text = "",
+        AutoButtonColor = false,
+        Active = true,
+        ZIndex = 10050,
+        Parent = Button,
+    })
+
     OpenButtonMain.Button = Button
+    OpenButtonMain.Hitbox = Hitbox
 
     function OpenButtonMain:SetIcon(newIcon)
         if newIcon == OpenButtonMain.Icon and Icon then
@@ -181,16 +197,44 @@ function OpenButton.New(Window)
         )
     end)
 
-    Creator.AddSignal(Button.TextButton.MouseEnter, function()
+    Creator.AddSignal(Hitbox.MouseEnter, function()
         Tween(Button.TextButton, .16, { BackgroundTransparency = .9 }):Play()
     end)
-    Creator.AddSignal(Button.TextButton.MouseLeave, function()
+    Creator.AddSignal(Hitbox.MouseLeave, function()
         Tween(Button.TextButton, .16, { BackgroundTransparency = 1 }):Play()
     end)
 
-    -- Drag the whole visible button face. This keeps the badge draggable
-    -- without requiring a separate move-handle icon.
-    local DragModule = Creator.Drag(Container, { Button.TextButton })
+    -- A transparent full-size hitbox owns both drag and click so every pixel
+    -- of the floating badge behaves consistently, including the border/image.
+    local DragStartPosition
+    local DragModule = Creator.Drag(Container, { Hitbox }, function(dragging)
+        if dragging then
+            OpenButtonMain.Dragging = true
+            OpenButtonMain.WasDragged = false
+            DragStartPosition = Container.Position
+        else
+            OpenButtonMain.Dragging = false
+            if DragStartPosition then
+                local dx = Container.Position.X.Offset - DragStartPosition.X.Offset
+                local dy = Container.Position.Y.Offset - DragStartPosition.Y.Offset
+                OpenButtonMain.WasDragged = math.abs(dx) > 2 or math.abs(dy) > 2
+                if OpenButtonMain.WasDragged then
+                    task.delay(0.12, function()
+                        OpenButtonMain.WasDragged = false
+                    end)
+                end
+            end
+        end
+    end)
+
+    Creator.AddSignal(Hitbox.MouseButton1Click, function()
+        if OpenButtonMain.WasDragged or OpenButtonMain.Dragging then
+            return
+        end
+        if Window.Open then
+            Window:Open()
+        end
+    end)
 
     function OpenButtonMain:Visible(v)
         Container.Visible = v
@@ -212,6 +256,7 @@ function OpenButton.New(Window)
             CornerRadius = OpenButtonConfig.CornerRadius or UDim.new(1, 0),
             StrokeThickness = OpenButtonConfig.StrokeThickness or 1,
             Scale = OpenButtonConfig.Scale or 1,
+            ImageZoom = OpenButtonConfig.ImageZoom or 1.5,
             Color = OpenButtonConfig.Color
                 or ColorSequence.new(Color3.fromHex("#5DE7FF"), Color3.fromHex("#7C8CFF")),
         }
@@ -262,7 +307,7 @@ function OpenButton.New(Window)
                 Icon.AnchorPoint = Vector2.new(0.5, 0.5)
                 if Icon.ImageLabel then
                     Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
-                    Icon.ImageLabel.Size = UDim2.fromScale(1, 1)
+                    Icon.ImageLabel.Size = UDim2.fromScale(OpenButtonModule.ImageZoom, OpenButtonModule.ImageZoom)
                     Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
                     Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
                 end
@@ -306,7 +351,7 @@ function OpenButton.New(Window)
             Icon.AnchorPoint = Vector2.new(0.5, 0.5)
             if Icon.ImageLabel then
                 Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
-                Icon.ImageLabel.Size = UDim2.fromScale(1, 1)
+                Icon.ImageLabel.Size = UDim2.fromScale(OpenButtonModule.ImageZoom, OpenButtonModule.ImageZoom)
                 Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
                 Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
             end
@@ -314,10 +359,7 @@ function OpenButton.New(Window)
 
         Button.UIStroke.UIGradient.Color = OpenButtonModule.Color
         Button.UICorner.CornerRadius = OpenButtonModule.CornerRadius
-        Button.TextButton.UICorner.CornerRadius = UDim.new(
-            OpenButtonModule.CornerRadius.Scale,
-            math.max(OpenButtonModule.CornerRadius.Offset - 2, 0)
-        )
+        Button.TextButton.UICorner.CornerRadius = OpenButtonModule.CornerRadius
         Button.UIStroke.Thickness = OpenButtonModule.StrokeThickness
 
         OpenButtonMain:SetScale(OpenButtonModule.Scale)

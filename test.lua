@@ -42,6 +42,7 @@ local Window = VantaUI:CreateWindow({
         OnlyMobile = false,
         CornerRadius = UDim.new(0, 11),
         StrokeThickness = 2,
+        ImageZoom = 1.5,
         Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Color3.fromHex("#FF243A")),
             ColorSequenceKeypoint.new(0.33, Color3.fromHex("#FFFFFF")),

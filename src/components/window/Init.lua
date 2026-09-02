@@ -932,45 +932,46 @@ return function(Config)
 			IconFrame.ImageLabel.ImageColor3 = Creator.GetTextColorForHSB(Color)
 		end
 
-		local Button = Creator.NewRoundFrame(
-			Window.Topbar.ButtonsType == "Default" and Window.UICorner - (Window.UIPadding / 2) or 999,
-			"Squircle",
-			{
-				Size = Window.Topbar.ButtonsType == "Default"
-						and UDim2.new(0, Window.Topbar.Height - 16, 0, Window.Topbar.Height - 16)
-					or UDim2.new(0, 14, 0, 14),
+		local Button
+		if Window.Topbar.ButtonsType == "Default" then
+			Button = Creator.NewRoundFrame(
+				Window.UICorner - (Window.UIPadding / 2),
+				"Squircle",
+				{
+					Size = UDim2.new(0, Window.Topbar.Height - 16, 0, Window.Topbar.Height - 16),
+					LayoutOrder = LayoutOrder or 999,
+					ZIndex = 9999,
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.new(0.5, 0, 0.5, 0),
+					ThemeTag = { ImageColor3 = "Text" },
+					ImageTransparency = 1,
+				},
+				{
+					IconFrame,
+					New("UIScale", { Scale = 1 }),
+				},
+				true
+			)
+		else
+			-- Native TextButton + UICorner makes a mathematically round traffic light.
+			-- This avoids the tiny asymmetric fill from the squircle texture.
+			Button = New("TextButton", {
+				Size = UDim2.fromOffset(14, 14),
 				LayoutOrder = LayoutOrder or 999,
-				--Parent = Window.Topbar.ButtonsType == "Default" and Window.UIElements.Main.Main.Topbar.Right or nil,
-				--Active = true,
+				Text = "",
+				AutoButtonColor = false,
+				BackgroundColor3 = Color or Color3.fromHex("#ff3030"),
+				BackgroundTransparency = 0,
 				ZIndex = 9999,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
-				ImageColor3 = Window.Topbar.ButtonsType ~= "Default" and (Color or Color3.fromHex("#ff3030")) or nil,
-				ThemeTag = Window.Topbar.ButtonsType == "Default" and {
-					ImageColor3 = "Text",
-				} or nil,
-				ImageTransparency = Window.Topbar.ButtonsType == "Default" and 1 or 0, -- .93
-			},
-			{
-				--[[Creator.NewRoundFrame(
-					Window.Topbar.ButtonsType == "Default" and Window.UICorner - (Window.UIPadding / 2) or 999,
-					"Glass-1",
-					{
-						Size = UDim2.new(1, 0, 1, 0),
-						ThemeTag = {
-							ImageColor3 = "Outline",
-						},
-						ImageTransparency = Window.Topbar.ButtonsType == "Default" and 1 or 0.5, -- .75
-						Name = "Outline",
-					}
-				),]]
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+				New("UIAspectRatioConstraint", { AspectRatio = 1 }),
 				IconFrame,
-				New("UIScale", {
-					Scale = 1,
-				}),
-			},
-			true
-		)
+				New("UIScale", { Scale = 1 }),
+			})
+		end
 
 		local ButtonContainer = New("Frame", {
 			Size = Window.Topbar.ButtonsType ~= "Default" and UDim2.new(0, 24, 0, 24)
