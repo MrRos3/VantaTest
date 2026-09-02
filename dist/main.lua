@@ -5208,12 +5208,8 @@ local ab=a.load'd'
 local ac=ab.New
 local ad=ab.Tween
 
-
 local ae=(cloneref or clonereference or function(ae)return ae end)
-
-
 ae(game:GetService"UserInputService")
-
 
 function aa.New(af)
 local ag={
@@ -5222,18 +5218,6 @@ Icon=nil,
 }
 
 local ah
-
-
-
-
-
-
-
-
-
-
-
-
 
 local ai=ac("TextLabel",{
 Text=af.Title,
@@ -5262,6 +5246,7 @@ ImageColor3="Icon",
 ImageTransparency=.4,
 })
 })
+
 local ak=ac("Frame",{
 Size=UDim2.new(0,1,1,0),
 Position=UDim2.new(0,36,0.5,0),
@@ -5280,7 +5265,6 @@ Active=true,
 Visible=false,
 })
 
-
 local am=ac("UIScale",{
 Scale=1,
 })
@@ -5289,10 +5273,11 @@ local an=ac("Frame",{
 Size=UDim2.new(0,0,0,44),
 AutomaticSize="X",
 Parent=al,
-Active=false,
+Active=true,
 BackgroundTransparency=.12,
 ZIndex=99,
 BackgroundColor3=Color3.fromHex"#0B0E14",
+ClipsDescendants=true,
 },{
 am,
 ac("UICorner",{
@@ -5327,6 +5312,7 @@ Active=true,
 BackgroundTransparency=1,
 Size=UDim2.new(0,0,0,36),
 BackgroundColor3=Color3.new(1,1,1),
+ClipsDescendants=true,
 },{
 ac("UICorner",{
 CornerRadius=UDim.new(1,-4)
@@ -5351,8 +5337,6 @@ PaddingRight=UDim.new(0,4),
 
 ag.Button=an
 
-
-
 function ag.SetIcon(ao,ap)
 if ap==ag.Icon and ah then
 return
@@ -5366,6 +5350,7 @@ and(ap==af.BrandImage or ap==af.Branding.OpenButtonIcon)
 local ar=aq
 and(af.Branding.OpenButtonIconRadius or af.Branding.IconRadius or 7)
 or 0
+
 ah=ab.Image(
 ap,
 af.Title,
@@ -5378,6 +5363,13 @@ af.IconThemed
 ah.Size=UDim2.new(0,22,0,22)
 ah.LayoutOrder=-1
 ah.Parent=ag.Button.TextButton
+
+if aq and ah.ImageLabel then
+ah.ImageLabel.ScaleType=Enum.ScaleType.Crop
+ah.ImageLabel.Size=UDim2.fromScale(1,1)
+ah.ImageLabel.Position=UDim2.fromScale(0.5,0.5)
+ah.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
+end
 end
 ag.Icon=ap
 end
@@ -5385,8 +5377,6 @@ end
 if af.Icon then
 ag:SetIcon(af.Icon)
 end
-
-
 
 ab.AddSignal(an:GetPropertyChangedSignal"AbsoluteSize",function()
 al.Size=UDim2.new(
@@ -5402,8 +5392,9 @@ ab.AddSignal(an.TextButton.MouseLeave,function()
 ad(an.TextButton,.16,{BackgroundTransparency=1}):Play()
 end)
 
-local ao=ab.Drag(al)
 
+
+local ao=ab.Drag(al,{an.TextButton})
 
 function ag.Visible(ap,aq)
 al.Visible=aq
@@ -5441,13 +5432,13 @@ end
 
 local as=ar.Draggable~=false
 if aj and ak then
+
 local at=as and ar.OnlyIcon~=true
 aj.Visible=at
 ak.Visible=at
-
+end
 if ao then
 ao:Set(as)
-end
 end
 
 if ar.Position and al then
@@ -5456,12 +5447,47 @@ end
 
 if ar.OnlyIcon==true and ai then
 ai.Visible=false
-an.TextButton.UIPadding.PaddingLeft=UDim.new(0,4)
-an.TextButton.UIPadding.PaddingRight=UDim.new(0,4)
+
+
+an.AutomaticSize=Enum.AutomaticSize.None
+an.Size=UDim2.fromOffset(44,44)
+an.UIPadding.PaddingLeft=UDim.new(0,0)
+an.UIPadding.PaddingRight=UDim.new(0,0)
+
+an.TextButton.AutomaticSize=Enum.AutomaticSize.None
+an.TextButton.Size=UDim2.fromScale(1,1)
+an.TextButton.UIPadding.PaddingLeft=UDim.new(0,0)
+an.TextButton.UIPadding.PaddingRight=UDim.new(0,0)
+an.TextButton.UIListLayout.Enabled=false
+
+if ah then
+ah.Size=UDim2.fromScale(1,1)
+ah.Position=UDim2.fromScale(0.5,0.5)
+ah.AnchorPoint=Vector2.new(0.5,0.5)
+if ah.ImageLabel then
+ah.ImageLabel.ScaleType=Enum.ScaleType.Crop
+ah.ImageLabel.Size=UDim2.fromScale(1,1)
+ah.ImageLabel.Position=UDim2.fromScale(0.5,0.5)
+ah.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
+end
+end
 elseif ar.OnlyIcon==false then
 ai.Visible=true
+an.AutomaticSize=Enum.AutomaticSize.X
+an.Size=UDim2.new(0,0,0,44)
+an.UIPadding.PaddingLeft=UDim.new(0,4)
+an.UIPadding.PaddingRight=UDim.new(0,4)
+
+an.TextButton.AutomaticSize=Enum.AutomaticSize.XY
+an.TextButton.Size=UDim2.new(0,0,0,36)
 an.TextButton.UIPadding.PaddingLeft=UDim.new(0,11)
 an.TextButton.UIPadding.PaddingRight=UDim.new(0,11)
+an.TextButton.UIListLayout.Enabled=true
+
+if ah then
+ah.Size=UDim2.new(0,22,0,22)
+ah.AnchorPoint=Vector2.new(0,0)
+end
 end
 
 if ai then
@@ -5477,17 +5503,25 @@ if ar.Icon then
 ag:SetIcon(ar.Icon)
 end
 
-if ah then
-if ar.OnlyIcon==true then
-ah.Size=UDim2.new(0,28,0,28)
-else
-ah.Size=UDim2.new(0,22,0,22)
+
+if ah and ar.OnlyIcon==true then
+ah.Size=UDim2.fromScale(1,1)
+ah.Position=UDim2.fromScale(0.5,0.5)
+ah.AnchorPoint=Vector2.new(0.5,0.5)
+if ah.ImageLabel then
+ah.ImageLabel.ScaleType=Enum.ScaleType.Crop
+ah.ImageLabel.Size=UDim2.fromScale(1,1)
+ah.ImageLabel.Position=UDim2.fromScale(0.5,0.5)
+ah.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
 end
 end
 
 an.UIStroke.UIGradient.Color=ar.Color
 an.UICorner.CornerRadius=ar.CornerRadius
-an.TextButton.UICorner.CornerRadius=UDim.new(ar.CornerRadius.Scale,ar.CornerRadius.Offset-4)
+an.TextButton.UICorner.CornerRadius=UDim.new(
+ar.CornerRadius.Scale,
+math.max(ar.CornerRadius.Offset-2,0)
+)
 an.UIStroke.Thickness=ar.StrokeThickness
 
 ag:SetScale(ar.Scale)
@@ -5495,8 +5529,6 @@ end
 
 return ag
 end
-
-
 
 return aa end function a.B()
 local aa={}
