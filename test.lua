@@ -3,8 +3,9 @@
     Loads the staging VantaUI runtime and immediately opens a test window.
 ]]
 
+local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local VantaUI = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. cacheBuster
 ))()
 
 assert(type(VantaUI) == "table", "[VantaTest] Failed to load VantaUI")
