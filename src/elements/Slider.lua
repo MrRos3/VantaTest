@@ -145,6 +145,16 @@ function Element:New(Config)
 				},
 				Name = "Thumb",
 			}, {
+				Creator.NewRoundFrame(999, "Squircle", {
+					Name = "VantaEdgeHalo",
+					Size = UDim2.fromOffset(Slider.ThumbSize + 12, Slider.ThumbSize + 12),
+					Position = UDim2.new(0.5, 0, 0.5, 0),
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					ImageTransparency = 1,
+					ThemeTag = {
+						ImageColor3 = "Slider",
+					},
+				}),
 				Creator.NewRoundFrame(999, "SquircleGlass", {
 					Size = UDim2.new(1, 0, 1, 0),
 					ImageColor3 = Color3.new(1, 1, 1),
@@ -240,6 +250,10 @@ function Element:New(Config)
 					isTouch = (input.UserInputType == Enum.UserInputType.Touch)
 					ScrollingFrameParent.ScrollingEnabled = false
 					IsSliderHolding = true
+					Tween(Slider.UIElements.SliderIcon.Frame.Thumb.VantaEdgeHalo, 0.16, {
+						ImageTransparency = 0.76,
+						Size = UDim2.fromOffset(Slider.ThumbSize + 16, Slider.ThumbSize + 16),
+					}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 
 					local inputPosition = isTouch and input.Position.X or UserInputService:GetMouseLocation().X
 					local delta = math.clamp(
@@ -296,6 +310,10 @@ function Element:New(Config)
 							releaseconnection:Disconnect()
 							IsSliderHolding = false
 							ScrollingFrameParent.ScrollingEnabled = true
+							Tween(Slider.UIElements.SliderIcon.Frame.Thumb.VantaEdgeHalo, 0.22, {
+								ImageTransparency = 1,
+								Size = UDim2.fromOffset(Slider.ThumbSize + 12, Slider.ThumbSize + 12),
+							}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 
 							Config.WindUI.CurrentInput = nil
 

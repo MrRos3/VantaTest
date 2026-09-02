@@ -595,10 +595,12 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 			Dropdown.UIElements.MenuCanvas.Visible = true
 			Dropdown.UIElements.MenuCanvas.Active = true
 			Dropdown.UIElements.Menu.Size = UDim2.new(1, 0, 0, 0)
-			Tween(Dropdown.UIElements.Menu, 0.1, {
+			Dropdown.UIElements.Menu.Position = UDim2.new(1, 0, 0, -5)
+			Tween(Dropdown.UIElements.Menu, 0.16, {
 				Size = UDim2.new(1, 0, 1, 0),
+				Position = UDim2.new(1, 0, 0, 0),
 				ImageTransparency = 0,
-			}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+			}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 
 			task.spawn(function()
 				task.wait(0.1)
@@ -615,10 +617,11 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 	function DropdownModule:Close()
 		Dropdown.Opened = false
 
-		Tween(Dropdown.UIElements.Menu, 0.25, {
+		Tween(Dropdown.UIElements.Menu, 0.18, {
 			Size = UDim2.new(1, 0, 0, 0),
+			Position = UDim2.new(1, 0, 0, 3),
 			ImageTransparency = 1,
-		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+		}, Enum.EasingStyle.Quint, Enum.EasingDirection.In):Play()
 
 		task.spawn(function()
 			task.wait(0.1)
