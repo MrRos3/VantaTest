@@ -4,7 +4,9 @@ local Creator = require("../../modules/Creator")
 local New = Creator.New
 local Tween = Creator.Tween
 
-local cloneref = (cloneref or clonereference or function(instance) return instance end)
+local cloneref = (cloneref or clonereference or function(instance)
+    return instance
+end)
 local UserInputService = cloneref(game:GetService("UserInputService"))
 
 function OpenButton.New(Window)
@@ -18,6 +20,7 @@ function OpenButton.New(Window)
     }
 
     local Icon
+    local CurrentImageZoom = 1
 
     local Title = New("TextLabel", {
         Text = Window.Title,
@@ -27,36 +30,8 @@ function OpenButton.New(Window)
         AutomaticSize = "XY",
     })
 
-    local Drag = New("Frame", {
-        Size = UDim2.new(0, 44 - 8, 0, 44 - 8),
-        BackgroundTransparency = 1,
-        Name = "Drag",
-    }, {
-        New("ImageLabel", {
-            Image = Creator.Icon("move")[1],
-            ImageRectOffset = Creator.Icon("move")[2].ImageRectPosition,
-            ImageRectSize = Creator.Icon("move")[2].ImageRectSize,
-            Size = UDim2.new(0, 18, 0, 18),
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            ThemeTag = {
-                ImageColor3 = "Icon",
-            },
-            ImageTransparency = .4,
-        })
-    })
-
-    local Divider = New("Frame", {
-        Size = UDim2.new(0, 1, 1, 0),
-        Position = UDim2.new(0, 20 + 16, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = Color3.new(1, 1, 1),
-        BackgroundTransparency = .88,
-    })
-
     local Container = New("Frame", {
-        Size = UDim2.new(0, 0, 0, 0),
+        Size = UDim2.fromOffset(44, 44),
         Position = UDim2.new(0.5, 0, 0, 6 + 44 / 2),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Parent = Window.Parent,
@@ -70,18 +45,18 @@ function OpenButton.New(Window)
     })
 
     local Button = New("Frame", {
-        Size = UDim2.new(0, 0, 0, 44),
-        AutomaticSize = "X",
+        Name = "OpenButton",
+        Size = UDim2.fromOffset(44, 44),
         Parent = Container,
         Active = true,
-        BackgroundTransparency = .12,
+        BackgroundTransparency = 0.12,
         ZIndex = 99,
         BackgroundColor3 = Color3.fromHex("#0B0E14"),
         ClipsDescendants = true,
     }, {
         UIScale,
         New("UICorner", {
-            CornerRadius = UDim.new(1, 0)
+            CornerRadius = UDim.new(1, 0),
         }),
         New("UIGradient", {
             Rotation = 90,
@@ -91,48 +66,91 @@ function OpenButton.New(Window)
             Thickness = 1,
             ApplyStrokeMode = "Border",
             Color = Color3.new(1, 1, 1),
-            Transparency = .15,
+            Transparency = 0.15,
         }, {
             New("UIGradient", {
-                Color = ColorSequence.new(Color3.fromHex("#5DE7FF"), Color3.fromHex("#7C8CFF"))
-            })
+                Color = ColorSequence.new(Color3.fromHex("#5DE7FF"), Color3.fromHex("#7C8CFF")),
+            }),
         }),
-        Drag,
-        Divider,
+    })
 
+    local Drag = New("Frame", {
+        Name = "Drag",
+        Size = UDim2.fromOffset(36, 36),
+        Position = UDim2.new(0, 4, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Parent = Button,
+        BackgroundTransparency = 1,
+        ZIndex = 101,
+    }, {
+        New("ImageLabel", {
+            Image = Creator.Icon("move")[1],
+            ImageRectOffset = Creator.Icon("move")[2].ImageRectPosition,
+            ImageRectSize = Creator.Icon("move")[2].ImageRectSize,
+            Size = UDim2.fromOffset(18, 18),
+            BackgroundTransparency = 1,
+            Position = UDim2.fromScale(0.5, 0.5),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            ThemeTag = {
+                ImageColor3 = "Icon",
+            },
+            ImageTransparency = 0.4,
+        }),
+    })
+
+    local Divider = New("Frame", {
+        Name = "Divider",
+        Size = UDim2.new(0, 1, 1, -8),
+        Position = UDim2.new(0, 44, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Parent = Button,
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 0.88,
+        ZIndex = 101,
+    })
+
+    local ContentButton = New("TextButton", {
+        Name = "TextButton",
+        AutomaticSize = Enum.AutomaticSize.X,
+        Active = true,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 0, 0, 36),
+        Position = UDim2.new(0, 49, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ClipsDescendants = true,
+        Parent = Button,
+        ZIndex = 101,
+    }, {
+        New("UICorner", {
+            CornerRadius = UDim.new(1, -4),
+        }),
         New("UIListLayout", {
-            Padding = UDim.new(0, 4),
+            Padding = UDim.new(0, Window.UIPadding),
             FillDirection = "Horizontal",
             VerticalAlignment = "Center",
+            SortOrder = "LayoutOrder",
         }),
-
-        New("TextButton", {
-            AutomaticSize = "XY",
-            Active = true,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(0, 0, 0, 44 - (4 * 2)),
-            BackgroundColor3 = Color3.new(1, 1, 1),
-            ClipsDescendants = true,
-        }, {
-            New("UICorner", {
-                CornerRadius = UDim.new(1, -4)
-            }),
-            Icon,
-            New("UIListLayout", {
-                Padding = UDim.new(0, Window.UIPadding),
-                FillDirection = "Horizontal",
-                VerticalAlignment = "Center",
-            }),
-            Title,
-            New("UIPadding", {
-                PaddingLeft = UDim.new(0, 7 + 4),
-                PaddingRight = UDim.new(0, 7 + 4),
-            }),
-        }),
+        Title,
         New("UIPadding", {
-            PaddingLeft = UDim.new(0, 4),
-            PaddingRight = UDim.new(0, 4),
-        })
+            PaddingLeft = UDim.new(0, 11),
+            PaddingRight = UDim.new(0, 11),
+        }),
+    })
+
+    local BadgeHolder = New("Frame", {
+        Name = "BadgeHolder",
+        Size = UDim2.fromScale(1, 1),
+        Position = UDim2.fromScale(0, 0),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        Visible = false,
+        Parent = Button,
+        ZIndex = 200,
+    }, {
+        New("UICorner", {
+            CornerRadius = UDim.new(0, 11),
+        }),
     })
 
     local Hitbox = New("TextButton", {
@@ -143,20 +161,71 @@ function OpenButton.New(Window)
         Text = "",
         AutoButtonColor = false,
         Active = true,
-        ZIndex = 10050,
+        Selectable = false,
         Parent = Button,
+        ZIndex = 10000,
     })
 
     OpenButtonMain.Button = Button
     OpenButtonMain.Hitbox = Hitbox
 
-    function OpenButtonMain:SetIcon(newIcon)
-        if newIcon == OpenButtonMain.Icon and Icon then
+    local function updateRegularWidth()
+        if OpenButtonMain.OnlyIcon then
             return
         end
+        local width = math.max(88, 53 + ContentButton.AbsoluteSize.X)
+        Button.Size = UDim2.fromOffset(width, 44)
+        Container.Size = Button.Size
+    end
+
+    local function applyIconLayout()
+        if not Icon then
+            return
+        end
+
+        if OpenButtonMain.OnlyIcon then
+            Icon.Parent = BadgeHolder
+            Icon.Size = UDim2.fromScale(1, 1)
+            Icon.Position = UDim2.fromScale(0, 0)
+            Icon.AnchorPoint = Vector2.new(0, 0)
+            Icon.ZIndex = 201
+
+            if Icon.ImageLabel then
+                Icon.ImageLabel.ZIndex = 201
+                Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
+                Icon.ImageLabel.Size = UDim2.fromScale(CurrentImageZoom, CurrentImageZoom)
+                Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
+                Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+            end
+        else
+            Icon.Parent = ContentButton
+            Icon.Size = UDim2.fromOffset(22, 22)
+            Icon.Position = UDim2.fromOffset(0, 0)
+            Icon.AnchorPoint = Vector2.new(0, 0)
+            Icon.LayoutOrder = -1
+            Icon.ZIndex = 102
+
+            if Icon.ImageLabel then
+                Icon.ImageLabel.ZIndex = 102
+                Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
+                Icon.ImageLabel.Size = UDim2.fromScale(1, 1)
+                Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
+                Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+            end
+        end
+    end
+
+    function OpenButtonMain:SetIcon(newIcon)
+        if newIcon == OpenButtonMain.Icon and Icon then
+            applyIconLayout()
+            return
+        end
+
         if Icon then
             Icon:Destroy()
+            Icon = nil
         end
+
         if newIcon then
             local isBrandIcon = Window.BrandImage
                 and (newIcon == Window.BrandImage or newIcon == Window.Branding.OpenButtonIcon)
@@ -173,40 +242,34 @@ function OpenButton.New(Window)
                 true,
                 Window.IconThemed
             )
-            Icon.Size = UDim2.new(0, 22, 0, 22)
-            Icon.LayoutOrder = -1
-            Icon.Parent = OpenButtonMain.OnlyIcon and OpenButtonMain.Button or OpenButtonMain.Button.TextButton
 
-            if isBrandIcon and Icon.ImageLabel then
-                Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
-                Icon.ImageLabel.Size = UDim2.fromScale(1, 1)
-                Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
-                Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-            end
+            applyIconLayout()
         end
+
         OpenButtonMain.Icon = newIcon
+        updateRegularWidth()
     end
 
     if Window.Icon then
         OpenButtonMain:SetIcon(Window.Icon)
     end
 
-    Creator.AddSignal(Button:GetPropertyChangedSignal("AbsoluteSize"), function()
-        Container.Size = UDim2.new(
-            0, Button.AbsoluteSize.X,
-            0, Button.AbsoluteSize.Y
-        )
-    end)
+    Creator.AddSignal(ContentButton:GetPropertyChangedSignal("AbsoluteSize"), updateRegularWidth)
 
     Creator.AddSignal(Hitbox.MouseEnter, function()
-        Tween(Button.TextButton, .16, { BackgroundTransparency = .9 }):Play()
-    end)
-    Creator.AddSignal(Hitbox.MouseLeave, function()
-        Tween(Button.TextButton, .16, { BackgroundTransparency = 1 }):Play()
+        if not OpenButtonMain.OnlyIcon then
+            Tween(ContentButton, 0.16, { BackgroundTransparency = 0.9 }):Play()
+        end
     end)
 
-    -- Dedicated badge dragging. The full transparent hitbox owns every pixel
-    -- and follows the pointer directly on both mouse and touch.
+    Creator.AddSignal(Hitbox.MouseLeave, function()
+        if not OpenButtonMain.OnlyIcon then
+            Tween(ContentButton, 0.16, { BackgroundTransparency = 1 }):Play()
+        end
+    end)
+
+    -- The badge owns its own drag handling. No layout object touches this hitbox,
+    -- so every visible pixel can start the drag on mouse or touch.
     local dragEnabled = true
     local dragging = false
     local dragStart
@@ -217,6 +280,7 @@ function OpenButton.New(Window)
         if not dragEnabled or dragging then
             return
         end
+
         if input.UserInputType == Enum.UserInputType.MouseButton1
             or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -233,13 +297,14 @@ function OpenButton.New(Window)
             return
         end
 
-        local valid = false
+        local validInput = false
         if activeInput.UserInputType == Enum.UserInputType.MouseButton1 then
-            valid = input.UserInputType == Enum.UserInputType.MouseMovement
+            validInput = input.UserInputType == Enum.UserInputType.MouseMovement
         elseif activeInput.UserInputType == Enum.UserInputType.Touch then
-            valid = input == activeInput
+            validInput = input == activeInput
         end
-        if not valid then
+
+        if not validInput then
             return
         end
 
@@ -247,6 +312,7 @@ function OpenButton.New(Window)
         if math.abs(delta.X) > 2 or math.abs(delta.Y) > 2 then
             OpenButtonMain.WasDragged = true
         end
+
         Container.Position = UDim2.new(
             dragStartPosition.X.Scale,
             dragStartPosition.X.Offset + delta.X,
@@ -259,9 +325,11 @@ function OpenButton.New(Window)
         if not dragging or not activeInput then
             return
         end
+
         local ended = input == activeInput
             or (activeInput.UserInputType == Enum.UserInputType.MouseButton1
                 and input.UserInputType == Enum.UserInputType.MouseButton1)
+
         if not ended then
             return
         end
@@ -271,13 +339,13 @@ function OpenButton.New(Window)
         activeInput = nil
 
         if OpenButtonMain.WasDragged then
-            task.delay(0.18, function()
+            task.delay(0.2, function()
                 OpenButtonMain.WasDragged = false
             end)
         end
     end)
 
-    Creator.AddSignal(Hitbox.MouseButton1Click, function()
+    Creator.AddSignal(Hitbox.Activated, function()
         if OpenButtonMain.WasDragged or OpenButtonMain.Dragging then
             return
         end
@@ -285,16 +353,6 @@ function OpenButton.New(Window)
             Window:Open()
         end
     end)
-
-    local DragModule = {}
-    function DragModule:Set(v)
-        dragEnabled = v ~= false
-        if not dragEnabled then
-            dragging = false
-            OpenButtonMain.Dragging = false
-            activeInput = nil
-        end
-    end
 
     function OpenButtonMain:Visible(v)
         Container.Visible = v
@@ -310,13 +368,13 @@ function OpenButton.New(Window)
             Icon = OpenButtonConfig.Icon,
             Enabled = OpenButtonConfig.Enabled,
             Position = OpenButtonConfig.Position,
-            OnlyIcon = OpenButtonConfig.OnlyIcon or false,
+            OnlyIcon = OpenButtonConfig.OnlyIcon == true,
             Draggable = OpenButtonConfig.Draggable,
             OnlyMobile = OpenButtonConfig.OnlyMobile,
             CornerRadius = OpenButtonConfig.CornerRadius or UDim.new(1, 0),
             StrokeThickness = OpenButtonConfig.StrokeThickness or 1,
             Scale = OpenButtonConfig.Scale or 1,
-            ImageZoom = OpenButtonConfig.ImageZoom or 1.5,
+            ImageZoom = OpenButtonConfig.ImageZoom or 1,
             Color = OpenButtonConfig.Color
                 or ColorSequence.new(Color3.fromHex("#5DE7FF"), Color3.fromHex("#7C8CFF")),
         }
@@ -331,103 +389,50 @@ function OpenButton.New(Window)
             Window.IsPC = false
         end
 
-        OpenButtonMain.OnlyIcon = OpenButtonModule.OnlyIcon == true
+        OpenButtonMain.OnlyIcon = OpenButtonModule.OnlyIcon
+        CurrentImageZoom = OpenButtonModule.ImageZoom
+        dragEnabled = OpenButtonModule.Draggable ~= false
 
-        local dragEnabled = OpenButtonModule.Draggable ~= false
-        if Drag and Divider then
-            -- The branded icon-only badge never needs a visible handle.
-            local showDragHandle = dragEnabled and OpenButtonModule.OnlyIcon ~= true
-            Drag.Visible = showDragHandle
-            Divider.Visible = showDragHandle
-        end
-        if DragModule then
-            DragModule:Set(dragEnabled)
-        end
-
-        if OpenButtonModule.Position and Container then
+        if OpenButtonModule.Position then
             Container.Position = OpenButtonModule.Position
         end
 
-        if OpenButtonModule.OnlyIcon == true and Title then
+        if OpenButtonMain.OnlyIcon then
             Title.Visible = false
+            Drag.Visible = false
+            Divider.Visible = false
+            ContentButton.Visible = false
+            ContentButton.Active = false
+            BadgeHolder.Visible = true
 
-            -- Turn icon-only mode into a true full-bleed 44x44 badge.
-            Button.AutomaticSize = Enum.AutomaticSize.None
             Button.Size = UDim2.fromOffset(44, 44)
-            Button.UIPadding.PaddingLeft = UDim.new(0, 0)
-            Button.UIPadding.PaddingRight = UDim.new(0, 0)
-
-            Button.TextButton.Visible = false
-            Button.TextButton.Active = false
-
-            if Icon then
-                Icon.Parent = Button
-                Icon.Size = UDim2.fromScale(1, 1)
-                Icon.Position = UDim2.fromScale(0.5, 0.5)
-                Icon.AnchorPoint = Vector2.new(0.5, 0.5)
-                Icon.ZIndex = 100
-                if Icon.ImageLabel then
-                    Icon.ImageLabel.ZIndex = 100
-                    Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
-                    Icon.ImageLabel.Size = UDim2.fromScale(OpenButtonModule.ImageZoom, OpenButtonModule.ImageZoom)
-                    Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
-                    Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-                end
-            end
-        elseif OpenButtonModule.OnlyIcon == false then
+            Container.Size = UDim2.fromOffset(44, 44)
+        else
             Title.Visible = true
-            Button.AutomaticSize = Enum.AutomaticSize.X
-            Button.Size = UDim2.new(0, 0, 0, 44)
-            Button.UIPadding.PaddingLeft = UDim.new(0, 4)
-            Button.UIPadding.PaddingRight = UDim.new(0, 4)
-
-            Button.TextButton.Visible = true
-            Button.TextButton.Active = true
-            Button.TextButton.AutomaticSize = Enum.AutomaticSize.XY
-            Button.TextButton.Size = UDim2.new(0, 0, 0, 44 - (4 * 2))
-            Button.TextButton.UIPadding.PaddingLeft = UDim.new(0, 7 + 4)
-            Button.TextButton.UIPadding.PaddingRight = UDim.new(0, 7 + 4)
-
-            if Icon then
-                Icon.Parent = Button.TextButton
-                Icon.Size = UDim2.new(0, 22, 0, 22)
-                Icon.Position = UDim2.new(0, 0, 0, 0)
-                Icon.AnchorPoint = Vector2.new(0, 0)
-            end
+            Drag.Visible = dragEnabled
+            Divider.Visible = dragEnabled
+            ContentButton.Visible = true
+            ContentButton.Active = true
+            BadgeHolder.Visible = false
+            updateRegularWidth()
         end
 
-        if Title then
-            if OpenButtonModule.Title then
-                Title.Text = OpenButtonModule.Title
-                Creator:ChangeTranslationKey(Title, OpenButtonModule.Title)
-            elseif OpenButtonModule.Title == nil then
-                -- Keep the window title.
-            end
+        if OpenButtonModule.Title then
+            Title.Text = OpenButtonModule.Title
+            Creator:ChangeTranslationKey(Title, OpenButtonModule.Title)
         end
 
         if OpenButtonModule.Icon then
             OpenButtonMain:SetIcon(OpenButtonModule.Icon)
-        end
-
-        -- SetIcon may recreate the image after the mode was configured.
-        if Icon and OpenButtonModule.OnlyIcon == true then
-            Icon.Parent = Button
-            Icon.Size = UDim2.fromScale(1, 1)
-            Icon.ZIndex = 100
-            Icon.Position = UDim2.fromScale(0.5, 0.5)
-            Icon.AnchorPoint = Vector2.new(0.5, 0.5)
-            if Icon.ImageLabel then
-                Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
-                Icon.ImageLabel.Size = UDim2.fromScale(OpenButtonModule.ImageZoom, OpenButtonModule.ImageZoom)
-                Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
-                Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-            end
+        else
+            applyIconLayout()
         end
 
         Button.UIStroke.UIGradient.Color = OpenButtonModule.Color
-        Button.UICorner.CornerRadius = OpenButtonModule.CornerRadius
-        Button.TextButton.UICorner.CornerRadius = OpenButtonModule.CornerRadius
         Button.UIStroke.Thickness = OpenButtonModule.StrokeThickness
+        Button.UICorner.CornerRadius = OpenButtonModule.CornerRadius
+        ContentButton.UICorner.CornerRadius = OpenButtonModule.CornerRadius
+        BadgeHolder.UICorner.CornerRadius = OpenButtonModule.CornerRadius
 
         OpenButtonMain:SetScale(OpenButtonModule.Scale)
     end
