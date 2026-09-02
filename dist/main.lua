@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.3.0  |  2026-09-01  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.0  |  2026-09-02  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaTest
     Project: VantaUI by MrRos3
