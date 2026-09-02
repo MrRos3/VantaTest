@@ -5215,6 +5215,9 @@ function aa.New(af)
 local ag={
 Button=nil,
 Icon=nil,
+Hitbox=nil,
+Dragging=false,
+WasDragged=false,
 }
 
 local ah
@@ -5335,26 +5338,39 @@ PaddingRight=UDim.new(0,4),
 })
 })
 
-ag.Button=an
+local ao=ac("TextButton",{
+Name="DragHitbox",
+Size=UDim2.fromScale(1,1),
+Position=UDim2.fromScale(0,0),
+BackgroundTransparency=1,
+Text="",
+AutoButtonColor=false,
+Active=true,
+ZIndex=10050,
+Parent=an,
+})
 
-function ag.SetIcon(ao,ap)
-if ap==ag.Icon and ah then
+ag.Button=an
+ag.Hitbox=ao
+
+function ag.SetIcon(ap,aq)
+if aq==ag.Icon and ah then
 return
 end
 if ah then
 ah:Destroy()
 end
-if ap then
-local aq=af.BrandImage
-and(ap==af.BrandImage or ap==af.Branding.OpenButtonIcon)
-local ar=aq
+if aq then
+local ar=af.BrandImage
+and(aq==af.BrandImage or aq==af.Branding.OpenButtonIcon)
+local as=ar
 and(af.Branding.OpenButtonIconRadius or af.Branding.IconRadius or 7)
 or 0
 
 ah=ab.Image(
-ap,
+aq,
 af.Title,
-ar,
+as,
 af.Folder,
 "OpenButton",
 true,
@@ -5364,14 +5380,14 @@ ah.Size=UDim2.new(0,22,0,22)
 ah.LayoutOrder=-1
 ah.Parent=ag.Button.TextButton
 
-if aq and ah.ImageLabel then
+if ar and ah.ImageLabel then
 ah.ImageLabel.ScaleType=Enum.ScaleType.Crop
 ah.ImageLabel.Size=UDim2.fromScale(1,1)
 ah.ImageLabel.Position=UDim2.fromScale(0.5,0.5)
 ah.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
 end
 end
-ag.Icon=ap
+ag.Icon=aq
 end
 
 if af.Icon then
@@ -5385,67 +5401,96 @@ al.Size=UDim2.new(
 )
 end)
 
-ab.AddSignal(an.TextButton.MouseEnter,function()
+ab.AddSignal(ao.MouseEnter,function()
 ad(an.TextButton,.16,{BackgroundTransparency=.9}):Play()
 end)
-ab.AddSignal(an.TextButton.MouseLeave,function()
+ab.AddSignal(ao.MouseLeave,function()
 ad(an.TextButton,.16,{BackgroundTransparency=1}):Play()
 end)
 
 
 
-local ao=ab.Drag(al,{an.TextButton})
+local ap
+local aq=ab.Drag(al,{ao},function(aq)
+if aq then
+ag.Dragging=true
+ag.WasDragged=false
+ap=al.Position
+else
+ag.Dragging=false
+if ap then
+local ar=al.Position.X.Offset-ap.X.Offset
+local as=al.Position.Y.Offset-ap.Y.Offset
+ag.WasDragged=math.abs(ar)>2 or math.abs(as)>2
+if ag.WasDragged then
+task.delay(0.12,function()
+ag.WasDragged=false
+end)
+end
+end
+end
+end)
 
-function ag.Visible(ap,aq)
-al.Visible=aq
+ab.AddSignal(ao.MouseButton1Click,function()
+if ag.WasDragged or ag.Dragging then
+return
+end
+if af.Open then
+af:Open()
+end
+end)
+
+function ag.Visible(ar,as)
+al.Visible=as
 end
 
-function ag.SetScale(ap,aq)
-am.Scale=aq
+function ag.SetScale(ar,as)
+am.Scale=as
 end
 
-function ag.Edit(ap,aq)
-local ar={
-Title=aq.Title,
-Icon=aq.Icon,
-Enabled=aq.Enabled,
-Position=aq.Position,
-OnlyIcon=aq.OnlyIcon or false,
-Draggable=aq.Draggable,
-OnlyMobile=aq.OnlyMobile,
-CornerRadius=aq.CornerRadius or UDim.new(1,0),
-StrokeThickness=aq.StrokeThickness or 1,
-Scale=aq.Scale or 1,
-Color=aq.Color
+function ag.Edit(ar,as)
+local at={
+Title=as.Title,
+Icon=as.Icon,
+Enabled=as.Enabled,
+Position=as.Position,
+OnlyIcon=as.OnlyIcon or false,
+Draggable=as.Draggable,
+OnlyMobile=as.OnlyMobile,
+CornerRadius=as.CornerRadius or UDim.new(1,0),
+StrokeThickness=as.StrokeThickness or 1,
+Scale=as.Scale or 1,
+ImageZoom=as.ImageZoom or 1.5,
+Color=as.Color
 or ColorSequence.new(Color3.fromHex"#5DE7FF",Color3.fromHex"#7C8CFF"),
 }
 
-if ar.Enabled==false then
+if at.Enabled==false then
 af.IsOpenButtonEnabled=false
 end
 
-if ar.OnlyMobile~=false then
-ar.OnlyMobile=true
+if at.OnlyMobile~=false then
+at.OnlyMobile=true
 else
 af.IsPC=false
 end
 
-local as=ar.Draggable~=false
+local au=at.Draggable~=false
 if aj and ak then
 
-local at=as and ar.OnlyIcon~=true
-aj.Visible=at
-ak.Visible=at
+local av=au and at.OnlyIcon~=true
+aj.Visible=av
+ak.Visible=av
 end
-if ao then
-ao:Set(as)
-end
-
-if ar.Position and al then
-al.Position=ar.Position
+if aq then
+aq:Set(au)
 end
 
-if ar.OnlyIcon==true and ai then
+if at.Position and al then
+al.Position=at.Position
+end
+
+if at.OnlyIcon==true and ai then
 ai.Visible=false
 
 
@@ -5466,12 +5511,12 @@ ah.Position=UDim2.fromScale(0.5,0.5)
 ah.AnchorPoint=Vector2.new(0.5,0.5)
 if ah.ImageLabel then
 ah.ImageLabel.ScaleType=Enum.ScaleType.Crop
-ah.ImageLabel.Size=UDim2.fromScale(1,1)
+ah.ImageLabel.Size=UDim2.fromScale(at.ImageZoom,at.ImageZoom)
 ah.ImageLabel.Position=UDim2.fromScale(0.5,0.5)
 ah.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
 end
 end
-elseif ar.OnlyIcon==false then
+elseif at.OnlyIcon==false then
 ai.Visible=true
 an.AutomaticSize=Enum.AutomaticSize.X
 an.Size=UDim2.new(0,0,0,44)
@@ -5491,40 +5536,37 @@ end
 end
 
 if ai then
-if ar.Title then
-ai.Text=ar.Title
-ab:ChangeTranslationKey(ai,ar.Title)
-elseif ar.Title==nil then
+if at.Title then
+ai.Text=at.Title
+ab:ChangeTranslationKey(ai,at.Title)
+elseif at.Title==nil then
 
 end
 end
 
-if ar.Icon then
-ag:SetIcon(ar.Icon)
+if at.Icon then
+ag:SetIcon(at.Icon)
 end
 
 
-if ah and ar.OnlyIcon==true then
+if ah and at.OnlyIcon==true then
 ah.Size=UDim2.fromScale(1,1)
 ah.Position=UDim2.fromScale(0.5,0.5)
 ah.AnchorPoint=Vector2.new(0.5,0.5)
 if ah.ImageLabel then
 ah.ImageLabel.ScaleType=Enum.ScaleType.Crop
-ah.ImageLabel.Size=UDim2.fromScale(1,1)
+ah.ImageLabel.Size=UDim2.fromScale(at.ImageZoom,at.ImageZoom)
 ah.ImageLabel.Position=UDim2.fromScale(0.5,0.5)
 ah.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
 end
 end
 
-an.UIStroke.UIGradient.Color=ar.Color
-an.UICorner.CornerRadius=ar.CornerRadius
-an.TextButton.UICorner.CornerRadius=UDim.new(
-ar.CornerRadius.Scale,
-math.max(ar.CornerRadius.Offset-2,0)
-)
-an.UIStroke.Thickness=ar.StrokeThickness
+an.UIStroke.UIGradient.Color=at.Color
+an.UICorner.CornerRadius=at.CornerRadius
+an.TextButton.UICorner.CornerRadius=at.CornerRadius
+an.UIStroke.Thickness=at.StrokeThickness
 
-ag:SetScale(ar.Scale)
+ag:SetScale(at.Scale)
 end
 
 return ag
@@ -13870,45 +13912,46 @@ if aB.Topbar.ButtonsType~="Default"then
 Q.ImageLabel.ImageColor3=an.GetTextColorForHSB(O)
 end
 
-local R=an.NewRoundFrame(
-aB.Topbar.ButtonsType=="Default"and aB.UICorner-(aB.UIPadding/2)or 999,
+local R
+if aB.Topbar.ButtonsType=="Default"then
+R=an.NewRoundFrame(
+aB.UICorner-(aB.UIPadding/2),
 "Squircle",
 {
-Size=aB.Topbar.ButtonsType=="Default"
-and UDim2.new(0,aB.Topbar.Height-16,0,aB.Topbar.Height-16)
-or UDim2.new(0,14,0,14),
+Size=UDim2.new(0,aB.Topbar.Height-16,0,aB.Topbar.Height-16),
 LayoutOrder=M or 999,
-
-
 ZIndex=9999,
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.new(0.5,0,0.5,0),
-ImageColor3=aB.Topbar.ButtonsType~="Default"and(O or Color3.fromHex"#ff3030")or nil,
-ThemeTag=aB.Topbar.ButtonsType=="Default"and{
-ImageColor3="Text",
-}or nil,
-ImageTransparency=aB.Topbar.ButtonsType=="Default"and 1 or 0,
+ThemeTag={ImageColor3="Text"},
+ImageTransparency=1,
 },
 {
-
-
-
-
-
-
-
-
-
-
-
-
 Q,
-ao("UIScale",{
-Scale=1,
-}),
+ao("UIScale",{Scale=1}),
 },
 true
 )
+else
+
+
+R=ao("TextButton",{
+Size=UDim2.fromOffset(14,14),
+LayoutOrder=M or 999,
+Text="",
+AutoButtonColor=false,
+BackgroundColor3=O or Color3.fromHex"#ff3030",
+BackgroundTransparency=0,
+ZIndex=9999,
+AnchorPoint=Vector2.new(0.5,0.5),
+Position=UDim2.new(0.5,0,0.5,0),
+},{
+ao("UICorner",{CornerRadius=UDim.new(1,0)}),
+ao("UIAspectRatioConstraint",{AspectRatio=1}),
+Q,
+ao("UIScale",{Scale=1}),
+})
+end
 
 local S=ao("Frame",{
 Size=aB.Topbar.ButtonsType~="Default"and UDim2.new(0,24,0,24)
