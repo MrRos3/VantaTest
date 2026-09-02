@@ -5420,7 +5420,7 @@ Icon=aq.Icon,
 Enabled=aq.Enabled,
 Position=aq.Position,
 OnlyIcon=aq.OnlyIcon or false,
-Draggable=aq.Draggable or nil,
+Draggable=aq.Draggable,
 OnlyMobile=aq.OnlyMobile,
 CornerRadius=aq.CornerRadius or UDim.new(1,0),
 StrokeThickness=aq.StrokeThickness or 1,
@@ -5439,13 +5439,14 @@ else
 af.IsPC=false
 end
 
-
-if ar.Draggable==false and aj and ak then
-aj.Visible=ar.Draggable
-ak.Visible=ar.Draggable
+local as=ar.Draggable~=false
+if aj and ak then
+local at=as and ar.OnlyIcon~=true
+aj.Visible=at
+ak.Visible=at
 
 if ao then
-ao:Set(ar.Draggable)
+ao:Set(as)
 end
 end
 
@@ -5455,8 +5456,8 @@ end
 
 if ar.OnlyIcon==true and ai then
 ai.Visible=false
-an.TextButton.UIPadding.PaddingLeft=UDim.new(0,7)
-an.TextButton.UIPadding.PaddingRight=UDim.new(0,7)
+an.TextButton.UIPadding.PaddingLeft=UDim.new(0,4)
+an.TextButton.UIPadding.PaddingRight=UDim.new(0,4)
 elseif ar.OnlyIcon==false then
 ai.Visible=true
 an.TextButton.UIPadding.PaddingLeft=UDim.new(0,11)
@@ -5476,6 +5477,14 @@ if ar.Icon then
 ag:SetIcon(ar.Icon)
 end
 
+if ah then
+if ar.OnlyIcon==true then
+ah.Size=UDim2.new(0,28,0,28)
+else
+ah.Size=UDim2.new(0,22,0,22)
+end
+end
+
 an.UIStroke.UIGradient.Color=ar.Color
 an.UICorner.CornerRadius=ar.CornerRadius
 an.TextButton.UICorner.CornerRadius=UDim.new(ar.CornerRadius.Scale,ar.CornerRadius.Offset-4)
@@ -5490,7 +5499,6 @@ end
 
 
 return aa end function a.B()
-
 local aa={}
 
 local ab=a.load'd'
