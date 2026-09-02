@@ -45,10 +45,8 @@ local Window = VantaUI:CreateWindow({
         StrokeThickness = 2,
         ImageZoom = 1,
         Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromHex("#FF243A")),
-            ColorSequenceKeypoint.new(0.33, Color3.fromHex("#FFFFFF")),
-            ColorSequenceKeypoint.new(0.66, Color3.fromHex("#FFFFFF")),
-            ColorSequenceKeypoint.new(1, Color3.fromHex("#FF243A")),
+            ColorSequenceKeypoint.new(0, Color3.fromHex("#000000")),
+            ColorSequenceKeypoint.new(1, Color3.fromHex("#000000")),
         }),
     },
     User = {

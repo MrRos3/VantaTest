@@ -334,23 +334,21 @@ function OpenButton.New(Window)
             return
         end
 
+        local wasDragged = OpenButtonMain.WasDragged
+
         dragging = false
         OpenButtonMain.Dragging = false
         activeInput = nil
 
-        if OpenButtonMain.WasDragged then
+        if wasDragged then
             task.delay(0.2, function()
                 OpenButtonMain.WasDragged = false
             end)
-        end
-    end)
-
-    Creator.AddSignal(Hitbox.Activated, function()
-        if OpenButtonMain.WasDragged or OpenButtonMain.Dragging then
-            return
-        end
-        if Window.Open then
-            Window:Open()
+        else
+            OpenButtonMain.WasDragged = false
+            if Window.Open then
+                Window:Open()
+            end
         end
     end)
 
