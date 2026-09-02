@@ -299,7 +299,6 @@ function OpenButton.New(Window)
             Button.TextButton.Size = UDim2.fromScale(1, 1)
             Button.TextButton.UIPadding.PaddingLeft = UDim.new(0, 0)
             Button.TextButton.UIPadding.PaddingRight = UDim.new(0, 0)
-            Button.TextButton.UIListLayout.Enabled = false
 
             if Icon then
                 Icon.Size = UDim2.fromScale(1, 1)
@@ -323,7 +322,6 @@ function OpenButton.New(Window)
             Button.TextButton.Size = UDim2.new(0, 0, 0, 44 - (4 * 2))
             Button.TextButton.UIPadding.PaddingLeft = UDim.new(0, 7 + 4)
             Button.TextButton.UIPadding.PaddingRight = UDim.new(0, 7 + 4)
-            Button.TextButton.UIListLayout.Enabled = true
 
             if Icon then
                 Icon.Size = UDim2.new(0, 22, 0, 22)
