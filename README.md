@@ -8,6 +8,16 @@ A polished AMOLED-first Roblox UI library by **MrRos3**.
 local VantaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
 ```
 
+## Branded test showcase
+
+Run the existing test entrypoint to see the cinematic brand intro, branded title-bar icon, and branded minimized badge:
+
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/test.lua"))()
+```
+
+The exact Vanta artwork is hosted at `assets/vanta-brand.jpeg`. Remote image support downloads it once into the executor's `WindUI/VantaUI/assets` cache and loads it through `getcustomasset` (or `getsynasset`).
+
 ## v0.3.0
 
 - Public brand is **VantaUI**

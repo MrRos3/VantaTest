@@ -1354,9 +1354,104 @@ end
 return z
 end
 
+local function GetImageExtension(x)
+local z=tostring(x):match"^([^?#]+)"or tostring(x)
+local A=z:match"%.([%w]+)$"
+
+if A then
+A=string.lower(A)
+if A=="jpg"or A=="jpeg"or A=="png"or A=="webp"then
+return"."..A
+end
+end
+
+return".png"
+end
+
+local function EnsureFolder(x)
+if not makefolder then
+return
+end
+
+local z=""
+for A in string.gmatch(x,"[^/]+")do
+z=z==""and A or z.."/"..A
+if not isfolder or not isfolder(z)then
+pcall(makefolder,z)
+end
+end
+end
+
+local function Download(x)
+local z={}
+
+if game.HttpGet then
+local A,B=pcall(function()
+return game:HttpGet(x)
+end)
+if A and typeof(B)=="string"and#B>0 then
+return B
+end
+table.insert(z,tostring(B))
+end
+
+if r.Request then
+local A,B=pcall(function()
+return r.Request{
+Url=x,
+Method="GET",
+Headers={["User-Agent"]="Roblox/Executor"},
+}
+end)
+
+local C
+if A and typeof(B)=="table"then
+C=B.Body or B.body
+elseif A and typeof(B)=="string"then
+C=B
+end
+if typeof(C)=="string"and#C>0 then
+return C
+end
+table.insert(z,tostring(B))
+end
+
+error("Unable to download image: "..table.concat(z,"; "))
+end
+
+function r.LoadRemoteImage(x,z)
+assert(typeof(x)=="string"and string.match(x,"^https?://"),"A valid image URL is required")
+assert(writefile,"This executor does not support writefile")
+
+local A=getcustomasset or getsynasset
+assert(A,"This executor does not support getcustomasset")
+
+z=z or"Temp"
+local B="WindUI/"..z.."/assets"
+local C=B
+.."/.RemoteImage-"
+..r.SanitizeFilename(x)
+..GetImageExtension(x)
+
+EnsureFolder(B)
+
+if not isfile or not isfile(C)then
+writefile(C,Download(x))
+end
+
+local F,G=pcall(A,C)
+if not F then
+writefile(C,Download(x))
+G=A(C)
+end
+
+return G,C
+end
+
 function r.Image(x,z,A,B,C,F,G,H)
 B=B or"Temp"
 z=r.SanitizeFilename(z)
+A=A or 0
 
 local J=u("Frame",{
 Size=UDim2.new(0,0,0,0),
@@ -1375,10 +1470,11 @@ CornerRadius=UDim.new(0,A),
 }),
 }),
 })
-if r.Icon(x)then
+local L=r.Icon(x)
+if L then
 J.ImageLabel:Destroy()
 
-local L=m.Image{
+local M=m.Image{
 Icon=x,
 Size=UDim2.new(1,0,1,0),
 Colors={
@@ -1386,48 +1482,19 @@ Colors={
 "Button",
 },
 }.IconFrame
-L.Parent=J
-elseif string.find(x,"http")and not string.find(x,"roblox.com")then
-local L="WindUI/"..B.."/assets/."..C.."-"..z..".png"
-local M,N=pcall(function()
+M.Parent=J
+elseif typeof(x)=="string"and string.match(x,"^https?://")and not string.find(x,"roblox.com")then
+local M=J.ImageLabel
 task.spawn(function()
-local M=r.Request
-and r.Request{
-Url=x,
-Method="GET",
-}.Body
-or{}
-
-if not d:IsStudio()and writefile then
-writefile(L,M)
-end
-
-
-local N,O=pcall(getcustomasset,L)
-if N then
-J.ImageLabel.Image=O
+local N,O=pcall(r.LoadRemoteImage,x,B)
+if N and M.Parent then
+M.Image=O
 else
-warn(
-string.format(
-"[ WindUI.Creator ] Failed to load custom asset '%s': %s",
-L,
-tostring(O)
-)
-)
-J:Destroy()
-
-return
+if not N then
+warn(string.format("[ WindUI.Creator ] Failed to load remote image '%s': %s",x,tostring(O)))
+end
 end
 end)
-end)
-if not M then
-warn(
-"[ WindUI.Creator ]  '"..identifyexecutor()
-or"Studio".."' doesnt support the URL Images. Error: "..N
-)
-
-J:Destroy()
-end
 elseif x==""then
 J.Visible=false
 else
@@ -5150,7 +5217,8 @@ ae(game:GetService"UserInputService")
 
 function aa.New(af)
 local ag={
-Button=nil
+Button=nil,
+Icon=nil,
 }
 
 local ah
@@ -5286,14 +5354,22 @@ ag.Button=an
 
 
 function ag.SetIcon(ao,ap)
+if ap==ag.Icon and ah then
+return
+end
 if ah then
 ah:Destroy()
 end
 if ap then
+local aq=af.BrandImage
+and(ap==af.BrandImage or ap==af.Branding.OpenButtonIcon)
+local ar=aq
+and(af.Branding.OpenButtonIconRadius or af.Branding.IconRadius or 7)
+or 0
 ah=ab.Image(
 ap,
 af.Title,
-0,
+ar,
 af.Folder,
 "OpenButton",
 true,
@@ -5303,6 +5379,7 @@ ah.Size=UDim2.new(0,22,0,22)
 ah.LayoutOrder=-1
 ah.Parent=ag.Button.TextButton
 end
+ag.Icon=ap
 end
 
 if af.Icon then
@@ -5413,6 +5490,7 @@ end
 
 
 return aa end function a.B()
+
 local aa={}
 
 local ab=a.load'd'
@@ -12847,13 +12925,38 @@ local au=a.load'z'
 
 
 return function(av)
-local aw={
+local aw=typeof(av.Branding)=="table"and av.Branding or{}
+local ax=aw.Image
+local ay=av.Icon
+local az=false
+
+if ax and aw.UseAsWindowIcon~=false then
+ay=aw.WindowIcon or ax
+az=true
+end
+
+local aA=av.OpenButton
+if typeof(aA)=="table"then
+local aB={}
+for b,d in next,aA do
+aB[b]=d
+end
+aA=aB
+
+if ax and aw.UseAsOpenButtonIcon~=false and aA.Icon==nil then
+aA.Icon=aw.OpenButtonIcon or ax
+end
+end
+
+local aB={
 Title=av.Title or"UI Library",
 Author=av.Author,
-Icon=av.Icon,
-IconSize=av.IconSize or 22,
-IconThemed=av.IconThemed,
-IconRadius=av.IconRadius or 0,
+Icon=ay,
+IconSize=aw.IconSize or av.IconSize or 22,
+IconThemed=az and false or av.IconThemed,
+IconRadius=az and(aw.IconRadius or av.IconRadius or 7)or(av.IconRadius or 0),
+Branding=aw,
+BrandImage=ax,
 Folder=av.Folder,
 Resizable=av.Resizable~=false,
 Background=av.Background,
@@ -12882,7 +12985,7 @@ NewElements=av.NewElements or false,
 IgnoreAlerts=av.IgnoreAlerts or false,
 HidePanelBackground=av.HidePanelBackground or false,
 AutoScale=av.AutoScale~=false,
-OpenButton=av.OpenButton,
+OpenButton=aA,
 DragFrameSize=160,
 
 Position=UDim2.new(0.5,0,0.5,0),
@@ -12921,57 +13024,57 @@ PendingFlags={},
 IsToggleDragging=false,
 }
 
-aw.UICorner=aw.Radius
+aB.UICorner=aB.Radius
 
-aw.TopBarButtonIconSize=aw.TopBarButtonIconSize or(aw.Topbar.ButtonsType=="Mac"and 11 or 16)
+aB.TopBarButtonIconSize=aB.TopBarButtonIconSize or(aB.Topbar.ButtonsType=="Mac"and 11 or 16)
 
-aw.ElementConfig={
-UIPadding=(aw.NewElements and 10 or 13),
-UICorner=aw.ElementsRadius or(aw.NewElements and 23 or 16),
+aB.ElementConfig={
+UIPadding=(aB.NewElements and 10 or 13),
+UICorner=aB.ElementsRadius or(aB.NewElements and 23 or 16),
 }
 
-local ax=aw.Size or UDim2.new(0,580,0,460)
-aw.Size=UDim2.new(
-ax.X.Scale,
-math.clamp(ax.X.Offset,aw.MinSize.X,aw.MaxSize.X),
-ax.Y.Scale,
-math.clamp(ax.Y.Offset,aw.MinSize.Y,aw.MaxSize.Y)
+local b=aB.Size or UDim2.new(0,580,0,460)
+aB.Size=UDim2.new(
+b.X.Scale,
+math.clamp(b.X.Offset,aB.MinSize.X,aB.MaxSize.X),
+b.Y.Scale,
+math.clamp(b.Y.Offset,aB.MinSize.Y,aB.MaxSize.Y)
 )
 
-if aw.Topbar=={}then
-aw.Topbar={Height=52,ButtonsType="Default"}
+if aB.Topbar=={}then
+aB.Topbar={Height=52,ButtonsType="Default"}
 end
 
-if not ai:IsStudio()and aw.Folder and writefile then
-if not isfolder("WindUI/"..aw.Folder)then
-makefolder("WindUI/"..aw.Folder)
+if not ai:IsStudio()and aB.Folder and writefile then
+if not isfolder("WindUI/"..aB.Folder)then
+makefolder("WindUI/"..aB.Folder)
 end
-if not isfolder("WindUI/"..aw.Folder.."/assets")then
-makefolder("WindUI/"..aw.Folder.."/assets")
+if not isfolder("WindUI/"..aB.Folder.."/assets")then
+makefolder("WindUI/"..aB.Folder.."/assets")
 end
-if not isfolder(aw.Folder)then
-makefolder(aw.Folder)
+if not isfolder(aB.Folder)then
+makefolder(aB.Folder)
 end
-if not isfolder(aw.Folder.."/assets")then
-makefolder(aw.Folder.."/assets")
+if not isfolder(aB.Folder.."/assets")then
+makefolder(aB.Folder.."/assets")
 end
 end
 
-local ay=ao("UICorner",{
-CornerRadius=UDim.new(0,aw.UICorner),
+local d=ao("UICorner",{
+CornerRadius=UDim.new(0,aB.UICorner),
 })
 
-if aw.Folder then
-aw.ConfigManager=au:Init(aw)
+if aB.Folder then
+aB.ConfigManager=au:Init(aB)
 end
 
-if aw.Acrylic then local
-az=am.AcrylicPaint{UseAcrylic=aw.Acrylic}
+if aB.Acrylic then local
+f=am.AcrylicPaint{UseAcrylic=aB.Acrylic}
 
-aw.AcrylicPaint=az
+aB.AcrylicPaint=f
 end
 
-local az=ao("Frame",{
+local f=ao("Frame",{
 Size=UDim2.new(0,32,0,32),
 Position=UDim2.new(1,0,1,0),
 AnchorPoint=Vector2.new(0.5,0.5),
@@ -12988,7 +13091,7 @@ AnchorPoint=Vector2.new(0.5,0.5),
 ImageTransparency=1,
 }),
 })
-local aA=an.NewRoundFrame(aw.UICorner,"Squircle",{
+local g=an.NewRoundFrame(aB.UICorner,"Squircle",{
 Size=UDim2.new(1,0,1,0),
 ImageTransparency=1,
 ImageColor3=Color3.new(0,0,0),
@@ -13007,7 +13110,7 @@ ImageTransparency=1,
 }),
 })
 
-local aB=an.NewRoundFrame(aw.UICorner,"Squircle",{
+local h=an.NewRoundFrame(aB.UICorner,"Squircle",{
 Size=UDim2.new(1,0,1,0),
 ImageTransparency=1,
 ImageColor3=Color3.new(0,0,0),
@@ -13023,12 +13126,12 @@ Active=false,
 
 
 
-aw.UIElements.SideBar=ao("ScrollingFrame",{
+aB.UIElements.SideBar=ao("ScrollingFrame",{
 Size=UDim2.new(
 1,
-aw.ScrollBarEnabled and-3-(aw.UIPadding/2)or 0,
+aB.ScrollBarEnabled and-3-(aB.UIPadding/2)or 0,
 1,
-not aw.HideSearchBar and-45 or 0
+not aB.HideSearchBar and-45 or 0
 ),
 Position=UDim2.new(0,0,1,0),
 AnchorPoint=Vector2.new(0,1),
@@ -13051,60 +13154,60 @@ ao("UIPadding",{
 
 
 
-PaddingBottom=UDim.new(0,aw.UIPadding/2),
+PaddingBottom=UDim.new(0,aB.UIPadding/2),
 }),
 ao("UIListLayout",{
 SortOrder="LayoutOrder",
-Padding=UDim.new(0,aw.Gap),
+Padding=UDim.new(0,aB.Gap),
 }),
 }),
 ao("UIPadding",{
 
-PaddingLeft=UDim.new(0,aw.UIPadding/2),
-PaddingRight=UDim.new(0,aw.UIPadding/2),
-PaddingBottom=UDim.new(0,aw.UIPadding/2),
+PaddingLeft=UDim.new(0,aB.UIPadding/2),
+PaddingRight=UDim.new(0,aB.UIPadding/2),
+PaddingBottom=UDim.new(0,aB.UIPadding/2),
 }),
 
 })
 
-aw.UIElements.SideBarContainer=ao("Frame",{
+aB.UIElements.SideBarContainer=ao("Frame",{
 Size=UDim2.new(
 0,
-aw.SideBarWidth,
+aB.SideBarWidth,
 1,
-aw.User.Enabled and-aw.Topbar.Height-42-(aw.UIPadding*2)or-aw.Topbar.Height
+aB.User.Enabled and-aB.Topbar.Height-42-(aB.UIPadding*2)or-aB.Topbar.Height
 ),
-Position=UDim2.new(0,0,0,aw.Topbar.Height),
+Position=UDim2.new(0,0,0,aB.Topbar.Height),
 BackgroundTransparency=1,
 Visible=true,
 },{
 ao("Frame",{
 Name="Content",
 BackgroundTransparency=1,
-Size=UDim2.new(1,0,1,not aw.HideSearchBar and-45-aw.UIPadding or-aw.UIPadding/2),
-Position=UDim2.new(0,0,1,-aw.UIPadding/2),
+Size=UDim2.new(1,0,1,not aB.HideSearchBar and-45-aB.UIPadding or-aB.UIPadding/2),
+Position=UDim2.new(0,0,1,-aB.UIPadding/2),
 AnchorPoint=Vector2.new(0,1),
 }),
-aw.UIElements.SideBar,
+aB.UIElements.SideBar,
 })
 
-if aw.ScrollBarEnabled then
+if aB.ScrollBarEnabled then
 as(
-aw.UIElements.SideBar,
-aw.UIElements.SideBarContainer.Content,
-aw,
+aB.UIElements.SideBar,
+aB.UIElements.SideBarContainer.Content,
+aB,
 3,
 av.WindUI
 )
 end
 
-aw.UIElements.MainBar=ao("Frame",{
-Size=UDim2.new(1,-aw.UIElements.SideBarContainer.AbsoluteSize.X,1,-aw.Topbar.Height),
+aB.UIElements.MainBar=ao("Frame",{
+Size=UDim2.new(1,-aB.UIElements.SideBarContainer.AbsoluteSize.X,1,-aB.Topbar.Height),
 Position=UDim2.new(1,0,1,0),
 AnchorPoint=Vector2.new(1,1),
 BackgroundTransparency=1,
 },{
-an.NewRoundFrame(aw.UICorner-(aw.UIPadding/2),"Squircle",{
+an.NewRoundFrame(aB.UICorner-(aB.UIPadding/2),"Squircle",{
 Size=UDim2.new(1,0,1,0),
 ThemeTag={
 ImageColor3="PanelBackground",
@@ -13114,17 +13217,17 @@ ImageTransparency="PanelBackgroundTransparency",
 
 ZIndex=3,
 Name="Background",
-Visible=not aw.HidePanelBackground,
+Visible=not aB.HidePanelBackground,
 }),
 ao("UIPadding",{
 
-PaddingLeft=UDim.new(0,aw.UIPadding/2),
-PaddingRight=UDim.new(0,aw.UIPadding/2),
-PaddingBottom=UDim.new(0,aw.UIPadding/2),
+PaddingLeft=UDim.new(0,aB.UIPadding/2),
+PaddingRight=UDim.new(0,aB.UIPadding/2),
+PaddingBottom=UDim.new(0,aB.UIPadding/2),
 }),
 })
 
-local b=ao("ImageLabel",{
+local i=ao("ImageLabel",{
 Image="rbxassetid://8992230677",
 ThemeTag={
 ImageColor3="WindowShadow",
@@ -13141,11 +13244,11 @@ Name="Blur",
 })
 
 if af.TouchEnabled and not af.KeyboardEnabled then
-aw.IsPC=false
+aB.IsPC=false
 elseif af.KeyboardEnabled then
-aw.IsPC=true
+aB.IsPC=true
 else
-aw.IsPC=nil
+aB.IsPC=nil
 end
 
 
@@ -13154,30 +13257,30 @@ end
 
 
 
-local d
-if aw.User then
+local l
+if aB.User then
 local function GetUserThumb()local
-f=ak:GetUserThumbnailAsync(
-aw.User.Anonymous and 1 or ak.LocalPlayer.UserId,
+m=ak:GetUserThumbnailAsync(
+aB.User.Anonymous and 1 or ak.LocalPlayer.UserId,
 Enum.ThumbnailType.HeadShot,
 Enum.ThumbnailSize.Size420x420
 )
-return f
+return m
 end
 
-d=ao("TextButton",{
+l=ao("TextButton",{
 Size=UDim2.new(
 0,
-aw.UIElements.SideBarContainer.AbsoluteSize.X-(aw.UIPadding/2),
+aB.UIElements.SideBarContainer.AbsoluteSize.X-(aB.UIPadding/2),
 0,
-42+aw.UIPadding
+42+aB.UIPadding
 ),
-Position=UDim2.new(0,aw.UIPadding/2,1,-(aw.UIPadding/2)),
+Position=UDim2.new(0,aB.UIPadding/2,1,-(aB.UIPadding/2)),
 AnchorPoint=Vector2.new(0,1),
 BackgroundTransparency=1,
-Visible=aw.User.Enabled or false,
+Visible=aB.User.Enabled or false,
 },{
-an.NewRoundFrame(aw.UICorner-(aw.UIPadding/2),"SquircleOutline",{
+an.NewRoundFrame(aB.UICorner-(aB.UIPadding/2),"SquircleOutline",{
 Size=UDim2.new(1,0,1,0),
 ThemeTag={
 ImageColor3="Text",
@@ -13199,7 +13302,7 @@ NumberSequenceKeypoint.new(1.0,0.1),
 },
 }),
 }),
-an.NewRoundFrame(aw.UICorner-(aw.UIPadding/2),"Squircle",{
+an.NewRoundFrame(aB.UICorner-(aB.UIPadding/2),"Squircle",{
 Size=UDim2.new(1,0,1,0),
 ThemeTag={
 ImageColor3="Text",
@@ -13225,7 +13328,7 @@ AutomaticSize="XY",
 BackgroundTransparency=1,
 },{
 ao("TextLabel",{
-Text=aw.User.Anonymous and"Anonymous"or ak.LocalPlayer.DisplayName,
+Text=aB.User.Anonymous and"Anonymous"or ak.LocalPlayer.DisplayName,
 TextSize=17,
 ThemeTag={
 TextColor3="Text",
@@ -13239,7 +13342,7 @@ TextXAlignment="Left",
 Name="DisplayName",
 }),
 ao("TextLabel",{
-Text=aw.User.Anonymous and"anonymous"or ak.LocalPlayer.Name,
+Text=aB.User.Anonymous and"anonymous"or ak.LocalPlayer.Name,
 TextSize=15,
 TextTransparency=0.6,
 ThemeTag={
@@ -13259,98 +13362,98 @@ HorizontalAlignment="Left",
 }),
 }),
 ao("UIListLayout",{
-Padding=UDim.new(0,aw.UIPadding),
+Padding=UDim.new(0,aB.UIPadding),
 FillDirection="Horizontal",
 VerticalAlignment="Center",
 }),
 ao("UIPadding",{
-PaddingLeft=UDim.new(0,aw.UIPadding/2),
-PaddingRight=UDim.new(0,aw.UIPadding/2),
+PaddingLeft=UDim.new(0,aB.UIPadding/2),
+PaddingRight=UDim.new(0,aB.UIPadding/2),
 }),
 }),
 })
 
-function aw.User.Enable(f)
-aw.User.Enabled=true
+function aB.User.Enable(m)
+aB.User.Enabled=true
 ap(
-aw.UIElements.SideBarContainer,
+aB.UIElements.SideBarContainer,
 0.25,
-{Size=UDim2.new(0,aw.SideBarWidth,1,-aw.Topbar.Height-42-(aw.UIPadding*2))},
+{Size=UDim2.new(0,aB.SideBarWidth,1,-aB.Topbar.Height-42-(aB.UIPadding*2))},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-d.Visible=true
+l.Visible=true
 end
-function aw.User.Disable(f)
-aw.User.Enabled=false
+function aB.User.Disable(m)
+aB.User.Enabled=false
 ap(
-aw.UIElements.SideBarContainer,
+aB.UIElements.SideBarContainer,
 0.25,
-{Size=UDim2.new(0,aw.SideBarWidth,1,-aw.Topbar.Height)},
+{Size=UDim2.new(0,aB.SideBarWidth,1,-aB.Topbar.Height)},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-d.Visible=false
+l.Visible=false
 end
-function aw.User.SetAnonymous(f,g)
-if g~=false then
-g=true
+function aB.User.SetAnonymous(m,p)
+if p~=false then
+p=true
 end
-aw.User.Anonymous=g
-d.UserIcon.ImageLabel.Image=GetUserThumb()
-d.UserIcon.Frame.DisplayName.Text=g and"Anonymous"or ak.LocalPlayer.DisplayName
-d.UserIcon.Frame.UserName.Text=g and"anonymous"or ak.LocalPlayer.Name
+aB.User.Anonymous=p
+l.UserIcon.ImageLabel.Image=GetUserThumb()
+l.UserIcon.Frame.DisplayName.Text=p and"Anonymous"or ak.LocalPlayer.DisplayName
+l.UserIcon.Frame.UserName.Text=p and"anonymous"or ak.LocalPlayer.Name
 end
 
-if aw.User.Enabled then
-aw.User:Enable()
+if aB.User.Enabled then
+aB.User:Enable()
 else
-aw.User:Disable()
+aB.User:Disable()
 end
 
-if aw.User.Callback then
-an.AddSignal(d.MouseButton1Click,function()
-aw.User.Callback()
+if aB.User.Callback then
+an.AddSignal(l.MouseButton1Click,function()
+aB.User.Callback()
 end)
-an.AddSignal(d.MouseEnter,function()
-ap(d.UserIcon,0.04,{ImageTransparency=0.95}):Play()
-ap(d.Outline,0.04,{ImageTransparency=0.85}):Play()
+an.AddSignal(l.MouseEnter,function()
+ap(l.UserIcon,0.04,{ImageTransparency=0.95}):Play()
+ap(l.Outline,0.04,{ImageTransparency=0.85}):Play()
 end)
-an.AddSignal(d.InputEnded,function()
-ap(d.UserIcon,0.04,{ImageTransparency=1}):Play()
-ap(d.Outline,0.04,{ImageTransparency=1}):Play()
+an.AddSignal(l.InputEnded,function()
+ap(l.UserIcon,0.04,{ImageTransparency=1}):Play()
+ap(l.Outline,0.04,{ImageTransparency=1}):Play()
 end)
 end
 end
 
-local f
-local g
+local m
+local p
 
-local h=false
-local i
+local r=false
+local u
 
-local l=typeof(aw.Background)=="string"and string.match(aw.Background,"^video:(.+)")or nil
+local v=typeof(aB.Background)=="string"and string.match(aB.Background,"^video:(.+)")or nil
 
-local m=typeof(aw.Background)=="string"
-and not l
-and string.match(aw.Background,"^https?://.+")
+local x=typeof(aB.Background)=="string"
+and not v
+and string.match(aB.Background,"^https?://.+")
 or nil
 
-local p=typeof(aw.Background)=="string"
-and not l
-and string.match(aw.Background,"^rbxassetid://%d+")
+local z=typeof(aB.Background)=="string"
+and not v
+and string.match(aB.Background,"^rbxassetid://%d+")
 or nil
 
-local function GetImageExtension(r)
-if not r or typeof(r)~="string"then
+local function GetImageExtension(A)
+if not A or typeof(A)~="string"then
 return".png"
 end
-local u=r:match"^([^?#]+)"or r
-local v=u:match"%.(%w+)$"
-if v then
-v=v:lower()
-if v=="jpg"or v=="jpeg"or v=="png"or v=="webp"then
-return"."..v
+local B=A:match"^([^?#]+)"or A
+local C=B:match"%.(%w+)$"
+if C then
+C=C:lower()
+if C=="jpg"or C=="jpeg"or C=="png"or C=="webp"then
+return"."..C
 end
 end
 return".png"
@@ -13358,123 +13461,123 @@ end
 
 
 
-if typeof(aw.Background)=="string"and l then
-h=true
+if typeof(aB.Background)=="string"and v then
+r=true
 
-if string.find(l,"http")then
-local r=(aw.Folder or"Temp").."/assets/."..an.SanitizeFilename(l)..".webm"
-if not isfile(r)then
-local u,v=pcall(function()
-
-
+if string.find(v,"http")then
+local A=(aB.Folder or"Temp").."/assets/."..an.SanitizeFilename(v)..".webm"
+if not isfile(A)then
+local B,C=pcall(function()
 
 
 
-local u=game.HttpGet and game:HttpGet(l)
+
+
+local B=game.HttpGet and game:HttpGet(v)
 or an.Request{
-Url=l,
+Url=v,
 Method="GET",
 Headers={["User-Agent"]="Roblox/Exploit"},
 }.Body
 
-writefile(r,u)
+writefile(A,B)
 end)
-if not u then
-warn("[ WindUI.Window.Background ] Failed to download video: "..tostring(v))
+if not B then
+warn("[ WindUI.Window.Background ] Failed to download video: "..tostring(C))
 end
 end
 
-local u,v=pcall(function()
-return getcustomasset(r)
+local B,C=pcall(function()
+return getcustomasset(A)
 end)
-if not u then
-warn("[ WindUI.Window.Background ] Failed to load custom asset: "..tostring(v))
+if not B then
+warn("[ WindUI.Window.Background ] Failed to load custom asset: "..tostring(C))
 end
 warn"[ WindUI.Window.Background ] VideoFrame may not work with custom video"
-l=v
+v=C
 end
 
-i=ao("VideoFrame",{
+u=ao("VideoFrame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,0),
-Video=l,
+Video=v,
 Looped=true,
 Volume=0,
 },{
 ao("UICorner",{
-CornerRadius=UDim.new(0,aw.UICorner),
+CornerRadius=UDim.new(0,aB.UICorner),
 }),
 })
-i:Play()
-elseif m then
-local r=(aw.Folder or"Temp")
+u:Play()
+elseif x then
+local A=(aB.Folder or"Temp")
 .."/assets/."
-..an.SanitizeFilename(m)
-..GetImageExtension(m)
+..an.SanitizeFilename(x)
+..GetImageExtension(x)
 
-if isfile and not isfile(r)then
-local u,v=pcall(function()
-local u=game.HttpGet and game:HttpGet(m)
+if isfile and not isfile(A)then
+local B,C=pcall(function()
+local B=game.HttpGet and game:HttpGet(x)
 or an.Request{
-Url=m,
+Url=x,
 Method="GET",
 Headers={["User-Agent"]="Roblox/Exploit"},
 }.Body
 
-writefile(r,u)
+writefile(A,B)
 end)
 
-if not u then
-warn("[ Window.Background ] Failed to download image: "..tostring(v))
+if not B then
+warn("[ Window.Background ] Failed to download image: "..tostring(C))
 end
 end
 
-local u,v=pcall(function()
-return getcustomasset(r)
+local B,C=pcall(function()
+return getcustomasset(A)
 end)
 
-if not u then
-warn("[ Window.Background ] Failed to load custom asset: "..tostring(v))
+if not B then
+warn("[ Window.Background ] Failed to load custom asset: "..tostring(C))
 end
 
-i=ao("ImageLabel",{
+u=ao("ImageLabel",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,0),
-Image=v,
+Image=C,
 ImageTransparency=0,
 ScaleType="Crop",
 },{
 ao("UICorner",{
-CornerRadius=UDim.new(0,aw.UICorner),
+CornerRadius=UDim.new(0,aB.UICorner),
 }),
 })
-elseif p then
-i=ao("ImageLabel",{
+elseif z then
+u=ao("ImageLabel",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,0),
-Image=p,
+Image=z,
 ImageTransparency=0,
 ScaleType="Crop",
 },{
 ao("UICorner",{
-CornerRadius=UDim.new(0,aw.UICorner),
+CornerRadius=UDim.new(0,aB.UICorner),
 }),
 })
-elseif aw.Background then
-i=ao("ImageLabel",{
+elseif aB.Background then
+u=ao("ImageLabel",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,0),
-Image=typeof(aw.Background)=="string"and aw.Background or"",
+Image=typeof(aB.Background)=="string"and aB.Background or"",
 ImageTransparency=1,
 ScaleType="Crop",
 },{
 ao("UICorner",{
-CornerRadius=UDim.new(0,aw.UICorner),
+CornerRadius=UDim.new(0,aB.UICorner),
 }),
 })
 end
 
-local r=an.NewRoundFrame(99,"Squircle",{
+local A=an.NewRoundFrame(99,"Squircle",{
 ImageTransparency=0.8,
 ImageColor3=Color3.new(1,1,1),
 Size=UDim2.new(0,0,0,4),
@@ -13492,14 +13595,14 @@ Name="Frame",
 }),
 })
 
-function createAuthor(u)
+function createAuthor(B)
 return ao("TextLabel",{
-Text=u,
+Text=B,
 FontFace=Font.new(an.Font,Enum.FontWeight.Medium),
 BackgroundTransparency=1,
 TextTransparency=0.35,
 AutomaticSize="XY",
-Parent=aw.UIElements.Main and aw.UIElements.Main.Main.Topbar.Left.Title,
+Parent=aB.UIElements.Main and aB.UIElements.Main.Main.Topbar.Left.Title,
 TextXAlignment="Left",
 TextSize=13,
 LayoutOrder=2,
@@ -13510,15 +13613,15 @@ Name="Author",
 })
 end
 
-local u
-local v
+local B
+local C
 
-if aw.Author then
-u=createAuthor(aw.Author)
+if aB.Author then
+B=createAuthor(aB.Author)
 end
 
-local x=ao("TextLabel",{
-Text=aw.Title,
+local F=ao("TextLabel",{
+Text=aB.Title,
 FontFace=Font.new(an.Font,Enum.FontWeight.SemiBold),
 BackgroundTransparency=1,
 AutomaticSize="XY",
@@ -13530,9 +13633,9 @@ TextColor3="WindowTopbarTitle",
 },
 })
 
-aw.UIElements.Main=ao("Frame",{
-Size=UDim2.new(aw.Size.X.Scale,aw.Size.X.Offset,0,0),
-Position=aw.Position,
+aB.UIElements.Main=ao("Frame",{
+Size=UDim2.new(aB.Size.X.Scale,aB.Size.X.Offset,0,0),
+Position=aB.Position,
 BackgroundTransparency=1,
 Parent=av.Parent,
 AnchorPoint=Vector2.new(0.5,0.5),
@@ -13540,9 +13643,9 @@ Active=true,
 
 },{
 av.WindUI.UIScaleObj,
-aw.AcrylicPaint and aw.AcrylicPaint.Frame or nil,
-b,
-an.NewRoundFrame(aw.UICorner,"Squircle",{
+aB.AcrylicPaint and aB.AcrylicPaint.Frame or nil,
+i,
+an.NewRoundFrame(aB.UICorner,"Squircle",{
 ImageTransparency=1,
 Size=UDim2.new(1,0,1,0),
 AnchorPoint=Vector2.new(0.5,0.5),
@@ -13553,17 +13656,17 @@ ImageColor3="WindowBackground",
 },
 
 },{
-i,
-r,
-az,
+u,
+A,
+f,
 }),
 
 
 
 
-ay,
-aA,
-aB,
+d,
+g,
+h,
 ao("Frame",{
 Size=UDim2.new(1,0,1,0),
 BackgroundTransparency=1,
@@ -13573,21 +13676,21 @@ Visible=false,
 ZIndex=97,
 },{
 ao("UICorner",{
-CornerRadius=UDim.new(0,aw.UICorner),
+CornerRadius=UDim.new(0,aB.UICorner),
 }),
-aw.UIElements.SideBarContainer,
-aw.UIElements.MainBar,
+aB.UIElements.SideBarContainer,
+aB.UIElements.MainBar,
 
-d,
+l,
 
-g,
+p,
 ao("Frame",{
-Size=UDim2.new(1,0,0,aw.Topbar.Height),
+Size=UDim2.new(1,0,0,aB.Topbar.Height),
 BackgroundTransparency=1,
 BackgroundColor3=Color3.fromRGB(50,50,50),
 Name="Topbar",
 },{
-f,
+m,
 
 
 
@@ -13601,7 +13704,7 @@ BackgroundTransparency=1,
 Name="Left",
 },{
 ao("UIListLayout",{
-Padding=UDim.new(0,aw.UIPadding+4),
+Padding=UDim.new(0,aB.UIPadding+4),
 SortOrder="LayoutOrder",
 FillDirection="Horizontal",
 VerticalAlignment="Center",
@@ -13619,8 +13722,8 @@ SortOrder="LayoutOrder",
 FillDirection="Vertical",
 VerticalAlignment="Center",
 }),
-x,
-u,
+F,
+B,
 }),
 ao("UIPadding",{
 PaddingLeft=UDim.new(0,4),
@@ -13655,7 +13758,7 @@ ao("UIListLayout",{
 FillDirection="Horizontal",
 VerticalAlignment="Center",
 HorizontalAlignment="Left",
-Padding=UDim.new(0,aw.UIPadding/2),
+Padding=UDim.new(0,aB.UIPadding/2),
 }),
 }),
 }),
@@ -13667,84 +13770,84 @@ AnchorPoint=Vector2.new(1,0.5),
 Name="Right",
 },{
 ao("UIListLayout",{
-Padding=UDim.new(0,aw.Topbar.ButtonsType=="Default"and 9 or 0),
+Padding=UDim.new(0,aB.Topbar.ButtonsType=="Default"and 9 or 0),
 FillDirection="Horizontal",
 SortOrder="LayoutOrder",
 }),
 }),
 ao("UIPadding",{
-PaddingTop=UDim.new(0,aw.UIPadding),
+PaddingTop=UDim.new(0,aB.UIPadding),
 PaddingLeft=UDim.new(
 0,
-aw.Topbar.ButtonsType=="Default"and aw.UIPadding or aw.UIPadding-2
+aB.Topbar.ButtonsType=="Default"and aB.UIPadding or aB.UIPadding-2
 ),
 PaddingRight=UDim.new(0,8),
-PaddingBottom=UDim.new(0,aw.UIPadding),
+PaddingBottom=UDim.new(0,aB.UIPadding),
 }),
 }),
 }),
 })
 
-an.AddSignal(aw.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal"AbsoluteSize",function()
-local z=0
-local A=aw.UIElements.Main.Main.Topbar.Right.UIListLayout.AbsoluteContentSize.X
+an.AddSignal(aB.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal"AbsoluteSize",function()
+local G=0
+local H=aB.UIElements.Main.Main.Topbar.Right.UIListLayout.AbsoluteContentSize.X
 /av.WindUI.UIScale
 
-z=aw.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X/av.WindUI.UIScale
+G=aB.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X/av.WindUI.UIScale
 
-aw.UIElements.Main.Main.Topbar.Center.Position=
-UDim2.new(0,z+(aw.UIPadding/av.WindUI.UIScale),0.5,0)
-aw.UIElements.Main.Main.Topbar.Center.Size=UDim2.new(
+aB.UIElements.Main.Main.Topbar.Center.Position=
+UDim2.new(0,G+(aB.UIPadding/av.WindUI.UIScale),0.5,0)
+aB.UIElements.Main.Main.Topbar.Center.Size=UDim2.new(
 1,
--z
--(aw.UIPadding/av.WindUI.UIScale)
--(A+aw.UIPadding),
+-G
+-(aB.UIPadding/av.WindUI.UIScale)
+-(H+aB.UIPadding),
 1,
 0
 )
 end)
 
 
-function aw.CreateTopbarButton(z,A,B,C,F,G,H,J)
-local L=an.Image(
-B,
-B,
+function aB.CreateTopbarButton(G,H,J,L,M,N,O,P)
+local Q=an.Image(
+J,
+J,
 0,
-aw.Folder,
+aB.Folder,
 "WindowTopbarIcon",
-aw.Topbar.ButtonsType=="Default"and true or false,
-G,
+aB.Topbar.ButtonsType=="Default"and true or false,
+N,
 "WindowTopbarButtonIcon"
 )
-L.Size=aw.Topbar.ButtonsType=="Default"
-and UDim2.new(0,J or aw.TopBarButtonIconSize,0,J or aw.TopBarButtonIconSize)
+Q.Size=aB.Topbar.ButtonsType=="Default"
+and UDim2.new(0,P or aB.TopBarButtonIconSize,0,P or aB.TopBarButtonIconSize)
 or UDim2.new(0,0,0,0)
-L.AnchorPoint=Vector2.new(0.5,0.5)
-L.Position=UDim2.new(0.5,0,0.5,0)
-L.ImageLabel.ImageTransparency=aw.Topbar.ButtonsType=="Default"and 0 or 1
+Q.AnchorPoint=Vector2.new(0.5,0.5)
+Q.Position=UDim2.new(0.5,0,0.5,0)
+Q.ImageLabel.ImageTransparency=aB.Topbar.ButtonsType=="Default"and 0 or 1
 
-if aw.Topbar.ButtonsType~="Default"then
-L.ImageLabel.ImageColor3=an.GetTextColorForHSB(H)
+if aB.Topbar.ButtonsType~="Default"then
+Q.ImageLabel.ImageColor3=an.GetTextColorForHSB(O)
 end
 
-local M=an.NewRoundFrame(
-aw.Topbar.ButtonsType=="Default"and aw.UICorner-(aw.UIPadding/2)or 999,
+local R=an.NewRoundFrame(
+aB.Topbar.ButtonsType=="Default"and aB.UICorner-(aB.UIPadding/2)or 999,
 "Squircle",
 {
-Size=aw.Topbar.ButtonsType=="Default"
-and UDim2.new(0,aw.Topbar.Height-16,0,aw.Topbar.Height-16)
+Size=aB.Topbar.ButtonsType=="Default"
+and UDim2.new(0,aB.Topbar.Height-16,0,aB.Topbar.Height-16)
 or UDim2.new(0,14,0,14),
-LayoutOrder=F or 999,
+LayoutOrder=M or 999,
 
 
 ZIndex=9999,
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.new(0.5,0,0.5,0),
-ImageColor3=aw.Topbar.ButtonsType~="Default"and(H or Color3.fromHex"#ff3030")or nil,
-ThemeTag=aw.Topbar.ButtonsType=="Default"and{
+ImageColor3=aB.Topbar.ButtonsType~="Default"and(O or Color3.fromHex"#ff3030")or nil,
+ThemeTag=aB.Topbar.ButtonsType=="Default"and{
 ImageColor3="Text",
 }or nil,
-ImageTransparency=aw.Topbar.ButtonsType=="Default"and 1 or 0,
+ImageTransparency=aB.Topbar.ButtonsType=="Default"and 1 or 0,
 },
 {
 
@@ -13759,7 +13862,7 @@ ImageTransparency=aw.Topbar.ButtonsType=="Default"and 1 or 0,
 
 
 
-L,
+Q,
 ao("UIScale",{
 Scale=1,
 }),
@@ -13767,73 +13870,73 @@ Scale=1,
 true
 )
 
-local N=ao("Frame",{
-Size=aw.Topbar.ButtonsType~="Default"and UDim2.new(0,24,0,24)
-or UDim2.new(0,aw.Topbar.Height-16,0,aw.Topbar.Height-16),
+local S=ao("Frame",{
+Size=aB.Topbar.ButtonsType~="Default"and UDim2.new(0,24,0,24)
+or UDim2.new(0,aB.Topbar.Height-16,0,aB.Topbar.Height-16),
 BackgroundTransparency=1,
-Parent=aw.UIElements.Main.Main.Topbar.Right,
-LayoutOrder=F or 999,
+Parent=aB.UIElements.Main.Main.Topbar.Right,
+LayoutOrder=M or 999,
 },{
-M,
+R,
 })
 
 
 
-aw.TopBarButtons[100-F]={
-Name=A,
-Object=N,
+aB.TopBarButtons[100-M]={
+Name=H,
+Object=S,
 }
 
-an.AddSignal(M.MouseButton1Click,function()
-if C then
-C()
+an.AddSignal(R.MouseButton1Click,function()
+if L then
+L()
 end
 end)
-an.AddSignal(M.MouseEnter,function()
-if aw.Topbar.ButtonsType=="Default"then
-ap(M,0.15,{ImageTransparency=0.93}):Play()
+an.AddSignal(R.MouseEnter,function()
+if aB.Topbar.ButtonsType=="Default"then
+ap(R,0.15,{ImageTransparency=0.93}):Play()
 
 
 else
 
 ap(
-L.ImageLabel,
+Q.ImageLabel,
 0.1,
 {ImageTransparency=0},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-ap(L,0.1,{
+ap(Q,0.1,{
 Size=UDim2.new(
 0,
-J or aw.TopBarButtonIconSize,
+P or aB.TopBarButtonIconSize,
 0,
-J or aw.TopBarButtonIconSize
+P or aB.TopBarButtonIconSize
 ),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 end)
 
-an.AddSignal(M.MouseButton1Down,function()
-ap(M.UIScale,0.2,{Scale=0.9},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+an.AddSignal(R.MouseButton1Down,function()
+ap(R.UIScale,0.2,{Scale=0.9},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end)
 
-an.AddSignal(M.MouseLeave,function()
-if aw.Topbar.ButtonsType=="Default"then
-ap(M,0.1,{ImageTransparency=1}):Play()
+an.AddSignal(R.MouseLeave,function()
+if aB.Topbar.ButtonsType=="Default"then
+ap(R,0.1,{ImageTransparency=1}):Play()
 
 
 else
 
 ap(
-L.ImageLabel,
+Q.ImageLabel,
 0.1,
 {ImageTransparency=1},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
 ap(
-L,
+Q,
 0.1,
 {Size=UDim2.new(0,0,0,0)},
 Enum.EasingStyle.Quint,
@@ -13842,14 +13945,14 @@ Enum.EasingDirection.Out
 end
 end)
 
-an.AddSignal(M.InputEnded,function()
-ap(M.UIScale,0.2,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.InOut):Play()
+an.AddSignal(R.InputEnded,function()
+ap(R.UIScale,0.2,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.InOut):Play()
 end)
 
-return M
+return R
 end
 
-function aw.Topbar.Button(z,A:{
+function aB.Topbar.Button(G,H:{
 Name:string,
 Icon:string,
 Callback:any,
@@ -13858,47 +13961,47 @@ IconThemed:boolean,
 Color:Color3,
 IconSize:number,
 })
-return aw:CreateTopbarButton(
-A.Name,
-A.Icon,
-A.Callback,
-A.LayoutOrder or 0,
-A.IconThemed,
-A.Color,
-A.IconSize
+return aB:CreateTopbarButton(
+H.Name,
+H.Icon,
+H.Callback,
+H.LayoutOrder or 0,
+H.IconThemed,
+H.Color,
+H.IconSize
 )
 end
 
 
 
-local z=an.Drag(
-aw.UIElements.Main,
-{aw.UIElements.Main.Main.Topbar,r.Frame},
-function(z,A)
-if not aw.Closed then
-if z and A==r.Frame then
-ap(r,0.1,{ImageTransparency=0.35}):Play()
+local G=an.Drag(
+aB.UIElements.Main,
+{aB.UIElements.Main.Main.Topbar,A.Frame},
+function(G,H)
+if not aB.Closed then
+if G and H==A.Frame then
+ap(A,0.1,{ImageTransparency=0.35}):Play()
 else
-ap(r,0.2,{ImageTransparency=0.8}):Play()
+ap(A,0.2,{ImageTransparency=0.8}):Play()
 end
-aw.Position=aw.UIElements.Main.Position
-aw.Dragging=z
+aB.Position=aB.UIElements.Main.Position
+aB.Dragging=G
 end
 end
 )
 
-if not h and aw.Background and typeof(aw.Background)=="table"then
-local A=ao"UIGradient"
-for B,C in next,aw.Background do
-A[B]=C
+if not r and aB.Background and typeof(aB.Background)=="table"then
+local H=ao"UIGradient"
+for J,L in next,aB.Background do
+H[J]=L
 end
 
-aw.UIElements.BackgroundGradient=an.NewRoundFrame(aw.UICorner,"Squircle",{
+aB.UIElements.BackgroundGradient=an.NewRoundFrame(aB.UICorner,"Squircle",{
 Size=UDim2.new(1,0,1,0),
-Parent=aw.UIElements.Main.Background,
-ImageTransparency=aw.Transparent and av.WindUI.TransparencyValue or 0,
+Parent=aB.UIElements.Main.Background,
+ImageTransparency=aB.Transparent and av.WindUI.TransparencyValue or 0,
 },{
-A,
+H,
 })
 end
 
@@ -13915,32 +14018,32 @@ end
 
 
 
-aw.OpenButtonMain=a.load'A'.New(aw)
+aB.OpenButtonMain=a.load'A'.New(aB)
 
 task.spawn(function()
-if aw.Icon then
-local A=ao("Frame",{
-Size=UDim2.new(0,22,0,22),
+if aB.Icon then
+local H=ao("Frame",{
+Size=UDim2.new(0,aB.IconSize,0,aB.IconSize),
 BackgroundTransparency=1,
-Parent=aw.UIElements.Main.Main.Topbar.Left,
+Parent=aB.UIElements.Main.Main.Topbar.Left,
 })
 
-v=an.Image(
-aw.Icon,
-aw.Title,
-aw.IconRadius,
-aw.Folder,
+C=an.Image(
+aB.Icon,
+aB.Title,
+aB.IconRadius,
+aB.Folder,
 "Window",
 true,
-aw.IconThemed,
+aB.IconThemed,
 "WindowTopbarIcon"
 )
-v.Parent=A
-v.Size=UDim2.new(0,aw.IconSize,0,aw.IconSize)
-v.Position=UDim2.new(0.5,0,0.5,0)
-v.AnchorPoint=Vector2.new(0.5,0.5)
+C.Parent=H
+C.Size=UDim2.new(0,aB.IconSize,0,aB.IconSize)
+C.Position=UDim2.new(0.5,0,0.5,0)
+C.AnchorPoint=Vector2.new(0.5,0.5)
 
-aw.OpenButtonMain:SetIcon(aw.Icon)
+aB.OpenButtonMain:SetIcon(aB.Icon)
 
 
 
@@ -13953,73 +14056,73 @@ aw.OpenButtonMain:SetIcon(aw.Icon)
 
 
 else
-aw.OpenButtonMain:SetIcon(aw.Icon)
+aB.OpenButtonMain:SetIcon(aB.Icon)
 
 end
 end)
 
-function aw.SetToggleKey(A,B)
-aw.ToggleKey=B
+function aB.SetToggleKey(H,J)
+aB.ToggleKey=J
 end
 
-function aw.SetTitle(A,B)
-aw.Title=B
-x.Text=B
+function aB.SetTitle(H,J)
+aB.Title=J
+F.Text=J
 end
 
-function aw.SetAuthor(A,B)
-aw.Author=B
-if not u then
-u=createAuthor(aw.Author)
+function aB.SetAuthor(H,J)
+aB.Author=J
+if not B then
+B=createAuthor(aB.Author)
 end
 
-u.Text=B
+B.Text=J
 end
 
-function aw.SetSize(A,B)
-if typeof(B)=="UDim2"then
-aw.Size=B
+function aB.SetSize(H,J)
+if typeof(J)=="UDim2"then
+aB.Size=J
 
-ap(aw.UIElements.Main,0.08,{Size=B},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ap(aB.UIElements.Main,0.08,{Size=J},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
-end
-
-function aw.SetBackgroundImage(A,B)
-aw.UIElements.Main.Background.ImageLabel.Image=B
-end
-function aw.SetBackgroundImageTransparency(A,B)
-if i and i:IsA"ImageLabel"then
-i.ImageTransparency=math.floor(B*10+0.5)/10
-end
-aw.BackgroundImageTransparency=math.floor(B*10+0.5)/10
 end
 
-function aw.SetBackgroundTransparency(A,B)
-local C=math.floor(tonumber(B)*10+0.5)/10
-av.WindUI.TransparencyValue=C
-aw:ToggleTransparency(C>0)
+function aB.SetBackgroundImage(H,J)
+aB.UIElements.Main.Background.ImageLabel.Image=J
+end
+function aB.SetBackgroundImageTransparency(H,J)
+if u and u:IsA"ImageLabel"then
+u.ImageTransparency=math.floor(J*10+0.5)/10
+end
+aB.BackgroundImageTransparency=math.floor(J*10+0.5)/10
 end
 
-local A
-local B
+function aB.SetBackgroundTransparency(H,J)
+local L=math.floor(tonumber(J)*10+0.5)/10
+av.WindUI.TransparencyValue=L
+aB:ToggleTransparency(L>0)
+end
+
+local H
+local J
 an.Icon"minimize"
 an.Icon"maximize"
 
-aw:CreateTopbarButton(
+aB:CreateTopbarButton(
 "Fullscreen",
-aw.Topbar.ButtonsType=="Mac"and"rbxassetid://127426072704909"or"maximize",
+aB.Topbar.ButtonsType=="Mac"and"rbxassetid://127426072704909"or"maximize",
 function()
-aw:ToggleFullscreen()
+aB:ToggleFullscreen()
 end,
-(aw.Topbar.ButtonsType=="Default"and 998 or 997),
+(aB.Topbar.ButtonsType=="Default"and 998 or 997),
 true,
 Color3.fromHex"#60C762",
-aw.Topbar.ButtonsType=="Mac"and 9 or nil
+aB.Topbar.ButtonsType=="Mac"and 9 or nil
 )
 
-local function SetSize(C)
-ap(aw.UIElements.Main,0.45,{
-Size=not aw.IsFullscreen and B or UDim2.new(
+local function SetSize(L)
+ap(aB.UIElements.Main,0.45,{
+Size=not aB.IsFullscreen and J or UDim2.new(
 0,
 (av.WindUI.ScreenGui.AbsoluteSize.X-20)/av.WindUI.UIScale,
 0,
@@ -14028,44 +14131,44 @@ Size=not aw.IsFullscreen and B or UDim2.new(
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
 ap(
-aw.UIElements.Main,
+aB.UIElements.Main,
 0.45,
-{Position=not aw.IsFullscreen and A or UDim2.new(0.5,0,0.5,26)},
+{Position=not aB.IsFullscreen and H or UDim2.new(0.5,0,0.5,26)},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
 end
 
-function aw.ToggleFullscreen(C)
-local F=aw.IsFullscreen
+function aB.ToggleFullscreen(L)
+local M=aB.IsFullscreen
 
-z:Set(F)
+G:Set(M)
 
-if not F then
-A=aw.UIElements.Main.Position
-B=aw.UIElements.Main.Size
+if not M then
+H=aB.UIElements.Main.Position
+J=aB.UIElements.Main.Size
 
-aw.CanResize=false
+aB.CanResize=false
 else
-if aw.Resizable then
-aw.CanResize=true
+if aB.Resizable then
+aB.CanResize=true
 end
 end
 
-aw.IsFullscreen=not F
+aB.IsFullscreen=not M
 
 SetSize(true)
 end
 
 an.AddSignal(av.WindUI.ScreenGui:GetPropertyChangedSignal"AbsoluteSize",function()
-if aw.IsFullscreen then
+if aB.IsFullscreen then
 SetSize()
 end
 end)
 
-aw:CreateTopbarButton("Minimize","minus",function()
-if aw.Close then
-aw:Close()
+aB:CreateTopbarButton("Minimize","minus",function()
+if aB.Close then
+aB:Close()
 end
 
 
@@ -14089,82 +14192,82 @@ end
 
 
 
-end,(aw.Topbar.ButtonsType=="Default"and 997 or 998),nil,Color3.fromHex"#F4C948")
+end,(aB.Topbar.ButtonsType=="Default"and 997 or 998),nil,Color3.fromHex"#F4C948")
 
-function aw.OnOpen(C,F)
-aw.OnOpenCallback=F
+function aB.OnOpen(L,M)
+aB.OnOpenCallback=M
 end
-function aw.OnClose(C,F)
-aw.OnCloseCallback=F
+function aB.OnClose(L,M)
+aB.OnCloseCallback=M
 end
-function aw.OnDestroy(C,F)
-aw.OnDestroyCallback=F
+function aB.OnDestroy(L,M)
+aB.OnDestroyCallback=M
 end
 
 if av.WindUI.UseAcrylic then
-aw.AcrylicPaint.AddParent(aw.UIElements.Main)
+aB.AcrylicPaint.AddParent(aB.UIElements.Main)
 end
 
-function aw.SetIconSize(C,F)
-local G
-if typeof(F)=="number"then
-G=UDim2.new(0,F,0,F)
-aw.IconSize=F
-elseif typeof(F)=="UDim2"then
-G=F
-aw.IconSize=F.X.Offset
+function aB.SetIconSize(L,M)
+local N
+if typeof(M)=="number"then
+N=UDim2.new(0,M,0,M)
+aB.IconSize=M
+elseif typeof(M)=="UDim2"then
+N=M
+aB.IconSize=M.X.Offset
 end
 
-if v then
-v.Size=G
+if C then
+C.Size=N
 end
 end
 
-function aw.Open(C)
-if aw.Destroyed then
+function aB.Open(L)
+if aB.Destroyed then
 return
 end
 task.spawn(function()
-if aw.OnOpenCallback then
+if aB.OnOpenCallback then
 task.spawn(function()
-an.SafeCallback(aw.OnOpenCallback)
+an.SafeCallback(aB.OnOpenCallback)
 end)
 end
 
 task.wait(0.06)
-aw.Closed=false
+aB.Closed=false
 
-aw.UIElements.Main.Size=UDim2.new(aw.Size.X.Scale,aw.Size.X.Offset,0,100)
+aB.UIElements.Main.Size=UDim2.new(aB.Size.X.Scale,aB.Size.X.Offset,0,100)
 
-ap(aw.UIElements.Main,0.8,{
+ap(aB.UIElements.Main,0.8,{
 
-Size=aw.Size,
+Size=aB.Size,
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-if aw.UIElements.BackgroundGradient then
-ap(aw.UIElements.BackgroundGradient,0.2,{
+if aB.UIElements.BackgroundGradient then
+ap(aB.UIElements.BackgroundGradient,0.2,{
 ImageTransparency=0,
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 
-aw.UIElements.Main.Background.ImageTransparency=1
-ap(aw.UIElements.Main.Background,0.4,{
+aB.UIElements.Main.Background.ImageTransparency=1
+ap(aB.UIElements.Main.Background,0.4,{
 
-ImageTransparency=aw.Transparent and av.WindUI.TransparencyValue or 0,
+ImageTransparency=aB.Transparent and av.WindUI.TransparencyValue or 0,
 },Enum.EasingStyle.Exponential,Enum.EasingDirection.Out):Play()
 
-if i then
-if i:IsA"VideoFrame"then
-i.Visible=true
+if u then
+if u:IsA"VideoFrame"then
+u.Visible=true
 else
-ap(i,0.2,{
-ImageTransparency=aw.BackgroundImageTransparency,
+ap(u,0.2,{
+ImageTransparency=aB.BackgroundImageTransparency,
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 end
 
-if aw.OpenButtonMain and aw.IsOpenButtonEnabled then
-aw.OpenButtonMain:Visible(false)
+if aB.OpenButtonMain and aB.IsOpenButtonEnabled then
+aB.OpenButtonMain:Visible(false)
 end
 
 
@@ -14176,9 +14279,9 @@ end
 
 
 ap(
-b,
+i,
 0.25,
-{ImageTransparency=aw.ShadowTransparency},
+{ImageTransparency=aB.ShadowTransparency},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
@@ -14187,69 +14290,69 @@ Enum.EasingDirection.Out
 
 
 ap(
-r,
+A,
 0.45,
-{Size=UDim2.new(0,aw.DragFrameSize,0,4),ImageTransparency=0.8},
+{Size=UDim2.new(0,aB.DragFrameSize,0,4),ImageTransparency=0.8},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
-z:Set(true)
+G:Set(true)
 
-if aw.Resizable then
+if aB.Resizable then
 ap(
-az.ImageLabel,
+f.ImageLabel,
 0.45,
 {ImageTransparency=0.8},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
-aw.CanResize=true
+aB.CanResize=true
 end
 
-aw.CanDropdown=true
-aw.UIElements.Main.Visible=true
+aB.CanDropdown=true
+aB.UIElements.Main.Visible=true
 
 
 
-aw.UIElements.Main:WaitForChild"Main".Visible=true
+aB.UIElements.Main:WaitForChild"Main".Visible=true
 
 av.WindUI:ToggleAcrylic(true)
 
 end)
 end
-function aw.Close(C)
-if aw.Destroyed then
+function aB.Close(L)
+if aB.Destroyed then
 return
 end
 
-local F={}
+local M={}
 
-if aw.OnCloseCallback then
+if aB.OnCloseCallback then
 task.spawn(function()
-an.SafeCallback(aw.OnCloseCallback)
+an.SafeCallback(aB.OnCloseCallback)
 end)
 end
 
 av.WindUI:ToggleAcrylic(false)
 
-if aw.UIElements.Main and aw.UIElements.Main:WaitForChild"Main"then
-aw.UIElements.Main.Main.Visible=false
+if aB.UIElements.Main and aB.UIElements.Main:WaitForChild"Main"then
+aB.UIElements.Main.Main.Visible=false
 end
 
-aw.CanDropdown=false
-aw.Closed=true
+aB.CanDropdown=false
+aB.Closed=true
 
-ap(aw.UIElements.Main,0.9,{
+ap(aB.UIElements.Main,0.9,{
 
-Size=UDim2.new(aw.Size.X.Scale,aw.Size.X.Offset,0,0),
+Size=UDim2.new(aB.Size.X.Scale,aB.Size.X.Offset,0,0),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-if aw.UIElements.BackgroundGradient then
-ap(aw.UIElements.BackgroundGradient,0.2,{
+if aB.UIElements.BackgroundGradient then
+ap(aB.UIElements.BackgroundGradient,0.2,{
 ImageTransparency=1,
 },Enum.EasingStyle.Quint,Enum.EasingDirection.InOut):Play()
 end
 
-ap(aw.UIElements.Main.Background,0.3,{
+ap(aB.UIElements.Main.Background,0.3,{
 
 ImageTransparency=1,
 },Enum.EasingStyle.Exponential,Enum.EasingDirection.InOut):Play()
@@ -14261,64 +14364,64 @@ ImageTransparency=1,
 
 
 
-if i then
-if i:IsA"VideoFrame"then
-i.Visible=false
+if u then
+if u:IsA"VideoFrame"then
+u.Visible=false
 else
-ap(i,0.3,{
+ap(u,0.3,{
 ImageTransparency=1,
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 end
-ap(b,0.25,{ImageTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ap(i,0.25,{ImageTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
 
 
 
 ap(
-r,
+A,
 0.3,
 {Size=UDim2.new(0,0,0,4),ImageTransparency=1},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.InOut
 ):Play()
 ap(
-az.ImageLabel,
+f.ImageLabel,
 0.3,
 {ImageTransparency=1},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
-z:Set(false)
-aw.CanResize=false
+G:Set(false)
+aB.CanResize=false
 
 task.spawn(function()
 task.wait(0.4)
 
-if not aw.Closed then
+if not aB.Closed then
 return
 end
 
-aw.UIElements.Main.Visible=false
+aB.UIElements.Main.Visible=false
 
-if aw.OpenButtonMain and not aw.Destroyed and not aw.IsPC and aw.IsOpenButtonEnabled then
-aw.OpenButtonMain:Visible(true)
+if aB.OpenButtonMain and not aB.Destroyed and not aB.IsPC and aB.IsOpenButtonEnabled then
+aB.OpenButtonMain:Visible(true)
 end
 end)
 
-function F.Destroy(G)
+function M.Destroy(N)
 task.spawn(function()
-if aw.OnDestroyCallback then
+if aB.OnDestroyCallback then
 task.spawn(function()
-an.SafeCallback(aw.OnDestroyCallback)
+an.SafeCallback(aB.OnDestroyCallback)
 end)
 end
 
-if aw.AcrylicPaint and aw.AcrylicPaint.Model then
-aw.AcrylicPaint.Model:Destroy()
+if aB.AcrylicPaint and aB.AcrylicPaint.Model then
+aB.AcrylicPaint.Model:Destroy()
 end
 
-aw.Destroyed=true
+aB.Destroyed=true
 
 task.wait(0.4)
 
@@ -14333,207 +14436,207 @@ return
 end)
 end
 
-return F
+return M
 end
-function aw.Destroy(C)
-return aw:Close():Destroy()
+function aB.Destroy(L)
+return aB:Close():Destroy()
 end
-function aw.Toggle(C)
-if aw.Closed then
-aw:Open()
+function aB.Toggle(L)
+if aB.Closed then
+aB:Open()
 else
-aw:Close()
+aB:Close()
 end
 end
 
-function aw.ToggleTransparency(C,F)
+function aB.ToggleTransparency(L,M)
 
-aw.Transparent=F
-av.WindUI.Transparent=F
+aB.Transparent=M
+av.WindUI.Transparent=M
 
-aw.UIElements.Main.Background.ImageTransparency=F and av.WindUI.TransparencyValue or 0
+aB.UIElements.Main.Background.ImageTransparency=M and av.WindUI.TransparencyValue or 0
 
 
-end
-
-function aw.LockAll(C)
-for F,G in next,aw.AllElements do
-if G.Lock then
-G:Lock()
-end
-end
-end
-function aw.UnlockAll(C)
-for F,G in next,aw.AllElements do
-if G.Unlock then
-G:Unlock()
-end
-end
-end
-function aw.GetLocked(C)
-local F={}
-
-for G,H in next,aw.AllElements do
-if H.Locked then
-table.insert(F,H)
-end
 end
 
-return F
+function aB.LockAll(L)
+for M,N in next,aB.AllElements do
+if N.Lock then
+N:Lock()
 end
-function aw.GetUnlocked(C)
-local F={}
+end
+end
+function aB.UnlockAll(L)
+for M,N in next,aB.AllElements do
+if N.Unlock then
+N:Unlock()
+end
+end
+end
+function aB.GetLocked(L)
+local M={}
 
-for G,H in next,aw.AllElements do
-if H.Locked==false then
-table.insert(F,H)
+for N,O in next,aB.AllElements do
+if O.Locked then
+table.insert(M,O)
 end
 end
 
-return F
+return M
+end
+function aB.GetUnlocked(L)
+local M={}
+
+for N,O in next,aB.AllElements do
+if O.Locked==false then
+table.insert(M,O)
+end
 end
 
-function aw.GetUIScale(C,F)
+return M
+end
+
+function aB.GetUIScale(L,M)
 return av.WindUI.UIScale
 end
 
-function aw.SetUIScale(C,F)
-av.WindUI.UIScale=F
-ap(av.WindUI.UIScaleObj,0.2,{Scale=F},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-return aw
+function aB.SetUIScale(L,M)
+av.WindUI.UIScale=M
+ap(av.WindUI.UIScaleObj,0.2,{Scale=M},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+return aB
 end
 
-function aw.SetToTheCenter(C)
+function aB.SetToTheCenter(L)
 ap(
-aw.UIElements.Main,
+aB.UIElements.Main,
 0.45,
 {Position=UDim2.new(0.5,0,0.5,0)},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-return aw
+return aB
 end
 
-function aw.SetCurrentConfig(C,F)
-aw.CurrentConfig=F
+function aB.SetCurrentConfig(L,M)
+aB.CurrentConfig=M
 end
 
 do
-local C=40
-local F=al.ViewportSize
-local G=Vector2.new(aw.Size.X.Offset,aw.Size.Y.Offset)
+local L=40
+local M=al.ViewportSize
+local N=Vector2.new(aB.Size.X.Offset,aB.Size.Y.Offset)
 
-if not aw.IsFullscreen and aw.AutoScale then
-local H=F.X-(C*2)
-local J=F.Y-(C*2)
+if not aB.IsFullscreen and aB.AutoScale then
+local O=M.X-(L*2)
+local P=M.Y-(L*2)
 
-local L=H/G.X
-local M=J/G.Y
+local Q=O/N.X
+local R=P/N.Y
 
-local N=math.min(L,M)
+local S=math.min(Q,R)
 
-local O=0.3
-local P=1.0
+local T=0.3
+local U=1.0
 
-local Q=math.clamp(N,O,P)
+local V=math.clamp(S,T,U)
 
-local R=aw:GetUIScale()or 1
-local S=0.05
+local W=aB:GetUIScale()or 1
+local X=0.05
 
-if math.abs(Q-R)>S then
-aw:SetUIScale(Q)
+if math.abs(V-W)>X then
+aB:SetUIScale(V)
 end
 end
 end
 
-if aw.OpenButtonMain and aw.OpenButtonMain.Button then
-an.AddSignal(aw.OpenButtonMain.Button.TextButton.MouseButton1Click,function()
+if aB.OpenButtonMain and aB.OpenButtonMain.Button then
+an.AddSignal(aB.OpenButtonMain.Button.TextButton.MouseButton1Click,function()
 
 
-aw:Open()
+aB:Open()
 end)
 end
 
-an.AddSignal(af.InputBegan,function(C,F)
-if F then
+an.AddSignal(af.InputBegan,function(L,M)
+if M then
 return
 end
 
-if aw.ToggleKey then
-if C.KeyCode==aw.ToggleKey then
-aw:Toggle()
+if aB.ToggleKey then
+if L.KeyCode==aB.ToggleKey then
+aB:Toggle()
 end
 end
 end)
 
 task.spawn(function()
 
-aw:Open()
+aB:Open()
 end)
 
-function aw.EditOpenButton(C,F)
-return aw.OpenButtonMain:Edit(F)
+function aB.EditOpenButton(L,M)
+return aB.OpenButtonMain:Edit(M)
 end
 
-if aw.OpenButton and typeof(aw.OpenButton)=="table"then
-aw:EditOpenButton(aw.OpenButton)
+if aB.OpenButton and typeof(aB.OpenButton)=="table"then
+aB:EditOpenButton(aB.OpenButton)
 end
 
-local C=a.load'aa'
-local F=a.load'ab'
-local G=C.Init(aw,av.WindUI,av.WindUI.TooltipGui)
-G:OnChange(function(H)
-aw.CurrentTab=H
+local L=a.load'aa'
+local M=a.load'ab'
+local N=L.Init(aB,av.WindUI,av.WindUI.TooltipGui)
+N:OnChange(function(O)
+aB.CurrentTab=O
 end)
 
-aw.TabModule=G
+aB.TabModule=N
 
-function aw.Tab(H,J)
-J.Parent=aw.UIElements.SideBar.Frame
-return G.New(J,av.WindUI.UIScale)
+function aB.Tab(O,P)
+P.Parent=aB.UIElements.SideBar.Frame
+return N.New(P,av.WindUI.UIScale)
 end
 
-function aw.SelectTab(H,J)
-G:SelectTab(J)
+function aB.SelectTab(O,P)
+N:SelectTab(P)
 end
 
-function aw.Section(H,J)
-return F.New(
-J,
-aw.UIElements.SideBar.Frame,
-aw.Folder,
+function aB.Section(O,P)
+return M.New(
+P,
+aB.UIElements.SideBar.Frame,
+aB.Folder,
 av.WindUI.UIScale,
-aw
+aB
 )
 end
 
-function aw.IsResizable(H,J)
-aw.Resizable=J
-aw.CanResize=J
+function aB.IsResizable(O,P)
+aB.Resizable=P
+aB.CanResize=P
 end
 
-function aw.SetPanelBackground(H,J)
-if typeof(J)=="boolean"then
-aw.HidePanelBackground=J
+function aB.SetPanelBackground(O,P)
+if typeof(P)=="boolean"then
+aB.HidePanelBackground=P
 
-aw.UIElements.MainBar.Background.Visible=J
+aB.UIElements.MainBar.Background.Visible=P
 
-if G then
-for L,M in next,G.Containers do
-M.ScrollingFrame.UIPadding.PaddingTop=UDim.new(0,aw.HidePanelBackground and 20 or 10)
-M.ScrollingFrame.UIPadding.PaddingLeft=
-UDim.new(0,aw.HidePanelBackground and 20 or 10)
-M.ScrollingFrame.UIPadding.PaddingRight=
-UDim.new(0,aw.HidePanelBackground and 20 or 10)
-M.ScrollingFrame.UIPadding.PaddingBottom=
-UDim.new(0,aw.HidePanelBackground and 20 or 10)
+if N then
+for Q,R in next,N.Containers do
+R.ScrollingFrame.UIPadding.PaddingTop=UDim.new(0,aB.HidePanelBackground and 20 or 10)
+R.ScrollingFrame.UIPadding.PaddingLeft=
+UDim.new(0,aB.HidePanelBackground and 20 or 10)
+R.ScrollingFrame.UIPadding.PaddingRight=
+UDim.new(0,aB.HidePanelBackground and 20 or 10)
+R.ScrollingFrame.UIPadding.PaddingBottom=
+UDim.new(0,aB.HidePanelBackground and 20 or 10)
 end
 end
 end
 end
 
-function aw.Divider(H)
-local J=ao("Frame",{
+function aB.Divider(O)
+local P=ao("Frame",{
 Size=UDim2.new(1,0,0,1),
 Position=UDim2.new(0.5,0,0,0),
 AnchorPoint=Vector2.new(0.5,0),
@@ -14542,110 +14645,110 @@ ThemeTag={
 BackgroundColor3="Text",
 },
 })
-local L=ao("Frame",{
-Parent=aw.UIElements.SideBar.Frame,
+local Q=ao("Frame",{
+Parent=aB.UIElements.SideBar.Frame,
 
 Size=UDim2.new(1,-7,0,5),
 BackgroundTransparency=1,
 },{
-J,
+P,
 })
 
-return L
+return Q
 end
 
-local H=a.load'o'
-function aw.Dialog(J,L)
-local M={
-Title=L.Title or"Dialog",
-Width=L.Width or 320,
-Content=L.Content,
-Buttons=L.Buttons or{},
+local O=a.load'o'
+function aB.Dialog(P,Q)
+local R={
+Title=Q.Title or"Dialog",
+Width=Q.Width or 320,
+Content=Q.Content,
+Buttons=Q.Buttons or{},
 
 TextPadding=14,
 }
-local N=H.Create(false,"Dialog",aw,av.WindUI,aw.UIElements.Main.Main)
+local S=O.Create(false,"Dialog",aB,av.WindUI,aB.UIElements.Main.Main)
 
-N.UIElements.Main.Size=UDim2.new(0,M.Width,0,0)
+S.UIElements.Main.Size=UDim2.new(0,R.Width,0,0)
 
-local O=ao("Frame",{
+local T=ao("Frame",{
 Size=UDim2.new(1,0,1,0),
 AutomaticSize="Y",
 BackgroundTransparency=1,
-Parent=N.UIElements.Main,
+Parent=S.UIElements.Main,
 },{
 ao("UIListLayout",{
 FillDirection="Vertical",
 
-Padding=UDim.new(0,N.UIPadding),
+Padding=UDim.new(0,S.UIPadding),
 }),
 })
 
-local P=ao("Frame",{
+local U=ao("Frame",{
 Size=UDim2.new(1,0,0,0),
 AutomaticSize="Y",
 BackgroundTransparency=1,
-Parent=O,
+Parent=T,
 },{
 ao("UIListLayout",{
 FillDirection="Horizontal",
-Padding=UDim.new(0,N.UIPadding),
+Padding=UDim.new(0,S.UIPadding),
 VerticalAlignment="Center",
 }),
 ao("UIPadding",{
-PaddingTop=UDim.new(0,M.TextPadding/2),
-PaddingLeft=UDim.new(0,M.TextPadding/2),
-PaddingRight=UDim.new(0,M.TextPadding/2),
+PaddingTop=UDim.new(0,R.TextPadding/2),
+PaddingLeft=UDim.new(0,R.TextPadding/2),
+PaddingRight=UDim.new(0,R.TextPadding/2),
 }),
 })
 
-local Q
-if L.Icon then
-Q=an.Image(
-L.Icon,
-M.Title..":"..L.Icon,
+local V
+if Q.Icon then
+V=an.Image(
+Q.Icon,
+R.Title..":"..Q.Icon,
 0,
-aw,
+aB,
 "Dialog",
 true,
-L.IconThemed
+Q.IconThemed
 )
-Q.Size=UDim2.new(0,22,0,22)
-Q.Parent=P
+V.Size=UDim2.new(0,22,0,22)
+V.Parent=U
 end
 
-N.UIElements.UIListLayout=ao("UIListLayout",{
+S.UIElements.UIListLayout=ao("UIListLayout",{
 Padding=UDim.new(0,12),
 FillDirection="Vertical",
 HorizontalAlignment="Left",
 VerticalFlex="SpaceBetween",
-Parent=N.UIElements.Main,
+Parent=S.UIElements.Main,
 })
 
 ao("UISizeConstraint",{
 MinSize=Vector2.new(180,20),
 MaxSize=Vector2.new(400,math.huge),
-Parent=N.UIElements.Main,
+Parent=S.UIElements.Main,
 })
 
-N.UIElements.Title=ao("TextLabel",{
-Text=M.Title,
+S.UIElements.Title=ao("TextLabel",{
+Text=R.Title,
 TextSize=20,
 FontFace=Font.new(an.Font,Enum.FontWeight.SemiBold),
 TextXAlignment="Left",
 TextWrapped=true,
 RichText=true,
-Size=UDim2.new(1,Q and-26-N.UIPadding or 0,0,0),
+Size=UDim2.new(1,V and-26-S.UIPadding or 0,0,0),
 AutomaticSize="Y",
 ThemeTag={
 TextColor3="Text",
 },
 BackgroundTransparency=1,
-Parent=P,
+Parent=U,
 })
-if M.Content then
+if R.Content then
 ao("TextLabel",{
-Text=M.Content,
+Text=R.Content,
 TextSize=18,
 TextTransparency=0.4,
 TextWrapped=true,
@@ -14659,31 +14762,31 @@ ThemeTag={
 TextColor3="Text",
 },
 BackgroundTransparency=1,
-Parent=O,
+Parent=T,
 },{
 ao("UIPadding",{
-PaddingLeft=UDim.new(0,M.TextPadding/2),
-PaddingRight=UDim.new(0,M.TextPadding/2),
-PaddingBottom=UDim.new(0,M.TextPadding/2),
+PaddingLeft=UDim.new(0,R.TextPadding/2),
+PaddingRight=UDim.new(0,R.TextPadding/2),
+PaddingBottom=UDim.new(0,R.TextPadding/2),
 }),
 })
 end
 
-local R=ao("UIListLayout",{
+local W=ao("UIListLayout",{
 Padding=UDim.new(0,6),
 FillDirection="Horizontal",
 HorizontalAlignment="Center",
 HorizontalFlex="Fill",
 })
 
-local S=ao("Frame",{
+local X=ao("Frame",{
 Size=UDim2.new(1,0,0,36),
 AutomaticSize="None",
 BackgroundTransparency=1,
-Parent=N.UIElements.Main,
+Parent=S.UIElements.Main,
 LayoutOrder=4,
 },{
-R,
+W,
 
 
 
@@ -14692,13 +14795,13 @@ R,
 
 })
 
-local T={}
+local Y={}
 
-for U,V in next,M.Buttons do
-local W=
-ar(V.Title,V.Icon,V.Callback,V.Variant,S,N,true)
-table.insert(T,W)
-W.Size=UDim2.new(1,0,1,0)
+for _,aC in next,R.Buttons do
+local aD=
+ar(aC.Title,aC.Icon,aC.Callback,aC.Variant,X,S,true)
+table.insert(Y,aD)
+aD.Size=UDim2.new(1,0,1,0)
 end
 
 
@@ -14753,19 +14856,19 @@ end
 
 
 
-N:Open()
+S:Open()
 
-return N
+return S
 end
 
-local J=false
+local aC=false
 
-aw:CreateTopbarButton("Close","x",function()
-if not J then
-if not aw.IgnoreAlerts then
-J=true
+aB:CreateTopbarButton("Close","x",function()
+if not aC then
+if not aB.IgnoreAlerts then
+aC=true
 
-aw:Dialog{
+aB:Dialog{
 
 Title="Close Window",
 Content="Do you want to close this window? You will not be able to open it again.",
@@ -14774,7 +14877,7 @@ Buttons={
 Title="Cancel",
 
 Callback=function()
-J=false
+aC=false
 end,
 Variant="Secondary",
 },
@@ -14782,163 +14885,163 @@ Variant="Secondary",
 Title="Close Window",
 
 Callback=function()
-J=false
-aw:Destroy()
+aC=false
+aB:Destroy()
 end,
 Variant="Primary",
 },
 },
 }
 else
-aw:Destroy()
+aB:Destroy()
 end
 end
 end,999,nil,Color3.fromHex"#F4695F")
 
-function aw.Tag(L,M)
-if aw.UIElements.Main.Main.Topbar.Center.Visible==false then
-aw.UIElements.Main.Main.Topbar.Center.Visible=true
+function aB.Tag(aD,P)
+if aB.UIElements.Main.Main.Topbar.Center.Visible==false then
+aB.UIElements.Main.Main.Topbar.Center.Visible=true
 end
-M.Window=aw
-return at:New(M,aw.UIElements.Main.Main.Topbar.Center.Holder)
+P.Window=aB
+return at:New(P,aB.UIElements.Main.Main.Topbar.Center.Holder)
 end
 
-local L=av.WindUI.GenerateGUID()
+local aD=av.WindUI.GenerateGUID()
 
-local function startResizing(M)
-if aw.CanResize then
+local function startResizing(P)
+if aB.CanResize then
 isResizing=true
-aA.Active=true
-initialSize=aw.UIElements.Main.Size
-initialInputPosition=M.Position
+g.Active=true
+initialSize=aB.UIElements.Main.Size
+initialInputPosition=P.Position
 
 
-ap(az.ImageLabel,0.1,{ImageTransparency=0.35}):Play()
+ap(f.ImageLabel,0.1,{ImageTransparency=0.35}):Play()
 
-an.AddSignal(M.Changed,function()
-if M.UserInputState==Enum.UserInputState.End then
-if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=L then
+an.AddSignal(P.Changed,function()
+if P.UserInputState==Enum.UserInputState.End then
+if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=aD then
 return
 end
 
 av.WindUI.CurrentInput=nil
 
 isResizing=false
-aA.Active=false
+g.Active=false
 
 
-ap(az.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
+ap(f.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
 end
 end)
 end
 end
 
-an.AddSignal(az.InputBegan,function(M)
+an.AddSignal(f.InputBegan,function(P)
 if
-M.UserInputType==Enum.UserInputType.MouseButton1
-or M.UserInputType==Enum.UserInputType.Touch
+P.UserInputType==Enum.UserInputType.MouseButton1
+or P.UserInputType==Enum.UserInputType.Touch
 then
-if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=L then
+if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=aD then
 return
 end
-av.WindUI.CurrentInput=L
+av.WindUI.CurrentInput=aD
 
-if aw.CanResize then
-startResizing(M)
+if aB.CanResize then
+startResizing(P)
 end
 end
 end)
 
-an.AddSignal(af.InputChanged,function(M)
+an.AddSignal(af.InputChanged,function(P)
 if
-M.UserInputType==Enum.UserInputType.MouseMovement
-or M.UserInputType==Enum.UserInputType.Touch
+P.UserInputType==Enum.UserInputType.MouseMovement
+or P.UserInputType==Enum.UserInputType.Touch
 then
-if isResizing and aw.CanResize then
-local N=M.Position-initialInputPosition
-local O=UDim2.new(0,initialSize.X.Offset+N.X*2,0,initialSize.Y.Offset+N.Y*2)
+if isResizing and aB.CanResize then
+local Q=P.Position-initialInputPosition
+local R=UDim2.new(0,initialSize.X.Offset+Q.X*2,0,initialSize.Y.Offset+Q.Y*2)
 
-O=UDim2.new(
-O.X.Scale,
-math.clamp(O.X.Offset,aw.MinSize.X,aw.MaxSize.X),
-O.Y.Scale,
-math.clamp(O.Y.Offset,aw.MinSize.Y,aw.MaxSize.Y)
+R=UDim2.new(
+R.X.Scale,
+math.clamp(R.X.Offset,aB.MinSize.X,aB.MaxSize.X),
+R.Y.Scale,
+math.clamp(R.Y.Offset,aB.MinSize.Y,aB.MaxSize.Y)
 )
 
-ap(aw.UIElements.Main,0.08,{
-Size=O,
+ap(aB.UIElements.Main,0.08,{
+Size=R,
 },Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
 
-aw.Size=O
+aB.Size=R
 end
 end
 end)
 
-an.AddSignal(az.MouseEnter,function()
-if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=L then
+an.AddSignal(f.MouseEnter,function()
+if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=aD then
 return
 end
 if not isResizing then
-ap(az.ImageLabel,0.1,{ImageTransparency=0.35}):Play()
+ap(f.ImageLabel,0.1,{ImageTransparency=0.35}):Play()
 end
 end)
-an.AddSignal(az.MouseLeave,function()
-if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=L then
+an.AddSignal(f.MouseLeave,function()
+if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=aD then
 return
 end
 if not isResizing then
-ap(az.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
+ap(f.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
 end
 end)
 
 
 
-local M=0
-local N=0.4
-local O
 local P=0
+local Q=0.4
+local R
+local S=0
 
 function onDoubleClick()
-aw:SetToTheCenter()
+aB:SetToTheCenter()
 end
 
-an.AddSignal(r.Frame.MouseButton1Up,function()
-local Q=tick()
-local R=aw.Position
+an.AddSignal(A.Frame.MouseButton1Up,function()
+local T=tick()
+local U=aB.Position
 
-P=P+1
+S=S+1
 
-if P==1 then
-M=Q
-O=R
+if S==1 then
+P=T
+R=U
 
 task.spawn(function()
-task.wait(N)
-if P==1 then
-P=0
-O=nil
+task.wait(Q)
+if S==1 then
+S=0
+R=nil
 end
 end)
-elseif P==2 then
-if Q-M<=N and R==O then
+elseif S==2 then
+if T-P<=Q and U==R then
 onDoubleClick()
 end
 
+S=0
+R=nil
 P=0
-O=nil
-M=0
 else
-P=1
-M=Q
-O=R
+S=1
+P=T
+R=U
 end
 end)
 
 
 
-if not aw.HideSearchBar then
-local Q=a.load'ad'
-local R=false
+if not aB.HideSearchBar then
+local T=a.load'ad'
+local U=false
 
 
 
@@ -14960,40 +15063,40 @@ local R=false
 
 
 
-local S=aq("Search","search",aw.UIElements.SideBarContainer,true)
-S.Size=UDim2.new(1,-aw.UIPadding/2,0,39)
-S.Position=UDim2.new(0,aw.UIPadding/2,0,0)
+local V=aq("Search","search",aB.UIElements.SideBarContainer,true)
+V.Size=UDim2.new(1,-aB.UIPadding/2,0,39)
+V.Position=UDim2.new(0,aB.UIPadding/2,0,0)
 
-an.AddSignal(S.MouseButton1Click,function()
-if R then
+an.AddSignal(V.MouseButton1Click,function()
+if U then
 return
 end
 
-Q.new(aw.TabModule,aw.UIElements.Main,function()
+T.new(aB.TabModule,aB.UIElements.Main,function()
 
-R=false
-if aw.Resizable then
-aw.CanResize=true
+U=false
+if aB.Resizable then
+aB.CanResize=true
 end
 
-ap(aB,0.1,{ImageTransparency=1}):Play()
-aB.Active=false
+ap(h,0.1,{ImageTransparency=1}):Play()
+h.Active=false
 end)
-ap(aB,0.1,{ImageTransparency=0.65}):Play()
-aB.Active=true
+ap(h,0.1,{ImageTransparency=0.65}):Play()
+h.Active=true
 
-R=true
-aw.CanResize=false
+U=true
+aB.CanResize=false
 end)
 end
 
 
 
-function aw.DisableTopbarButtons(Q,R)
-for S,T in next,R do
-for U,V in next,aw.TopBarButtons do
-if V.Name==T then
-V.Object.Visible=false
+function aB.DisableTopbarButtons(T,U)
+for V,W in next,U do
+for X,Y in next,aB.TopBarButtons do
+if Y.Name==W then
+Y.Object.Visible=false
 end
 end
 end
@@ -15025,8 +15128,211 @@ end
 
 
 
-return aw
-end end end
+return aB
+end end function a.af()
+
+local aa={}
+
+local af=a.load'd'
+local ai=af.New
+local ak=af.Tween
+
+local function SetZIndex(al,am)
+al.ZIndex=am
+for an,ao in next,al:GetDescendants()do
+if ao:IsA"GuiObject"then
+ao.ZIndex=am
+end
+end
+end
+
+function aa.Play(al,am)
+al=al or{}
+local an=typeof(al.Intro)=="table"and al.Intro or{}
+if al.Intro==false or an.Enabled==false or not al.Image then
+return
+end
+
+local ao=math.max(tonumber(an.Duration)or 2.8,1.8)
+local ap=an.Title or al.Name or"VANTA"
+local aq=an.Subtitle or"SIGNAL ACQUIRED"
+local ar=an.Accent or Color3.fromHex"#5DE7FF"
+local as=math.clamp(tonumber(an.LogoSize)or 196,132,260)
+local at=tonumber(an.Radius)or al.IconRadius or 20
+
+local au=ai("CanvasGroup",{
+Name="VantaBrandIntro",
+Size=UDim2.fromScale(1,1),
+BackgroundColor3=Color3.new(0,0,0),
+BackgroundTransparency=0,
+GroupTransparency=0,
+Parent=am,
+Active=true,
+ZIndex=100000,
+})
+
+local av=ai("Frame",{
+Size=UDim2.fromScale(1.25,1.25),
+Position=UDim2.fromScale(0.5,0.5),
+AnchorPoint=Vector2.new(0.5,0.5),
+BackgroundColor3=ar,
+BackgroundTransparency=0.965,
+ZIndex=100001,
+Parent=au,
+},{
+ai("UICorner",{CornerRadius=UDim.new(1,0)}),
+ai("UIGradient",{
+Rotation=90,
+Transparency=NumberSequence.new{
+NumberSequenceKeypoint.new(0,1),
+NumberSequenceKeypoint.new(0.5,0.15),
+NumberSequenceKeypoint.new(1,1),
+},
+}),
+})
+
+local aw=ai("CanvasGroup",{
+Size=UDim2.new(0,math.max(as+80,300),0,as+122),
+Position=UDim2.new(0.5,0,0.5,14),
+AnchorPoint=Vector2.new(0.5,0.5),
+BackgroundTransparency=1,
+GroupTransparency=1,
+ZIndex=100002,
+Parent=au,
+})
+
+local ax=ai("Frame",{
+Size=UDim2.new(0,as+22,0,as+22),
+Position=UDim2.new(0.5,0,0,0),
+AnchorPoint=Vector2.new(0.5,0),
+BackgroundColor3=Color3.new(0,0,0),
+BackgroundTransparency=0.12,
+ZIndex=100003,
+Parent=aw,
+},{
+ai("UICorner",{CornerRadius=UDim.new(0,at+7)}),
+ai("UIStroke",{
+Color=ar,
+Transparency=0.38,
+Thickness=1.5,
+}),
+})
+
+local az=af.Image(
+al.Image,
+"VantaBrand",
+at,
+al.Folder or"VantaUI",
+"BrandIntro",
+false,
+false
+)
+az.Size=UDim2.new(0,as,0,as)
+az.Position=UDim2.fromScale(0.5,0.5)
+az.AnchorPoint=Vector2.new(0.5,0.5)
+az.Parent=ax
+SetZIndex(az,100004)
+
+local aA=ai("Frame",{
+Size=UDim2.new(1,-18,0,2),
+Position=UDim2.new(0.5,0,0,10),
+AnchorPoint=Vector2.new(0.5,0),
+BackgroundColor3=ar,
+BackgroundTransparency=0.28,
+ZIndex=100005,
+Parent=ax,
+},{
+ai("UIGradient",{
+Transparency=NumberSequence.new{
+NumberSequenceKeypoint.new(0,1),
+NumberSequenceKeypoint.new(0.5,0),
+NumberSequenceKeypoint.new(1,1),
+},
+}),
+})
+
+local aB=ai("TextLabel",{
+Text=ap,
+FontFace=Font.new(af.Font,Enum.FontWeight.Bold),
+TextSize=27,
+TextColor3=Color3.new(1,1,1),
+TextTransparency=1,
+TextXAlignment="Center",
+BackgroundTransparency=1,
+Size=UDim2.new(1,0,0,34),
+Position=UDim2.new(0,0,0,as+34),
+ZIndex=100003,
+Parent=aw,
+})
+
+local aC=ai("TextLabel",{
+Text=aq,
+FontFace=Font.new(af.Font,Enum.FontWeight.Medium),
+TextSize=11,
+TextColor3=ar,
+TextTransparency=1,
+TextXAlignment="Center",
+BackgroundTransparency=1,
+Size=UDim2.new(1,0,0,20),
+Position=UDim2.new(0,0,0,as+67),
+ZIndex=100003,
+Parent=aw,
+})
+
+local aD=ai("Frame",{
+Size=UDim2.new(0,164,0,2),
+Position=UDim2.new(0.5,0,1,-2),
+AnchorPoint=Vector2.new(0.5,1),
+BackgroundColor3=Color3.fromRGB(32,35,42),
+BackgroundTransparency=0.15,
+ZIndex=100003,
+Parent=aw,
+},{
+ai("UICorner",{CornerRadius=UDim.new(1,0)}),
+})
+
+local b=ai("Frame",{
+Size=UDim2.new(0,0,1,0),
+BackgroundColor3=ar,
+BackgroundTransparency=0,
+ZIndex=100004,
+Parent=aD,
+},{
+ai("UICorner",{CornerRadius=UDim.new(1,0)}),
+ai("UIGradient",{
+Color=ColorSequence.new(ar,Color3.new(1,1,1)),
+}),
+})
+
+local d=az:FindFirstChildWhichIsA("ImageLabel",true)
+local f=tonumber(an.LoadTimeout)or 8
+local g=os.clock()
+while d and d.Image==""and os.clock()-g<f do
+task.wait()
+end
+
+ak(aw,0.5,{
+GroupTransparency=0,
+Position=UDim2.new(0.5,0,0.5,0),
+},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ak(av,0.8,{BackgroundTransparency=0.985},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ak(aA,ao*0.52,{
+Position=UDim2.new(0.5,0,1,-10),
+BackgroundTransparency=0.7,
+},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+task.wait(0.34)
+
+ak(aB,0.38,{TextTransparency=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ak(aC,0.48,{TextTransparency=0.18},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ak(b,math.max(ao-0.7,1),{Size=UDim2.fromScale(1,1)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+
+task.wait(math.max(ao-0.68,1.1))
+ak(au,0.5,{GroupTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+task.wait(0.5)
+au:Destroy()
+end
+
+return aa end end
 
 local aa={
 Name="Gui",
@@ -15183,90 +15489,90 @@ av(aa.TooltipGui)
 
 as.Init(aa)
 
-function aa.SetParent(ay,az)
+function aa.SetParent(az,aA)
 if aa.ScreenGui then
-aa.ScreenGui.Parent=az
+aa.ScreenGui.Parent=aA
 end
 if aa.NotificationGui then
-aa.NotificationGui.Parent=az
+aa.NotificationGui.Parent=aA
 end
 if aa.DropdownGui then
-aa.DropdownGui.Parent=az
+aa.DropdownGui.Parent=aA
 end
 if aa.TooltipGui then
-aa.TooltipGui.Parent=az
+aa.TooltipGui.Parent=aA
 end
 end
 math.clamp(aa.TransparencyValue,0,1)
 
-local ay=aa.NotificationModule.Init(aa.NotificationGui)
+local az=aa.NotificationModule.Init(aa.NotificationGui)
 
-function aa.Notify(az,aA)
-aA.Holder=ay.Frame
-aA.Window=aa.Window
+function aa.Notify(aA,aB)
+aB.Holder=az.Frame
+aB.Window=aa.Window
 
-return aa.NotificationModule.New(aA)
+return aa.NotificationModule.New(aB)
 end
 
-function aa.SetNotificationLower(az,aA)
-ay.SetLower(aA)
+function aa.SetNotificationLower(aA,aB)
+az.SetLower(aB)
 end
 
-function aa.SetFont(az,aA)
-as.UpdateFont(aA)
+function aa.SetFont(aA,aB)
+as.UpdateFont(aB)
 end
 
-function aa.OnThemeChange(az,aA)
-aa.OnThemeChangeFunction=aA
+function aa.OnThemeChange(aA,aB)
+aa.OnThemeChangeFunction=aB
 end
 
-function aa.AddTheme(az,aA)
-aa.Themes[aA.Name]=aA
-return aA
+function aa.AddTheme(aA,aB)
+aa.Themes[aB.Name]=aB
+return aB
 end
 
-function aa.SetTheme(az,aA)
-if aa.Themes[aA]then
-aa.Theme=aa.Themes[aA]
-as.SetTheme(aa.Themes[aA])
+function aa.SetTheme(aA,aB)
+if aa.Themes[aB]then
+aa.Theme=aa.Themes[aB]
+as.SetTheme(aa.Themes[aB])
 
 if aa.OnThemeChangeFunction then
-aa.OnThemeChangeFunction(aA)
+aa.OnThemeChangeFunction(aB)
 end
 
-return aa.Themes[aA]
+return aa.Themes[aB]
 end
 return nil
 end
 
-function aa.GetThemes(az)
+function aa.GetThemes(aA)
 return aa.Themes
 end
-function aa.GetCurrentTheme(az)
+function aa.GetCurrentTheme(aA)
 return aa.Theme.Name
 end
-function aa.GetTransparency(az)
+function aa.GetTransparency(aA)
 return aa.Transparent or false
 end
-function aa.GetWindowSize(az)
+function aa.GetWindowSize(aA)
 return aa.Window.UIElements.Main.Size
 end
-function aa.Localization(az,aA)
-return aa.LocalizationModule:New(aA,as)
+function aa.Localization(aA,aB)
+return aa.LocalizationModule:New(aB,as)
 end
 
-function aa.SetLanguage(az,aA)
+function aa.SetLanguage(aA,aB)
 if as.Localization then
-return as.SetLanguage(aA)
+return as.SetLanguage(aB)
 end
 return false
 end
 
-function aa.ToggleAcrylic(az,aA)
+function aa.ToggleAcrylic(aA,aB)
 if aa.Window and aa.Window.AcrylicPaint and aa.Window.AcrylicPaint.Model then
-aa.Window.Acrylic=aA
-aa.Window.AcrylicPaint.Model.Transparency=aA and 0.98 or 1
-if aA then
+aa.Window.Acrylic=aB
+aa.Window.AcrylicPaint.Model.Transparency=aB and 0.98 or 1
+if aB then
 au.Enable()
 else
 au.Disable()
@@ -15274,56 +15580,56 @@ end
 end
 end
 
-function aa.Gradient(az,aA,aB)
+function aa.Gradient(aA,aB,aC)
+local aD={}
 local b={}
-local d={}
 
-for f,g in next,aA do
-local h=tonumber(f)
-if h then
-h=math.clamp(h/100,0,1)
+for d,f in next,aB do
+local g=tonumber(d)
+if g then
+g=math.clamp(g/100,0,1)
 
-local i=g.Color
-if typeof(i)=="string"and string.sub(i,1,1)=="#"then
-i=Color3.fromHex(i)
+local h=f.Color
+if typeof(h)=="string"and string.sub(h,1,1)=="#"then
+h=Color3.fromHex(h)
 end
 
-local l=g.Transparency or 0
+local i=f.Transparency or 0
 
-table.insert(b,ColorSequenceKeypoint.new(h,i))
-table.insert(d,NumberSequenceKeypoint.new(h,l))
+table.insert(aD,ColorSequenceKeypoint.new(g,h))
+table.insert(b,NumberSequenceKeypoint.new(g,i))
 end
 end
 
-table.sort(b,function(f,g)
-return f.Time<g.Time
+table.sort(aD,function(d,f)
+return d.Time<f.Time
 end)
-table.sort(d,function(f,g)
-return f.Time<g.Time
+table.sort(b,function(d,f)
+return d.Time<f.Time
 end)
 
-if#b<2 then
-table.insert(b,ColorSequenceKeypoint.new(1,b[1].Value))
-table.insert(d,NumberSequenceKeypoint.new(1,d[1].Value))
+if#aD<2 then
+table.insert(aD,ColorSequenceKeypoint.new(1,aD[1].Value))
+table.insert(b,NumberSequenceKeypoint.new(1,b[1].Value))
 end
 
-local f={
-Color=ColorSequence.new(b),
-Transparency=NumberSequence.new(d),
+local d={
+Color=ColorSequence.new(aD),
+Transparency=NumberSequence.new(b),
 }
 
-if aB then
-for g,h in pairs(aB)do
-f[g]=h
+if aC then
+for f,g in pairs(aC)do
+d[f]=g
 end
 end
 
-return f
+return d
 end
 
-function aa.Popup(az,aA)
-aA.WindUI=aa
-return a.load'u'.new(aA,aa.ScreenGui.Popups)
+function aa.Popup(aA,aB)
+aB.WindUI=aa
+return a.load'u'.new(aB,aa.ScreenGui.Popups)
 end
 
 aa.Themes=a.load'v'(aa,as)
@@ -15402,74 +15708,74 @@ as.Themes=aa.Themes
 aa:SetTheme"Gui Dark"
 aa:SetLanguage(as.Language)
 
-function aa.CreateWindow(az,aA)
-local aB=a.load'ae'
+function aa.CreateWindow(aA,aB)
+local aC=a.load'ae'
 
 if not am:IsStudio()and writefile then
 if not isfolder"Gui"then
 makefolder"Gui"
 end
-if aA.Folder then
-makefolder(aA.Folder)
+if aB.Folder then
+makefolder(aB.Folder)
 else
-makefolder(aA.Title)
+makefolder(aB.Title)
 end
 end
 
-aA.WindUI=aa
-aA.Window=aa.Window
-aA.Parent=aa.ScreenGui.Window
+aB.WindUI=aa
+aB.Window=aa.Window
+aB.Parent=aa.ScreenGui.Window
 
 if aa.Window then
 warn"[Gui] You cannot create more than one window"
 return
 end
 
-local b=true
+local aD=true
 
-local d=aa.Themes[aA.Theme or"Gui Dark"]
+local b=aa.Themes[aB.Theme or"Gui Dark"]
 
 
-as.SetTheme(d)
+as.SetTheme(b)
 
-local f=gethwid or function()
+local d=gethwid or function()
 return ak.LocalPlayer.UserId
 end
 
-local g=f()
+local f=d()
 
-if aA.KeySystem then
-b=false
+if aB.KeySystem then
+aD=false
 
 local function loadKeysystem()
-ar.new(aA,g,function(h)
-b=h
+ar.new(aB,f,function(g)
+aD=g
 end)
 end
 
-local h=(aA.Folder or"Temp").."/"..g..".key"
+local g=(aB.Folder or"Temp").."/"..f..".key"
 
-if aA.KeySystem.KeyValidator then
-if aA.KeySystem.SaveKey and isfile(h)then
-local i=readfile(h)
-local l=aA.KeySystem.KeyValidator(i)
+if aB.KeySystem.KeyValidator then
+if aB.KeySystem.SaveKey and isfile(g)then
+local h=readfile(g)
+local i=aB.KeySystem.KeyValidator(h)
 
-if l then
-b=true
+if i then
+aD=true
 else
 loadKeysystem()
 end
 else
 loadKeysystem()
 end
-elseif not aA.KeySystem.API then
-if aA.KeySystem.SaveKey and isfile(h)then
-local i=readfile(h)
-local l=(type(aA.KeySystem.Key)=="table")and table.find(aA.KeySystem.Key,i)
-or tostring(aA.KeySystem.Key)==tostring(i)
+elseif not aB.KeySystem.API then
+if aB.KeySystem.SaveKey and isfile(g)then
+local h=readfile(g)
+local i=(type(aB.KeySystem.Key)=="table")and table.find(aB.KeySystem.Key,h)
+or tostring(aB.KeySystem.Key)==tostring(h)
 
-if l then
-b=true
+if i then
+aD=true
 else
 loadKeysystem()
 end
@@ -15477,29 +15783,29 @@ else
 loadKeysystem()
 end
 else
-if isfile(h)then
-local i=readfile(h)
-local l=false
+if isfile(g)then
+local h=readfile(g)
+local i=false
 
-for m,p in next,aA.KeySystem.API do
-local r=aa.Services[p.Type]
-if r then
-local u={}
-for v,x in next,r.Args do
-table.insert(u,p[x])
+for l,m in next,aB.KeySystem.API do
+local p=aa.Services[m.Type]
+if p then
+local r={}
+for u,v in next,p.Args do
+table.insert(r,m[v])
 end
 
-local v=r.New(table.unpack(u))
-local x=v.Verify(i)
-if x then
-l=true
+local u=p.New(table.unpack(r))
+local v=u.Verify(h)
+if v then
+i=true
 break
 end
 end
 end
 
-b=l
-if not l then
+aD=i
+if not i then
 loadKeysystem()
 end
 else
@@ -15509,15 +15815,28 @@ end
 
 repeat
 task.wait()
-until b
+until aD
 end
 
-local h=aB(aA)
+if aB.Branding and aB.Branding.Intro~=false then
+local g,h=pcall(function()a.load'af'
+.Play(aB.Branding,aa.ScreenGui)
+end)
+if not g then
+local i=aa.ScreenGui:FindFirstChild"VantaBrandIntro"
+if i then
+i:Destroy()
+end
+warn("[VantaUI.Branding] Intro failed: "..tostring(h))
+end
+end
 
-aa.Transparent=aA.Transparent
-aa.Window=h
+local g=aC(aB)
 
-if aA.Acrylic then
+aa.Transparent=aB.Transparent
+aa.Window=g
+
+if aB.Acrylic then
 au.init()
 end
 
@@ -15533,7 +15852,7 @@ end
 
 
 
-return h
+return g
 end
 
 return aa

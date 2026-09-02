@@ -750,9 +750,104 @@ function Creator.SanitizeFilename(url)
 	return filename
 end
 
+local function GetImageExtension(url)
+	local cleanUrl = tostring(url):match("^([^?#]+)") or tostring(url)
+	local extension = cleanUrl:match("%.([%w]+)$")
+
+	if extension then
+		extension = string.lower(extension)
+		if extension == "jpg" or extension == "jpeg" or extension == "png" or extension == "webp" then
+			return "." .. extension
+		end
+	end
+
+	return ".png"
+end
+
+local function EnsureFolder(path)
+	if not makefolder then
+		return
+	end
+
+	local current = ""
+	for part in string.gmatch(path, "[^/]+") do
+		current = current == "" and part or current .. "/" .. part
+		if not isfolder or not isfolder(current) then
+			pcall(makefolder, current)
+		end
+	end
+end
+
+local function Download(url)
+	local errors = {}
+
+	if game.HttpGet then
+		local success, body = pcall(function()
+			return game:HttpGet(url)
+		end)
+		if success and typeof(body) == "string" and #body > 0 then
+			return body
+		end
+		table.insert(errors, tostring(body))
+	end
+
+	if Creator.Request then
+		local success, response = pcall(function()
+			return Creator.Request({
+				Url = url,
+				Method = "GET",
+				Headers = { ["User-Agent"] = "Roblox/Executor" },
+			})
+		end)
+
+		local body
+		if success and typeof(response) == "table" then
+			body = response.Body or response.body
+		elseif success and typeof(response) == "string" then
+			body = response
+		end
+		if typeof(body) == "string" and #body > 0 then
+			return body
+		end
+		table.insert(errors, tostring(response))
+	end
+
+	error("Unable to download image: " .. table.concat(errors, "; "))
+end
+
+function Creator.LoadRemoteImage(url, folder)
+	assert(typeof(url) == "string" and string.match(url, "^https?://"), "A valid image URL is required")
+	assert(writefile, "This executor does not support writefile")
+
+	local getAsset = getcustomasset or getsynasset
+	assert(getAsset, "This executor does not support getcustomasset")
+
+	folder = folder or "Temp"
+	local assetFolder = "WindUI/" .. folder .. "/assets"
+	local fileName = assetFolder
+		.. "/.RemoteImage-"
+		.. Creator.SanitizeFilename(url)
+		.. GetImageExtension(url)
+
+	EnsureFolder(assetFolder)
+
+	if not isfile or not isfile(fileName) then
+		writefile(fileName, Download(url))
+	end
+
+	local success, asset = pcall(getAsset, fileName)
+	if not success then
+		writefile(fileName, Download(url))
+		asset = getAsset(fileName)
+	end
+
+	return asset, fileName
+end
+
 function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, ThemeTagName)
 	Folder = Folder or "Temp"
 	Name = Creator.SanitizeFilename(Name)
+	Corner = Corner or 0
 
 	local ImageFrame = New("Frame", {
 		Size = UDim2.new(0, 0, 0, 0),
@@ -771,7 +866,8 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, Them
 			}),
 		}),
 	})
-	if Creator.Icon(Img) then
+	local IconData = Creator.Icon(Img)
+	if IconData then
 		ImageFrame.ImageLabel:Destroy()
 
 		local IconLabel = Icons.Image({
@@ -783,47 +879,18 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, Them
 			},
 		}).IconFrame
 		IconLabel.Parent = ImageFrame
-	elseif string.find(Img, "http") and not string.find(Img, "roblox.com") then
-		local FileName = "WindUI/" .. Folder .. "/assets/." .. Type .. "-" .. Name .. ".png"
-		local success, response = pcall(function()
-			task.spawn(function()
-				local response = Creator.Request
-						and Creator.Request({
-							Url = Img,
-							Method = "GET",
-						}).Body
-					or {}
-
-				if not RunService:IsStudio() and writefile then
-					writefile(FileName, response)
+	elseif typeof(Img) == "string" and string.match(Img, "^https?://") and not string.find(Img, "roblox.com") then
+		local imageLabel = ImageFrame.ImageLabel
+		task.spawn(function()
+			local success, asset = pcall(Creator.LoadRemoteImage, Img, Folder)
+			if success and imageLabel.Parent then
+				imageLabel.Image = asset
+			else
+				if not success then
+					warn(string.format("[ WindUI.Creator ] Failed to load remote image '%s': %s", Img, tostring(asset)))
 				end
-				--ImageFrame.ImageLabel.Image = getcustomasset(FileName)
-
-				local assetSuccess, asset = pcall(getcustomasset, FileName)
-				if assetSuccess then
-					ImageFrame.ImageLabel.Image = asset
-				else
-					warn(
-						string.format(
-							"[ WindUI.Creator ] Failed to load custom asset '%s': %s",
-							FileName,
-							tostring(asset)
-						)
-					)
-					ImageFrame:Destroy()
-
-					return
-				end
-			end)
+			end
 		end)
-		if not success then
-			warn(
-				"[ WindUI.Creator ]  '" .. identifyexecutor()
-					or "Studio" .. "' doesnt support the URL Images. Error: " .. response
-			)
-
-			ImageFrame:Destroy()
-		end
 	elseif Img == "" then
 		ImageFrame.Visible = false
 	else

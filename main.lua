@@ -8,6 +8,7 @@
 
 local PROJECT_VERSION = "0.3.0"
 local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua"
+local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand.jpeg"
 
 local ok, source = pcall(function()
     return game:HttpGet(RUNTIME_URL)
@@ -40,6 +41,7 @@ VantaUI.GuiInfo = {
 VantaUI.Brand = {
     Name = "VantaUI",
     Owner = "MrRos3",
+    Image = BRAND_IMAGE_URL,
     Accent = Color3.fromHex("#929AA7"),
     Cyan = Color3.fromHex("#5DE7FF"),
 }

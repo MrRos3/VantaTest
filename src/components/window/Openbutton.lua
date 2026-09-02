@@ -13,7 +13,8 @@ local UserInputService = cloneref(game:GetService("UserInputService"))
 
 function OpenButton.New(Window)
     local OpenButtonMain = {
-        Button = nil
+        Button = nil,
+        Icon = nil,
     }
     
     local Icon
@@ -149,14 +150,22 @@ function OpenButton.New(Window)
     
     
     function OpenButtonMain:SetIcon(newIcon)
+        if newIcon == OpenButtonMain.Icon and Icon then
+            return
+        end
         if Icon then
             Icon:Destroy()
         end
         if newIcon then
+            local isBrandIcon = Window.BrandImage
+                and (newIcon == Window.BrandImage or newIcon == Window.Branding.OpenButtonIcon)
+            local iconRadius = isBrandIcon
+                and (Window.Branding.OpenButtonIconRadius or Window.Branding.IconRadius or 7)
+                or 0
             Icon = Creator.Image(
                 newIcon,
                 Window.Title,
-                0,
+                iconRadius,
                 Window.Folder,
                 "OpenButton",
                 true,
@@ -166,6 +175,7 @@ function OpenButton.New(Window)
             Icon.LayoutOrder = -1
             Icon.Parent = OpenButtonMain.Button.TextButton
         end
+        OpenButtonMain.Icon = newIcon
     end
     
     if Window.Icon then

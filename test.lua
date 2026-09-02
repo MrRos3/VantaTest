@@ -14,7 +14,6 @@ VantaUI:SetTheme("Vanta AMOLED")
 local Window = VantaUI:CreateWindow({
     Title = "VantaTest",
     Author = "MrRos3",
-    Icon = "sparkles",
     Theme = "Vanta AMOLED",
     StartupTab = "Home",
     Size = UDim2.fromOffset(760, 520),
@@ -26,10 +25,28 @@ local Window = VantaUI:CreateWindow({
         Height = 44,
         ButtonsType = "Mac",
     },
+    Branding = {
+        Name = "VANTA",
+        Image = VantaUI.Brand.Image,
+        Folder = "VantaUI",
+        IconSize = 24,
+        IconRadius = 7,
+        OpenButtonIconRadius = 7,
+        Intro = {
+            Enabled = true,
+            Title = "VANTA",
+            Subtitle = "TEST LAB // ONLINE",
+            Duration = 2.8,
+            LogoSize = 196,
+            Radius = 20,
+            Accent = Color3.fromHex("#5DE7FF"),
+        },
+    },
     OpenButton = {
-        Title = "Open VantaTest",
+        Title = "VantaTest",
         Enabled = true,
-        Draggable = true,
+        Draggable = false,
+        OnlyIcon = true,
         OnlyMobile = false,
     },
     User = {

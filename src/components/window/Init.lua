@@ -27,13 +27,38 @@ local ConfigManager = require("../../config/Init")
 local Notified = false
 
 return function(Config)
+	local Branding = typeof(Config.Branding) == "table" and Config.Branding or {}
+	local BrandImage = Branding.Image
+	local WindowIcon = Config.Icon
+	local WindowIconIsBrand = false
+
+	if BrandImage and Branding.UseAsWindowIcon ~= false then
+		WindowIcon = Branding.WindowIcon or BrandImage
+		WindowIconIsBrand = true
+	end
+
+	local OpenButtonConfig = Config.OpenButton
+	if typeof(OpenButtonConfig) == "table" then
+		local copiedConfig = {}
+		for key, value in next, OpenButtonConfig do
+			copiedConfig[key] = value
+		end
+		OpenButtonConfig = copiedConfig
+
+		if BrandImage and Branding.UseAsOpenButtonIcon ~= false and OpenButtonConfig.Icon == nil then
+			OpenButtonConfig.Icon = Branding.OpenButtonIcon or BrandImage
+		end
+	end
+
 	local Window = {
 		Title = Config.Title or "UI Library",
 		Author = Config.Author,
-		Icon = Config.Icon,
-		IconSize = Config.IconSize or 22,
-		IconThemed = Config.IconThemed,
-		IconRadius = Config.IconRadius or 0,
+		Icon = WindowIcon,
+		IconSize = Branding.IconSize or Config.IconSize or 22,
+		IconThemed = WindowIconIsBrand and false or Config.IconThemed,
+		IconRadius = WindowIconIsBrand and (Branding.IconRadius or Config.IconRadius or 7) or (Config.IconRadius or 0),
+		Branding = Branding,
+		BrandImage = BrandImage,
 		Folder = Config.Folder,
 		Resizable = Config.Resizable ~= false,
 		Background = Config.Background,
@@ -62,7 +87,7 @@ return function(Config)
 		IgnoreAlerts = Config.IgnoreAlerts or false,
 		HidePanelBackground = Config.HidePanelBackground or false,
 		AutoScale = Config.AutoScale ~= false,
-		OpenButton = Config.OpenButton,
+		OpenButton = OpenButtonConfig,
 		DragFrameSize = 160,
 
 		Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -1100,7 +1125,7 @@ return function(Config)
 	task.spawn(function()
 		if Window.Icon then
 			local WindowIconContainer = New("Frame", {
-				Size = UDim2.new(0, 22, 0, 22),
+				Size = UDim2.new(0, Window.IconSize, 0, Window.IconSize),
 				BackgroundTransparency = 1,
 				Parent = Window.UIElements.Main.Main.Topbar.Left,
 			})
