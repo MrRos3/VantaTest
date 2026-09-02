@@ -1,0 +1,53 @@
+name: Vanta Edge preview
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/vanta-edge-preview.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  edge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply Vanta Edge
+        run: python3 tools/vanta_edge.py
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.1"
+
+      - name: Setup Aftman
+        uses: ok-nick/setup-aftman@v0.3.0
+
+      - name: Install build tools
+        run: aftman install
+
+      - name: Build Vanta Edge runtime
+        run: npm run build
+
+      - name: Commit Vanta Edge preview
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git restore package-lock.json 2>/dev/null || true
+          git add src/components/window/Init.lua src/components/ui/Button.lua src/components/window/Tab.lua src/elements/Slider.lua src/components/ui/Dropdown.lua test.lua dist/main.lua build/package.lua
+          git commit -m "Add Vanta Edge motion and intro [skip ci]"
+          git push origin HEAD:main
