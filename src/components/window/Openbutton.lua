@@ -14,6 +14,7 @@ function OpenButton.New(Window)
         Hitbox = nil,
         Dragging = false,
         WasDragged = false,
+        OnlyIcon = false,
     }
 
     local Icon
@@ -174,7 +175,7 @@ function OpenButton.New(Window)
             )
             Icon.Size = UDim2.new(0, 22, 0, 22)
             Icon.LayoutOrder = -1
-            Icon.Parent = OpenButtonMain.Button.TextButton
+            Icon.Parent = OpenButtonMain.OnlyIcon and OpenButtonMain.Button or OpenButtonMain.Button.TextButton
 
             if isBrandIcon and Icon.ImageLabel then
                 Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
@@ -204,26 +205,75 @@ function OpenButton.New(Window)
         Tween(Button.TextButton, .16, { BackgroundTransparency = 1 }):Play()
     end)
 
-    -- A transparent full-size hitbox owns both drag and click so every pixel
-    -- of the floating badge behaves consistently, including the border/image.
-    local DragStartPosition
-    local DragModule = Creator.Drag(Container, { Hitbox }, function(dragging)
-        if dragging then
+    -- Dedicated badge dragging. The full transparent hitbox owns every pixel
+    -- and follows the pointer directly on both mouse and touch.
+    local dragEnabled = true
+    local dragging = false
+    local dragStart
+    local dragStartPosition
+    local activeInput
+
+    Creator.AddSignal(Hitbox.InputBegan, function(input)
+        if not dragEnabled or dragging then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
             OpenButtonMain.Dragging = true
             OpenButtonMain.WasDragged = false
-            DragStartPosition = Container.Position
-        else
-            OpenButtonMain.Dragging = false
-            if DragStartPosition then
-                local dx = Container.Position.X.Offset - DragStartPosition.X.Offset
-                local dy = Container.Position.Y.Offset - DragStartPosition.Y.Offset
-                OpenButtonMain.WasDragged = math.abs(dx) > 2 or math.abs(dy) > 2
-                if OpenButtonMain.WasDragged then
-                    task.delay(0.12, function()
-                        OpenButtonMain.WasDragged = false
-                    end)
-                end
-            end
+            activeInput = input
+            dragStart = input.Position
+            dragStartPosition = Container.Position
+        end
+    end)
+
+    Creator.AddSignal(UserInputService.InputChanged, function(input)
+        if not dragging or not dragEnabled or not activeInput then
+            return
+        end
+
+        local valid = false
+        if activeInput.UserInputType == Enum.UserInputType.MouseButton1 then
+            valid = input.UserInputType == Enum.UserInputType.MouseMovement
+        elseif activeInput.UserInputType == Enum.UserInputType.Touch then
+            valid = input == activeInput
+        end
+        if not valid then
+            return
+        end
+
+        local delta = input.Position - dragStart
+        if math.abs(delta.X) > 2 or math.abs(delta.Y) > 2 then
+            OpenButtonMain.WasDragged = true
+        end
+        Container.Position = UDim2.new(
+            dragStartPosition.X.Scale,
+            dragStartPosition.X.Offset + delta.X,
+            dragStartPosition.Y.Scale,
+            dragStartPosition.Y.Offset + delta.Y
+        )
+    end)
+
+    Creator.AddSignal(UserInputService.InputEnded, function(input)
+        if not dragging or not activeInput then
+            return
+        end
+        local ended = input == activeInput
+            or (activeInput.UserInputType == Enum.UserInputType.MouseButton1
+                and input.UserInputType == Enum.UserInputType.MouseButton1)
+        if not ended then
+            return
+        end
+
+        dragging = false
+        OpenButtonMain.Dragging = false
+        activeInput = nil
+
+        if OpenButtonMain.WasDragged then
+            task.delay(0.18, function()
+                OpenButtonMain.WasDragged = false
+            end)
         end
     end)
 
@@ -235,6 +285,16 @@ function OpenButton.New(Window)
             Window:Open()
         end
     end)
+
+    local DragModule = {}
+    function DragModule:Set(v)
+        dragEnabled = v ~= false
+        if not dragEnabled then
+            dragging = false
+            OpenButtonMain.Dragging = false
+            activeInput = nil
+        end
+    end
 
     function OpenButtonMain:Visible(v)
         Container.Visible = v
@@ -271,6 +331,8 @@ function OpenButton.New(Window)
             Window.IsPC = false
         end
 
+        OpenButtonMain.OnlyIcon = OpenButtonModule.OnlyIcon == true
+
         local dragEnabled = OpenButtonModule.Draggable ~= false
         if Drag and Divider then
             -- The branded icon-only badge never needs a visible handle.
@@ -295,16 +357,17 @@ function OpenButton.New(Window)
             Button.UIPadding.PaddingLeft = UDim.new(0, 0)
             Button.UIPadding.PaddingRight = UDim.new(0, 0)
 
-            Button.TextButton.AutomaticSize = Enum.AutomaticSize.None
-            Button.TextButton.Size = UDim2.fromScale(1, 1)
-            Button.TextButton.UIPadding.PaddingLeft = UDim.new(0, 0)
-            Button.TextButton.UIPadding.PaddingRight = UDim.new(0, 0)
+            Button.TextButton.Visible = false
+            Button.TextButton.Active = false
 
             if Icon then
+                Icon.Parent = Button
                 Icon.Size = UDim2.fromScale(1, 1)
                 Icon.Position = UDim2.fromScale(0.5, 0.5)
                 Icon.AnchorPoint = Vector2.new(0.5, 0.5)
+                Icon.ZIndex = 100
                 if Icon.ImageLabel then
+                    Icon.ImageLabel.ZIndex = 100
                     Icon.ImageLabel.ScaleType = Enum.ScaleType.Crop
                     Icon.ImageLabel.Size = UDim2.fromScale(OpenButtonModule.ImageZoom, OpenButtonModule.ImageZoom)
                     Icon.ImageLabel.Position = UDim2.fromScale(0.5, 0.5)
@@ -318,13 +381,17 @@ function OpenButton.New(Window)
             Button.UIPadding.PaddingLeft = UDim.new(0, 4)
             Button.UIPadding.PaddingRight = UDim.new(0, 4)
 
+            Button.TextButton.Visible = true
+            Button.TextButton.Active = true
             Button.TextButton.AutomaticSize = Enum.AutomaticSize.XY
             Button.TextButton.Size = UDim2.new(0, 0, 0, 44 - (4 * 2))
             Button.TextButton.UIPadding.PaddingLeft = UDim.new(0, 7 + 4)
             Button.TextButton.UIPadding.PaddingRight = UDim.new(0, 7 + 4)
 
             if Icon then
+                Icon.Parent = Button.TextButton
                 Icon.Size = UDim2.new(0, 22, 0, 22)
+                Icon.Position = UDim2.new(0, 0, 0, 0)
                 Icon.AnchorPoint = Vector2.new(0, 0)
             end
         end
@@ -344,7 +411,9 @@ function OpenButton.New(Window)
 
         -- SetIcon may recreate the image after the mode was configured.
         if Icon and OpenButtonModule.OnlyIcon == true then
+            Icon.Parent = Button
             Icon.Size = UDim2.fromScale(1, 1)
+            Icon.ZIndex = 100
             Icon.Position = UDim2.fromScale(0.5, 0.5)
             Icon.AnchorPoint = Vector2.new(0.5, 0.5)
             if Icon.ImageLabel then
