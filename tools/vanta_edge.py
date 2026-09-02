@@ -23,9 +23,8 @@ path = "src/components/window/Init.lua"
 text = load(path)
 text = once(
     text,
-    '\t\t\t\tOutline1,\n\t\t\t\tNew("Frame", { -- Topbar Left Side',
-    '''\t\t\t\tOutline1,
-\t\t\t\tNew("Frame", {
+    '\t\t\t\tNew("Frame", { -- Topbar Left Side',
+    '''\t\t\t\tNew("Frame", {
 \t\t\t\t\tName = "VantaEdgeDivider",
 \t\t\t\t\tSize = UDim2.new(1, 0, 0, 1),
 \t\t\t\t\tPosition = UDim2.new(0, 0, 1, 0),
