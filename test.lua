@@ -10,12 +10,12 @@ local VantaUI = loadstring(game:HttpGet(
 
 assert(type(VantaUI) == "table", "[VantaTest] Failed to load VantaUI")
 
-VantaUI:SetTheme("Vanta AMOLED")
+VantaUI:SetTheme("Salty Special")
 
 local Window = VantaUI:CreateWindow({
     Title = "VantaTest",
     Author = "MrRos3",
-    Theme = "Vanta AMOLED",
+    Theme = "Salty Special",
     StartupTab = "Home",
     Size = UDim2.fromOffset(760, 520),
     Resizable = true,
@@ -129,6 +129,13 @@ Controls:Input({
     Desc = "Test textbox styling.",
     Placeholder = "Type something...",
     Callback = function() end,
+})
+
+Themes:Button({
+    Title = "Salty Special",
+    Callback = function()
+        VantaUI:SetTheme("Salty Special")
+    end,
 })
 
 Themes:Button({

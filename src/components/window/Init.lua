@@ -546,23 +546,6 @@ return function(Config)
 			and string.match(Window.Background, "^rbxassetid://%d+")
 		or nil
 
-	local function GetImageExtension(url)
-		if not url or typeof(url) ~= "string" then
-			return ".png"
-		end
-		local cleanUrl = url:match("^([^?#]+)") or url
-		local ext = cleanUrl:match("%.(%w+)$")
-		if ext then
-			ext = ext:lower()
-			if ext == "jpg" or ext == "jpeg" or ext == "png" or ext == "webp" then
-				return "." .. ext
-			end
-		end
-		return ".png"
-	end
-
-	--print(GetImageExtension(BGImageUrl))
-
 	if typeof(Window.Background) == "string" and BGVideo then
 		IsVideoBG = true
 
@@ -612,34 +595,11 @@ return function(Config)
 		})
 		BGImage:Play()
 	elseif BGHttpImage then
-		local imagePath = (Window.Folder or "Temp")
-			.. "/assets/."
-			.. Creator.SanitizeFilename(BGHttpImage)
-			.. GetImageExtension(BGHttpImage)
-
-		if isfile and not isfile(imagePath) then
-			local success, result = pcall(function()
-				local response = game.HttpGet and game:HttpGet(BGHttpImage)
-					or Creator.Request({
-						Url = BGHttpImage,
-						Method = "GET",
-						Headers = { ["User-Agent"] = "Roblox/Exploit" },
-					}).Body
-
-				writefile(imagePath, response)
-			end)
-
-			if not success then
-				warn("[ Window.Background ] Failed to download image: " .. tostring(result))
-			end
-		end
-
-		local success, customAsset = pcall(function()
-			return getcustomasset(imagePath)
-		end)
+		local success, customAsset = pcall(Creator.LoadRemoteImage, BGHttpImage, Window.Folder or "Temp")
 
 		if not success then
 			warn("[ Window.Background ] Failed to load custom asset: " .. tostring(customAsset))
+			customAsset = ""
 		end
 
 		BGImage = New("ImageLabel", {

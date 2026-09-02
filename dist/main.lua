@@ -13597,23 +13597,6 @@ and not v
 and string.match(aB.Background,"^rbxassetid://%d+")
 or nil
 
-local function GetImageExtension(A)
-if not A or typeof(A)~="string"then
-return".png"
-end
-local B=A:match"^([^?#]+)"or A
-local C=B:match"%.(%w+)$"
-if C then
-C=C:lower()
-if C=="jpg"or C=="jpeg"or C=="png"or C=="webp"then
-return"."..C
-end
-end
-return".png"
-end
-
-
-
 if typeof(aB.Background)=="string"and v then
 r=true
 
@@ -13663,40 +13646,17 @@ CornerRadius=UDim.new(0,aB.UICorner),
 })
 u:Play()
 elseif x then
-local A=(aB.Folder or"Temp")
-.."/assets/."
-..an.SanitizeFilename(x)
-..GetImageExtension(x)
+local A,B=pcall(an.LoadRemoteImage,x,aB.Folder or"Temp")
 
-if isfile and not isfile(A)then
-local B,C=pcall(function()
-local B=game.HttpGet and game:HttpGet(x)
-or an.Request{
-Url=x,
-Method="GET",
-Headers={["User-Agent"]="Roblox/Exploit"},
-}.Body
-
-writefile(A,B)
-end)
-
-if not B then
-warn("[ Window.Background ] Failed to download image: "..tostring(C))
-end
-end
-
-local B,C=pcall(function()
-return getcustomasset(A)
-end)
-
-if not B then
-warn("[ Window.Background ] Failed to load custom asset: "..tostring(C))
+if not A then
+warn("[ Window.Background ] Failed to load custom asset: "..tostring(B))
+B=""
 end
 
 u=ao("ImageLabel",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,0),
-Image=C,
+Image=B,
 ImageTransparency=0,
 ScaleType="Crop",
 },{

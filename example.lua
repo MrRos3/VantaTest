@@ -1,9 +1,12 @@
-local VantaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
+local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
+local VantaUI = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. cacheBuster
+))()
 
 local Window = VantaUI:CreateWindow({
     Title = "VantaUI Showcase",
     Icon = "sparkles",
-    Theme = "Vanta AMOLED",
+    Theme = "Salty Special",
     StartupTab = "Home",
     HideSearchBar = false,
     OpenButton = {
@@ -77,6 +80,7 @@ local function addThemeButton(themeName, icon)
     })
 end
 
+addThemeButton("Salty Special", "flower-2")
 addThemeButton("Vanta Smoked", "cloud-fog")
 addThemeButton("Vanta Dark", "moon")
 addThemeButton("Vanta AMOLED", "circle-dot")
