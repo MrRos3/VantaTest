@@ -7,7 +7,8 @@
 ]]
 
 local PROJECT_VERSION = "0.3.0"
-local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua"
+local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
+local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua?v=" .. CACHE_BUSTER
 local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand.jpeg"
 
 local ok, source = pcall(function()
@@ -234,7 +235,6 @@ function VantaUI:GetVantaThemes()
     return { "Vanta Smoked", "Vanta Dark", "Vanta AMOLED", "Vanta Violet" }
 end
 
--- Backward-compatible public method used by existing scripts.
 function VantaUI:GetGuiThemes()
     return self:GetVantaThemes()
 end
