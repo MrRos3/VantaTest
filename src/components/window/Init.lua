@@ -774,28 +774,6 @@ return function(Config)
                     BackgroundTransparency = 0.9,
                     BackgroundColor3 = Color3.fromHex(Config.Theme.Outline),
                 }),]]
-				New("Frame", {
-					Name = "VantaEdgeDivider",
-					Size = UDim2.new(1, 0, 0, 1),
-					Position = UDim2.new(0, 0, 1, 0),
-					AnchorPoint = Vector2.new(0, 1),
-					BorderSizePixel = 0,
-					BackgroundTransparency = 0.66,
-					ThemeTag = {
-						BackgroundColor3 = "Primary",
-					},
-					ZIndex = 5,
-				}, {
-					New("UIGradient", {
-						Rotation = 0,
-						Transparency = NumberSequence.new({
-							NumberSequenceKeypoint.new(0, 0.42),
-							NumberSequenceKeypoint.new(0.22, 0.68),
-							NumberSequenceKeypoint.new(0.62, 0.93),
-							NumberSequenceKeypoint.new(1, 1),
-						}),
-					}),
-				}),
 				New("Frame", { -- Topbar Left Side
 					AutomaticSize = "X",
 					Size = UDim2.new(0, 0, 1, 0),

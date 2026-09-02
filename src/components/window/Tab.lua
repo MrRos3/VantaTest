@@ -85,23 +85,6 @@ function TabModule.New(Config, UIScale)
 	local TabIndex = TabModule.TabCount
 	Tab.Index = TabIndex
 
-	local VantaDot = New("Frame", {
-		Name = "VantaEdgeDot",
-		Size = UDim2.fromOffset(5, 5),
-		Position = UDim2.new(1, -10, 0.5, 0),
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		ThemeTag = {
-			BackgroundColor3 = "Primary",
-		},
-		ZIndex = 8,
-	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(1, 0),
-		}),
-	})
-
 	Tab.UIElements.Main = Creator.NewRoundFrame(Tab.UICorner, "Squircle", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -7, 0, 0),
@@ -112,7 +95,6 @@ function TabModule.New(Config, UIScale)
 		},
 		ImageTransparency = 1,
 	}, {
-		VantaDot,
 		Creator.NewRoundFrame(Tab.UICorner - 1, "Glass-1.4", {
 			Size = UDim2.new(1, 1, 1, 1),
 			ThemeTag = {
@@ -206,8 +188,6 @@ function TabModule.New(Config, UIScale)
 		if not Tab.IconShape then
 			Icon.Parent = Tab.UIElements.Main.Frame
 			Tab.UIElements.Icon = Icon
-			Icon.ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-			Icon.ImageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
 			Icon.ImageLabel.ImageTransparency = not Tab.Locked and 0 or 0.7
 			TextOffset = -16 - 2 - (Window.UIPadding / 2)
 			Tab.UIElements.Main.Frame.TextLabel.Size = UDim2.new(1, TextOffset, 0, 0)
@@ -414,11 +394,6 @@ function TabModule.New(Config, UIScale)
 
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
 		if not Tab.Locked then
-			if Tab.UIElements.Icon and Tab.UIElements.Icon.ImageLabel then
-				Creator.Tween(Tab.UIElements.Icon.ImageLabel, 0.16, {
-					Position = UDim2.new(0.5, 2, 0.5, 0),
-				}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-			end
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBackgroundHoverTransparency",
 				ImageColor3 = "TabBackgroundHover",
@@ -443,11 +418,6 @@ function TabModule.New(Config, UIScale)
 		end
 
 		if not Tab.Locked then
-			if Tab.UIElements.Icon and Tab.UIElements.Icon.ImageLabel then
-				Creator.Tween(Tab.UIElements.Icon.ImageLabel, 0.18, {
-					Position = UDim2.new(0.5, 0, 0.5, 0),
-				}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-			end
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBorderTransparency",
 			}, 0.1)
@@ -633,9 +603,6 @@ function TabModule:SelectTab(TabIndex)
 						ImageTransparency = "TabIconTransparency",
 					}, 0.15)
 				end
-				Creator.Tween(TabObject.UIElements.Main.VantaEdgeDot, 0.16, {
-					BackgroundTransparency = 1,
-				}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 				TabObject.Selected = false
 			end
 		end
@@ -656,9 +623,6 @@ function TabModule:SelectTab(TabIndex)
 				ImageTransparency = "TabIconTransparencyActive",
 			}, 0.15)
 		end
-		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.Main.VantaEdgeDot, 0.2, {
-			BackgroundTransparency = 0.08,
-		}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 		TabModule.Tabs[TabIndex].Selected = true
 
 		task.spawn(function()

@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.3.0  |  2026-09-02  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.0  |  2026-09-01  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaTest
     Project: VantaUI by MrRos3
@@ -2532,10 +2532,6 @@ AutomaticSize="X",
 Parent=ai,
 BackgroundTransparency=1,
 },{
-ac("UIScale",{
-Name="VantaPressScale",
-Scale=1,
-}),
 ab.NewRoundFrame(am,"Squircle",{
 ThemeTag={
 ImageColor3=ah~="White"and"Button"or nil,
@@ -2632,26 +2628,11 @@ TextSize=18,
 }),
 })
 
-local ap=ao:FindFirstChild"VantaPressScale"
-
 ab.AddSignal(ao.MouseEnter,function()
 ad(ao.Frame,0.047,{ImageTransparency=0.95}):Play()
 end)
 ab.AddSignal(ao.MouseLeave,function()
 ad(ao.Frame,0.047,{ImageTransparency=1}):Play()
-if ap then
-ad(ap,0.12,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-end)
-ab.AddSignal(ao.MouseButton1Down,function()
-if ap then
-ad(ap,0.07,{Scale=0.985},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-end)
-ab.AddSignal(ao.MouseButton1Up,function()
-if ap then
-ad(ap,0.13,{Scale=1},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
-end
 end)
 ab.AddSignal(ao.MouseButton1Click,function()
 if aj then
@@ -7165,16 +7146,6 @@ ImageColor3="SliderThumb",
 },
 Name="Thumb",
 },{
-ae.NewRoundFrame(999,"Squircle",{
-Name="VantaEdgeHalo",
-Size=UDim2.fromOffset(al.ThumbSize+12,al.ThumbSize+12),
-Position=UDim2.new(0.5,0,0.5,0),
-AnchorPoint=Vector2.new(0.5,0.5),
-ImageTransparency=1,
-ThemeTag={
-ImageColor3="Slider",
-},
-}),
 ae.NewRoundFrame(999,"SquircleGlass",{
 Size=UDim2.new(1,0,1,0),
 ImageColor3=Color3.new(1,1,1),
@@ -7270,10 +7241,6 @@ if aB then
 am=(aB.UserInputType==Enum.UserInputType.Touch)
 ay.ScrollingEnabled=false
 ai=true
-ag(al.UIElements.SliderIcon.Frame.Thumb.VantaEdgeHalo,0.16,{
-ImageTransparency=0.76,
-Size=UDim2.fromOffset(al.ThumbSize+16,al.ThumbSize+16),
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
 local b=am and aB.Position.X or ac:GetMouseLocation().X
 local d=math.clamp(
@@ -7330,10 +7297,6 @@ an:Disconnect()
 ao:Disconnect()
 ai=false
 ay.ScrollingEnabled=true
-ag(al.UIElements.SliderIcon.Frame.Thumb.VantaEdgeHalo,0.22,{
-ImageTransparency=1,
-Size=UDim2.fromOffset(al.ThumbSize+12,al.ThumbSize+12),
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
 ak.WindUI.CurrentInput=nil
 
@@ -8659,12 +8622,10 @@ ap.UIElements.Menu.Visible=true
 ap.UIElements.MenuCanvas.Visible=true
 ap.UIElements.MenuCanvas.Active=true
 ap.UIElements.Menu.Size=UDim2.new(1,0,0,0)
-ap.UIElements.Menu.Position=UDim2.new(1,0,0,-5)
-am(ap.UIElements.Menu,0.16,{
+am(ap.UIElements.Menu,0.1,{
 Size=UDim2.new(1,0,1,0),
-Position=UDim2.new(1,0,0,0),
 ImageTransparency=0,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
 
 task.spawn(function()
 task.wait(0.1)
@@ -8681,11 +8642,10 @@ end
 function as.Close(au)
 ap.Opened=false
 
-am(ap.UIElements.Menu,0.18,{
+am(ap.UIElements.Menu,0.25,{
 Size=UDim2.new(1,0,0,0),
-Position=UDim2.new(1,0,0,3),
 ImageTransparency=1,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
 
 task.spawn(function()
 task.wait(0.1)
@@ -11568,23 +11528,6 @@ ao.TabCount=ao.TabCount+1
 local as=ao.TabCount
 ar.Index=as
 
-local at=al("Frame",{
-Name="VantaEdgeDot",
-Size=UDim2.fromOffset(5,5),
-Position=UDim2.new(1,-10,0.5,0),
-AnchorPoint=Vector2.new(0.5,0.5),
-BackgroundTransparency=1,
-BorderSizePixel=0,
-ThemeTag={
-BackgroundColor3="Primary",
-},
-ZIndex=8,
-},{
-al("UICorner",{
-CornerRadius=UDim.new(1,0),
-}),
-})
-
 ar.UIElements.Main=ak.NewRoundFrame(ar.UICorner,"Squircle",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,-7,0,0),
@@ -11595,7 +11538,6 @@ ImageColor3="TabBackground",
 },
 ImageTransparency=1,
 },{
-at,
 ak.NewRoundFrame(ar.UICorner-1,"Glass-1.4",{
 Size=UDim2.new(1,1,1,1),
 ThemeTag={
@@ -11667,12 +11609,12 @@ PaddingBottom=UDim.new(0,ar.TabPaddingY),
 }),
 },true)
 
-local au=0
+local at=0
+local au
 local av
-local aw
 
 if ar.Icon then
-av=ak.Image(
+au=ak.Image(
 ar.Icon,
 ar.Icon..":"..ar.Title,
 0,
@@ -11682,18 +11624,16 @@ ar.IconColor and false or true,
 ar.IconThemed,
 "TabIcon"
 )
-av.Size=UDim2.new(0,16,0,16)
+au.Size=UDim2.new(0,16,0,16)
 if ar.IconColor then
-av.ImageLabel.ImageColor3=ar.IconColor
+au.ImageLabel.ImageColor3=ar.IconColor
 end
 if not ar.IconShape then
-av.Parent=ar.UIElements.Main.Frame
-ar.UIElements.Icon=av
-av.ImageLabel.AnchorPoint=Vector2.new(0.5,0.5)
-av.ImageLabel.Position=UDim2.new(0.5,0,0.5,0)
-av.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
-au=-18-(Window.UIPadding/2)
-ar.UIElements.Main.Frame.TextLabel.Size=UDim2.new(1,au,0,0)
+au.Parent=ar.UIElements.Main.Frame
+ar.UIElements.Icon=au
+au.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
+at=-18-(Window.UIPadding/2)
+ar.UIElements.Main.Frame.TextLabel.Size=UDim2.new(1,at,0,0)
 elseif ar.IconColor then
 ak.NewRoundFrame(
 ar.IconShape~="Circle"and(ar.UICorner+5-(2+(Window.UIPadding/4)))or 9999,
@@ -11704,7 +11644,7 @@ ImageColor3=ar.IconColor,
 Parent=ar.UIElements.Main.Frame,
 },
 {
-av,
+au,
 ak.NewRoundFrame(
 ar.IconShape~="Circle"and(ar.UICorner+5-(2+(Window.UIPadding/4)))or 9999,
 "Glass-1.4",
@@ -11734,19 +11674,19 @@ Name="Outline",
 ),
 }
 )
-av.AnchorPoint=Vector2.new(0.5,0.5)
-av.Position=UDim2.new(0.5,0,0.5,0)
-av.ImageLabel.ImageTransparency=0
-av.ImageLabel.ImageColor3=ak.GetTextColorForHSB(ar.IconColor,0.68)
-au=-28-(Window.UIPadding/2)
-ar.UIElements.Main.Frame.TextLabel.Size=UDim2.new(1,au,0,0)
+au.AnchorPoint=Vector2.new(0.5,0.5)
+au.Position=UDim2.new(0.5,0,0.5,0)
+au.ImageLabel.ImageTransparency=0
+au.ImageLabel.ImageColor3=ak.GetTextColorForHSB(ar.IconColor,0.68)
+at=-28-(Window.UIPadding/2)
+ar.UIElements.Main.Frame.TextLabel.Size=UDim2.new(1,at,0,0)
 end
 
-aw=
+av=
 ak.Image(ar.Icon,ar.Icon..":"..ar.Title,0,Window.Folder,ar.__type,true,ar.IconThemed)
-aw.Size=UDim2.new(0,16,0,16)
-aw.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
-au=-30
+av.Size=UDim2.new(0,16,0,16)
+av.ImageLabel.ImageTransparency=not ar.Locked and 0 or 0.7
+at=-30
 
 
 
@@ -11803,7 +11743,7 @@ BackgroundTransparency=1,
 Visible=ar.ShowTabTitle or false,
 Name="TabTitle",
 },{
-aw,
+av,
 al("TextLabel",{
 Text=ar.Title,
 ThemeTag={
@@ -11866,30 +11806,30 @@ WindUI
 )
 end
 
+local aw
 local ax
 local ay
-local az
-local aA=false
+local az=false
 
 
 if ar.Desc then
 ak.AddSignal(ar.UIElements.Main.InputBegan,function()
-aA=true
-ay=task.spawn(function()
+az=true
+ax=task.spawn(function()
 task.wait(0.35)
-if aA and not ax then
-ax=am(ar.Desc,ao.ToolTipParent,true)
-ax.Container.AnchorPoint=Vector2.new(0.5,0.5)
+if az and not aw then
+aw=am(ar.Desc,ao.ToolTipParent,true)
+aw.Container.AnchorPoint=Vector2.new(0.5,0.5)
 
 local function updatePosition()
-if ax then
-ax.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
+if aw then
+aw.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
 end
 end
 
 updatePosition()
-az=ai.Move:Connect(updatePosition)
-ax:Open()
+ay=ai.Move:Connect(updatePosition)
+aw:Open()
 end
 end)
 end)
@@ -11897,11 +11837,6 @@ end
 
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
 if not ar.Locked then
-if ar.UIElements.Icon and ar.UIElements.Icon.ImageLabel then
-ak.Tween(ar.UIElements.Icon.ImageLabel,0.16,{
-Position=UDim2.new(0.5,2,0.5,0),
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBackgroundHoverTransparency",
 ImageColor3="TabBackgroundHover",
@@ -11910,40 +11845,35 @@ end
 end)
 ak.AddSignal(ar.UIElements.Main.InputEnded,function()
 if ar.Desc then
-aA=false
+az=false
+if ax then
+task.cancel(ax)
+ax=nil
+end
 if ay then
-task.cancel(ay)
+ay:Disconnect()
 ay=nil
 end
-if az then
-az:Disconnect()
-az=nil
-end
-if ax then
-ax:Close()
-ax=nil
+if aw then
+aw:Close()
+aw=nil
 end
 end
 
 if not ar.Locked then
-if ar.UIElements.Icon and ar.UIElements.Icon.ImageLabel then
-ak.Tween(ar.UIElements.Icon.ImageLabel,0.18,{
-Position=UDim2.new(0.5,0,0.5,0),
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.1)
 end
 end)
 
-function ar.ScrollToTheElement(aB,b)
+function ar.ScrollToTheElement(aA,aB)
 ar.UIElements.ContainerFrame.ScrollingEnabled=false
 
 ak.Tween(ar.UIElements.ContainerFrame,0.45,{
 CanvasPosition=Vector2.new(
 0,
-ar.Elements[b].ElementFrame.AbsolutePosition.Y
+ar.Elements[aB].ElementFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.UIPadding.PaddingTop.Offset
 ),
@@ -11952,8 +11882,8 @@ ar.Elements[b].ElementFrame.AbsolutePosition.Y
 task.spawn(function()
 task.wait(0.48)
 
-if ar.Elements[b].Highlight then
-ar.Elements[b]:Highlight()
+if ar.Elements[aB].Highlight then
+ar.Elements[aB]:Highlight()
 end
 ar.UIElements.ContainerFrame.ScrollingEnabled=true
 end)
@@ -11963,72 +11893,72 @@ end
 
 
 
-local aB=a.load'_'
+local aA=a.load'_'
 
-aB.Load(
+aA.Load(
 ar,
 ar.UIElements.ContainerFrame,
-aB.Elements,
+aA.Elements,
 Window,
 WindUI,
 nil,
-aB,
+aA,
 aq,
 ar
 )
 
-function ar.LockAll(b)
+function ar.LockAll(aB)
+
+for b,d in next,Window.AllElements do
+if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Lock then
+d:Lock()
+end
+end
+end
+function ar.UnlockAll(aB)
+for b,d in next,Window.AllElements do
+if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Unlock then
+d:Unlock()
+end
+end
+end
+function ar.GetLocked(aB)
+local b={}
 
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Lock then
-f:Lock()
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==true then
+table.insert(b,f)
 end
 end
+
+return b
 end
-function ar.UnlockAll(b)
+function ar.GetUnlocked(aB)
+local b={}
+
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Unlock then
-f:Unlock()
-end
-end
-end
-function ar.GetLocked(b)
-local d={}
-
-for f,g in next,Window.AllElements do
-if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==true then
-table.insert(d,g)
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==false then
+table.insert(b,f)
 end
 end
 
-return d
-end
-function ar.GetUnlocked(b)
-local d={}
-
-for f,g in next,Window.AllElements do
-if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==false then
-table.insert(d,g)
-end
+return b
 end
 
-return d
-end
-
-function ar.Select(b)
+function ar.Select(aB)
 return ao:SelectTab(ar.Index)
 end
 
 task.spawn(function()
-local b
+local aB
 if ar.CustomEmptyPage.Icon then
-b=
+aB=
 ak.Image(ar.CustomEmptyPage.Icon,ar.CustomEmptyPage.Icon,0,"Temp","EmptyPage",true)
-b.Size=
+aB.Size=
 UDim2.fromOffset(ar.CustomEmptyPage.IconSize or 48,ar.CustomEmptyPage.IconSize or 48)
 end
 
-local d=al("Frame",{
+local b=al("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,-Window.UIElements.Main.Main.Topbar.AbsoluteSize.Y),
 Parent=ar.UIElements.ContainerFrame,
@@ -12051,7 +11981,7 @@ FillDirection="Vertical",
 
 
 
-b,
+aB,
 ar.CustomEmptyPage.Title and al("TextLabel",{
 AutomaticSize="XY",
 Text=ar.CustomEmptyPage.Title,
@@ -12080,10 +12010,10 @@ FontFace=Font.new(ak.Font,Enum.FontWeight.Regular),
 
 
 
-local f
-f=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
-d.Visible=false
-f:Disconnect()
+local d
+d=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
+b.Visible=false
+d:Disconnect()
 end)
 end)
 
@@ -12116,9 +12046,6 @@ ak.SetThemeTag(as.UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparency",
 },0.15)
 end
-ak.Tween(as.UIElements.Main.VantaEdgeDot,0.16,{
-BackgroundTransparency=1,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 as.Selected=false
 end
 end
@@ -12139,9 +12066,6 @@ ak.SetThemeTag(ao.Tabs[aq].UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparencyActive",
 },0.15)
 end
-ak.Tween(ao.Tabs[aq].UIElements.Main.VantaEdgeDot,0.2,{
-BackgroundTransparency=0.08,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 ao.Tabs[aq].Selected=true
 
 task.spawn(function()
@@ -13670,28 +13594,6 @@ f,
 
 
 
-ao("Frame",{
-Name="VantaEdgeDivider",
-Size=UDim2.new(1,0,0,1),
-Position=UDim2.new(0,0,1,0),
-AnchorPoint=Vector2.new(0,1),
-BorderSizePixel=0,
-BackgroundTransparency=0.66,
-ThemeTag={
-BackgroundColor3="Primary",
-},
-ZIndex=5,
-},{
-ao("UIGradient",{
-Rotation=0,
-Transparency=NumberSequence.new{
-NumberSequenceKeypoint.new(0,0.42),
-NumberSequenceKeypoint.new(0.22,0.68),
-NumberSequenceKeypoint.new(0.62,0.93),
-NumberSequenceKeypoint.new(1,1),
-},
-}),
-}),
 ao("Frame",{
 AutomaticSize="X",
 Size=UDim2.new(0,0,1,0),

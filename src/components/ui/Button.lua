@@ -29,10 +29,6 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		Parent = Parent,
 		BackgroundTransparency = 1,
 	}, {
-		New("UIScale", {
-			Name = "VantaPressScale",
-			Scale = 1,
-		}),
 		Creator.NewRoundFrame(Radius, "Squircle", {
 			ThemeTag = {
 				ImageColor3 = Variant ~= "White" and "Button" or nil,
@@ -129,26 +125,11 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		}),
 	})
 
-	local PressScale = ButtonFrame:FindFirstChild("VantaPressScale")
-
 	Creator.AddSignal(ButtonFrame.MouseEnter, function()
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 0.95 }):Play()
 	end)
 	Creator.AddSignal(ButtonFrame.MouseLeave, function()
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 1 }):Play()
-		if PressScale then
-			Tween(PressScale, 0.12, { Scale = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-		end
-	end)
-	Creator.AddSignal(ButtonFrame.MouseButton1Down, function()
-		if PressScale then
-			Tween(PressScale, 0.07, { Scale = 0.985 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-		end
-	end)
-	Creator.AddSignal(ButtonFrame.MouseButton1Up, function()
-		if PressScale then
-			Tween(PressScale, 0.13, { Scale = 1 }, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
-		end
 	end)
 	Creator.AddSignal(ButtonFrame.MouseButton1Click, function()
 		if Dialog then --idk
