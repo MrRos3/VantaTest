@@ -13912,45 +13912,67 @@ if aB.Topbar.ButtonsType~="Default"then
 Q.ImageLabel.ImageColor3=an.GetTextColorForHSB(O)
 end
 
-local R
-if aB.Topbar.ButtonsType=="Default"then
-R=an.NewRoundFrame(
-aB.UICorner-(aB.UIPadding/2),
+local R=an.NewRoundFrame(
+aB.Topbar.ButtonsType=="Default"and aB.UICorner-(aB.UIPadding/2)or 999,
 "Squircle",
 {
-Size=UDim2.new(0,aB.Topbar.Height-16,0,aB.Topbar.Height-16),
+Size=aB.Topbar.ButtonsType=="Default"
+and UDim2.new(0,aB.Topbar.Height-16,0,aB.Topbar.Height-16)
+or UDim2.new(0,14,0,14),
 LayoutOrder=M or 999,
+
+
 ZIndex=9999,
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.new(0.5,0,0.5,0),
-ThemeTag={ImageColor3="Text"},
-ImageTransparency=1,
+ImageColor3=aB.Topbar.ButtonsType~="Default"and(O or Color3.fromHex"#ff3030")or nil,
+ThemeTag=aB.Topbar.ButtonsType=="Default"and{
+ImageColor3="Text",
+}or nil,
+ImageTransparency=aB.Topbar.ButtonsType=="Default"and 1 or 0,
 },
 {
+
+
+
+
+
+
+
+
+
+
+
+
 Q,
-ao("UIScale",{Scale=1}),
+ao("UIScale",{
+Scale=1,
+}),
 },
 true
 )
-else
 
 
-R=ao("TextButton",{
-Size=UDim2.fromOffset(14,14),
-LayoutOrder=M or 999,
-Text="",
-AutoButtonColor=false,
+
+
+if aB.Topbar.ButtonsType~="Default"then
+R.ImageTransparency=1
+local S=ao("Frame",{
+Name="CircleFill",
+Size=UDim2.fromScale(1,1),
+Position=UDim2.fromScale(0.5,0.5),
+AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundColor3=O or Color3.fromHex"#ff3030",
 BackgroundTransparency=0,
-ZIndex=9999,
-AnchorPoint=Vector2.new(0.5,0.5),
-Position=UDim2.new(0.5,0,0.5,0),
+BorderSizePixel=0,
+ZIndex=R.ZIndex,
+Active=false,
 },{
 ao("UICorner",{CornerRadius=UDim.new(1,0)}),
 ao("UIAspectRatioConstraint",{AspectRatio=1}),
-Q,
-ao("UIScale",{Scale=1}),
 })
+S.Parent=R
+Q.ZIndex=R.ZIndex+1
 end
 
 local S=ao("Frame",{
@@ -14632,7 +14654,7 @@ end
 end
 end
 
-if aB.OpenButtonMain and aB.OpenButtonMain.Button then
+if aB.OpenButtonMain and aB.OpenButtonMain.Button and not aB.OpenButtonMain.Hitbox then
 an.AddSignal(aB.OpenButtonMain.Button.TextButton.MouseButton1Click,function()
 
 
