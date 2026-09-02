@@ -75,7 +75,7 @@ local VantaThemes = {
         LabelBackground = Color3.fromHex("#0A080A"),
         LabelBackgroundTransparency = 0.08,
         ElementBackground = Color3.fromHex("#151116"),
-        ElementBackgroundTransparency = 0.04,
+        ElementBackgroundTransparency = 0.16,
     },
     {
         Name = "Vanta Smoked",
