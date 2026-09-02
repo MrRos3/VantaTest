@@ -5538,23 +5538,21 @@ if not az then
 return
 end
 
+local aA=ah.WasDragged
+
 au=false
 ah.Dragging=false
 ax=nil
 
-if ah.WasDragged then
+if aA then
 task.delay(0.2,function()
 ah.WasDragged=false
 end)
-end
-end)
-
-ab.AddSignal(as.Activated,function()
-if ah.WasDragged or ah.Dragging then
-return
-end
+else
+ah.WasDragged=false
 if ag.Open then
 ag:Open()
+end
 end
 end)
 
