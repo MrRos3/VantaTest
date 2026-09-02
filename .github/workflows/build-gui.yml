@@ -63,3 +63,5 @@ jobs:
           git commit -m "[AUTO] Build VantaTest runtime [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
+
+# rebuild trigger: badge drag + native Mac circles
