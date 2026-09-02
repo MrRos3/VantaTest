@@ -31,7 +31,7 @@ return function(Config)
 		Title = Config.Title or "UI Library",
 		Author = Config.Author,
 		Icon = Config.Icon,
-		IconSize = Config.IconSize or 20,
+		IconSize = Config.IconSize or 22,
 		IconThemed = Config.IconThemed,
 		IconRadius = Config.IconRadius or 0,
 		Folder = Config.Folder,
@@ -67,7 +67,7 @@ return function(Config)
 
 		Position = UDim2.new(0.5, 0, 0.5, 0),
 		UICorner = 16, -- Window.Radius (16)
-		UIPadding = UserInputService.TouchEnabled and 16 or 14,
+		UIPadding = 14,
 		UIElements = {},
 		CanDropdown = true,
 		Closed = false,
@@ -103,11 +103,11 @@ return function(Config)
 
 	Window.UICorner = Window.Radius
 
-	Window.TopBarButtonIconSize = Window.TopBarButtonIconSize or (Window.Topbar.ButtonsType == "Mac" and 10 or 16)
+	Window.TopBarButtonIconSize = Window.TopBarButtonIconSize or (Window.Topbar.ButtonsType == "Mac" and 11 or 16)
 
 	Window.ElementConfig = {
-		UIPadding = Window.NewElements and (UserInputService.TouchEnabled and 12 or 10) or 13,
-		UICorner = Window.ElementsRadius or (Window.NewElements and 14 or 16),
+		UIPadding = (Window.NewElements and 10 or 13),
+		UICorner = Window.ElementsRadius or (Window.NewElements and 23 or 16),
 	}
 
 	local WindowSize = Window.Size or UDim2.new(0, 580, 0, 460)
@@ -681,7 +681,7 @@ return function(Config)
 			AutomaticSize = "XY",
 			Parent = Window.UIElements.Main and Window.UIElements.Main.Main.Topbar.Left.Title,
 			TextXAlignment = "Left",
-			TextSize = 12,
+			TextSize = 13,
 			LayoutOrder = 2,
 			ThemeTag = {
 				TextColor3 = "WindowTopbarAuthor",
@@ -704,7 +704,7 @@ return function(Config)
 		AutomaticSize = "XY",
 		Name = "Title",
 		TextXAlignment = "Left",
-		TextSize = 15,
+		TextSize = 16,
 		ThemeTag = {
 			TextColor3 = "WindowTopbarTitle",
 		},
@@ -768,19 +768,6 @@ return function(Config)
 				Name = "Topbar",
 			}, {
 				Outline1,
-				New("Frame", {
-					Name = "VantaHoverGlow",
-					Size = UDim2.new(1, 0, 1, 0),
-					BackgroundTransparency = 1,
-					BorderSizePixel = 0,
-					ThemeTag = {
-						BackgroundColor3 = "Primary",
-					},
-				}, {
-					New("UICorner", {
-						CornerRadius = UDim.new(0, math.max(8, Window.UICorner - 4)),
-					}),
-				}),
 				--[[New("Frame", { -- Outline
                     Size = UDim2.new(1,Window.UIPadding*2, 0, 1),
                     Position = UDim2.new(0,-Window.UIPadding, 1,Window.UIPadding-2),
@@ -794,7 +781,7 @@ return function(Config)
 					Name = "Left",
 				}, {
 					New("UIListLayout", {
-						Padding = UDim.new(0, math.max(8, Window.UIPadding - 2)),
+						Padding = UDim.new(0, Window.UIPadding + 4),
 						SortOrder = "LayoutOrder",
 						FillDirection = "Horizontal",
 						VerticalAlignment = "Center",
@@ -860,7 +847,7 @@ return function(Config)
 					Name = "Right",
 				}, {
 					New("UIListLayout", {
-						Padding = UDim.new(0, Window.Topbar.ButtonsType == "Default" and 9 or 6),
+						Padding = UDim.new(0, Window.Topbar.ButtonsType == "Default" and 9 or 0),
 						FillDirection = "Horizontal",
 						SortOrder = "LayoutOrder",
 					}),
@@ -871,22 +858,12 @@ return function(Config)
 						0,
 						Window.Topbar.ButtonsType == "Default" and Window.UIPadding or Window.UIPadding - 2
 					),
-					PaddingRight = UDim.new(0, Window.Topbar.ButtonsType == "Mac" and 12 or 8),
+					PaddingRight = UDim.new(0, 8),
 					PaddingBottom = UDim.new(0, Window.UIPadding),
 				}),
 			}),
 		}),
 	})
-
-	local VantaTopbarGlow = Window.UIElements.Main.Main.Topbar:FindFirstChild("VantaHoverGlow")
-	if VantaTopbarGlow and not UserInputService.TouchEnabled then
-		Creator.AddSignal(Window.UIElements.Main.Main.Topbar.MouseEnter, function()
-			Tween(VantaTopbarGlow, 0.2, { BackgroundTransparency = 0.965 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-		end)
-		Creator.AddSignal(Window.UIElements.Main.Main.Topbar.MouseLeave, function()
-			Tween(VantaTopbarGlow, 0.24, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-		end)
-	end
 
 	Creator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal("AbsoluteSize"), function()
 		local LeftWidth = 0
@@ -936,7 +913,7 @@ return function(Config)
 			{
 				Size = Window.Topbar.ButtonsType == "Default"
 						and UDim2.new(0, Window.Topbar.Height - 16, 0, Window.Topbar.Height - 16)
-					or UDim2.new(0, 12, 0, 12),
+					or UDim2.new(0, 14, 0, 14),
 				LayoutOrder = LayoutOrder or 999,
 				--Parent = Window.Topbar.ButtonsType == "Default" and Window.UIElements.Main.Main.Topbar.Right or nil,
 				--Active = true,

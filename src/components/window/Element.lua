@@ -137,7 +137,7 @@ return function(Config)
 		return New("TextLabel", {
 			BackgroundTransparency = 1,
 			Text = Title or "",
-			TextSize = Type == "Desc" and 14 or 16,
+			TextSize = Type == "Desc" and 15 or 17,
 			TextXAlignment = "Left",
 			ThemeTag = {
 				TextColor3 = not Element.Color and ("Element" .. Type) or nil,
@@ -455,8 +455,8 @@ return function(Config)
 		Creator.AddSignal(Main.MouseEnter, function()
 			if CanHover then
 				--Tween(Main, 0.12, { ImageTransparency = Element.Color and 0.15 or 0.9 }):Play()
-				Tween(Hover, 0.16, { ImageTransparency = 0.94 }):Play()
-				Tween(HoverOutline, 0.16, { ImageTransparency = 0.9 }):Play()
+				Tween(Hover, 0.12, { ImageTransparency = 0.9 }):Play()
+				Tween(HoverOutline, 0.12, { ImageTransparency = 0.8 }):Play()
 				Creator.AddSignal(Main.MouseMoved, function(x, y)
 					Hover.HoverGradient.Offset =
 						Vector2.new(((x - Main.AbsolutePosition.X) / Main.AbsoluteSize.X) - 0.5, 0)

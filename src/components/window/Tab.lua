@@ -61,7 +61,7 @@ function TabModule.New(Config, UIScale)
 
 		Gap = Window.NewElements and 1 or 6,
 
-		TabPaddingX = 7 + (Window.UIPadding / 2),
+		TabPaddingX = 4 + (Window.UIPadding / 2),
 		TabPaddingY = 3 + (Window.UIPadding / 2),
 		TitlePaddingY = 0,
 	}
@@ -85,22 +85,6 @@ function TabModule.New(Config, UIScale)
 	local TabIndex = TabModule.TabCount
 	Tab.Index = TabIndex
 
-	local ActiveIndicator = New("Frame", {
-		Name = "ActiveIndicator",
-		Size = UDim2.fromOffset(3, 18),
-		Position = UDim2.new(0, 3, 0.5, 0),
-		AnchorPoint = Vector2.new(0, 0.5),
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		ThemeTag = {
-			BackgroundColor3 = "Primary",
-		},
-	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(1, 0),
-		}),
-	})
-
 	Tab.UIElements.Main = Creator.NewRoundFrame(Tab.UICorner, "Squircle", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -7, 0, 0),
@@ -111,7 +95,6 @@ function TabModule.New(Config, UIScale)
 		},
 		ImageTransparency = 1,
 	}, {
-		ActiveIndicator,
 		Creator.NewRoundFrame(Tab.UICorner - 1, "Glass-1.4", {
 			Size = UDim2.new(1, 1, 1, 1),
 			ThemeTag = {
@@ -157,7 +140,7 @@ function TabModule.New(Config, UIScale)
 					TextColor3 = "TabTitle",
 				},
 				TextTransparency = not Tab.Locked and 0.4 or 0.7,
-				TextSize = 14,
+				TextSize = 15,
 				Size = UDim2.new(1, 0, 0, 0),
 				FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
 				TextWrapped = true,
@@ -280,10 +263,10 @@ function TabModule.New(Config, UIScale)
 		ScrollingDirection = "Y",
 	}, {
 		New("UIPadding", {
-			PaddingTop = UDim.new(0, (not Window.HidePanelBackground and 20 or 10) + (UserInputService.TouchEnabled and 4 or 0)),
-			PaddingLeft = UDim.new(0, (not Window.HidePanelBackground and 20 or 10) + (UserInputService.TouchEnabled and 4 or 0)),
-			PaddingRight = UDim.new(0, (not Window.HidePanelBackground and 20 or 10) + (UserInputService.TouchEnabled and 4 or 0)),
-			PaddingBottom = UDim.new(0, (not Window.HidePanelBackground and 20 or 10) + (UserInputService.TouchEnabled and 4 or 0)),
+			PaddingTop = UDim.new(0, not Window.HidePanelBackground and 20 or 10),
+			PaddingLeft = UDim.new(0, not Window.HidePanelBackground and 20 or 10),
+			PaddingRight = UDim.new(0, not Window.HidePanelBackground and 20 or 10),
+			PaddingBottom = UDim.new(0, not Window.HidePanelBackground and 20 or 10),
 		}),
 		New("UIListLayout", {
 			SortOrder = "LayoutOrder",
@@ -605,10 +588,8 @@ function TabModule:SelectTab(TabIndex)
 		for _, TabObject in next, TabModule.Tabs do
 			if not TabObject.Locked then
 				Creator.SetThemeTag(TabObject.UIElements.Main, {
-					ImageColor3 = "TabBackground",
+					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
-				Creator.Tween(TabObject.UIElements.Main, 0.18, { ImageTransparency = 1 }):Play()
-				Creator.Tween(TabObject.UIElements.Main.ActiveIndicator, 0.18, { BackgroundTransparency = 1 }):Play()
 				if TabObject.Border then
 					Creator.SetThemeTag(TabObject.UIElements.Main.Outline, {
 						ImageTransparency = "TabBorderTransparency",
@@ -626,10 +607,9 @@ function TabModule:SelectTab(TabIndex)
 			end
 		end
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main, {
-			ImageColor3 = "Primary",
+			ImageColor3 = "TabBackgroundActive",
+			ImageTransparency = "TabBackgroundActiveTransparency",
 		}, 0.15)
-		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.Main, 0.18, { ImageTransparency = 0.92 }):Play()
-		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.Main.ActiveIndicator, 0.18, { BackgroundTransparency = 0.08 }):Play()
 		if TabModule.Tabs[TabIndex].Border then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Outline, {
 				ImageTransparency = "TabBorderTransparencyActive",

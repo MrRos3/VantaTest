@@ -92,9 +92,6 @@ Home:Button({
 
 Controls:Section({
     Title = "Native Controls",
-    Desc = "Vanta polish preview",
-    Box = true,
-    BoxBorder = true,
 })
 
 Controls:Toggle({

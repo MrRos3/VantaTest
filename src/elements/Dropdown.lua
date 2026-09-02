@@ -19,11 +19,11 @@ local CurrentCamera = workspace.CurrentCamera
 local Element = {
 	UICorner = 10,
 	UIPadding = 12,
-	MenuCorner = 12,
-	MenuPadding = 6,
-	TabPadding = 9,
-	SearchBarHeight = 38,
-	TabIcon = 17,
+	MenuCorner = 15,
+	MenuPadding = 5,
+	TabPadding = 10,
+	SearchBarHeight = 39,
+	TabIcon = 18,
 }
 
 function Element:New(Config)
@@ -46,7 +46,7 @@ function Element:New(Config)
 		Opened = false,
 		Tabs = {},
 
-		Width = UserInputService.TouchEnabled and 180 or 156,
+		Width = 150,
 	}
 
 	if Dropdown.Multi and not Dropdown.Value then
@@ -90,6 +90,17 @@ function Element:New(Config)
 
 	Dropdown.DropdownMenu = CreateDropdown(Config, Dropdown, Element, "Dropdown")
 
+	-- The internal dropdown button calls DropdownMenu:Open() on every click.
+	-- Wrap Open so the same button behaves like a true toggle: click once opens,
+	-- click again closes. MenuCanvas.Visible also catches the short opening delay.
+	local BaseOpen = Dropdown.DropdownMenu.Open
+	local BaseClose = Dropdown.DropdownMenu.Close
+	function Dropdown.DropdownMenu:Open(...)
+		if Dropdown.Opened or Dropdown.UIElements.MenuCanvas.Visible then
+			return BaseClose(self, ...)
+		end
+		return BaseOpen(self, ...)
+	end
 
 	Dropdown.Display = Dropdown.DropdownMenu.Display
 	Dropdown.Refresh = Dropdown.DropdownMenu.Refresh
@@ -110,7 +121,6 @@ function Element:New(Config)
 		Parent = Dropdown.UIElements.Dropdown and Dropdown.UIElements.Dropdown.Frame
 			or Dropdown.DropdownFrame.UIElements.Main,
 	})
-	Dropdown.UIElements.DropdownIcon = DropdownIcon
 
 	function Dropdown:Lock()
 		Dropdown.Locked = true

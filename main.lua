@@ -65,7 +65,7 @@ local VantaThemes = {
         LabelBackground = Color3.fromHex("#0A0C0F"),
         LabelBackgroundTransparency = 0.16,
         ElementBackground = Color3.fromHex("#1C2027"),
-        ElementBackgroundTransparency = 0.08,
+        ElementBackgroundTransparency = 0,
     },
     {
         Name = "Vanta Dark",
@@ -87,7 +87,7 @@ local VantaThemes = {
         LabelBackground = Color3.fromHex("#000000"),
         LabelBackgroundTransparency = 0.82,
         ElementBackground = Color3.fromHex("#171C27"),
-        ElementBackgroundTransparency = 0.08,
+        ElementBackgroundTransparency = 0,
     },
     {
         Name = "Vanta AMOLED",
@@ -109,7 +109,7 @@ local VantaThemes = {
         LabelBackground = Color3.fromHex("#090A0C"),
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#0D0F14"),
-        ElementBackgroundTransparency = 0.08,
+        ElementBackgroundTransparency = 0,
     },
     {
         Name = "Vanta Violet",
@@ -131,7 +131,7 @@ local VantaThemes = {
         LabelBackground = Color3.fromHex("#120E1B"),
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#1B1628"),
-        ElementBackgroundTransparency = 0.08,
+        ElementBackgroundTransparency = 0,
     },
 }
 
