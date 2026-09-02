@@ -1,0 +1,64 @@
+name: Repair VantaTest window safely
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/repair-window-safe.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore working window and apply safe fixes
+        shell: bash
+        run: |
+          git show b9f79858481edc97d0c1ce16f9a707ef4960703c:src/components/window/Init.lua > src/components/window/Init.lua
+
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/components/window/Init.lua')
+          text = path.read_text(encoding='utf-8')
+
+          start = text.index('\tfunction Window:CreateTopbarButton')
+          end = text.index('\n\tfunction Window.Topbar:Button', start)
+          block = text[start:end]
+
+          needle = '\t\t)\n\n\t\tlocal ButtonContainer = New("Frame", {'
+          assert block.count(needle) == 1, 'topbar insertion point mismatch'
+          overlay = '''\t\t)\n\n\t\t-- Keep the original working topbar button object, but replace only the\n\t\t-- visible Mac fill with a native circular frame. This preserves every\n\t\t-- original callback/hover/init path while making the dots truly round.\n\t\tif Window.Topbar.ButtonsType ~= "Default" then\n\t\t\tButton.ImageTransparency = 1\n\t\t\tlocal CircleFill = New("Frame", {\n\t\t\t\tName = "CircleFill",\n\t\t\t\tSize = UDim2.fromScale(1, 1),\n\t\t\t\tPosition = UDim2.fromScale(0.5, 0.5),\n\t\t\t\tAnchorPoint = Vector2.new(0.5, 0.5),\n\t\t\t\tBackgroundColor3 = Color or Color3.fromHex("#ff3030"),\n\t\t\t\tBackgroundTransparency = 0,\n\t\t\t\tBorderSizePixel = 0,\n\t\t\t\tZIndex = Button.ZIndex,\n\t\t\t\tActive = false,\n\t\t\t}, {\n\t\t\t\tNew("UICorner", { CornerRadius = UDim.new(1, 0) }),\n\t\t\t\tNew("UIAspectRatioConstraint", { AspectRatio = 1 }),\n\t\t\t})\n\t\t\tCircleFill.Parent = Button\n\t\t\tIconFrame.ZIndex = Button.ZIndex + 1\n\t\tend\n\n\t\tlocal ButtonContainer = New("Frame", {'''
+          block = block.replace(needle, overlay, 1)
+          text = text[:start] + block + text[end:]
+
+          # The new Openbutton.lua owns click-vs-drag through its full-size hitbox.
+          # Do not attach the old underlying TextButton click listener as well.
+          old = 'if Window.OpenButtonMain and Window.OpenButtonMain.Button then\n\t\tCreator.AddSignal(Window.OpenButtonMain.Button.TextButton.MouseButton1Click, function()'
+          new = 'if Window.OpenButtonMain and Window.OpenButtonMain.Button and not Window.OpenButtonMain.Hitbox then\n\t\tCreator.AddSignal(Window.OpenButtonMain.Button.TextButton.MouseButton1Click, function()'
+          assert text.count(old) == 1, 'open-button listener mismatch'
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+
+          test = Path('test.lua')
+          t = test.read_text(encoding='utf-8')
+          assert 'ImageZoom = 1.5,' in t, 'badge zoom config mismatch'
+          t = t.replace('ImageZoom = 1.5,', 'ImageZoom = 2.2,', 1)
+          test.write_text(t, encoding='utf-8')
+          PY
+
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/window/Init.lua test.lua
+          git commit -m "Restore VantaTest window and safely fix badge and Mac dots"
+          git pull --rebase origin main
+          git push origin HEAD:main
