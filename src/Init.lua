@@ -3,6 +3,7 @@ local WindUI = {
 	Window = nil,
 	Theme = nil,
 	Creator = require("./modules/Creator"),
+	SoundManager = require("./modules/SoundManager"),
 	LocalizationModule = require("./modules/Localization"),
 	NotificationModule = require("./components/Notification"),
 	Themes = nil,
@@ -151,6 +152,7 @@ ProtectGui(WindUI.NotificationGui)
 ProtectGui(WindUI.DropdownGui)
 ProtectGui(WindUI.TooltipGui)
 
+WindUI.SoundManager:Init(WindUI)
 Creator.Init(WindUI)
 
 function WindUI:SetParent(parent)
@@ -180,6 +182,62 @@ end
 
 function WindUI:SetNotificationLower(Val)
 	Holder.SetLower(Val)
+end
+
+function WindUI:ConfigureSounds(Config)
+	return WindUI.SoundManager:Configure(Config)
+end
+
+function WindUI:SetSoundEnabled(Value)
+	return WindUI.SoundManager:SetEnabled(Value)
+end
+
+function WindUI:SetSoundPreset(Name)
+	return WindUI.SoundManager:SetPreset(Name)
+end
+
+function WindUI:SetSoundVolume(Value)
+	return WindUI.SoundManager:SetVolume(Value)
+end
+
+function WindUI:SetSoundPitch(Value)
+	return WindUI.SoundManager:SetPitch(Value)
+end
+
+function WindUI:SetSoundForEvent(EventName, Sound, Options)
+	return WindUI.SoundManager:SetSoundForEvent(EventName, Sound, Options)
+end
+
+function WindUI:ClearSoundOverride(EventName)
+	return WindUI.SoundManager:ClearSoundOverride(EventName)
+end
+
+function WindUI:ClearSoundOverrides()
+	return WindUI.SoundManager:ClearSoundOverrides()
+end
+
+function WindUI:PlaySound(EventName, Options)
+	return WindUI.SoundManager:Play(EventName, Options)
+end
+
+function WindUI:PreviewSound(SoundName, Options)
+	return WindUI.SoundManager:Preview(SoundName, Options)
+end
+
+function WindUI:GetSoundConfig()
+	return WindUI.SoundManager:GetConfig()
+end
+
+function WindUI:GetSoundEvents()
+	return WindUI.SoundManager:GetEvents()
+end
+
+function WindUI:GetSoundPresets()
+	return WindUI.SoundManager:GetPresetNames()
+end
+
+function WindUI:GetSoundNames()
+	return WindUI.SoundManager:GetSoundNames()
 end
 
 function WindUI:SetFont(FontId)
@@ -394,6 +452,15 @@ function WindUI:CreateWindow(Config)
 		warn("[Gui] You cannot create more than one window")
 		return
 	end
+
+	local SoundConfig = Config.Sounds
+	if SoundConfig == nil then
+		SoundConfig = {}
+	end
+	if typeof(SoundConfig) == "table" and SoundConfig.Folder == nil then
+		SoundConfig.Folder = Config.Folder or Config.Title or "VantaUI"
+	end
+	WindUI:ConfigureSounds(SoundConfig)
 
 	local CanLoadWindow = true
 

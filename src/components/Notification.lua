@@ -48,6 +48,7 @@ function NotificationModule.Init(Parent)
 end
 
 function NotificationModule.New(Config)
+	Creator.PlaySound("Notification")
 	local Notification = {
 		Title = Config.Title or "Notification",
 		Content = Config.Content or nil,
@@ -309,6 +310,7 @@ function NotificationModule.New(Config)
 
 	if CloseButton then
 		Creator.AddSignal(CloseButton.TextButton.MouseButton1Click, function()
+			Creator.PlaySound("NotificationClose")
 			Notification:Close()
 		end)
 	end

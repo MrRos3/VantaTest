@@ -349,7 +349,15 @@ function TabModule.New(Config, UIScale)
 
 	Creator.AddSignal(Tab.UIElements.Main.MouseButton1Click, function()
 		if not Tab.Locked then
+			if TabModule.SelectedTab ~= TabIndex then
+				Creator.PlaySound("Tab")
+			end
 			TabModule:SelectTab(TabIndex)
+		end
+	end)
+	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
+		if not Tab.Locked then
+			Creator.PlaySound("Hover")
 		end
 	end)
 

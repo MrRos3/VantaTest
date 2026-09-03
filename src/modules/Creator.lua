@@ -34,6 +34,7 @@ Creator = {
 	CanDraggable = true,
 	Theme = nil,
 	Themes = nil,
+	SoundManager = nil,
 	Icons = Icons,
 	Signals = {},
 	Objects = {},
@@ -135,6 +136,7 @@ Creator = {
 
 function Creator.Init(WindUITable)
 	WindUI = WindUITable
+	Creator.SoundManager = WindUITable.SoundManager
 
 	Creator.ThemeFallbacks = require("../themes/Fallbacks")(Creator)
 
@@ -748,6 +750,13 @@ function Creator.SanitizeFilename(url)
 	end
 
 	return filename
+end
+
+function Creator.PlaySound(eventName, options)
+	if Creator.SoundManager then
+		return Creator.SoundManager:Play(eventName, options)
+	end
+	return false
 end
 
 local function GetImageExtension(url)

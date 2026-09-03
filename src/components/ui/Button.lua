@@ -126,12 +126,14 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 	})
 
 	Creator.AddSignal(ButtonFrame.MouseEnter, function()
+		Creator.PlaySound("Hover")
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 0.95 }):Play()
 	end)
 	Creator.AddSignal(ButtonFrame.MouseLeave, function()
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 1 }):Play()
 	end)
 	Creator.AddSignal(ButtonFrame.MouseButton1Click, function()
+		Creator.PlaySound("Click")
 		if Dialog then --idk
 			Dialog:Close()()
 		end

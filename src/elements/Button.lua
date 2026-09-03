@@ -14,6 +14,8 @@ function Element:New(Config)
 		Color = Config.Color,
 		Justify = Config.Justify or "Between",
 		IconAlign = Config.IconAlign or "Right",
+		Sound = Config.Sound,
+		HoverSound = Config.HoverSound,
 		Locked = Config.Locked or false,
 		LockedTitle = Config.LockedTitle,
 		Callback = Config.Callback or function() end,
@@ -97,9 +99,17 @@ function Element:New(Config)
 
 	Creator.AddSignal(Button.ButtonFrame.UIElements.Main.MouseButton1Click, function()
 		if CanCallback then
+			if Button.Sound ~= false then
+				Creator.PlaySound(typeof(Button.Sound) == "string" and Button.Sound or "Click")
+			end
 			task.spawn(function()
 				Creator.SafeCallback(Button.Callback)
 			end)
+		end
+	end)
+	Creator.AddSignal(Button.ButtonFrame.UIElements.Main.MouseEnter, function()
+		if CanCallback and Button.HoverSound ~= false then
+			Creator.PlaySound(typeof(Button.HoverSound) == "string" and Button.HoverSound or "Hover")
 		end
 	end)
 	return Button.__type, Button

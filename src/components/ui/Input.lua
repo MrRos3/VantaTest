@@ -95,6 +95,13 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius, 
 		}),
 	})
 
+	Creator.AddSignal(TextBox.Focused, function()
+		Creator.PlaySound("InputFocus")
+	end)
+	Creator.AddSignal(TextBox.FocusLost, function()
+		Creator.PlaySound("InputSubmit")
+	end)
+
 	-- InputFrame:GetPropertyChangedSignal("AbsoluteSize"), function()
 	--     TextBox.Size = UDim2.new(
 	--         0,

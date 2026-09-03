@@ -515,6 +515,7 @@ return function(Config)
 
 		if Window.User.Callback then
 			Creator.AddSignal(UserIcon.MouseButton1Click, function()
+				Creator.PlaySound("Click")
 				Window.User.Callback()
 			end)
 			Creator.AddSignal(UserIcon.MouseEnter, function()
@@ -974,6 +975,7 @@ return function(Config)
 
 		Creator.AddSignal(Button.MouseButton1Click, function()
 			if Callback then
+				Creator.PlaySound("Click")
 				Callback()
 			end
 		end)
@@ -1312,6 +1314,7 @@ return function(Config)
 		if Window.Destroyed then
 			return
 		end
+		Creator.PlaySound("WindowOpen")
 		task.spawn(function()
 			if Window.OnOpenCallback then
 				task.spawn(function()
@@ -1408,6 +1411,9 @@ return function(Config)
 	function Window:Close()
 		if Window.Destroyed then
 			return
+		end
+		if not Window.Closed then
+			Creator.PlaySound("WindowClose")
 		end
 
 		local Close = {}
@@ -2156,6 +2162,7 @@ return function(Config)
 			if IsOpen then
 				return
 			end
+			Creator.PlaySound("Click")
 
 			SearchBar.new(Window.TabModule, Window.UIElements.Main, function()
 				-- OnClose

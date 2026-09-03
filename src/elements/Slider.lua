@@ -252,6 +252,9 @@ function Element:New(Config)
 					Value = math.clamp(Value, Slider.Value.Min or 0, Slider.Value.Max or 100)
 
 					if Value ~= LastValue then
+						Creator.PlaySound("SliderTick", {
+							Pitch = 0.82 + delta * 0.36,
+						})
 						Tween(Slider.UIElements.SliderIcon.Frame, 0.05, { Size = UDim2.new(delta, 0, 1, 0) }):Play()
 						Slider.UIElements.SliderContainer.TextBox.Text = FormatValue(Value)
 						if Tooltip then
@@ -273,6 +276,9 @@ function Element:New(Config)
 						Value = CalculateValue(Slider.Value.Min + delta * (Slider.Value.Max - Slider.Value.Min))
 
 						if Value ~= LastValue then
+							Creator.PlaySound("SliderTick", {
+								Pitch = 0.82 + delta * 0.36,
+							})
 							Tween(Slider.UIElements.SliderIcon.Frame, 0.05, { Size = UDim2.new(delta, 0, 1, 0) }):Play()
 							Slider.UIElements.SliderContainer.TextBox.Text = FormatValue(Value)
 							if Tooltip then

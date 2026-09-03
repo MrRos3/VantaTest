@@ -11,9 +11,9 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 ```
 
-## Branded test showcase
+## Branded sound lab
 
-Run the test entrypoint to open the `Salty Special` theme immediately with its wallpaper, branded title-bar icon, and draggable minimized badge:
+Run the test entrypoint to open the `Salty Special` theme with the interactive VantaTest sound lab:
 
 ```lua
 local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
@@ -23,6 +23,21 @@ loadstring(game:HttpGet(
 ```
 
 The exact Vanta artwork is hosted at `assets/vanta-brand.jpeg`, and the selected spider-lily wallpaper is hosted at `assets/salty-special.png`. Remote image support downloads each asset once into the executor's `WindUI/VantaUI/assets` cache and loads it through `getcustomasset` (or `getsynasset`).
+
+The lab includes 12 sound packs, 30 original sounds, master volume and pitch controls, and 17 independently assignable GUI events. Sound files are hosted in `assets/sounds`, cached in `WindUI/<folder>/sounds`, and loaded through `getcustomasset` (or `getsynasset`). Executors without downloadable asset support fall back to a built-in Roblox sound.
+
+Enable sounds for any VantaTest window with:
+
+```lua
+Sounds = {
+    Enabled = true,
+    Preset = "Vanta Pulse",
+    Volume = 0.45,
+    Pitch = 1,
+}
+```
+
+The runtime also exposes `SetSoundPreset`, `SetSoundVolume`, `SetSoundPitch`, `SetSoundForEvent`, `PlaySound`, and `PreviewSound` for live changes.
 
 ## v0.3.0
 
@@ -55,7 +70,7 @@ loadstring(game:HttpGet(
 - `src/` - editable UI source
 - `build/` - build tooling
 - `example.lua` - showcase and test script
-- `test.lua` - VantaTest staging entrypoint, synchronized with the production showcase baseline
+- `test.lua` - VantaTest staging entrypoint and interactive sound lab
 - `.github/workflows/build-gui.yml` - automatic source build
 
 ## License

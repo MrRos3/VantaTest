@@ -88,9 +88,13 @@ function Element:New(Config)
 
 	function Toggle:Set(v, isCallback, isAnim)
 		if CanCallback then
+			local changed = Toggle.Value ~= v
 			ToggleFunc:Set(v, isCallback, isAnim or false)
 			Toggled = v
 			Toggle.Value = v
+			if changed and isCallback ~= false then
+				Creator.PlaySound(v and "ToggleOn" or "ToggleOff")
+			end
 		end
 	end
 

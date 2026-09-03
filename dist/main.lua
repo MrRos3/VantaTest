@@ -638,6 +638,7 @@ Localization=nil,
 CanDraggable=true,
 Theme=nil,
 Themes=nil,
+SoundManager=nil,
 Icons=m,
 Signals={},
 Objects={},
@@ -739,6 +740,7 @@ ThemeChangeCallbacks={},
 
 function r.Init(u)
 p=u
+r.SoundManager=u.SoundManager
 
 r.ThemeFallbacks=a.load'c'(r)
 
@@ -1354,6 +1356,13 @@ end
 return z
 end
 
+function r.PlaySound(x,z)
+if r.SoundManager then
+return r.SoundManager:Play(x,z)
+end
+return false
+end
+
 local function GetImageExtension(x)
 local z=tostring(x):match"^([^?#]+)"or tostring(x)
 local A=z:match"%.([%w]+)$"
@@ -1680,6 +1689,518 @@ end
 
 return r end function a.e()
 
+local b=(cloneref or clonereference or function(b)
+return b
+end)
+
+local d=b(game:GetService"Debris")
+local e=b(game:GetService"SoundService")
+
+local f={
+WindUI=nil,
+Request=http_request or(syn and syn.request)or request,
+Cache={},
+Loading={},
+LastPlayed={},
+Warned={},
+}
+
+local g="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/sounds"
+local h="rbxasset://sounds/electronicpingshort.wav"
+
+local i={
+"Hover",
+"Click",
+"Tab",
+"ToggleOn",
+"ToggleOff",
+"DropdownOpen",
+"DropdownClose",
+"Select",
+"SliderTick",
+"InputFocus",
+"InputSubmit",
+"Notification",
+"NotificationClose",
+"WindowOpen",
+"WindowClose",
+"Success",
+"Error",
+}
+
+local l={
+["vanta-tap"]="vanta-tap.wav",
+["vanta-pulse"]="vanta-pulse.wav",
+["glass-tap"]="glass-tap.wav",
+["glass-chime"]="glass-chime.wav",
+["soft-pop"]="soft-pop.wav",
+["soft-tick"]="soft-tick.wav",
+["mechanical-click"]="mechanical-click.wav",
+["mechanical-switch"]="mechanical-switch.wav",
+["digital-blip"]="digital-blip.wav",
+["digital-confirm"]="digital-confirm.wav",
+["cyber-pulse"]="cyber-pulse.wav",
+["cyber-sweep"]="cyber-sweep.wav",
+["deep-thump"]="deep-thump.wav",
+["deep-close"]="deep-close.wav",
+["arcade-coin"]="arcade-coin.wav",
+["arcade-select"]="arcade-select.wav",
+["crystal-tick"]="crystal-tick.wav",
+["crystal-chime"]="crystal-chime.wav",
+["bubble-pop"]="bubble-pop.wav",
+["bubble-drop"]="bubble-drop.wav",
+["minimal-tick"]="minimal-tick.wav",
+["minimal-confirm"]="minimal-confirm.wav",
+["retro-click"]="retro-click.wav",
+["retro-power"]="retro-power.wav",
+["airy-rise"]="airy-rise.wav",
+["airy-fall"]="airy-fall.wav",
+["notification-chime"]="notification-chime.wav",
+["notification-bell"]="notification-bell.wav",
+["success-sparkle"]="success-sparkle.wav",
+["error-buzz"]="error-buzz.wav",
+}
+
+local m={
+["Vanta Pulse"]={"vanta-tap","vanta-pulse"},
+Glass={"glass-tap","glass-chime"},
+Soft={"soft-tick","soft-pop"},
+Mechanical={"mechanical-click","mechanical-switch"},
+Digital={"digital-blip","digital-confirm"},
+Cyber={"cyber-pulse","cyber-sweep"},
+Deep={"deep-thump","deep-close"},
+Arcade={"arcade-select","arcade-coin"},
+Crystal={"crystal-tick","crystal-chime"},
+Bubble={"bubble-drop","bubble-pop"},
+Minimal={"minimal-tick","minimal-confirm"},
+Retro={"retro-click","retro-power"},
+}
+
+local p={
+"Vanta Pulse",
+"Glass",
+"Soft",
+"Mechanical",
+"Digital",
+"Cyber",
+"Deep",
+"Arcade",
+"Crystal",
+"Bubble",
+"Minimal",
+"Retro",
+}
+
+local r={
+Hover=0.075,
+SliderTick=0.045,
+Click=0.025,
+Tab=0.04,
+}
+
+local function makePreset(u,v)
+return{
+Hover={Sound=u,Volume=0.18,Pitch=1.22},
+Click={Sound=u,Volume=0.72,Pitch=1},
+Tab={Sound=v,Volume=0.62,Pitch=1.06},
+ToggleOn={Sound=v,Volume=0.7,Pitch=1.12},
+ToggleOff={Sound=u,Volume=0.55,Pitch=0.86},
+DropdownOpen={Sound=v,Volume=0.54,Pitch=1.2},
+DropdownClose={Sound=u,Volume=0.44,Pitch=0.78},
+Select={Sound=u,Volume=0.62,Pitch=1.08},
+SliderTick={Sound=u,Volume=0.24,Pitch=1.28},
+InputFocus={Sound=u,Volume=0.34,Pitch=1.16},
+InputSubmit={Sound=v,Volume=0.55,Pitch=1},
+Notification={Sound=v,Volume=0.76,Pitch=0.96},
+NotificationClose={Sound=u,Volume=0.4,Pitch=0.76},
+WindowOpen={Sound=v,Volume=0.8,Pitch=0.82},
+WindowClose={Sound=u,Volume=0.64,Pitch=0.7},
+Success={Sound=v,Volume=0.82,Pitch=1.18},
+Error={Sound="error-buzz",Volume=0.7,Pitch=1},
+}
+end
+
+local u={}
+for v,x in pairs(m)do
+u[v]=makePreset(x[1],x[2])
+end
+
+local function copyTable(v)
+local x={}
+if typeof(v)=="table"then
+for z,A in pairs(v)do
+x[z]=typeof(A)=="table"and copyTable(A)or A
+end
+end
+return x
+end
+
+local function sanitize(v)
+return tostring(v):gsub("[^%w%-_]","_"):sub(1,80)
+end
+
+local function ensureFolder(v)
+if not makefolder then
+return
+end
+
+local x=""
+for z in string.gmatch(v,"[^/]+")do
+x=x==""and z or x.."/"..z
+if not isfolder or not isfolder(x)then
+pcall(makefolder,x)
+end
+end
+end
+
+local function mergeEntry(v,x)
+if x==false then
+return false
+end
+if typeof(x)=="string"then
+x={Sound=x}
+end
+
+local z=copyTable(v)
+if typeof(x)=="table"then
+for A,B in pairs(x)do
+z[A]=B
+end
+end
+return z
+end
+
+function f.Init(v,x)
+v.WindUI=x
+v.Config={
+Enabled=false,
+Preset="Vanta Pulse",
+Volume=0.45,
+Pitch=1,
+Folder="VantaUI",
+BaseUrl=g,
+Overrides={},
+Assets={},
+}
+v.ActiveMap=copyTable(u[v.Config.Preset])
+return v
+end
+
+function f._warnOnce(v,x,z)
+if v.Warned[x]then
+return
+end
+v.Warned[x]=true
+warn("[VantaUI Sounds] "..z)
+end
+
+function f._download(v,x)
+local z={}
+if game.HttpGet then
+local A,B=pcall(function()
+return game:HttpGet(x)
+end)
+if A and typeof(B)=="string"and#B>0 then
+return B
+end
+table.insert(z,tostring(B))
+end
+
+if v.Request then
+local A,B=pcall(function()
+return v.Request{
+Url=x,
+Method="GET",
+Headers={["User-Agent"]="Roblox/Executor"},
+}
+end)
+local C=A and typeof(B)=="table"and(B.Body or B.body)or B
+if A and typeof(C)=="string"and#C>0 then
+return C
+end
+table.insert(z,tostring(B))
+end
+
+error("Unable to download sound: "..table.concat(z,"; "))
+end
+
+function f._sourceFor(v,x)
+local z=v.Config.Assets[x]or l[x]or x
+if typeof(z)~="string"then
+return nil
+end
+
+if l[x]and not string.match(z,"^https?://")and not string.match(z,"^rbxasset")then
+return v.Config.BaseUrl:gsub("/+$","").."/"..z
+end
+return z
+end
+
+function f._loadSoundId(v,x)
+local z=v:_sourceFor(x)
+if not z then
+return h
+end
+if string.match(z,"^rbxasset")or string.match(z,"^synasset")then
+return z
+end
+if not string.match(z,"^https?://")then
+return z
+end
+if v.Cache[z]then
+return v.Cache[z]
+end
+
+while v.Loading[z]do
+task.wait()
+end
+if v.Cache[z]then
+return v.Cache[z]
+end
+
+local A=getcustomasset or getsynasset
+if not writefile or not A then
+v:_warnOnce("unsupported","This executor cannot load downloaded audio, so the built-in fallback sound is being used.")
+v.Cache[z]=h
+return h
+end
+
+v.Loading[z]=true
+local B,C=pcall(function()
+local B=z:match"^([^?#]+)"or z
+local C=B:match"%.([%w]+)$"or"wav"
+local F="WindUI/"..sanitize(v.Config.Folder).."/sounds"
+local G=F.."/"..sanitize(x).."."..string.lower(C)
+ensureFolder(F)
+
+if not isfile or not isfile(G)then
+writefile(G,v:_download(z))
+end
+
+local H,J=pcall(A,G)
+if not H then
+writefile(G,v:_download(z))
+J=A(G)
+end
+return J
+end)
+v.Loading[z]=nil
+
+if B and C then
+v.Cache[z]=C
+return C
+end
+
+v:_warnOnce(z,"Could not load "..tostring(x)..": "..tostring(C))
+v.Cache[z]=h
+return h
+end
+
+function f._playEntry(v,x,z,A)
+if not z or z==false or not z.Sound then
+return false
+end
+A=A or{}
+
+local B=os.clock()
+local C=tonumber(A.RateLimit)or r[x]or 0
+if not A.Force and B-(v.LastPlayed[x]or 0)<C then
+return false
+end
+v.LastPlayed[x]=B
+
+task.spawn(function()
+local F=v:_loadSoundId(z.Sound)
+local G=Instance.new"Sound"
+G.Name="VantaUI_"..sanitize(x)
+G.SoundId=F
+G.Volume=math.clamp(
+(tonumber(A.Volume)or tonumber(z.Volume)or 1)*v.Config.Volume,
+0,
+10
+)
+G.PlaybackSpeed=math.clamp(
+(tonumber(A.Pitch)or tonumber(z.Pitch)or 1)*v.Config.Pitch,
+0.25,
+4
+)
+G.Parent=e
+G:Play()
+d:AddItem(G,6)
+end)
+return true
+end
+
+function f._refreshMap(v)
+local x=u[v.Config.Preset]or u["Vanta Pulse"]
+v.ActiveMap=copyTable(x)
+for z,A in pairs(v.Config.Overrides)do
+v.ActiveMap[z]=mergeEntry(v.ActiveMap[z],A)
+end
+end
+
+function f.Configure(v,x)
+if x==false then
+v.Config.Enabled=false
+return v:GetConfig()
+end
+x=x or{}
+
+if x.Enabled~=nil then
+v.Config.Enabled=x.Enabled==true
+end
+if x.Preset and u[x.Preset]then
+v.Config.Preset=x.Preset
+end
+if x.Volume~=nil then
+v.Config.Volume=math.clamp(tonumber(x.Volume)or v.Config.Volume,0,2)
+end
+if x.Pitch~=nil then
+v.Config.Pitch=math.clamp(tonumber(x.Pitch)or v.Config.Pitch,0.5,2)
+end
+if x.Folder then
+v.Config.Folder=tostring(x.Folder)
+end
+if x.BaseUrl then
+v.Config.BaseUrl=tostring(x.BaseUrl)
+end
+if typeof(x.Assets)=="table"then
+for z,A in pairs(x.Assets)do
+v.Config.Assets[z]=A
+end
+end
+if typeof(x.Overrides)=="table"then
+for z,A in pairs(x.Overrides)do
+v.Config.Overrides[z]=typeof(A)=="table"and copyTable(A)or A
+end
+end
+
+v:_refreshMap()
+if v.Config.Enabled then
+v:PreloadPreset(v.Config.Preset)
+end
+return v:GetConfig()
+end
+
+function f.SetEnabled(v,x)
+v.Config.Enabled=x==true
+if v.Config.Enabled then
+v:PreloadPreset(v.Config.Preset)
+end
+return v.Config.Enabled
+end
+
+function f.SetPreset(v,x)
+if not u[x]then
+return false
+end
+v.Config.Preset=x
+v:_refreshMap()
+if v.Config.Enabled then
+v:PreloadPreset(x)
+end
+return true
+end
+
+function f.SetVolume(v,x)
+v.Config.Volume=math.clamp(tonumber(x)or v.Config.Volume,0,2)
+return v.Config.Volume
+end
+
+function f.SetPitch(v,x)
+v.Config.Pitch=math.clamp(tonumber(x)or v.Config.Pitch,0.5,2)
+return v.Config.Pitch
+end
+
+function f.SetSoundForEvent(v,x,z,A)
+if not table.find(i,x)then
+return false
+end
+if z==false then
+v.Config.Overrides[x]=false
+else
+local B=typeof(z)=="table"and copyTable(z)or copyTable(A)
+if typeof(z)=="string"then
+B.Sound=z
+end
+v.Config.Overrides[x]=B
+end
+v:_refreshMap()
+return true
+end
+
+function f.ClearSoundOverride(v,x)
+v.Config.Overrides[x]=nil
+v:_refreshMap()
+end
+
+function f.ClearSoundOverrides(v)
+v.Config.Overrides={}
+v:_refreshMap()
+end
+
+function f.Play(v,x,z)
+z=z or{}
+if not v.Config.Enabled and not z.Force then
+return false
+end
+return v:_playEntry(x,v.ActiveMap[x],z)
+end
+
+function f.Preview(v,x,z)
+z=copyTable(z)
+z.Force=true
+return v:_playEntry("Preview_"..tostring(x),{
+Sound=x,
+Volume=0.82,
+Pitch=1,
+},z)
+end
+
+function f.PreloadPreset(v,x)
+local z=u[x]
+if not z then
+return
+end
+task.spawn(function()
+local A={}
+for B,C in pairs(z)do
+if C and C.Sound and not A[C.Sound]then
+A[C.Sound]=true
+v:_loadSoundId(C.Sound)
+end
+end
+end)
+end
+
+function f.GetConfig(v)
+return copyTable(v.Config)
+end
+
+function f.GetEvents(v)
+return copyTable(i)
+end
+
+function f.GetPresetNames(v)
+return copyTable(p)
+end
+
+function f.GetSoundNames(v)
+local x={}
+for z in pairs(l)do
+table.insert(x,z)
+end
+for z in pairs(v.Config.Assets)do
+if not table.find(x,z)then
+table.insert(x,z)
+end
+end
+table.sort(x)
+return x
+end
+
+return f end function a.f()
+
 local b={}
 
 
@@ -1703,7 +2224,7 @@ end
 
 
 
-return b end function a.f()
+return b end function a.g()
 local b=a.load'd'
 local d=b.New
 local e=b.Tween
@@ -1754,6 +2275,7 @@ return h
 end
 
 function f.New(g)
+b.PlaySound"Notification"
 local h={
 Title=g.Title or"Notification",
 Content=g.Content or nil,
@@ -2015,6 +2537,7 @@ end)
 
 if l then
 b.AddSignal(l.TextButton.MouseButton1Click,function()
+b.PlaySound"NotificationClose"
 h:Close()
 end)
 end
@@ -2023,7 +2546,7 @@ end
 return h
 end
 
-return f end function a.g()
+return f end function a.h()
 
 
 
@@ -2306,7 +2829,7 @@ Copy=au,
 end
 
 
-return X end function a.h()
+return X end function a.i()
 
 
 
@@ -2392,7 +2915,7 @@ Copy=CopyLink,
 }
 end
 
-return ac end function a.i()
+return ac end function a.j()
 
 
 
@@ -2435,7 +2958,7 @@ Copy=CopyLink,
 }
 end
 
-return aa end function a.j()
+return aa end function a.k()
 
 
 
@@ -2497,7 +3020,7 @@ Copy=copyLink
 }
 end
 
-return aa end function a.k()
+return aa end function a.l()
 
 
 
@@ -2507,32 +3030,32 @@ Name="Platoboost",
 Icon="rbxassetid://75920162824531",
 Args={"ServiceId","Secret"},
 
-New=a.load'g'.New
+New=a.load'h'.New
 },
 pandadevelopment={
 Name="Panda Development",
 Icon="panda",
 Args={"ServiceId"},
 
-New=a.load'h'.New
+New=a.load'i'.New
 },
 luarmor={
 Name="Luarmor",
 Icon="rbxassetid://130918283130165",
 Args={"ScriptId","Discord"},
 
-New=a.load'i'.New
+New=a.load'j'.New
 },
 junkiedevelopment={
 Name="Junkie Development",
 Icon="rbxassetid://106310347705078",
 Args={"ServiceId","ApiKey","Provider"},
 
-New=a.load'j'.New
+New=a.load'k'.New
 },
 
 
-}end function a.l()
+}end function a.m()
 
 
 
@@ -2566,7 +3089,7 @@ return[[
         "concurrently": "^9.2.0"
     }
 }
-]]end function a.m()
+]]end function a.n()
 
 local aa={}
 
@@ -2696,12 +3219,14 @@ TextSize=18,
 })
 
 ab.AddSignal(ao.MouseEnter,function()
+ab.PlaySound"Hover"
 ad(ao.Frame,0.047,{ImageTransparency=0.95}):Play()
 end)
 ab.AddSignal(ao.MouseLeave,function()
 ad(ao.Frame,0.047,{ImageTransparency=1}):Play()
 end)
 ab.AddSignal(ao.MouseButton1Click,function()
+ab.PlaySound"Click"
 if aj then
 aj:Close()()
 end
@@ -2713,7 +3238,7 @@ end)
 return ao
 end
 
-return aa end function a.n()
+return aa end function a.o()
 
 local aa={}
 
@@ -2812,6 +3337,13 @@ aq,
 }),
 })
 
+ab.AddSignal(aq.Focused,function()
+ab.PlaySound"InputFocus"
+end)
+ab.AddSignal(aq.FocusLost,function()
+ab.PlaySound"InputSubmit"
+end)
+
 
 
 
@@ -2838,7 +3370,7 @@ end
 return ar
 end
 
-return aa end function a.o()
+return aa end function a.p()
 
 local aa=a.load'd'
 local ab=aa.New
@@ -2980,7 +3512,7 @@ end
 return aj
 end
 
-return ad end function a.p()
+return ad end function a.q()
 
 local aa={}
 
@@ -2988,11 +3520,11 @@ local ab=a.load'd'
 local ac=ab.New
 local ad=ab.Tween
 
-local ae=a.load'm'.New
-local af=a.load'n'.New
+local ae=a.load'n'.New
+local af=a.load'o'.New
 
 function aa.new(ag,ah,ai,aj)
-local ak=a.load'o'
+local ak=a.load'p'
 local al=ak.Create(true,"Popup",ag.Window,ag.WindUI,ag.WindUI.ScreenGui.KeySystem)
 
 local am={}
@@ -3488,7 +4020,7 @@ aA.Position=UDim2.new(1,0,0.5,0)
 al:Open()
 end
 
-return aa end function a.q()
+return aa end function a.r()
 
 
 
@@ -3510,7 +4042,7 @@ local ab=aa(game:GetService"Workspace").CurrentCamera.ViewportSize.Y
 return map(ab,0,2560,8,56)
 end
 
-return{viewportPointToWorld,getOffset}end function a.r()
+return{viewportPointToWorld,getOffset}end function a.s()
 
 
 
@@ -3521,7 +4053,7 @@ local ab=a.load'd'
 local ac=ab.New
 
 
-local ad,ae=unpack(a.load'q')
+local ad,ae=unpack(a.load'r')
 local af=Instance.new("Folder",aa(game:GetService"Workspace").CurrentCamera)
 
 
@@ -3657,11 +4189,11 @@ ah.Frame=ak
 ah.Model=aj
 
 return ah
-end end function a.s()
+end end function a.t()
 
 
 local aa=a.load'd'
-local ab=a.load'r'
+local ab=a.load's'
 
 local ac=aa.New
 
@@ -3781,7 +4313,7 @@ ae.SetVisibility=af.SetVisibility
 end
 
 return ae,af
-end end function a.t()
+end end function a.u()
 
 
 
@@ -3789,9 +4321,9 @@ local aa=(cloneref or clonereference or function(aa)return aa end)
 
 
 local ab={
-AcrylicBlur=a.load'r',
+AcrylicBlur=a.load's',
 
-AcrylicPaint=a.load's',
+AcrylicPaint=a.load't',
 }
 
 function ab.init()
@@ -3838,7 +4370,7 @@ registerDefaults()
 ab.Enable()
 end
 
-return ab end function a.u()
+return ab end function a.v()
 
 local aa={}
 
@@ -3859,7 +4391,7 @@ Buttons=ae.Buttons,
 IconSize=22,
 }
 
-local ah=a.load'o'
+local ah=a.load'p'
 local ai=ah.Create(true,"Popup",ae.WindUI.Window,ae.WindUI,af)
 
 local aj=200
@@ -4020,7 +4552,7 @@ PaddingBottom=UDim.new(0,16),
 }),
 })
 
-local as=a.load'm'.New
+local as=a.load'n'.New
 
 for at,au in next,ag.Buttons do
 as(au.Title,au.Icon,au.Callback,au.Variant,aq,ai)
@@ -4032,7 +4564,7 @@ ai:Open()
 return ag
 end
 
-return aa end function a.v()
+return aa end function a.w()
 return function(aa,ab)
 return{
 Dark={
@@ -4412,7 +4944,7 @@ Button=aa:Gradient({
 Icon=Color3.fromHex"#ffffff",
 },
 }
-end end function a.w()
+end end function a.x()
 
 local aa={}
 
@@ -4503,7 +5035,7 @@ am,
 return an
 end
 
-return aa end function a.x()
+return aa end function a.y()
 
 local aa={}
 
@@ -4652,7 +5184,7 @@ UpdateVisuals()
 return ak
 end
 
-return aa end function a.y()
+return aa end function a.z()
 
 local aa={}
 
@@ -4820,7 +5352,7 @@ end)
 return ah
 end
 
-return aa end function a.z()
+return aa end function a.A()
 
 local aa=(cloneref or clonereference or function(aa)return aa end)
 
@@ -5201,7 +5733,7 @@ function ae.GetConfig(af,ag)
 return ae.Configs[ag]
 end
 
-return ae end function a.A()
+return ae end function a.B()
 local aa={}
 
 local ab=a.load'd'
@@ -5642,7 +6174,7 @@ end
 return ah
 end
 
-return aa end function a.B()
+return aa end function a.C()
 
 local aa={}
 
@@ -5805,7 +6337,7 @@ end
 
 
 
-return aa end function a.C()
+return aa end function a.D()
 game:GetService"ReplicatedStorage"
 local aa=a.load'd'
 local ab=aa.New
@@ -5818,7 +6350,7 @@ end)
 
 ae(game:GetService"UserInputService")
 
-local af=a.load'y'
+local af=a.load'z'
 
 local function Color3ToHSB(ag)
 local ah,ai,aj=ag.R,ag.G,ag.B
@@ -6522,14 +7054,14 @@ end
 
 
 return ah
-end end function a.D()
+end end function a.E()
 
 local aa=a.load'd'
 local ab=aa.New
 
 local ac={}
 
-local ad=a.load'm'.New
+local ad=a.load'n'.New
 
 function ac.New(ae,af)
 af.Hover=false
@@ -6544,7 +7076,7 @@ Desc=af.Desc or nil,
 
 Locked=af.Locked or false,
 }
-local ah=a.load'C'(af)
+local ah=a.load'D'(af)
 
 ag.ParagraphFrame=ah
 if af.Buttons and#af.Buttons>0 then
@@ -6579,7 +7111,7 @@ end
 return ag.__type,ag
 end
 
-return ac end function a.E()
+return ac end function a.F()
 
 local aa=a.load'd'local ab=
 aa.New
@@ -6597,6 +7129,8 @@ IconColor=ae.IconColor or nil,
 Color=ae.Color,
 Justify=ae.Justify or"Between",
 IconAlign=ae.IconAlign or"Right",
+Sound=ae.Sound,
+HoverSound=ae.HoverSound,
 Locked=ae.Locked or false,
 LockedTitle=ae.LockedTitle,
 Callback=ae.Callback or function()end,
@@ -6605,7 +7139,7 @@ UIElements={},
 
 local ag=true
 
-af.ButtonFrame=a.load'C'{
+af.ButtonFrame=a.load'D'{
 Title=af.Title,
 Desc=af.Desc,
 Parent=ae.Parent,
@@ -6680,15 +7214,23 @@ end
 
 aa.AddSignal(af.ButtonFrame.UIElements.Main.MouseButton1Click,function()
 if ag then
+if af.Sound~=false then
+aa.PlaySound(typeof(af.Sound)=="string"and af.Sound or"Click")
+end
 task.spawn(function()
 aa.SafeCallback(af.Callback)
 end)
 end
 end)
+aa.AddSignal(af.ButtonFrame.UIElements.Main.MouseEnter,function()
+if ag and af.HoverSound~=false then
+aa.PlaySound(typeof(af.HoverSound)=="string"and af.HoverSound or"Hover")
+end
+end)
 return af.__type,af
 end
 
-return ac end function a.F()
+return ac end function a.G()
 
 local aa={}
 
@@ -6992,7 +7534,7 @@ end
 return au,am
 end
 
-return aa end function a.G()
+return aa end function a.H()
 
 local aa={}
 
@@ -7093,13 +7635,13 @@ return an,ak
 end
 
 
-return aa end function a.H()
+return aa end function a.I()
 local aa=a.load'd'local ab=
 aa.New local ac=
 aa.Tween
 
-local ad=a.load'F'.New
-local ae=a.load'G'.New
+local ad=a.load'G'.New
+local ae=a.load'H'.New
 
 local af={}
 
@@ -7117,7 +7659,7 @@ Type=ah.Type or"Toggle",
 Callback=ah.Callback or function()end,
 UIElements={},
 }
-ai.ToggleFrame=a.load'C'{
+ai.ToggleFrame=a.load'D'{
 Title=ai.Title,
 Desc=ai.Desc,
 Window=ah.Window,
@@ -7184,9 +7726,13 @@ al.Position=UDim2.new(1,0,ah.Window.NewElements and 0 or 0.5,0)
 
 function ai.Set(an,ao,ap,aq)
 if aj then
+local ar=ai.Value~=ao
 am:Set(ao,ap,aq or false)
 ak=ao
 ai.Value=ao
+if ar and ap~=false then
+aa.PlaySound(ao and"ToggleOn"or"ToggleOff")
+end
 end
 end
 
@@ -7228,7 +7774,7 @@ end
 return ai.__type,ai
 end
 
-return af end function a.I()
+return af end function a.J()
 
 local aa=(cloneref or clonereference or function(aa)
 return aa
@@ -7336,7 +7882,7 @@ av.Size=UDim2.new(0,al.IconSize,0,al.IconSize)
 aw=aw+al.IconSize-2
 end
 end
-al.SliderFrame=a.load'C'{
+al.SliderFrame=a.load'D'{
 Title=al.Title,
 Desc=al.Desc,
 Parent=ak.Parent,
@@ -7425,7 +7971,7 @@ Visible=al.IsTextbox,
 
 local ax
 if al.IsTooltip then
-ax=a.load'B'.New(
+ax=a.load'C'.New(
 ap,
 al.UIElements.SliderIcon.Frame.Thumb,
 true,
@@ -7484,6 +8030,9 @@ aA=CalculateValue(al.Value.Min+d*(al.Value.Max-al.Value.Min))
 aA=math.clamp(aA,al.Value.Min or 0,al.Value.Max or 100)
 
 if aA~=aq then
+ae.PlaySound("SliderTick",{
+Pitch=0.82+d*0.36,
+})
 ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(d,0,1,0)}):Play()
 al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
 if ax then
@@ -7505,6 +8054,9 @@ local g=math.clamp(
 aA=CalculateValue(al.Value.Min+g*(al.Value.Max-al.Value.Min))
 
 if aA~=aq then
+ae.PlaySound("SliderTick",{
+Pitch=0.82+g*0.36,
+})
 ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(g,0,1,0)}):Play()
 al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
 if ax then
@@ -7638,7 +8190,7 @@ end)
 return al.__type,al
 end
 
-return ah end function a.J()
+return ah end function a.K()
 
 local aa=a.load'd'
 local ac=aa.New
@@ -7744,7 +8296,7 @@ end
 return tostring(math.floor(ar+0.5)).."%"
 end
 
-ao.ProgressBarFrame=a.load'C'{
+ao.ProgressBarFrame=a.load'D'{
 Title=ao.Title,
 Desc=ao.Desc,
 Parent=ag.Parent,
@@ -7917,7 +8469,7 @@ Update(ao.Value.Default,true)
 return ao.__type,ao
 end
 
-return ae end function a.K()
+return ae end function a.L()
 
 local aa=(cloneref or clonereference or function(aa)
 return aa
@@ -7934,7 +8486,7 @@ UICorner=6,
 UIPadding=8,
 }
 
-local ah=a.load'w'.New
+local ah=a.load'x'.New
 
 function ag.New(ai,aj)
 local function NormalizeKeyCode(ak)
@@ -7970,7 +8522,7 @@ table.insert(al,Enum.KeyCode[NormalizeKeyCode"Escape"])
 
 local am=true
 
-ak.KeybindFrame=a.load'C'{
+ak.KeybindFrame=a.load'D'{
 Title=ak.Title,
 Desc=ak.Desc,
 Parent=aj.Parent,
@@ -8117,7 +8669,7 @@ end)
 return ak.__type,ak
 end
 
-return ag end function a.L()
+return ag end function a.M()
 
 local aa=a.load'd'local ac=
 aa.New local ad=
@@ -8126,10 +8678,10 @@ aa.Tween
 local ae={
 UICorner=8,
 UIPadding=8,
-}local af=a.load'm'
+}local af=a.load'n'
 
 .New
-local ag=a.load'n'.New
+local ag=a.load'o'.New
 
 function ae.New(ah,ai)
 local aj={
@@ -8151,7 +8703,7 @@ Width=150,
 
 local ak=true
 
-aj.InputFrame=a.load'C'{
+aj.InputFrame=a.load'D'{
 Title=aj.Title,
 Desc=aj.Desc,
 Parent=ai.Parent,
@@ -8227,7 +8779,7 @@ end
 return aj.__type,aj
 end
 
-return ae end function a.M()
+return ae end function a.N()
 
 local aa=a.load'd'
 local ae=aa.New
@@ -8255,7 +8807,7 @@ ai
 return"Divider",{__type="Divider",ElementFrame=aj}
 end
 
-return af end function a.N()
+return af end function a.O()
 local aa={}
 
 local ae=(cloneref or clonereference or function(ae)
@@ -8268,7 +8820,7 @@ local ah=ae(game:GetService"Workspace").CurrentCamera local ai=
 
 workspace.CurrentCamera
 
-local aj=a.load'n'.New
+local aj=a.load'o'.New
 
 local ak=a.load'd'
 local al=ak.New
@@ -8783,6 +9335,7 @@ am(ay.UIElements.TabIcon.ImageLabel,0.1,{ImageTransparency=0}):Play()
 end
 ap.Value=ay.Original
 end
+ak.PlaySound"Select"
 Callback()
 end)
 elseif ar=="Menu"then
@@ -8798,13 +9351,14 @@ ak.AddSignal(ay.UIElements.TabItem.MouseButton1Click,function()
 if ap.Locked or ay.Locked then
 return
 end
+ak.PlaySound"Select"
 Callback(ax.Callback or function()end)
 end)
 end
 
 RecalculateCanvasSize()
 RecalculateListSize()
-else a.load'M'
+else a.load'N'
 :New{Parent=ap.UIElements.Menu.Frame.ScrollingFrame}
 end
 end
@@ -8849,6 +9403,7 @@ RecalculateCanvasSize()
 
 function as.Open(au)
 if not ap.Locked then
+ak.PlaySound"DropdownOpen"
 ap.UIElements.Menu.Visible=true
 ap.UIElements.MenuCanvas.Visible=true
 ap.UIElements.MenuCanvas.Active=true
@@ -8871,6 +9426,9 @@ end
 end
 
 function as.Close(au)
+if ap.Opened or ap.UIElements.MenuCanvas.Visible then
+ak.PlaySound"DropdownClose"
+end
 ap.Opened=false
 
 am(ap.UIElements.Menu,0.25,{
@@ -8937,7 +9495,7 @@ UpdatePosition
 return as
 end
 
-return aa end function a.O()
+return aa end function a.P()
 
 local aa=(cloneref or clonereference or function(aa)
 return aa
@@ -8951,9 +9509,9 @@ local af=a.load'd'
 local ag=af.New local ah=
 af.Tween
 
-local ai=a.load'w'.New local aj=a.load'n'
+local ai=a.load'x'.New local aj=a.load'o'
 .New
-local ak=a.load'N'.New local al=
+local ak=a.load'O'.New local al=
 
 workspace.CurrentCamera
 
@@ -8997,7 +9555,7 @@ if ap.Values and typeof(ap.Value)=="number"then
 ap.Value=ap.Values[ap.Value]
 end
 
-ap.DropdownFrame=a.load'C'{
+ap.DropdownFrame=a.load'D'{
 Title=ap.Title,
 Desc=ap.Desc,
 Parent=ao.Parent,
@@ -9082,7 +9640,7 @@ end
 return ap.__type,ap
 end
 
-return am end function a.P()
+return am end function a.Q()
 
 
 
@@ -9331,7 +9889,7 @@ end
 return table.concat(at)
 end
 
-return aa end function a.Q()
+return aa end function a.R()
 
 local aa={}
 
@@ -9339,7 +9897,7 @@ local af=a.load'd'
 local ag=af.New
 local ai=af.Tween
 
-local ak=a.load'P'
+local ak=a.load'Q'
 
 function aa.New(al,am,an,ao,ap)
 local aq={
@@ -9570,13 +10128,13 @@ end
 return aq
 end
 
-return aa end function a.R()
+return aa end function a.S()
 
 local aa=a.load'd'local af=
 aa.New
 
 
-local ag=a.load'Q'
+local ag=a.load'R'
 
 local ai={}
 
@@ -9672,7 +10230,7 @@ am.ElementFrame=ao.CodeFrame
 return am.__type,am
 end
 
-return ai end function a.S()
+return ai end function a.T()
 
 local aa=a.load'd'
 local af=aa.New local ag=
@@ -9691,8 +10249,8 @@ al.RenderStepped
 local ao=am.LocalPlayer
 local ap=ao:GetMouse()
 
-local aq=a.load'm'.New
-local ar=a.load'n'.New
+local aq=a.load'n'.New
+local ar=a.load'o'.New
 
 local as={
 UICorner=9,
@@ -9726,7 +10284,7 @@ end
 
 az:SetHSVFromRGB(az.Default)
 
-local b=a.load'o'
+local b=a.load'p'
 local d=b.Create(nil,"Dialog",aw,ax,aw.UIElements.Main.Main)
 
 az.ColorpickerFrame=d
@@ -10469,7 +11027,7 @@ local ax=true
 
 
 
-aw.ColorpickerFrame=a.load'C'{
+aw.ColorpickerFrame=a.load'D'{
 Title=aw.Title,
 Desc=aw.Desc,
 Parent=av.Parent,
@@ -10547,7 +11105,7 @@ end)
 return aw.__type,aw
 end
 
-return as end function a.T()
+return as end function a.U()
 
 local aa=a.load'd'
 local af=aa.New
@@ -10926,7 +11484,7 @@ end)
 return an.__type,an
 end
 
-return ak end function a.U()
+return ak end function a.V()
 
 local aa=a.load'd'
 local af=aa.New
@@ -10943,7 +11501,7 @@ BackgroundTransparency=1,
 return"Space",{__type="Space",ElementFrame=am}
 end
 
-return ai end function a.V()
+return ai end function a.W()
 local aa=a.load'd'
 local af=aa.New
 
@@ -11012,7 +11570,7 @@ end
 return am.__type,am
 end
 
-return ai end function a.W()
+return ai end function a.X()
 local aa=a.load'd'
 local af=aa.New
 
@@ -11097,7 +11655,7 @@ al.Tab
 return am.__type,am
 end
 
-return ai end function a.X()
+return ai end function a.Y()
 local aa=a.load'd'
 local af=aa.New
 
@@ -11197,7 +11755,7 @@ end
 return am.__type,am
 end
 
-return ai end function a.Y()
+return ai end function a.Z()
 
 local aa=a.load'd'
 local af=aa.New
@@ -11284,7 +11842,7 @@ al.Tab
 return am.__type,am
 end
 
-return ai end function a.Z()
+return ai end function a._()
 local aa=(cloneref or clonereference or function(aa)
 return aa
 end)
@@ -11520,28 +12078,28 @@ ao.Main=at
 return ao.__type,ao
 end
 
-return al end function a._()
+return al end function a.aa()
 
 return{
 Elements={
-Paragraph=a.load'D',
-Button=a.load'E',
-Toggle=a.load'H',
-Slider=a.load'I',
-ProgressBar=a.load'J',
-Keybind=a.load'K',
-Input=a.load'L',
-Dropdown=a.load'O',
-Code=a.load'R',
-Colorpicker=a.load'S',
-Section=a.load'T',
-Divider=a.load'M',
-Space=a.load'U',
-Image=a.load'V',
-Group=a.load'W',
-HStack=a.load'X',
-VStack=a.load'Y',
-Viewport=a.load'Z',
+Paragraph=a.load'E',
+Button=a.load'F',
+Toggle=a.load'I',
+Slider=a.load'J',
+ProgressBar=a.load'K',
+Keybind=a.load'L',
+Input=a.load'M',
+Dropdown=a.load'P',
+Code=a.load'S',
+Colorpicker=a.load'T',
+Section=a.load'U',
+Divider=a.load'N',
+Space=a.load'V',
+Image=a.load'W',
+Group=a.load'X',
+HStack=a.load'Y',
+VStack=a.load'Z',
+Viewport=a.load'_',
 
 },
 Load=function(aa,af,ai,ak,al,am,an,ao,ap)
@@ -11670,7 +12228,7 @@ end
 end
 end
 end,
-}end function a.aa()
+}end function a.ab()
 
 local aa=(cloneref or clonereference or function(aa)
 return aa
@@ -11684,8 +12242,8 @@ local ai=af.LocalPlayer:GetMouse()
 local ak=a.load'd'
 local al=ak.New
 
-local am=a.load'B'.New
-local an=a.load'x'.New
+local am=a.load'C'.New
+local an=a.load'y'.New
 
 
 
@@ -12023,7 +12581,15 @@ ar.ContainerFrame=ar.UIElements.ContainerFrameCanvas
 
 ak.AddSignal(ar.UIElements.Main.MouseButton1Click,function()
 if not ar.Locked then
+if ao.SelectedTab~=as then
+ak.PlaySound"Tab"
+end
 ao:SelectTab(as)
+end
+end)
+ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
+if not ar.Locked then
+ak.PlaySound"Hover"
 end
 end)
 
@@ -12124,7 +12690,7 @@ end
 
 
 
-local aA=a.load'_'
+local aA=a.load'aa'
 
 aA.Load(
 ar,
@@ -12318,7 +12884,7 @@ ao.OnChangeFunc(aq)
 end
 end
 
-return ao end function a.ab()
+return ao end function a.ac()
 
 local aa={}
 
@@ -12327,7 +12893,7 @@ local af=a.load'd'
 local ai=af.New
 local ak=af.Tween
 
-local al=a.load'aa'
+local al=a.load'ab'
 
 function aa.New(am,an,ao,ap,aq)
 local ar={
@@ -12496,7 +13062,7 @@ return ar
 end
 
 
-return aa end function a.ac()
+return aa end function a.ad()
 return{
 Tab="table-of-contents",
 Paragraph="type",
@@ -12508,7 +13074,7 @@ Input="text-cursor-input",
 Dropdown="chevrons-up-down",
 Code="terminal",
 Colorpicker="palette",
-}end function a.ad()
+}end function a.ae()
 local aa=(cloneref or clonereference or function(aa)
 return aa
 end)
@@ -12532,7 +13098,7 @@ Radius=22,
 Width=400,
 MaxHeight=380,
 
-Icons=a.load'ac',
+Icons=a.load'ad',
 }
 
 local aq=ak("TextBox",{
@@ -13047,7 +13613,7 @@ end)
 return ap
 end
 
-return af end function a.ae()
+return af end function a.af()
 
 
 
@@ -13061,19 +13627,19 @@ local ak=aa(game:GetService"Players")
 
 local al=workspace.CurrentCamera
 
-local am=a.load't'
+local am=a.load'u'
 
 local an=a.load'd'
 local ao=an.New
 local ap=an.Tween
 
 
-local aq=a.load'w'.New
-local ar=a.load'm'.New
-local as=a.load'x'.New
-local at=a.load'y'
+local aq=a.load'x'.New
+local ar=a.load'n'.New
+local as=a.load'y'.New
+local at=a.load'z'
 
-local au=a.load'z'
+local au=a.load'A'
 
 
 
@@ -13566,6 +14132,7 @@ end
 
 if aB.User.Callback then
 an.AddSignal(l.MouseButton1Click,function()
+an.PlaySound"Click"
 aB.User.Callback()
 end)
 an.AddSignal(l.MouseEnter,function()
@@ -14025,6 +14592,7 @@ Object=S,
 
 an.AddSignal(R.MouseButton1Click,function()
 if L then
+an.PlaySound"Click"
 L()
 end
 end)
@@ -14154,7 +14722,7 @@ end
 
 
 
-aB.OpenButtonMain=a.load'A'.New(aB)
+aB.OpenButtonMain=a.load'B'.New(aB)
 
 task.spawn(function()
 if aB.Icon then
@@ -14363,6 +14931,7 @@ function aB.Open(L)
 if aB.Destroyed then
 return
 end
+an.PlaySound"WindowOpen"
 task.spawn(function()
 if aB.OnOpenCallback then
 task.spawn(function()
@@ -14459,6 +15028,9 @@ end
 function aB.Close(L)
 if aB.Destroyed then
 return
+end
+if not aB.Closed then
+an.PlaySound"WindowClose"
 end
 
 local M={}
@@ -14718,8 +15290,8 @@ if aB.OpenButton and typeof(aB.OpenButton)=="table"then
 aB:EditOpenButton(aB.OpenButton)
 end
 
-local L=a.load'aa'
-local M=a.load'ab'
+local L=a.load'ab'
+local M=a.load'ac'
 local N=L.Init(aB,av.WindUI,av.WindUI.TooltipGui)
 N:OnChange(function(O)
 aB.CurrentTab=O
@@ -14793,7 +15365,7 @@ P,
 return Q
 end
 
-local O=a.load'o'
+local O=a.load'p'
 function aB.Dialog(P,Q)
 local R={
 Title=Q.Title or"Dialog",
@@ -15176,7 +15748,7 @@ end)
 
 
 if not aB.HideSearchBar then
-local T=a.load'ad'
+local T=a.load'ae'
 local U=false
 
 
@@ -15207,6 +15779,7 @@ an.AddSignal(V.MouseButton1Click,function()
 if U then
 return
 end
+an.PlaySound"Click"
 
 T.new(aB.TabModule,aB.UIElements.Main,function()
 
@@ -15272,8 +15845,9 @@ Name="Gui",
 Window=nil,
 Theme=nil,
 Creator=a.load'd',
-LocalizationModule=a.load'e',
-NotificationModule=a.load'f',
+SoundManager=a.load'e',
+LocalizationModule=a.load'f',
+NotificationModule=a.load'g',
 Themes=nil,
 Transparent=false,
 
@@ -15284,7 +15858,7 @@ UIScale=1,
 ConfigManager=nil,
 Version="0.0.0",
 
-Services=a.load'k',
+Services=a.load'l',
 
 OnThemeChangeFunction=nil,
 
@@ -15346,12 +15920,12 @@ end)
 
 local ap=ak.LocalPlayer or nil
 
-local aq=ai:JSONDecode(a.load'l')
+local aq=ai:JSONDecode(a.load'm')
 if aq then
 aa.Version=aq.version
 end
 
-local ar=a.load'p'
+local ar=a.load'q'
 
 local as=aa.Creator
 
@@ -15360,7 +15934,7 @@ local at=as.New
 
 
 
-local au=a.load't'
+local au=a.load'u'
 
 local av=protectgui or(syn and syn.protect_gui)or function()end
 
@@ -15420,6 +15994,7 @@ av(aa.NotificationGui)
 av(aa.DropdownGui)
 av(aa.TooltipGui)
 
+aa.SoundManager:Init(aa)
 as.Init(aa)
 
 function aa.SetParent(az,aA)
@@ -15449,6 +16024,62 @@ end
 
 function aa.SetNotificationLower(aA,aB)
 az.SetLower(aB)
+end
+
+function aa.ConfigureSounds(aA,aB)
+return aa.SoundManager:Configure(aB)
+end
+
+function aa.SetSoundEnabled(aA,aB)
+return aa.SoundManager:SetEnabled(aB)
+end
+
+function aa.SetSoundPreset(aA,aB)
+return aa.SoundManager:SetPreset(aB)
+end
+
+function aa.SetSoundVolume(aA,aB)
+return aa.SoundManager:SetVolume(aB)
+end
+
+function aa.SetSoundPitch(aA,aB)
+return aa.SoundManager:SetPitch(aB)
+end
+
+function aa.SetSoundForEvent(aA,aB,aC,aD)
+return aa.SoundManager:SetSoundForEvent(aB,aC,aD)
+end
+
+function aa.ClearSoundOverride(aA,aB)
+return aa.SoundManager:ClearSoundOverride(aB)
+end
+
+function aa.ClearSoundOverrides(aA)
+return aa.SoundManager:ClearSoundOverrides()
+end
+
+function aa.PlaySound(aA,aB,aC)
+return aa.SoundManager:Play(aB,aC)
+end
+
+function aa.PreviewSound(aA,aB,aC)
+return aa.SoundManager:Preview(aB,aC)
+end
+
+function aa.GetSoundConfig(aA)
+return aa.SoundManager:GetConfig()
+end
+
+function aa.GetSoundEvents(aA)
+return aa.SoundManager:GetEvents()
+end
+
+function aa.GetSoundPresets(aA)
+return aa.SoundManager:GetPresetNames()
+end
+
+function aa.GetSoundNames(aA)
+return aa.SoundManager:GetSoundNames()
 end
 
 function aa.SetFont(aA,aB)
@@ -15562,10 +16193,10 @@ end
 
 function aa.Popup(aA,aB)
 aB.WindUI=aa
-return a.load'u'.new(aB,aa.ScreenGui.Popups)
+return a.load'v'.new(aB,aa.ScreenGui.Popups)
 end
 
-aa.Themes=a.load'v'(aa,as)
+aa.Themes=a.load'w'(aa,as)
 
 aa.Themes["Gui Dark"]={
 Name="Gui Dark",
@@ -15642,7 +16273,7 @@ aa:SetTheme"Gui Dark"
 aa:SetLanguage(as.Language)
 
 function aa.CreateWindow(aA,aB)
-local aC=a.load'ae'
+local aC=a.load'af'
 
 if not am:IsStudio()and writefile then
 if not isfolder"Gui"then
@@ -15664,37 +16295,46 @@ warn"[Gui] You cannot create more than one window"
 return
 end
 
-local aD=true
+local aD=aB.Sounds
+if aD==nil then
+aD={}
+end
+if typeof(aD)=="table"and aD.Folder==nil then
+aD.Folder=aB.Folder or aB.Title or"VantaUI"
+end
+aa:ConfigureSounds(aD)
 
-local b=aa.Themes[aB.Theme or"Gui Dark"]
+local b=true
+
+local d=aa.Themes[aB.Theme or"Gui Dark"]
 
 
-as.SetTheme(b)
+as.SetTheme(d)
 
-local d=gethwid or function()
+local f=gethwid or function()
 return ak.LocalPlayer.UserId
 end
 
-local f=d()
+local g=f()
 
 if aB.KeySystem then
-aD=false
+b=false
 
 local function loadKeysystem()
-ar.new(aB,f,function(g)
-aD=g
+ar.new(aB,g,function(h)
+b=h
 end)
 end
 
-local g=(aB.Folder or"Temp").."/"..f..".key"
+local h=(aB.Folder or"Temp").."/"..g..".key"
 
 if aB.KeySystem.KeyValidator then
-if aB.KeySystem.SaveKey and isfile(g)then
-local h=readfile(g)
-local i=aB.KeySystem.KeyValidator(h)
+if aB.KeySystem.SaveKey and isfile(h)then
+local i=readfile(h)
+local l=aB.KeySystem.KeyValidator(i)
 
-if i then
-aD=true
+if l then
+b=true
 else
 loadKeysystem()
 end
@@ -15702,13 +16342,13 @@ else
 loadKeysystem()
 end
 elseif not aB.KeySystem.API then
-if aB.KeySystem.SaveKey and isfile(g)then
-local h=readfile(g)
-local i=(type(aB.KeySystem.Key)=="table")and table.find(aB.KeySystem.Key,h)
-or tostring(aB.KeySystem.Key)==tostring(h)
+if aB.KeySystem.SaveKey and isfile(h)then
+local i=readfile(h)
+local l=(type(aB.KeySystem.Key)=="table")and table.find(aB.KeySystem.Key,i)
+or tostring(aB.KeySystem.Key)==tostring(i)
 
-if i then
-aD=true
+if l then
+b=true
 else
 loadKeysystem()
 end
@@ -15716,29 +16356,29 @@ else
 loadKeysystem()
 end
 else
-if isfile(g)then
-local h=readfile(g)
-local i=false
+if isfile(h)then
+local i=readfile(h)
+local l=false
 
-for l,m in next,aB.KeySystem.API do
-local p=aa.Services[m.Type]
-if p then
-local r={}
-for u,v in next,p.Args do
-table.insert(r,m[v])
+for m,p in next,aB.KeySystem.API do
+local r=aa.Services[p.Type]
+if r then
+local u={}
+for v,x in next,r.Args do
+table.insert(u,p[x])
 end
 
-local u=p.New(table.unpack(r))
-local v=u.Verify(h)
-if v then
-i=true
+local v=r.New(table.unpack(u))
+local x=v.Verify(i)
+if x then
+l=true
 break
 end
 end
 end
 
-aD=i
-if not i then
+b=l
+if not l then
 loadKeysystem()
 end
 else
@@ -15748,13 +16388,13 @@ end
 
 repeat
 task.wait()
-until aD
+until b
 end
 
-local g=aC(aB)
+local h=aC(aB)
 
 aa.Transparent=aB.Transparent
-aa.Window=g
+aa.Window=h
 
 if aB.Acrylic then
 au.init()
@@ -15772,7 +16412,7 @@ end
 
 
 
-return g
+return h
 end
 
 return aa
