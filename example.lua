@@ -9,18 +9,35 @@ local Window = VantaUI:CreateWindow({
     Theme = "Salty Special",
     StartupTab = "Home",
     HideSearchBar = false,
+    Branding = {
+        Name = "VANTA",
+        Image = VantaUI.Brand.Image,
+        Folder = "VantaUI",
+        IconSize = 24,
+        IconRadius = 7,
+        OpenButtonIconRadius = 8,
+        Intro = false,
+    },
     OpenButton = {
         Title = "Open VantaUI",
         Enabled = true,
         Draggable = true,
         OnlyMobile = false,
+        OnlyIcon = true,
+        CornerRadius = UDim.new(0, 11),
+        StrokeThickness = 2,
+        ImageZoom = 1,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromHex("#000000")),
+            ColorSequenceKeypoint.new(1, Color3.fromHex("#000000")),
+        }),
     },
 })
 
 Window:Tag({
     Title = "v" .. VantaUI.Version,
     Icon = "github",
-    Color = Color3.fromHex("#171C27"),
+    Color = Color3.fromHex("#151116"),
     Border = true,
 })
 
@@ -80,7 +97,7 @@ local function addThemeButton(themeName, icon)
     })
 end
 
-addThemeButton("Salty Special", "flower-2")
+addThemeButton("Salty Special", "sparkles")
 addThemeButton("Vanta Smoked", "cloud-fog")
 addThemeButton("Vanta Dark", "moon")
 addThemeButton("Vanta AMOLED", "circle-dot")

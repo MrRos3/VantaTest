@@ -32,7 +32,7 @@ function OpenButton.New(Window)
 
     local Container = New("Frame", {
         Size = UDim2.fromOffset(44, 44),
-        Position = UDim2.new(0.5, 0, 0, 6 + 44 / 2),
+        Position = UDim2.new(0.5, 0, 0, 46 + 44 / 2),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Parent = Window.Parent,
         BackgroundTransparency = 1,

@@ -55,6 +55,7 @@ loadstring(game:HttpGet(
 - `src/` - editable UI source
 - `build/` - build tooling
 - `example.lua` - showcase and test script
+- `test.lua` - VantaTest staging entrypoint, synchronized with the production showcase baseline
 - `.github/workflows/build-gui.yml` - automatic source build
 
 ## License

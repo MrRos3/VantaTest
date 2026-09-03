@@ -52,6 +52,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # npm install can refresh lock metadata locally; it is not part of this build commit.
           git restore package-lock.json 2>/dev/null || true
           git add dist/main.lua build/package.lua
 

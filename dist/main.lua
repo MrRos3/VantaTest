@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.3.0  |  2026-09-02  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.0  |  2026-09-03  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaTest
     Project: VantaUI by MrRos3
@@ -1730,7 +1730,7 @@ h.Frame.Size=i and f.SizeLower or f.Size
 end
 
 h.Frame=d("Frame",{
-Position=UDim2.new(1,-29,0,56),
+Position=UDim2.new(1,-29,0,96),
 AnchorPoint=Vector2.new(1,0),
 Size=f.Size,
 Parent=g,
@@ -5236,7 +5236,7 @@ AutomaticSize="XY",
 
 local al=ac("Frame",{
 Size=UDim2.fromOffset(44,44),
-Position=UDim2.new(0.5,0,0,28),
+Position=UDim2.new(0.5,0,0,68),
 AnchorPoint=Vector2.new(0.5,0.5),
 Parent=ag.Parent,
 BackgroundTransparency=1,
@@ -15265,210 +15265,7 @@ end
 
 
 return aB
-end end function a.af()
-
-local aa={}
-
-local af=a.load'd'
-local ai=af.New
-local ak=af.Tween
-
-local function SetZIndex(al,am)
-al.ZIndex=am
-for an,ao in next,al:GetDescendants()do
-if ao:IsA"GuiObject"then
-ao.ZIndex=am
-end
-end
-end
-
-function aa.Play(al,am)
-al=al or{}
-local an=typeof(al.Intro)=="table"and al.Intro or{}
-if al.Intro==false or an.Enabled==false or not al.Image then
-return
-end
-
-local ao=math.max(tonumber(an.Duration)or 2.8,1.8)
-local ap=an.Title or al.Name or"VANTA"
-local aq=an.Subtitle or"SIGNAL ACQUIRED"
-local ar=an.Accent or Color3.fromHex"#5DE7FF"
-local as=math.clamp(tonumber(an.LogoSize)or 196,132,260)
-local at=tonumber(an.Radius)or al.IconRadius or 20
-
-local au=ai("CanvasGroup",{
-Name="VantaBrandIntro",
-Size=UDim2.fromScale(1,1),
-BackgroundColor3=Color3.new(0,0,0),
-BackgroundTransparency=0,
-GroupTransparency=0,
-Parent=am,
-Active=true,
-ZIndex=100000,
-})
-
-local av=ai("Frame",{
-Size=UDim2.fromScale(1.25,1.25),
-Position=UDim2.fromScale(0.5,0.5),
-AnchorPoint=Vector2.new(0.5,0.5),
-BackgroundColor3=ar,
-BackgroundTransparency=0.965,
-ZIndex=100001,
-Parent=au,
-},{
-ai("UICorner",{CornerRadius=UDim.new(1,0)}),
-ai("UIGradient",{
-Rotation=90,
-Transparency=NumberSequence.new{
-NumberSequenceKeypoint.new(0,1),
-NumberSequenceKeypoint.new(0.5,0.15),
-NumberSequenceKeypoint.new(1,1),
-},
-}),
-})
-
-local aw=ai("CanvasGroup",{
-Size=UDim2.new(0,math.max(as+80,300),0,as+122),
-Position=UDim2.new(0.5,0,0.5,14),
-AnchorPoint=Vector2.new(0.5,0.5),
-BackgroundTransparency=1,
-GroupTransparency=1,
-ZIndex=100002,
-Parent=au,
-})
-
-local ax=ai("Frame",{
-Size=UDim2.new(0,as+22,0,as+22),
-Position=UDim2.new(0.5,0,0,0),
-AnchorPoint=Vector2.new(0.5,0),
-BackgroundColor3=Color3.new(0,0,0),
-BackgroundTransparency=0.12,
-ZIndex=100003,
-Parent=aw,
-},{
-ai("UICorner",{CornerRadius=UDim.new(0,at+7)}),
-ai("UIStroke",{
-Color=ar,
-Transparency=0.38,
-Thickness=1.5,
-}),
-})
-
-local az=af.Image(
-al.Image,
-"VantaBrand",
-at,
-al.Folder or"VantaUI",
-"BrandIntro",
-false,
-false
-)
-az.Size=UDim2.new(0,as,0,as)
-az.Position=UDim2.fromScale(0.5,0.5)
-az.AnchorPoint=Vector2.new(0.5,0.5)
-az.Parent=ax
-SetZIndex(az,100004)
-
-local aA=ai("Frame",{
-Size=UDim2.new(1,-18,0,2),
-Position=UDim2.new(0.5,0,0,10),
-AnchorPoint=Vector2.new(0.5,0),
-BackgroundColor3=ar,
-BackgroundTransparency=0.28,
-ZIndex=100005,
-Parent=ax,
-},{
-ai("UIGradient",{
-Transparency=NumberSequence.new{
-NumberSequenceKeypoint.new(0,1),
-NumberSequenceKeypoint.new(0.5,0),
-NumberSequenceKeypoint.new(1,1),
-},
-}),
-})
-
-local aB=ai("TextLabel",{
-Text=ap,
-FontFace=Font.new(af.Font,Enum.FontWeight.Bold),
-TextSize=27,
-TextColor3=Color3.new(1,1,1),
-TextTransparency=1,
-TextXAlignment="Center",
-BackgroundTransparency=1,
-Size=UDim2.new(1,0,0,34),
-Position=UDim2.new(0,0,0,as+34),
-ZIndex=100003,
-Parent=aw,
-})
-
-local aC=ai("TextLabel",{
-Text=aq,
-FontFace=Font.new(af.Font,Enum.FontWeight.Medium),
-TextSize=11,
-TextColor3=ar,
-TextTransparency=1,
-TextXAlignment="Center",
-BackgroundTransparency=1,
-Size=UDim2.new(1,0,0,20),
-Position=UDim2.new(0,0,0,as+67),
-ZIndex=100003,
-Parent=aw,
-})
-
-local aD=ai("Frame",{
-Size=UDim2.new(0,164,0,2),
-Position=UDim2.new(0.5,0,1,-2),
-AnchorPoint=Vector2.new(0.5,1),
-BackgroundColor3=Color3.fromRGB(32,35,42),
-BackgroundTransparency=0.15,
-ZIndex=100003,
-Parent=aw,
-},{
-ai("UICorner",{CornerRadius=UDim.new(1,0)}),
-})
-
-local b=ai("Frame",{
-Size=UDim2.new(0,0,1,0),
-BackgroundColor3=ar,
-BackgroundTransparency=0,
-ZIndex=100004,
-Parent=aD,
-},{
-ai("UICorner",{CornerRadius=UDim.new(1,0)}),
-ai("UIGradient",{
-Color=ColorSequence.new(ar,Color3.new(1,1,1)),
-}),
-})
-
-local d=az:FindFirstChildWhichIsA("ImageLabel",true)
-local f=tonumber(an.LoadTimeout)or 8
-local g=os.clock()
-while d and d.Image==""and os.clock()-g<f do
-task.wait()
-end
-
-ak(aw,0.5,{
-GroupTransparency=0,
-Position=UDim2.new(0.5,0,0.5,0),
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-ak(av,0.8,{BackgroundTransparency=0.985},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-ak(aA,ao*0.52,{
-Position=UDim2.new(0.5,0,1,-10),
-BackgroundTransparency=0.7,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-task.wait(0.34)
-
-ak(aB,0.38,{TextTransparency=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-ak(aC,0.48,{TextTransparency=0.18},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-ak(b,math.max(ao-0.7,1),{Size=UDim2.fromScale(1,1)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-
-task.wait(math.max(ao-0.68,1.1))
-ak(au,0.5,{GroupTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.In):Play()
-task.wait(0.5)
-au:Destroy()
-end
-
-return aa end end
+end end end
 
 local aa={
 Name="Gui",
@@ -15952,19 +15749,6 @@ end
 repeat
 task.wait()
 until aD
-end
-
-if aB.Branding and aB.Branding.Intro~=false then
-local g,h=pcall(function()a.load'af'
-.Play(aB.Branding,aa.ScreenGui)
-end)
-if not g then
-local i=aa.ScreenGui:FindFirstChild"VantaBrandIntro"
-if i then
-i:Destroy()
-end
-warn("[VantaUI.Branding] Intro failed: "..tostring(h))
-end
 end
 
 local g=aC(aB)

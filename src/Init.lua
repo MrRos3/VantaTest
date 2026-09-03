@@ -482,19 +482,6 @@ function WindUI:CreateWindow(Config)
 		until CanLoadWindow
 	end
 
-	if Config.Branding and Config.Branding.Intro ~= false then
-		local success, introError = pcall(function()
-			require("./components/window/Intro").Play(Config.Branding, WindUI.ScreenGui)
-		end)
-		if not success then
-			local intro = WindUI.ScreenGui:FindFirstChild("VantaBrandIntro")
-			if intro then
-				intro:Destroy()
-			end
-			warn("[VantaUI.Branding] Intro failed: " .. tostring(introError))
-		end
-	end
-
 	local Window = CreateWindow(Config)
 
 	WindUI.Transparent = Config.Transparent

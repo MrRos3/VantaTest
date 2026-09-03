@@ -1,31 +1,14 @@
---[[
-    VantaTest executable showcase
-    Loads the staging VantaUI runtime and immediately opens a test window.
-]]
-
 local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local VantaUI = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. cacheBuster
 ))()
 
-assert(type(VantaUI) == "table", "[VantaTest] Failed to load VantaUI")
-
-VantaUI:SetTheme("Salty Special")
-
 local Window = VantaUI:CreateWindow({
-    Title = "VantaTest",
-    Author = "MrRos3",
+    Title = "VantaUI Showcase",
+    Icon = "sparkles",
     Theme = "Salty Special",
     StartupTab = "Home",
-    Size = UDim2.fromOffset(760, 520),
-    Resizable = true,
     HideSearchBar = false,
-    ScrollBarEnabled = true,
-    NewElements = true,
-    Topbar = {
-        Height = 44,
-        ButtonsType = "Mac",
-    },
     Branding = {
         Name = "VANTA",
         Image = VantaUI.Brand.Image,
@@ -36,11 +19,11 @@ local Window = VantaUI:CreateWindow({
         Intro = false,
     },
     OpenButton = {
-        Title = "VantaTest",
+        Title = "Open VantaUI",
         Enabled = true,
         Draggable = true,
-        OnlyIcon = true,
         OnlyMobile = false,
+        OnlyIcon = true,
         CornerRadius = UDim.new(0, 11),
         StrokeThickness = 2,
         ImageZoom = 1,
@@ -49,14 +32,12 @@ local Window = VantaUI:CreateWindow({
             ColorSequenceKeypoint.new(1, Color3.fromHex("#000000")),
         }),
     },
-    User = {
-        Enabled = false,
-    },
 })
 
 Window:Tag({
-    Title = "TEST",
-    Icon = "flask-conical",
+    Title = "v" .. VantaUI.Version,
+    Icon = "github",
+    Color = Color3.fromHex("#151116"),
     Border = true,
 })
 
@@ -65,105 +46,71 @@ local Home = Window:Tab({
     Icon = "house",
 })
 
-local Controls = Window:Tab({
-    Title = "Controls",
-    Icon = "sliders-horizontal",
-})
-
 local Themes = Window:Tab({
     Title = "Themes",
     Icon = "palette",
 })
 
-Home:Section({
-    Title = "VantaTest",
-    TextSize = 18,
-})
-
-Home:Paragraph({
-    Title = "Staging playground",
-    Desc = "This window runs entirely from MrRos3/VantaTest so VantaUI changes can be tested safely before production.",
+local About = Window:Tab({
+    Title = "About",
+    Icon = "info",
 })
 
 Home:Button({
-    Title = "Test notification",
-    Desc = "Confirm buttons and notification styling.",
+    Title = "VantaUI is alive",
+    Desc = "This window is loaded from the VantaUI public loader.",
+    Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Title = "VantaTest",
-            Content = "The staging runtime is alive 🖤",
-            Duration = 4,
+            Content = "VantaUI v" .. VantaUI.Version .. " is running 🎉",
+            Icon = "sparkles",
         })
     end,
 })
 
-Controls:Toggle({
-    Title = "Vanta toggle",
-    Desc = "Green ON state test.",
-    Default = true,
-    Callback = function() end,
-})
-
-Controls:Slider({
-    Title = "Slider",
-    Desc = "Test rail, fill and thumb styling.",
-    Step = 1,
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 65,
-    },
-    Callback = function() end,
-})
-
-Controls:Dropdown({
-    Title = "Dropdown",
-    Desc = "Test open, close and second-click behavior.",
-    Values = { "Alpha", "Beta", "Gamma", "Delta" },
-    Value = "Alpha",
-    Callback = function() end,
-})
-
-Controls:Input({
-    Title = "Input",
-    Desc = "Test textbox styling.",
-    Placeholder = "Type something...",
-    Callback = function() end,
-})
-
-Themes:Button({
-    Title = "Salty Special",
+Home:Button({
+    Title = "Runtime info",
+    Desc = "Shows the current VantaUI runtime version.",
+    Icon = "package",
     Callback = function()
-        VantaUI:SetTheme("Salty Special")
+        local info = VantaUI:GetInfo()
+        VantaUI:Notify({
+            Title = "VantaUI Runtime",
+            Content = "VantaUI " .. tostring(info.Version) .. " • runtime " .. tostring(VantaUI.RuntimeVersion or info.Version),
+            Icon = "package",
+        })
     end,
 })
 
-Themes:Button({
-    Title = "Vanta AMOLED",
+local function addThemeButton(themeName, icon)
+    Themes:Button({
+        Title = themeName,
+        Desc = "Switch the whole interface to " .. themeName .. ".",
+        Icon = icon,
+        Callback = function()
+            VantaUI:SetTheme(themeName)
+            VantaUI:Notify({
+                Content = "Theme changed to " .. themeName,
+                Icon = icon,
+            })
+        end,
+    })
+end
+
+addThemeButton("Salty Special", "sparkles")
+addThemeButton("Vanta Smoked", "cloud-fog")
+addThemeButton("Vanta Dark", "moon")
+addThemeButton("Vanta AMOLED", "circle-dot")
+addThemeButton("Vanta Violet", "wand-sparkles")
+
+About:Button({
+    Title = "VantaUI",
+    Desc = "Custom Roblox UI library by MrRos3.",
+    Icon = "github",
     Callback = function()
-        VantaUI:SetTheme("Vanta AMOLED")
+        VantaUI:Notify({
+            Content = "VantaUI • built by MrRos3 🖤",
+            Icon = "heart",
+        })
     end,
 })
-
-Themes:Button({
-    Title = "Vanta Smoked",
-    Callback = function()
-        VantaUI:SetTheme("Vanta Smoked")
-    end,
-})
-
-Themes:Button({
-    Title = "Vanta Dark",
-    Callback = function()
-        VantaUI:SetTheme("Vanta Dark")
-    end,
-})
-
-Themes:Button({
-    Title = "Vanta Violet",
-    Callback = function()
-        VantaUI:SetTheme("Vanta Violet")
-    end,
-})
-
-Window:SelectTab(1)
