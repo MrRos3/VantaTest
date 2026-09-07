@@ -40,22 +40,7 @@ local Window = VantaUI:CreateWindow({
     },
 })
 
--- VantaTest badge default: top-right with an 18px screen margin.
--- The main loader applies its own default once during creation, so this defer
--- intentionally runs afterward and establishes the showcase's final default.
-local function placeOpenBadgeTopRight()
-    local openButtonMain = Window and Window.OpenButtonMain
-    local button = openButtonMain and openButtonMain.Button
-    local container = button and button.Parent
-    if container then
-        container.Position = UDim2.new(1, -40, 0, 40)
-    end
-end
-placeOpenBadgeTopRight()
-task.defer(placeOpenBadgeTopRight)
-
--- The music mini-player follows VantaUI's real draggable open badge until
--- the user moves the mini-player manually; then its own position is remembered.
+-- Music mini-player is independent from VantaUI's normal open badge.
 CompactMusic:BindWindow(Window)
 
 -- Add a real music-note button directly to VantaUI's topbar.
