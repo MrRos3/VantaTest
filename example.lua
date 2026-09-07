@@ -4,7 +4,7 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 
 local CompactMusic = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_glass.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_polished.lua?v=" .. cacheBuster
 ))()
 CompactMusic:Init(VantaUI, { Folder = "VantaTest/Music" })
 
@@ -40,7 +40,8 @@ local Window = VantaUI:CreateWindow({
     },
 })
 
--- The music mini-player follows VantaUI's real draggable open badge.
+-- The music mini-player follows VantaUI's real draggable open badge until
+-- the user moves the mini-player manually; then its own position is remembered.
 CompactMusic:BindWindow(Window)
 
 -- Add a real music-note button directly to VantaUI's topbar.
@@ -150,7 +151,7 @@ Home:Button({
     Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Content = "VantaTest glass music-player build is running 🎵",
+            Content = "VantaTest polished glass music-player build is running 🎵",
             Icon = "music",
         })
     end,
