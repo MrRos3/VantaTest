@@ -1,6 +1,6 @@
 local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local VantaUI = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaUI/main/main.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. cacheBuster
 ))()
 
 local Window = VantaUI:CreateWindow({
@@ -58,12 +58,12 @@ local About = Window:Tab({
 
 Home:Button({
     Title = "VantaUI is alive",
-    Desc = "This window is loaded from the VantaUI public loader.",
+    Desc = "This window is loaded from the VantaTest experimental loader.",
     Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Content = "VantaUI v" .. VantaUI.Version .. " is running 🎉",
-            Icon = "sparkles",
+            Content = "VantaTest music-player build is running 🎵",
+            Icon = "music-2",
         })
     end,
 })
