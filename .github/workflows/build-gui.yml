@@ -1,5 +1,5 @@
 # VantaUI runtime build
-name: Build VantaUI Test
+name: Build VantaUI
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout VantaTest
+      - name: Checkout VantaUI
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -57,10 +57,10 @@ jobs:
           git add dist/main.lua build/package.lua
 
           if git diff --cached --quiet; then
-            echo "VantaTest runtime is already up to date."
+            echo "VantaUI runtime is already up to date."
             exit 0
           fi
 
-          git commit -m "[AUTO] Build VantaTest runtime [skip ci]"
+          git commit -m "[AUTO] Build VantaUI runtime [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
