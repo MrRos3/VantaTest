@@ -4,7 +4,7 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 
 local CompactMusic = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_premium.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_demo.lua?v=" .. cacheBuster
 ))()
 CompactMusic:Init(VantaUI, { Folder = "VantaTest/Music" })
 
@@ -163,7 +163,7 @@ Home:Button({
     Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Content = "VantaTest premium music-player build is running 🎵",
+            Content = "VantaTest demo music-player build is running 🎵",
             Icon = "music",
         })
     end,
