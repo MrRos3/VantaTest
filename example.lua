@@ -4,7 +4,7 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 
 local CompactMusic = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_cloud.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_premium.lua?v=" .. cacheBuster
 ))()
 
 -- Remove the old generated Midnight Bounce demo from the executor's local
@@ -54,7 +54,6 @@ local Window = VantaUI:CreateWindow({
     },
 })
 
--- Keep the normal Vanta badge exactly where production VantaUI places it.
 local function restoreVantaBadgePosition()
     local openButtonMain = Window and Window.OpenButtonMain
     local button = openButtonMain and openButtonMain.Button
@@ -66,7 +65,6 @@ end
 restoreVantaBadgePosition()
 task.defer(restoreVantaBadgePosition)
 
--- Music mini-player is independent from VantaUI's normal open badge.
 CompactMusic:BindWindow(Window)
 
 local function createMusicTopbarButton()
