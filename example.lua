@@ -4,8 +4,21 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 
 local CompactMusic = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_demo.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_premium.lua?v=" .. cacheBuster
 ))()
+
+-- Remove the old generated Midnight Bounce demo from the executor's local
+-- music folder so it disappears from the playlist as well as from the repo.
+do
+    local oldDemo = "VantaTest/Music/Midnight Bounce.wav"
+    if isfile and delfile then
+        local ok, exists = pcall(isfile, oldDemo)
+        if ok and exists then
+            pcall(delfile, oldDemo)
+        end
+    end
+end
+
 CompactMusic:Init(VantaUI, { Folder = "VantaTest/Music" })
 
 local Window = VantaUI:CreateWindow({
@@ -56,9 +69,6 @@ task.defer(restoreVantaBadgePosition)
 -- Music mini-player is independent from VantaUI's normal open badge.
 CompactMusic:BindWindow(Window)
 
--- Add a real music-note button directly to VantaUI's topbar.
--- This intentionally bypasses the Mac traffic-light button helper so the
--- music player always appears as a normal icon instead of becoming a 4th dot.
 local function createMusicTopbarButton()
     local windowRoot = Window.UIElements and Window.UIElements.Main
     local main = windowRoot and windowRoot:FindFirstChild("Main")
@@ -163,7 +173,7 @@ Home:Button({
     Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Content = "VantaTest demo music-player build is running 🎵",
+            Content = "VantaTest premium music-player build is running 🎵",
             Icon = "music",
         })
     end,
