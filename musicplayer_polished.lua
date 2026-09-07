@@ -1,6 +1,6 @@
 -- VantaTest music-player polish layer.
--- Keeps the glass player intact while fixing persistent mini-player placement
--- and giving progress/volume sliders inset knobs with continuous smooth motion.
+-- Keeps the glass player intact while fixing persistent mini-player placement,
+-- smooth sliders, and cleaner minimize/restore transitions.
 
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local GLASS_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_glass.lua?v=" .. CACHE_BUSTER
@@ -18,16 +18,22 @@ assert(type(MusicPlayer) == "table", "[VantaTest Music] Glass player returned an
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local MINI_SIZE = Vector2.new(224, 44)
+local CONTENT_FADE_OUT = 0.10
+local CONTENT_FADE_IN = 0.16
 
 MusicPlayer._MiniUserMoved = false
 MusicPlayer.LastMiniPosition = nil
 MusicPlayer._MiniDragStart = nil
 MusicPlayer._MiniPositionBound = false
+MusicPlayer._PolishTransitioning = false
+MusicPlayer._VisualBaseState = setmetatable({}, { __mode = "k" })
 
 local BaseBuild = MusicPlayer._build
 local BaseMinimize = MusicPlayer.Minimize
+local BaseRestore = MusicPlayer.Restore
 local BaseTargetIsUsable = MusicPlayer._targetIsUsable
 
 local function positionDistance(a, b)
@@ -39,6 +45,73 @@ local function positionDistance(a, b)
     return math.sqrt(dx * dx + dy * dy)
 end
 
+local function rememberVisualState(self, root)
+    if not root then
+        return
+    end
+
+    for _, object in ipairs(root:GetDescendants()) do
+        if not self._VisualBaseState[object] then
+            local state = {}
+
+            if object:IsA("TextLabel") or object:IsA("TextButton") then
+                state.TextTransparency = object.TextTransparency
+            end
+            if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                state.ImageTransparency = object.ImageTransparency
+            end
+            if object:IsA("GuiObject") then
+                state.BackgroundTransparency = object.BackgroundTransparency
+            end
+            if object:IsA("ScrollingFrame") then
+                state.ScrollBarImageTransparency = object.ScrollBarImageTransparency
+            end
+            if object:IsA("UIStroke") then
+                state.Transparency = object.Transparency
+            end
+
+            if next(state) then
+                self._VisualBaseState[object] = state
+            end
+        end
+    end
+end
+
+local function setVisualHidden(self, root, hidden, duration)
+    if not root then
+        return
+    end
+
+    rememberVisualState(self, root)
+    duration = tonumber(duration) or 0
+
+    for object, base in pairs(self._VisualBaseState) do
+        if object.Parent and object:IsDescendantOf(root) then
+            local target = {}
+
+            for property, original in pairs(base) do
+                target[property] = hidden and 1 or original
+            end
+
+            if duration > 0 then
+                pcall(function()
+                    TweenService:Create(
+                        object,
+                        TweenInfo.new(duration, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+                        target
+                    ):Play()
+                end)
+            else
+                for property, value in pairs(target) do
+                    pcall(function()
+                        object[property] = value
+                    end)
+                end
+            end
+        end
+    end
+end
+
 function MusicPlayer:_targetIsUsable()
     -- Once the user deliberately moves the mini-player, never let badge-follow
     -- logic pull it back to the automatic dock position again.
@@ -48,8 +121,7 @@ function MusicPlayer:_targetIsUsable()
     return BaseTargetIsUsable(self)
 end
 
-function MusicPlayer:Minimize()
-    -- Preserve a user-selected mini-player position across restore/minimize cycles.
+function MusicPlayer:_callBaseMinimize()
     if self._MiniUserMoved and self.LastMiniPosition then
         local originalDockGeometry = self._dockGeometry
         self._dockGeometry = function(this)
@@ -62,6 +134,95 @@ function MusicPlayer:Minimize()
     end
 
     BaseMinimize(self)
+end
+
+function MusicPlayer:Minimize()
+    if not self.UI or self.Transitioning or self._PolishTransitioning then
+        return
+    end
+
+    local root = self.UI.Root
+    local mini = self.UI.Mini
+    if not root or not mini then
+        return
+    end
+
+    self._PolishTransitioning = true
+
+    -- Keep the glass shell visible, but fade its inner controls/cards away first.
+    -- This prevents text, album art and controls from being visibly crushed while
+    -- the real player shrinks into the mini badge.
+    setVisualHidden(self, mini, true, 0)
+    setVisualHidden(self, root, true, CONTENT_FADE_OUT)
+
+    local visibleConnection
+    visibleConnection = mini:GetPropertyChangedSignal("Visible"):Connect(function()
+        if not mini.Visible then
+            return
+        end
+
+        if visibleConnection then
+            visibleConnection:Disconnect()
+            visibleConnection = nil
+        end
+
+        setVisualHidden(self, mini, false, 0.14)
+        self._PolishTransitioning = false
+    end)
+
+    task.delay(CONTENT_FADE_OUT * 0.92, function()
+        if not self.UI or not root.Parent or not mini.Parent then
+            self._PolishTransitioning = false
+            if visibleConnection then
+                visibleConnection:Disconnect()
+            end
+            return
+        end
+
+        self:_callBaseMinimize()
+    end)
+end
+
+function MusicPlayer:Restore()
+    if not self.UI or self.Transitioning or self._PolishTransitioning then
+        return
+    end
+
+    local root = self.UI.Root
+    local mini = self.UI.Mini
+    if not root or not mini then
+        return
+    end
+
+    self._PolishTransitioning = true
+
+    -- Fade the mini badge's controls away first. The real glass player then grows
+    -- from the badge geometry with its internals hidden, and the content fades in
+    -- only after there is enough room for it. No crushed UI during expansion.
+    setVisualHidden(self, mini, true, 0.08)
+    setVisualHidden(self, root, true, 0)
+
+    task.delay(0.075, function()
+        if not self.UI or not root.Parent or not mini.Parent then
+            self._PolishTransitioning = false
+            return
+        end
+
+        BaseRestore(self)
+
+        task.delay(0.105, function()
+            if self.UI and root.Parent and root.Visible then
+                setVisualHidden(self, root, false, CONTENT_FADE_IN)
+            end
+        end)
+
+        task.delay(0.36, function()
+            if self.UI and mini.Parent then
+                setVisualHidden(self, mini, false, 0)
+            end
+            self._PolishTransitioning = false
+        end)
+    end)
 end
 
 local function installSmoothSlider(slider, edgeInset)
