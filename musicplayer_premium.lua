@@ -74,16 +74,19 @@ function MusicPlayer:_buildPremiumMini()
     local mini = self.UI.Mini
     local z = mini.ZIndex + 3
 
+    -- Keep the polished transition's native 224x44 geometry so animation and
+    -- drag memory remain perfectly aligned.
+    mini.Size = UDim2.fromOffset(224, 44)
+
     for _, child in ipairs(mini:GetChildren()) do
         if child:IsA("GuiObject") then
             child.Visible = false
         end
     end
 
-    mini.Size = UDim2.fromOffset(252, 54)
     local miniCorner = mini:FindFirstChildOfClass("UICorner")
     if miniCorner then
-        miniCorner.CornerRadius = UDim.new(0, 16)
+        miniCorner.CornerRadius = UDim.new(0, 14)
     end
 
     local content = Instance.new("Frame")
@@ -95,14 +98,14 @@ function MusicPlayer:_buildPremiumMini()
 
     local coverBox = Instance.new("Frame")
     coverBox.Name = "MiniCoverBox"
-    coverBox.Size = UDim2.fromOffset(38, 38)
-    coverBox.Position = UDim2.fromOffset(8, 8)
+    coverBox.Size = UDim2.fromOffset(32, 32)
+    coverBox.Position = UDim2.fromOffset(6, 6)
     coverBox.BackgroundColor3 = self:_theme("ElementBackground", Color3.fromRGB(21, 17, 22))
     coverBox.BackgroundTransparency = 0.22
     coverBox.BorderSizePixel = 0
     coverBox.ZIndex = z + 1
     coverBox.Parent = content
-    corner(coverBox, 10)
+    corner(coverBox, 8)
     stroke(coverBox, Color3.new(1, 1, 1), 0.84, 1)
 
     local cover = Instance.new("ImageLabel")
@@ -112,7 +115,7 @@ function MusicPlayer:_buildPremiumMini()
     cover.ScaleType = Enum.ScaleType.Crop
     cover.ZIndex = z + 2
     cover.Parent = coverBox
-    corner(cover, 10)
+    corner(cover, 8)
 
     local coverOld = cover:Clone()
     coverOld.Name = "CoverOld"
@@ -121,52 +124,52 @@ function MusicPlayer:_buildPremiumMini()
     coverOld.ZIndex = z + 3
     coverOld.Parent = coverBox
 
-    local fallback = self:_icon(coverBox, "music-2", 16)
+    local fallback = self:_icon(coverBox, "music-2", 14)
     fallback.AnchorPoint = Vector2.new(0.5, 0.5)
     fallback.Position = UDim2.fromScale(0.5, 0.5)
     fallback.ZIndex = z + 1
 
     local title = self:_text(content, "Music Player", 10, true)
     title.Name = "MiniTitlePremium"
-    title.Position = UDim2.fromOffset(55, 7)
-    title.Size = UDim2.fromOffset(118, 18)
+    title.Position = UDim2.fromOffset(46, 3)
+    title.Size = UDim2.fromOffset(104, 17)
     title.TextTruncate = Enum.TextTruncate.AtEnd
     title.ZIndex = z + 2
 
     local sub = self:_text(content, "Nothing playing", 8, false)
     sub.Name = "MiniSubtitle"
-    sub.Position = UDim2.fromOffset(55, 24)
-    sub.Size = UDim2.fromOffset(118, 14)
+    sub.Position = UDim2.fromOffset(46, 18)
+    sub.Size = UDim2.fromOffset(104, 13)
     sub.TextTransparency = 0.48
     sub.TextTruncate = Enum.TextTruncate.AtEnd
     sub.ZIndex = z + 2
 
-    local playButton = self:_button(content, "play", 30, function()
+    local playButton = self:_button(content, "play", 26, function()
         self:TogglePlay()
     end)
-    playButton.Position = UDim2.new(1, -68, 0, 12)
+    playButton.Position = UDim2.new(1, -58, 0, 9)
     playButton.BackgroundColor3 = self:_theme("Button", Color3.fromRGB(37, 16, 22))
     playButton.BackgroundTransparency = 0.28
     playButton.ZIndex = z + 4
     stroke(playButton, Color3.new(1, 1, 1), 0.86, 1)
 
     local playIcon = playButton:FindFirstChildOfClass("ImageLabel")
-    local pauseIcon = self:_icon(playButton, "pause", 14)
+    local pauseIcon = self:_icon(playButton, "pause", 13)
     pauseIcon.AnchorPoint = Vector2.new(0.5, 0.5)
     pauseIcon.Position = UDim2.fromScale(0.5, 0.5)
     pauseIcon.Visible = false
     pauseIcon.ZIndex = z + 6
 
-    local restore = self:_button(content, "chevron-up", 28, function()
+    local restore = self:_button(content, "chevron-up", 26, function()
         self:Restore()
     end)
-    restore.Position = UDim2.new(1, -34, 0, 13)
+    restore.Position = UDim2.new(1, -29, 0, 9)
     restore.ZIndex = z + 4
 
     local progressTrack = Instance.new("Frame")
     progressTrack.Name = "MiniProgressTrack"
-    progressTrack.Size = UDim2.new(1, -63, 0, 2)
-    progressTrack.Position = UDim2.fromOffset(55, 44)
+    progressTrack.Size = UDim2.new(1, -114, 0, 2)
+    progressTrack.Position = UDim2.fromOffset(46, 37)
     progressTrack.BackgroundColor3 = self:_theme("ElementBackground", Color3.fromRGB(21, 17, 22))
     progressTrack.BackgroundTransparency = 0.18
     progressTrack.BorderSizePixel = 0
@@ -256,7 +259,7 @@ function MusicPlayer:_setPremiumVolumeIcon()
     end
 end
 
-function MusicPlayer:_crossfadeCover(newCover)
+function MusicPlayer:_crossfadeCover(newCover, previousMainImage, previousMiniImage)
     if not self.UI then
         return
     end
@@ -266,9 +269,9 @@ function MusicPlayer:_crossfadeCover(newCover)
     local fallback = self.UI.CoverFallback
 
     if cover and old then
-        old.Image = cover.Image
-        old.ImageTransparency = cover.ImageTransparency
-        old.Visible = cover.Visible and cover.Image ~= ""
+        old.Image = previousMainImage or ""
+        old.ImageTransparency = 0
+        old.Visible = old.Image ~= ""
 
         cover.Image = newCover or ""
         cover.Visible = newCover ~= nil
@@ -290,9 +293,9 @@ function MusicPlayer:_crossfadeCover(newCover)
     local miniOld = self.UI.MiniCoverOld
     local miniFallback = self.UI.MiniCoverFallback
     if miniCover and miniOld then
-        miniOld.Image = miniCover.Image
-        miniOld.ImageTransparency = miniCover.ImageTransparency
-        miniOld.Visible = miniCover.Visible and miniCover.Image ~= ""
+        miniOld.Image = previousMiniImage or miniCover.Image or ""
+        miniOld.ImageTransparency = 0
+        miniOld.Visible = miniOld.Image ~= ""
 
         miniCover.Image = newCover or ""
         miniCover.Visible = newCover ~= nil
@@ -441,9 +444,53 @@ function MusicPlayer:_renderList()
     end
 end
 
+function MusicPlayer:_updatePremiumMiniOnly()
+    if not self.UI or not self.UI.Mini or not self.UI.Mini.Visible then
+        return
+    end
+
+    local sound = self.Sound
+    if sound then
+        self.Playing = sound.Playing == true
+    end
+
+    local track = self.CurrentIndex and self.Tracks[self.CurrentIndex] or nil
+    local position = sound and sound.TimePosition or 0
+    local length = sound and sound.TimeLength or 0
+    local ratio = length > 0 and math.clamp(position / length, 0, 1) or 0
+
+    if self.UI.MiniProgressFill then
+        local current = self.UI.MiniProgressFill.Size.X.Scale
+        self.UI.MiniProgressFill.Size = UDim2.new(current + (ratio - current) * 0.20, 0, 1, 0)
+    end
+
+    if self.UI.MiniPremiumTitle then
+        self.UI.MiniPremiumTitle.Text = track and track.Name or "Music Player"
+    end
+    if self.UI.MiniPremiumSub then
+        self.UI.MiniPremiumSub.Text = track and (formatTime(position) .. "  •  " .. formatTime(length)) or "Nothing playing"
+    end
+    if self.UI.MiniPremiumPlayIcon then
+        self.UI.MiniPremiumPlayIcon.Visible = not self.Playing
+    end
+    if self.UI.MiniPremiumPauseIcon then
+        self.UI.MiniPremiumPauseIcon.Visible = self.Playing
+    end
+
+    if self._PremiumMiniLastIndex ~= self.CurrentIndex then
+        local previousMini = self.UI.MiniCover and self.UI.MiniCover.Image or ""
+        local newCover = self:_premiumCoverFor(track)
+        self:_crossfadeCover(newCover, self.UI.Cover and self.UI.Cover.Image or "", previousMini)
+        self._PremiumMiniLastIndex = self.CurrentIndex
+        self._PremiumLastCover = newCover
+    end
+end
+
 function MusicPlayer:_update()
     local previousIndex = self._PremiumLastIndex
     local previousCover = self._PremiumLastCover
+    local previousMainImage = self.UI and self.UI.Cover and self.UI.Cover.Image or ""
+    local previousMiniImage = self.UI and self.UI.MiniCover and self.UI.MiniCover.Image or ""
 
     BaseUpdate(self)
 
@@ -455,8 +502,9 @@ function MusicPlayer:_update()
     local cover = self:_premiumCoverFor(track)
 
     if self.CurrentIndex ~= previousIndex or cover ~= previousCover then
-        self:_crossfadeCover(cover)
+        self:_crossfadeCover(cover, previousMainImage, previousMiniImage)
         self._PremiumLastIndex = self.CurrentIndex
+        self._PremiumMiniLastIndex = self.CurrentIndex
         self._PremiumLastCover = cover
         task.defer(function()
             if self.UI then
@@ -499,6 +547,14 @@ function MusicPlayer:_build()
 
     if self.UI and self.UI.Mini and not self._MiniUserMoved then
         self.UI.Mini.Position = self:_defaultMiniPosition()
+    end
+
+    if not self._PremiumMiniUpdateConnection then
+        self._PremiumMiniUpdateConnection = RunService.RenderStepped:Connect(function()
+            if self.UI and self.UI.Mini and self.UI.Mini.Visible then
+                self:_updatePremiumMiniOnly()
+            end
+        end)
     end
 end
 
