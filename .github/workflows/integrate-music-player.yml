@@ -1,0 +1,162 @@
+name: Integrate VantaTest Music Player
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/integrate-music-player.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch VantaTest integration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          main_path = Path("main.lua")
+          text = main_path.read_text()
+
+          text = text.replace("MrRos3/VantaUI", "MrRos3/VantaTest")
+
+          wallpaper_line = 'local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"\n'
+          music_line = 'local MUSIC_PLAYER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer.lua?v=" .. CACHE_BUSTER\n'
+          if music_line not in text:
+              text = text.replace(wallpaper_line, wallpaper_line + music_line)
+
+          marker = 'assert(type(VantaUI) == "table", "[VantaUI] UI runtime returned an invalid value")\n'
+          loader = r'''
+
+local MusicPlayer
+local musicOk, musicSource = pcall(function()
+    return game:HttpGet(MUSIC_PLAYER_URL)
+end)
+if musicOk and type(musicSource) == "string" and #musicSource > 0 then
+    local musicLoader = loadstring(musicSource)
+    if musicLoader then
+        local loadedOk, loadedPlayer = pcall(musicLoader)
+        if loadedOk and type(loadedPlayer) == "table" then
+            MusicPlayer = loadedPlayer
+            pcall(function()
+                MusicPlayer:Init(VantaUI, { Folder = "VantaTest/Music" })
+            end)
+            VantaUI.MusicPlayer = MusicPlayer
+        end
+    end
+end
+'''
+          if "local MusicPlayer\nlocal musicOk" not in text:
+              text = text.replace(marker, marker + loader)
+
+          theme_old = '''    if theme then
+        for window in pairs(ActiveWindows) do
+            applyThemeWallpaper(window, themeName)
+        end
+    end
+    return theme
+end
+'''
+          theme_new = '''    if theme then
+        for window in pairs(ActiveWindows) do
+            applyThemeWallpaper(window, themeName)
+        end
+        if MusicPlayer and MusicPlayer.ApplyTheme then
+            pcall(function()
+                MusicPlayer:ApplyTheme()
+            end)
+        end
+    end
+    return theme
+end
+'''
+          if theme_new not in text:
+              if theme_old not in text:
+                  raise SystemExit("Could not find VantaUI:SetTheme integration point")
+              text = text.replace(theme_old, theme_new, 1)
+
+          return_old = '''    task.defer(function()
+        forceOpenButtonPosition(window)
+    end)
+    return window
+end
+'''
+          return_new = '''    task.defer(function()
+        forceOpenButtonPosition(window)
+    end)
+
+    if MusicPlayer and config.MusicPlayer ~= false then
+        pcall(function()
+            local musicConfig = type(config.MusicPlayer) == "table" and config.MusicPlayer or nil
+            MusicPlayer:Attach(window, musicConfig)
+        end)
+    end
+
+    return window
+end
+'''
+          if return_new not in text:
+              if return_old not in text:
+                  raise SystemExit("Could not find CreateWindow music integration point")
+              text = text.replace(return_old, return_new, 1)
+
+          main_path.write_text(text)
+
+          example_path = Path("example.lua")
+          if example_path.exists():
+              example = example_path.read_text().replace("MrRos3/VantaUI", "MrRos3/VantaTest")
+              example_path.write_text(example)
+
+          music_path = Path("musicplayer.lua")
+          music = music_path.read_text()
+
+          repeat_old = '''    local repeatButton, _, repeatHover = self:_iconButton(controls, "repeat-2", 34, 304, function()
+        self.RepeatOne = not self.RepeatOne
+        self.Sound.Looped = self.RepeatOne
+        repeatHover.BackgroundTransparency = self.RepeatOne and 0.25 or 1
+    end)
+'''
+          repeat_new = '''    local repeatHover
+    local repeatButton, _, createdRepeatHover = self:_iconButton(controls, "repeat-2", 34, 304, function()
+        self.RepeatOne = not self.RepeatOne
+        self.Sound.Looped = self.RepeatOne
+        if repeatHover then
+            repeatHover.BackgroundTransparency = self.RepeatOne and 0.25 or 1
+        end
+    end)
+    repeatHover = createdRepeatHover
+'''
+          if repeat_old in music:
+              music = music.replace(repeat_old, repeat_new, 1)
+
+          paused_check = '''            if self.Playing and not self.Sound.Playing and not self.Sound.IsPaused then
+                self.Playing = false
+                self:_updatePlayIcons()
+            end
+
+'''
+          music = music.replace(paused_check, "")
+          music_path.write_text(music)
+          PY
+
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.lua example.lua musicplayer.lua
+          if git diff --cached --quiet; then
+            echo "Music player integration is already applied."
+            exit 0
+          fi
+          git commit -m "Integrate local music player into VantaTest [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
