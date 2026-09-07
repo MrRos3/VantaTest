@@ -145,6 +145,13 @@ function Creator.Init(WindUITable)
 	DynamicShapeModule:Init(Creator)
 end
 
+function Creator.PlaySound(eventName, options)
+	if Creator.SoundManager then
+		return Creator.SoundManager:Play(eventName, options)
+	end
+	return false
+end
+
 function Creator.AddSignal(Signal, Function)
 	local conn = Signal:Connect(Function)
 	table.insert(Creator.Signals, conn)
@@ -750,13 +757,6 @@ function Creator.SanitizeFilename(url)
 	end
 
 	return filename
-end
-
-function Creator.PlaySound(eventName, options)
-	if Creator.SoundManager then
-		return Creator.SoundManager:Play(eventName, options)
-	end
-	return false
 end
 
 local function GetImageExtension(url)

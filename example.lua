@@ -1,13 +1,12 @@
 local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local VantaUI = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaUI/main/main.lua?v=" .. cacheBuster
 ))()
 
 local Window = VantaUI:CreateWindow({
     Title = "VantaUI Showcase",
-    Icon = "sparkles",
+    Icon = VantaUI.Brand.Image,
     Theme = "Salty Special",
-    StartupTab = "Home",
     HideSearchBar = false,
     Branding = {
         Name = "VANTA",
@@ -20,6 +19,7 @@ local Window = VantaUI:CreateWindow({
     },
     OpenButton = {
         Title = "Open VantaUI",
+        Icon = VantaUI.Brand.Image,
         Enabled = true,
         Draggable = true,
         OnlyMobile = false,

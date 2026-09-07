@@ -1,16 +1,16 @@
 --[[
-    VantaUI v0.3.0
+    VantaUI v0.3.5
     Roblox UI library by MrRos3.
 
-    Source: https://github.com/MrRos3/VantaTest
+    Source: https://github.com/MrRos3/VantaUI
     License: MIT
 ]]
 
-local PROJECT_VERSION = "0.3.0"
+local PROJECT_VERSION = "0.3.5"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/refs/heads/main/dist/main.lua?v=" .. CACHE_BUSTER
-local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand.jpeg"
-local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"
+local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/refs/heads/main/dist/main.lua?v=" .. CACHE_BUSTER
+local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
+local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/salty-special.png"
 local SALTY_SPECIAL_WALLPAPER_TRANSPARENCY = 0.32
 
 local ok, source = pcall(function()
@@ -29,14 +29,18 @@ VantaUI.RuntimeVersion = tostring(VantaUI.Version or PROJECT_VERSION)
 VantaUI.Version = PROJECT_VERSION
 VantaUI.Name = "VantaUI"
 VantaUI.DefaultTheme = "Salty Special"
-VantaUI.DefaultStartupTab = "Home"
+VantaUI.DefaultStartupTab = 1
 VantaUI.TransparencyValue = 0.1
+
+-- Keep all interface sounds except notification open/close sounds.
+VantaUI:SetSoundForEvent("Notification", false)
+VantaUI:SetSoundForEvent("NotificationClose", false)
 
 VantaUI.GuiInfo = {
     Name = "VantaUI",
     Version = PROJECT_VERSION,
     Owner = "MrRos3",
-    Repository = "MrRos3/VantaTest",
+    Repository = "MrRos3/VantaUI",
     Runtime = "dist/main.lua",
     License = "MIT",
 }
@@ -45,6 +49,7 @@ VantaUI.Brand = {
     Name = "VantaUI",
     Owner = "MrRos3",
     Image = BRAND_IMAGE_URL,
+    CacheKey = "v2",
     Accent = Color3.fromHex("#929AA7"),
     Cyan = Color3.fromHex("#5DE7FF"),
 }
@@ -176,7 +181,6 @@ local LegacyThemeNames = {
 
 for _, theme in ipairs(VantaThemes) do
     VantaUI:AddTheme(theme)
-
     local legacyName = LegacyThemeNames[theme.Name]
     if legacyName then
         local legacyTheme = {}
@@ -255,6 +259,97 @@ end
 
 forceNotificationPosition()
 
+local function copyConfig(source)
+    local result = {}
+    if type(source) == "table" then
+        for key, value in pairs(source) do
+            result[key] = value
+        end
+    end
+    return result
+end
+
+local function applyDefaultBranding(config)
+    if config.Branding == false then
+        if config.OpenButton == false then
+            config.OpenButton = { Enabled = false }
+        end
+        return
+    end
+
+    local branding = copyConfig(config.Branding)
+    if branding.UseDefault ~= false then
+        branding.Image = BRAND_IMAGE_URL
+        branding.WindowIcon = BRAND_IMAGE_URL
+        branding.OpenButtonIcon = BRAND_IMAGE_URL
+    end
+
+    if branding.Name == nil then
+        branding.Name = "VANTA"
+    end
+    if branding.Folder == nil then
+        branding.Folder = "VantaUI"
+    end
+    if branding.IconSize == nil then
+        branding.IconSize = 24
+    end
+    if branding.IconRadius == nil then
+        branding.IconRadius = 7
+    end
+    if branding.OpenButtonIconRadius == nil then
+        branding.OpenButtonIconRadius = 8
+    end
+
+    config.Branding = branding
+
+    local windowBrandIcon = branding.WindowIcon or branding.Image
+    if branding.UseAsWindowIcon ~= false and windowBrandIcon then
+        config.Icon = windowBrandIcon
+    end
+
+    if config.OpenButton == false then
+        config.OpenButton = { Enabled = false }
+        return
+    end
+
+    local openButton = copyConfig(config.OpenButton)
+    if openButton.Title == nil then
+        openButton.Title = "Open VantaUI"
+    end
+    if openButton.Enabled == nil then
+        openButton.Enabled = true
+    end
+    if openButton.Draggable == nil then
+        openButton.Draggable = true
+    end
+    if openButton.OnlyMobile == nil then
+        openButton.OnlyMobile = false
+    end
+    if branding.UseDefault ~= false and branding.UseAsOpenButtonIcon ~= false then
+        openButton.OnlyIcon = true
+    elseif openButton.OnlyIcon == nil then
+        openButton.OnlyIcon = true
+    end
+    if openButton.CornerRadius == nil then
+        openButton.CornerRadius = UDim.new(0, 11)
+    end
+    if openButton.StrokeThickness == nil then
+        openButton.StrokeThickness = 2
+    end
+    if openButton.ImageZoom == nil then
+        openButton.ImageZoom = 1
+    end
+    if openButton.Color == nil then
+        openButton.Color = ColorSequence.new(Color3.fromHex("#000000"), Color3.fromHex("#000000"))
+    end
+
+    local openButtonBrandIcon = branding.OpenButtonIcon or branding.Image
+    if branding.UseAsOpenButtonIcon ~= false and openButtonBrandIcon then
+        openButton.Icon = openButtonBrandIcon
+    end
+    config.OpenButton = openButton
+end
+
 local BaseCreateWindow = VantaUI.CreateWindow
 function VantaUI:CreateWindow(config)
     config = config or {}
@@ -272,6 +367,8 @@ function VantaUI:CreateWindow(config)
         config.Size = UDim2.fromOffset(620, 420)
     end
 
+    applyDefaultBranding(config)
+
     local usesThemeWallpaper = config.Background == nil
     if usesThemeWallpaper then
         config.Background = SALTY_SPECIAL_WALLPAPER_URL
@@ -288,12 +385,32 @@ function VantaUI:CreateWindow(config)
         config.Topbar.ButtonsType = "Mac"
     end
 
-    local startupTab = config.StartupTab or VantaUI.DefaultStartupTab
+    local startupTab = config.StartupTab
+    if startupTab == nil then
+        startupTab = VantaUI.DefaultStartupTab
+    end
     local window = BaseCreateWindow(self, config)
 
     window._UsesVantaThemeWallpaper = usesThemeWallpaper
     ActiveWindows[window] = true
     applyThemeWallpaper(window, config.Theme)
+
+    local branding = config.Branding
+    if type(branding) == "table"
+        and branding.UseDefault ~= false
+        and branding.UseAsOpenButtonIcon ~= false then
+        local BaseEditOpenButton = window.EditOpenButton
+        function window:EditOpenButton(openButtonConfig)
+            local brandedOpenButton = copyConfig(openButtonConfig)
+            brandedOpenButton.Icon = branding.OpenButtonIcon or branding.Image or BRAND_IMAGE_URL
+            brandedOpenButton.OnlyIcon = true
+            return BaseEditOpenButton(self, brandedOpenButton)
+        end
+
+        if window.OpenButtonMain then
+            window.OpenButtonMain:SetIcon(branding.OpenButtonIcon or branding.Image or BRAND_IMAGE_URL)
+        end
+    end
 
     local BaseTab = window.Tab
     local startupTabSelected = false
@@ -302,7 +419,14 @@ function VantaUI:CreateWindow(config)
         tabConfig = tabConfig or {}
         local tab = BaseTab(self, tabConfig)
 
-        if not startupTabSelected and tostring(tabConfig.Title or "") == tostring(startupTab) then
+        local matchesStartupTab
+        if type(startupTab) == "number" then
+            matchesStartupTab = tab.Index == startupTab
+        else
+            matchesStartupTab = tostring(tabConfig.Title or "") == tostring(startupTab)
+        end
+
+        if not startupTabSelected and matchesStartupTab then
             startupTabSelected = true
             task.defer(function()
                 if not self.Destroyed and tab and tab.Index then

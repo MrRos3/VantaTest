@@ -1,8 +1,8 @@
 {
     "name": "mrros3-vantaui",
-    "version": "0.3.0",
+    "version": "0.3.5",
     "main": "./dist/main.lua",
-    "repository": "https://github.com/MrRos3/VantaTest",
+    "repository": "https://github.com/MrRos3/VantaUI",
     "author": "MrRos3",
     "description": "VantaUI - polished AMOLED-first Roblox UI library by MrRos3",
     "license": "MIT",

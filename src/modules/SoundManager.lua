@@ -14,7 +14,7 @@ local SoundManager = {
 	Warned = {},
 }
 
-local DEFAULT_BASE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/sounds"
+local DEFAULT_BASE_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/sounds"
 local FALLBACK_SOUND = "rbxasset://sounds/electronicpingshort.wav"
 
 local Events = {
@@ -38,66 +38,52 @@ local Events = {
 }
 
 local Assets = {
-	["vanta-tap"] = "vanta-tap.wav",
-	["vanta-pulse"] = "vanta-pulse.wav",
-	["glass-tap"] = "glass-tap.wav",
-	["glass-chime"] = "glass-chime.wav",
 	["soft-pop"] = "soft-pop.wav",
 	["soft-tick"] = "soft-tick.wav",
-	["mechanical-click"] = "mechanical-click.wav",
-	["mechanical-switch"] = "mechanical-switch.wav",
-	["digital-blip"] = "digital-blip.wav",
-	["digital-confirm"] = "digital-confirm.wav",
-	["cyber-pulse"] = "cyber-pulse.wav",
-	["cyber-sweep"] = "cyber-sweep.wav",
-	["deep-thump"] = "deep-thump.wav",
-	["deep-close"] = "deep-close.wav",
-	["arcade-coin"] = "arcade-coin.wav",
-	["arcade-select"] = "arcade-select.wav",
-	["crystal-tick"] = "crystal-tick.wav",
-	["crystal-chime"] = "crystal-chime.wav",
-	["bubble-pop"] = "bubble-pop.wav",
-	["bubble-drop"] = "bubble-drop.wav",
 	["minimal-tick"] = "minimal-tick.wav",
 	["minimal-confirm"] = "minimal-confirm.wav",
-	["retro-click"] = "retro-click.wav",
-	["retro-power"] = "retro-power.wav",
-	["airy-rise"] = "airy-rise.wav",
-	["airy-fall"] = "airy-fall.wav",
-	["notification-chime"] = "notification-chime.wav",
-	["notification-bell"] = "notification-bell.wav",
-	["success-sparkle"] = "success-sparkle.wav",
 	["error-buzz"] = "error-buzz.wav",
 }
 
-local PackSources = {
-	["Vanta Pulse"] = { "vanta-tap", "vanta-pulse" },
-	Glass = { "glass-tap", "glass-chime" },
-	Soft = { "soft-tick", "soft-pop" },
-	Mechanical = { "mechanical-click", "mechanical-switch" },
-	Digital = { "digital-blip", "digital-confirm" },
-	Cyber = { "cyber-pulse", "cyber-sweep" },
-	Deep = { "deep-thump", "deep-close" },
-	Arcade = { "arcade-select", "arcade-coin" },
-	Crystal = { "crystal-tick", "crystal-chime" },
-	Bubble = { "bubble-drop", "bubble-pop" },
-	Minimal = { "minimal-tick", "minimal-confirm" },
-	Retro = { "retro-click", "retro-power" },
-}
-
-local PresetOrder = {
-	"Vanta Pulse",
-	"Glass",
-	"Soft",
-	"Mechanical",
-	"Digital",
-	"Cyber",
-	"Deep",
-	"Arcade",
-	"Crystal",
-	"Bubble",
-	"Minimal",
-	"Retro",
+local Presets = {
+	Soft = {
+		Hover = { Sound = "soft-tick", Volume = 0.18, Pitch = 1.22 },
+		Click = { Sound = "soft-tick", Volume = 0.72, Pitch = 1 },
+		Tab = { Sound = "soft-pop", Volume = 0.62, Pitch = 1.06 },
+		ToggleOn = { Sound = "soft-pop", Volume = 0.7, Pitch = 1.12 },
+		ToggleOff = { Sound = "soft-tick", Volume = 0.55, Pitch = 0.86 },
+		DropdownOpen = { Sound = "soft-pop", Volume = 0.54, Pitch = 1.2 },
+		DropdownClose = { Sound = "soft-tick", Volume = 0.44, Pitch = 0.78 },
+		Select = { Sound = "soft-tick", Volume = 0.62, Pitch = 1.08 },
+		SliderTick = { Sound = "soft-tick", Volume = 0.24, Pitch = 1.28 },
+		InputFocus = { Sound = "soft-tick", Volume = 0.34, Pitch = 1.16 },
+		InputSubmit = { Sound = "soft-pop", Volume = 0.55, Pitch = 1 },
+		Notification = { Sound = "soft-pop", Volume = 0.76, Pitch = 0.96 },
+		NotificationClose = { Sound = "soft-tick", Volume = 0.4, Pitch = 0.76 },
+		WindowOpen = { Sound = "soft-pop", Volume = 0.8, Pitch = 0.82 },
+		WindowClose = { Sound = "soft-tick", Volume = 0.64, Pitch = 0.7 },
+		Success = { Sound = "soft-pop", Volume = 0.82, Pitch = 1.18 },
+		Error = { Sound = "error-buzz", Volume = 0.7, Pitch = 1 },
+	},
+	Minimal = {
+		Hover = { Sound = "minimal-tick", Volume = 0.18, Pitch = 1.22 },
+		Click = { Sound = "minimal-tick", Volume = 0.72, Pitch = 1 },
+		Tab = { Sound = "minimal-confirm", Volume = 0.62, Pitch = 1.06 },
+		ToggleOn = { Sound = "minimal-confirm", Volume = 0.7, Pitch = 1.12 },
+		ToggleOff = { Sound = "minimal-tick", Volume = 0.55, Pitch = 0.86 },
+		DropdownOpen = { Sound = "minimal-confirm", Volume = 0.54, Pitch = 1.2 },
+		DropdownClose = { Sound = "minimal-tick", Volume = 0.44, Pitch = 0.78 },
+		Select = { Sound = "minimal-tick", Volume = 0.62, Pitch = 1.08 },
+		SliderTick = { Sound = "minimal-tick", Volume = 0.24, Pitch = 1.28 },
+		InputFocus = { Sound = "minimal-tick", Volume = 0.34, Pitch = 1.16 },
+		InputSubmit = { Sound = "minimal-confirm", Volume = 0.55, Pitch = 1 },
+		Notification = { Sound = "minimal-confirm", Volume = 0.76, Pitch = 0.96 },
+		NotificationClose = { Sound = "minimal-tick", Volume = 0.4, Pitch = 0.76 },
+		WindowOpen = { Sound = "minimal-confirm", Volume = 0.8, Pitch = 0.82 },
+		WindowClose = { Sound = "minimal-tick", Volume = 0.64, Pitch = 0.7 },
+		Success = { Sound = "minimal-confirm", Volume = 0.82, Pitch = 1.18 },
+		Error = { Sound = "error-buzz", Volume = 0.7, Pitch = 1 },
+	},
 }
 
 local RateLimits = {
@@ -106,33 +92,6 @@ local RateLimits = {
 	Click = 0.025,
 	Tab = 0.04,
 }
-
-local function makePreset(primary, accent)
-	return {
-		Hover = { Sound = primary, Volume = 0.18, Pitch = 1.22 },
-		Click = { Sound = primary, Volume = 0.72, Pitch = 1 },
-		Tab = { Sound = accent, Volume = 0.62, Pitch = 1.06 },
-		ToggleOn = { Sound = accent, Volume = 0.7, Pitch = 1.12 },
-		ToggleOff = { Sound = primary, Volume = 0.55, Pitch = 0.86 },
-		DropdownOpen = { Sound = accent, Volume = 0.54, Pitch = 1.2 },
-		DropdownClose = { Sound = primary, Volume = 0.44, Pitch = 0.78 },
-		Select = { Sound = primary, Volume = 0.62, Pitch = 1.08 },
-		SliderTick = { Sound = primary, Volume = 0.24, Pitch = 1.28 },
-		InputFocus = { Sound = primary, Volume = 0.34, Pitch = 1.16 },
-		InputSubmit = { Sound = accent, Volume = 0.55, Pitch = 1 },
-		Notification = { Sound = accent, Volume = 0.76, Pitch = 0.96 },
-		NotificationClose = { Sound = primary, Volume = 0.4, Pitch = 0.76 },
-		WindowOpen = { Sound = accent, Volume = 0.8, Pitch = 0.82 },
-		WindowClose = { Sound = primary, Volume = 0.64, Pitch = 0.7 },
-		Success = { Sound = accent, Volume = 0.82, Pitch = 1.18 },
-		Error = { Sound = "error-buzz", Volume = 0.7, Pitch = 1 },
-	}
-end
-
-local Presets = {}
-for name, sources in pairs(PackSources) do
-	Presets[name] = makePreset(sources[1], sources[2])
-end
 
 local function copyTable(value)
 	local result = {}
@@ -182,8 +141,8 @@ end
 function SoundManager:Init(WindUI)
 	self.WindUI = WindUI
 	self.Config = {
-		Enabled = false,
-		Preset = "Vanta Pulse",
+		Enabled = true,
+		Preset = "Soft",
 		Volume = 0.45,
 		Pitch = 1,
 		Folder = "VantaUI",
@@ -191,7 +150,7 @@ function SoundManager:Init(WindUI)
 		Overrides = {},
 		Assets = {},
 	}
-	self.ActiveMap = copyTable(Presets[self.Config.Preset])
+	self.ActiveMap = copyTable(Presets.Soft)
 	return self
 end
 
@@ -341,8 +300,7 @@ function SoundManager:_playEntry(eventName, entry, options)
 end
 
 function SoundManager:_refreshMap()
-	local preset = Presets[self.Config.Preset] or Presets["Vanta Pulse"]
-	self.ActiveMap = copyTable(preset)
+	self.ActiveMap = copyTable(Presets[self.Config.Preset] or Presets.Soft)
 	for eventName, override in pairs(self.Config.Overrides) do
 		self.ActiveMap[eventName] = mergeEntry(self.ActiveMap[eventName], override)
 	end
@@ -386,7 +344,7 @@ function SoundManager:Configure(config)
 
 	self:_refreshMap()
 	if self.Config.Enabled then
-		self:PreloadPreset(self.Config.Preset)
+		self:PreloadPreset()
 	end
 	return self:GetConfig()
 end
@@ -394,7 +352,7 @@ end
 function SoundManager:SetEnabled(value)
 	self.Config.Enabled = value == true
 	if self.Config.Enabled then
-		self:PreloadPreset(self.Config.Preset)
+		self:PreloadPreset()
 	end
 	return self.Config.Enabled
 end
@@ -406,7 +364,7 @@ function SoundManager:SetPreset(name)
 	self.Config.Preset = name
 	self:_refreshMap()
 	if self.Config.Enabled then
-		self:PreloadPreset(name)
+		self:PreloadPreset()
 	end
 	return true
 end
@@ -466,14 +424,13 @@ function SoundManager:Preview(soundName, options)
 	}, options)
 end
 
-function SoundManager:PreloadPreset(name)
-	local preset = Presets[name]
-	if not preset then
+function SoundManager:PreloadPreset()
+	if not self.Config.Enabled then
 		return
 	end
 	task.spawn(function()
 		local seen = {}
-		for _, entry in pairs(preset) do
+		for _, entry in pairs(self.ActiveMap) do
 			if entry and entry.Sound and not seen[entry.Sound] then
 				seen[entry.Sound] = true
 				self:_loadSoundId(entry.Sound)
@@ -491,7 +448,7 @@ function SoundManager:GetEvents()
 end
 
 function SoundManager:GetPresetNames()
-	return copyTable(PresetOrder)
+	return { "Soft", "Minimal" }
 end
 
 function SoundManager:GetSoundNames()

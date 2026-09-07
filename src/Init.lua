@@ -98,6 +98,17 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
 local GUIParent = gethui and gethui() or (CoreGui or LocalPlayer:WaitForChild("PlayerGui"))
 
+local TOP_DISPLAY_ORDER = 1000000
+local SetHiddenProperty = sethiddenproperty or sethiddenprop
+
+local function KeepScreenGuiOnTop(ScreenGui, DisplayOrder)
+	ScreenGui.DisplayOrder = DisplayOrder
+
+	if SetHiddenProperty then
+		pcall(SetHiddenProperty, ScreenGui, "OnTopOfCoreBlur", true)
+	end
+end
+
 local UIScaleObj = New("UIScale", {
 	Scale = WindUI.UIScale,
 })
@@ -109,7 +120,7 @@ WindUI.ScreenGui = New("ScreenGui", {
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	ScreenInsets = "None",
-	DisplayOrder = -99999,
+	DisplayOrder = TOP_DISPLAY_ORDER,
 }, {
 
 	New("Folder", {
@@ -136,21 +147,29 @@ WindUI.NotificationGui = New("ScreenGui", {
 	Name = "Gui/Notifications",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
+	DisplayOrder = TOP_DISPLAY_ORDER + 3,
 })
 WindUI.DropdownGui = New("ScreenGui", {
 	Name = "Gui/Dropdowns",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
+	DisplayOrder = TOP_DISPLAY_ORDER + 2,
 })
 WindUI.TooltipGui = New("ScreenGui", {
 	Name = "Gui/Tooltips",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
+	DisplayOrder = TOP_DISPLAY_ORDER + 1,
 })
 ProtectGui(WindUI.ScreenGui)
 ProtectGui(WindUI.NotificationGui)
 ProtectGui(WindUI.DropdownGui)
 ProtectGui(WindUI.TooltipGui)
+
+KeepScreenGuiOnTop(WindUI.ScreenGui, TOP_DISPLAY_ORDER)
+KeepScreenGuiOnTop(WindUI.NotificationGui, TOP_DISPLAY_ORDER + 3)
+KeepScreenGuiOnTop(WindUI.DropdownGui, TOP_DISPLAY_ORDER + 2)
+KeepScreenGuiOnTop(WindUI.TooltipGui, TOP_DISPLAY_ORDER + 1)
 
 WindUI.SoundManager:Init(WindUI)
 Creator.Init(WindUI)
