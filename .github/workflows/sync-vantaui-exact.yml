@@ -1,0 +1,38 @@
+name: Sync VantaTest with VantaUI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/sync-vantaui-exact.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VantaTest
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Mirror VantaUI exactly
+        run: |
+          git fetch --no-tags https://github.com/MrRos3/VantaUI.git main
+          git read-tree --reset -u FETCH_HEAD
+
+          if git diff --cached --quiet; then
+            echo "VantaTest already matches VantaUI."
+            exit 0
+          fi
+
+          git commit -m "Sync VantaTest exactly with VantaUI [skip ci]"
+          git push origin HEAD:main
