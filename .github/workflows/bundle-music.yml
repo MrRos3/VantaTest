@@ -31,86 +31,65 @@ jobs:
           UA='VantaTestMusicBundler/1.0 (+https://github.com/MrRos3/VantaTest)'
           mkdir -p assets/music/builtin /tmp/vanta_music
 
-          # Pull the current opt-in Cobalt community list. We only prefer
-          # online instances that report YouTube Music support and no auth.
-          # Static fallbacks are appended because the tracker itself may be down.
           CANDIDATES_FILE=/tmp/vanta_music/cobalt-instances.txt
-          : > "$CANDIDATES_FILE"
-
-          if curl -fsSL --max-time 20 -A "$UA" \
-            'https://instances.cobalt.best/instances.json' \
-            -o /tmp/vanta_music/instances.json; then
-            jq -r '
-              .[]
-              | select((.online == true) or (.online.api == true))
-              | select((.services["youtube music"] == true) or (.services.youtube_music == true) or (.services.youtube == true))
-              | select((.info.auth // false) == false)
-              | select(.api != null and .api != "")
-              | "\(.protocol // "https")://\(.api)"
-            ' /tmp/vanta_music/instances.json >> "$CANDIDATES_FILE" || true
-          fi
-
-          printf '%s\n' \
-            'https://cobalt-api.meowing.de' \
-            'https://capi.3kh0.net' \
-            'https://cobalt-backend.canine.tools' \
-            'https://cobalt-api.kwiatekmiki.com' \
-            >> "$CANDIDATES_FILE"
-
-          # Keep order but remove duplicate URLs.
-          awk '!seen[$0]++ && NF' "$CANDIDATES_FILE" > "$CANDIDATES_FILE.tmp"
-          mv "$CANDIDATES_FILE.tmp" "$CANDIDATES_FILE"
-
-          echo 'Cobalt candidates:'
-          cat "$CANDIDATES_FILE"
+          cat > "$CANDIDATES_FILE" <<'EOF'
+          https://cobalt-api.meowing.de
+          https://capi.3kh0.net
+          https://cobalt-backend.canine.tools
+          EOF
+          sed -i 's/^ *//' "$CANDIDATES_FILE"
 
           cobalt_audio() {
             local source_url="$1"
             local output_file="$2"
             local response=/tmp/vanta_music/cobalt-response.json
-            local body
+            local body http_code status media_url
+
             body="$(jq -nc --arg url "$source_url" '{
               url: $url,
               downloadMode: "audio",
               audioFormat: "mp3",
-              audioBitrate: "96",
-              filenameStyle: "basic",
-              alwaysProxy: true,
-              localProcessing: "disabled"
+              audioBitrate: "96"
             }')"
 
             while IFS= read -r api; do
               [ -n "$api" ] || continue
-              echo "Trying $api"
+              echo "==> Trying $api"
               rm -f "$response" "$output_file"
 
-              if ! curl -fsS --max-time 45 -A "$UA" \
+              http_code="$(curl -sS --max-time 45 -A "$UA" \
                 -H 'Accept: application/json' \
                 -H 'Content-Type: application/json' \
                 --data "$body" \
-                "${api%/}/" \
-                -o "$response"; then
-                echo "  request failed"
-                continue
+                -o "$response" \
+                -w '%{http_code}' \
+                "${api%/}/" || true)"
+
+              echo "    HTTP ${http_code:-curl-error}"
+              if [ -s "$response" ]; then
+                echo '    Response:'
+                head -c 1500 "$response" | sed 's/^/      /'
+                echo
               fi
+
+              case "$http_code" in
+                2??) ;;
+                *) continue ;;
+              esac
 
               status="$(jq -r '.status // empty' "$response" 2>/dev/null || true)"
               media_url="$(jq -r '.url // empty' "$response" 2>/dev/null || true)"
-              echo "  status: ${status:-unknown}"
+              echo "    Cobalt status: ${status:-unknown}"
 
               if { [ "$status" = 'tunnel' ] || [ "$status" = 'redirect' ]; } && [ -n "$media_url" ]; then
                 if curl -fL --retry 2 --retry-delay 1 --max-time 360 -A "$UA" \
                   "$media_url" -o "$output_file"; then
                   if [ -s "$output_file" ] && ffprobe -v error -select_streams a:0 \
                     -show_entries stream=codec_type -of csv=p=0 "$output_file" | grep -q audio; then
-                    echo "  success via $api"
+                    echo "    Success via $api"
                     return 0
                   fi
                 fi
-              fi
-
-              if [ "$status" = 'error' ]; then
-                echo "  $(jq -r '.error.code // "unknown cobalt error"' "$response" 2>/dev/null || true)"
               fi
             done < "$CANDIDATES_FILE"
 
@@ -124,8 +103,9 @@ jobs:
             local slug="$3"
             local title="$4"
             local artist="$5"
-
             local downloaded="/tmp/vanta_music/${slug}.source"
+            local cover="assets/music/builtin/${slug}.jpg"
+
             cobalt_audio "$source_url" "$downloaded"
 
             ffmpeg -hide_banner -loglevel error -y -i "$downloaded" \
@@ -135,29 +115,27 @@ jobs:
               -metadata artist="$artist" \
               "assets/music/builtin/${slug}.mp3"
 
-            # Covers do not need authenticated YouTube access.
-            cover="assets/music/builtin/${slug}.jpg"
             if ! curl -fL --retry 2 --max-time 30 -A "$UA" \
               "https://i.ytimg.com/vi/${video_id}/maxresdefault.jpg" -o "$cover"; then
               curl -fL --retry 2 --max-time 30 -A "$UA" \
                 "https://i.ytimg.com/vi/${video_id}/hqdefault.jpg" -o "$cover"
             fi
 
-            # Normalize the cover and keep it light for executor caching.
             ffmpeg -hide_banner -loglevel error -y -i "$cover" \
               -vf 'scale=512:-2' -q:v 5 "${cover}.tmp.jpg"
             mv "${cover}.tmp.jpg" "$cover"
           }
 
+          # Normal YouTube URLs avoid YouTube Music-specific extractor quirks.
           build_track \
-            'https://music.youtube.com/watch?v=LJhYHsN3PhU' \
+            'https://www.youtube.com/watch?v=LJhYHsN3PhU' \
             'LJhYHsN3PhU' \
             'azeri-kavkaz' \
             'Azeri Kavkaz' \
             'Caucasus Dance'
 
           build_track \
-            'https://music.youtube.com/watch?v=1loRKEs26G4' \
+            'https://www.youtube.com/watch?v=1loRKEs26G4' \
             '1loRKEs26G4' \
             'i-love-you-so-arabic-slowed' \
             'I Love You So (Arabic Version - Slowed)' \
