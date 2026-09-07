@@ -4,7 +4,7 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 
 local CompactMusic = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_library.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_mobile.lua?v=" .. cacheBuster
 ))()
 
 -- Remove the old generated Midnight Bounce demo from the executor's local
