@@ -3,11 +3,17 @@ local VantaUI = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. cacheBuster
 ))()
 
+local CompactMusic = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_compact.lua?v=" .. cacheBuster
+))()
+CompactMusic:Init(VantaUI, { Folder = "VantaTest/Music" })
+
 local Window = VantaUI:CreateWindow({
     Title = "VantaUI Showcase",
     Icon = VantaUI.Brand.Image,
     Theme = "Salty Special",
     HideSearchBar = false,
+    MusicPlayer = false,
     Branding = {
         Name = "VANTA",
         Image = VantaUI.Brand.Image,
@@ -34,6 +40,8 @@ local Window = VantaUI:CreateWindow({
     },
 })
 
+CompactMusic:Attach(Window)
+
 Window:Tag({
     Title = "v" .. VantaUI.Version,
     Icon = "github",
@@ -41,20 +49,9 @@ Window:Tag({
     Border = true,
 })
 
-local Home = Window:Tab({
-    Title = "Home",
-    Icon = "house",
-})
-
-local Themes = Window:Tab({
-    Title = "Themes",
-    Icon = "palette",
-})
-
-local About = Window:Tab({
-    Title = "About",
-    Icon = "info",
-})
+local Home = Window:Tab({ Title = "Home", Icon = "house" })
+local Themes = Window:Tab({ Title = "Themes", Icon = "palette" })
+local About = Window:Tab({ Title = "About", Icon = "info" })
 
 Home:Button({
     Title = "VantaUI is alive",
@@ -62,7 +59,7 @@ Home:Button({
     Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Content = "VantaTest music-player build is running 🎵",
+            Content = "VantaTest compact music-player build is running 🎵",
             Icon = "music-2",
         })
     end,
@@ -89,10 +86,8 @@ local function addThemeButton(themeName, icon)
         Icon = icon,
         Callback = function()
             VantaUI:SetTheme(themeName)
-            VantaUI:Notify({
-                Content = "Theme changed to " .. themeName,
-                Icon = icon,
-            })
+            CompactMusic:ApplyTheme()
+            VantaUI:Notify({ Content = "Theme changed to " .. themeName, Icon = icon })
         end,
     })
 end
@@ -108,9 +103,6 @@ About:Button({
     Desc = "Custom Roblox UI library by MrRos3.",
     Icon = "github",
     Callback = function()
-        VantaUI:Notify({
-            Content = "VantaUI • built by MrRos3 🖤",
-            Icon = "heart",
-        })
+        VantaUI:Notify({ Content = "VantaUI • built by MrRos3 🖤", Icon = "heart" })
     end,
 })
