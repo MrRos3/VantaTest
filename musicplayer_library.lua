@@ -1,15 +1,14 @@
--- VantaTest compatibility entry point.
--- The music library is now resolved from Roblox's public audio catalog so
--- every user running the same VantaTest script gets the same built-in tracks.
+-- VantaTest music library compatibility entry point.
+-- Keep the premium player stable while built-in distribution is prepared.
 
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-local CATALOG_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_catalog.lua?v=" .. CACHE_BUSTER
+local PREMIUM_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_premium.lua?v=" .. CACHE_BUSTER
 
 local ok, source = pcall(function()
-    return game:HttpGet(CATALOG_URL)
+    return game:HttpGet(PREMIUM_URL)
 end)
-assert(ok and type(source) == "string" and #source > 0, "[VantaTest Music] Could not load public catalog")
+assert(ok and type(source) == "string" and #source > 0, "[VantaTest Music] Could not load premium player")
 
 local loader, loadError = loadstring(source)
-assert(loader, "[VantaTest Music] Public catalog compile failed: " .. tostring(loadError))
+assert(loader, "[VantaTest Music] Premium player compile failed: " .. tostring(loadError))
 return loader()
