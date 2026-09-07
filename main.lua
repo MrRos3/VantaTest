@@ -2,15 +2,16 @@
     VantaUI v0.3.5
     Roblox UI library by MrRos3.
 
-    Source: https://github.com/MrRos3/VantaUI
+    Source: https://github.com/MrRos3/VantaTest
     License: MIT
 ]]
 
 local PROJECT_VERSION = "0.3.5"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/refs/heads/main/dist/main.lua?v=" .. CACHE_BUSTER
-local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
-local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/salty-special.png"
+local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/refs/heads/main/dist/main.lua?v=" .. CACHE_BUSTER
+local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg"
+local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"
+local MUSIC_PLAYER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer.lua?v=" .. CACHE_BUSTER
 local SALTY_SPECIAL_WALLPAPER_TRANSPARENCY = 0.32
 
 local ok, source = pcall(function()
@@ -24,6 +25,24 @@ assert(loader, "[VantaUI] Failed to compile the UI runtime: " .. tostring(loadEr
 
 local VantaUI = loader()
 assert(type(VantaUI) == "table", "[VantaUI] UI runtime returned an invalid value")
+
+local MusicPlayer
+local musicOk, musicSource = pcall(function()
+    return game:HttpGet(MUSIC_PLAYER_URL)
+end)
+if musicOk and type(musicSource) == "string" and #musicSource > 0 then
+    local musicLoader = loadstring(musicSource)
+    if musicLoader then
+        local loadedOk, loadedPlayer = pcall(musicLoader)
+        if loadedOk and type(loadedPlayer) == "table" then
+            MusicPlayer = loadedPlayer
+            pcall(function()
+                MusicPlayer:Init(VantaUI, { Folder = "VantaTest/Music" })
+            end)
+            VantaUI.MusicPlayer = MusicPlayer
+        end
+    end
+end
 
 VantaUI.RuntimeVersion = tostring(VantaUI.Version or PROJECT_VERSION)
 VantaUI.Version = PROJECT_VERSION
@@ -40,7 +59,7 @@ VantaUI.GuiInfo = {
     Name = "VantaUI",
     Version = PROJECT_VERSION,
     Owner = "MrRos3",
-    Repository = "MrRos3/VantaUI",
+    Repository = "MrRos3/VantaTest",
     Runtime = "dist/main.lua",
     License = "MIT",
 }
@@ -209,6 +228,11 @@ function VantaUI:SetTheme(themeName)
     if theme then
         for window in pairs(ActiveWindows) do
             applyThemeWallpaper(window, themeName)
+        end
+        if MusicPlayer and MusicPlayer.ApplyTheme then
+            pcall(function()
+                MusicPlayer:ApplyTheme()
+            end)
         end
     end
     return theme
@@ -443,6 +467,20 @@ function VantaUI:CreateWindow(config)
     task.defer(function()
         forceOpenButtonPosition(window)
     end)
+
+    if MusicPlayer and config.MusicPlayer ~= false then
+        pcall(function()
+            local musicConfig = type(config.MusicPlayer) == "table" and config.MusicPlayer or nil
+            MusicPlayer:Attach(window, musicConfig)
+            if MusicPlayer.UI and MusicPlayer.UI.Repeat then
+                local env = getgenv and getgenv() or _G
+                if env then
+                    env.repeatHover = MusicPlayer.UI.Repeat
+                end
+            end
+        end)
+    end
+
     return window
 end
 
