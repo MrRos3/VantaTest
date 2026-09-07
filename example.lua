@@ -4,7 +4,7 @@ local VantaUI = loadstring(game:HttpGet(
 ))()
 
 local CompactMusic = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_compact.lua?v=" .. cacheBuster
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_docked.lua?v=" .. cacheBuster
 ))()
 CompactMusic:Init(VantaUI, { Folder = "VantaTest/Music" })
 
@@ -39,6 +39,9 @@ local Window = VantaUI:CreateWindow({
         }),
     },
 })
+
+-- The music mini-player follows VantaUI's real draggable open badge.
+CompactMusic:BindWindow(Window)
 
 -- Add a real music-note button directly to VantaUI's topbar.
 -- This intentionally bypasses the Mac traffic-light button helper so the
@@ -147,7 +150,7 @@ Home:Button({
     Icon = "sparkles",
     Callback = function()
         VantaUI:Notify({
-            Content = "VantaTest compact music-player build is running 🎵",
+            Content = "VantaTest docked music-player build is running 🎵",
             Icon = "music",
         })
     end,
