@@ -83,43 +83,20 @@ local function createDemoWav(path)
     ensureFolder(path:match("^(.*)/[^/]+$") or "VantaTest/Music")
 
     local sampleCount = math.floor(DEMO_SECONDS * SAMPLE_RATE)
-    local kickEvents = {}
-    local snareEvents = {}
-    local hatEvents = {}
-    local bassEvents = {}
     local roots = { 73.42, 65.41, 58.27, 65.41 }
-
-    for bar = 0, DEMO_BARS - 1 do
-        local baseBeat = bar * 4
-        for _, offset in ipairs({ 0, 1.5, 2.75 }) do
-            kickEvents[#kickEvents + 1] = (baseBeat + offset) * BEAT
-        end
-        for _, offset in ipairs({ 1, 3 }) do
-            snareEvents[#snareEvents + 1] = (baseBeat + offset) * BEAT
-        end
-        for eighth = 0, 7 do
-            local swing = eighth % 2 == 1 and (0.04 * BEAT) or 0
-            hatEvents[#hatEvents + 1] = (baseBeat + eighth * 0.5) * BEAT + swing
-        end
-        for _, note in ipairs({
-            { 0, 0.90, 1.00 },
-            { 1.5, 0.55, 1.00 },
-            { 2.5, 0.75, 1.50 },
-            { 3.5, 0.40, 1.00 },
-        }) do
-            bassEvents[#bassEvents + 1] = {
-                time = (baseBeat + note[1]) * BEAT,
-                length = note[2] * BEAT,
-                freq = roots[bar + 1] * note[3],
-            }
-        end
-    end
-
     local chordRoots = {
         { 146.83, 174.61, 220.00 },
         { 130.81, 164.81, 196.00 },
         { 116.54, 146.83, 174.61 },
         { 130.81, 164.81, 220.00 },
+    }
+    local kickOffsets = { 0, 1.5, 2.75 }
+    local snareOffsets = { 1, 3 }
+    local bassPattern = {
+        { 0, 0.90, 1.00 },
+        { 1.5, 0.55, 1.00 },
+        { 2.5, 0.75, 1.50 },
+        { 3.5, 0.40, 1.00 },
     }
 
     local seed = 1337
@@ -128,20 +105,26 @@ local function createDemoWav(path)
 
     for i = 0, sampleCount - 1 do
         local t = i / SAMPLE_RATE
+        local beatGlobal = t / BEAT
+        local barIndex = math.floor(beatGlobal / 4) % DEMO_BARS + 1
+        local beatPos = beatGlobal % 4
+
         seed = (seed * 1103515245 + 12345) % 2147483648
         local noise = (seed / 1073741824) - 1
         local signal = 0
 
-        for _, eventTime in ipairs(kickEvents) do
-            local age = t - eventTime
+        -- Kick pattern: 1, the swung middle hit, then a late third hit.
+        for _, offset in ipairs(kickOffsets) do
+            local age = (beatPos - offset) * BEAT
             if age >= 0 and age < 0.24 then
                 local freq = 48 + 72 * math.exp(-age * 18)
                 signal = signal + math.sin(math.pi * 2 * freq * age) * math.exp(-age * 15) * 0.72
             end
         end
 
-        for _, eventTime in ipairs(snareEvents) do
-            local age = t - eventTime
+        -- Snare on beats 2 and 4.
+        for _, offset in ipairs(snareOffsets) do
+            local age = (beatPos - offset) * BEAT
             if age >= 0 and age < 0.17 then
                 local env = math.exp(-age * 20)
                 signal = signal + noise * env * 0.24
@@ -149,23 +132,28 @@ local function createDemoWav(path)
             end
         end
 
-        for _, eventTime in ipairs(hatEvents) do
-            local age = t - eventTime
-            if age >= 0 and age < 0.055 then
-                signal = signal + noise * math.exp(-age * 62) * 0.075
+        -- Eighth-note hats with a small swing on every second hit.
+        local eighthIndex = math.floor(beatGlobal * 2)
+        local hatBeat = eighthIndex * 0.5
+        local swing = eighthIndex % 2 == 1 and (0.04 * BEAT) or 0
+        local hatAge = t - (hatBeat * BEAT + swing)
+        if hatAge >= 0 and hatAge < 0.055 then
+            signal = signal + noise * math.exp(-hatAge * 62) * 0.075
+        end
+
+        -- Four-note 808-style bass phrase per bar.
+        for _, note in ipairs(bassPattern) do
+            local age = (beatPos - note[1]) * BEAT
+            local noteLength = note[2] * BEAT
+            if age >= 0 and age < noteLength then
+                local freq = roots[barIndex] * note[3]
+                local env = (1 - math.exp(-age * 28)) * math.exp(-age / math.max(noteLength * 0.9, 0.01))
+                signal = signal + math.sin(math.pi * 2 * freq * age) * env * 0.20
+                signal = signal + math.sin(math.pi * 4 * freq * age) * env * 0.035
             end
         end
 
-        for _, note in ipairs(bassEvents) do
-            local age = t - note.time
-            if age >= 0 and age < note.length then
-                local env = (1 - math.exp(-age * 28)) * math.exp(-age / math.max(note.length * 0.9, 0.01))
-                signal = signal + math.sin(math.pi * 2 * note.freq * age) * env * 0.20
-                signal = signal + math.sin(math.pi * 4 * note.freq * age) * env * 0.035
-            end
-        end
-
-        local barIndex = math.floor(t / (4 * BEAT)) % DEMO_BARS + 1
+        -- Dark, quiet chord bed underneath the drums.
         local chord = chordRoots[barIndex]
         local chordMix = 0
         for _, freq in ipairs(chord) do
@@ -173,7 +161,6 @@ local function createDemoWav(path)
         end
         signal = signal + (chordMix / #chord) * 0.055
 
-        -- Gentle saturation keeps the generated demo punchy without clipping.
         signal = signal / (1 + math.abs(signal))
         local sample = math.floor(clamp(128 + signal * 108, 0, 255) + 0.5)
         bytes[#bytes + 1] = string.char(sample)
@@ -208,6 +195,26 @@ local function createDemoWav(path)
 
     local success = pcall(writefile, path, header .. pcm)
     return success and fileExists(path)
+end
+
+local function ensureDemoTrack(self)
+    local demoPath = tostring(self.Folder or "VantaTest/Music") .. "/" .. DEMO_NAME .. ".wav"
+    if fileExists(demoPath) then
+        return true
+    end
+
+    if self._DemoGenerating then
+        local deadline = os.clock() + 4
+        repeat
+            task.wait()
+        until fileExists(demoPath) or not self._DemoGenerating or os.clock() >= deadline
+        return fileExists(demoPath)
+    end
+
+    self._DemoGenerating = true
+    local success = createDemoWav(demoPath)
+    self._DemoGenerating = false
+    return success
 end
 
 local function addCorner(parent, radius)
@@ -245,6 +252,7 @@ local function makeCover(parent, size, compact)
     ring.ZIndex = cover.ZIndex + 1
     ring.Parent = cover
     addCorner(ring, 99)
+
     local ringStroke = Instance.new("UIStroke")
     ringStroke.Color = Color3.fromRGB(229, 162, 255)
     ringStroke.Transparency = 0.08
@@ -360,20 +368,15 @@ end
 function MusicPlayer:Init(windui, config)
     BaseInit(self, windui, config)
 
-    local demoPath = tostring(self.Folder or "VantaTest/Music") .. "/" .. DEMO_NAME .. ".wav"
     task.spawn(function()
-        createDemoWav(demoPath)
+        ensureDemoTrack(self)
     end)
 
     return self
 end
 
 function MusicPlayer:Show()
-    local demoPath = tostring(self.Folder or "VantaTest/Music") .. "/" .. DEMO_NAME .. ".wav"
-    if not fileExists(demoPath) then
-        createDemoWav(demoPath)
-    end
-
+    ensureDemoTrack(self)
     BaseShow(self)
 
     if not self.CurrentIndex then
