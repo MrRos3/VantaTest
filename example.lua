@@ -30,6 +30,7 @@ local Window = VantaUI:CreateWindow({
         Draggable = true,
         OnlyMobile = false,
         OnlyIcon = true,
+        Position = UDim2.new(0.5, 0, 0, 88),
         CornerRadius = UDim.new(0, 11),
         StrokeThickness = 2,
         ImageZoom = 1,
@@ -39,6 +40,18 @@ local Window = VantaUI:CreateWindow({
         }),
     },
 })
+
+-- Keep the normal Vanta badge exactly where production VantaUI places it.
+local function restoreVantaBadgePosition()
+    local openButtonMain = Window and Window.OpenButtonMain
+    local button = openButtonMain and openButtonMain.Button
+    local container = button and button.Parent
+    if container then
+        container.Position = UDim2.new(0.5, 0, 0, 88)
+    end
+end
+restoreVantaBadgePosition()
+task.defer(restoreVantaBadgePosition)
 
 -- Music mini-player is independent from VantaUI's normal open badge.
 CompactMusic:BindWindow(Window)
