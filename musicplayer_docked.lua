@@ -1,6 +1,6 @@
 -- VantaTest experimental music-player dock layer.
--- Extends the compact player with a smooth minimize/restore morph that docks
--- beside VantaUI's draggable open badge.
+-- Extends the compact player with smooth real-window minimize/restore motion,
+-- badge docking that does not fight manual dragging, and top-right opening.
 
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local COMPACT_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_compact.lua?v=" .. CACHE_BUSTER
@@ -19,10 +19,13 @@ assert(type(MusicPlayer) == "table", "[VantaTest Music] Compact player returned 
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
+local FULL_SIZE = Vector2.new(360, 258)
 local MINI_SIZE = Vector2.new(224, 44)
 local DOCK_OVERLAP = 7
-local TRANSITION_TIME = 0.42
+local SCREEN_MARGIN = 18
+local TRANSITION_TIME = 0.34
 local TRANSITION_INFO = TweenInfo.new(TRANSITION_TIME, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local FOLLOW_INFO = TweenInfo.new(0.16, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 MusicPlayer.Window = nil
 MusicPlayer.DockTarget = nil
@@ -31,23 +34,13 @@ MusicPlayer.LastFullPosition = nil
 MusicPlayer.LastFullSize = nil
 MusicPlayer.LastDockedPosition = nil
 MusicPlayer._DockWasVisible = false
+MusicPlayer._LastDockTargetAbsolutePosition = nil
+MusicPlayer._DockTween = nil
+MusicPlayer._TransitionTween = nil
 
 local BaseInit = MusicPlayer.Init
 local BaseShow = MusicPlayer.Show
 local BaseApplyTheme = MusicPlayer.ApplyTheme
-
-local function setGuiTextTransparency(root, value)
-    if not root then
-        return
-    end
-    for _, object in ipairs(root:GetDescendants()) do
-        if object:IsA("TextLabel") or object:IsA("TextButton") then
-            object.TextTransparency = value
-        elseif object:IsA("ImageLabel") or object:IsA("ImageButton") then
-            object.ImageTransparency = value
-        end
-    end
-end
 
 function MusicPlayer:BindWindow(window)
     self.Window = window
@@ -61,7 +54,14 @@ end
 
 function MusicPlayer:SetDockTarget(target)
     self.DockTarget = target
+    self._LastDockTargetAbsolutePosition = nil
+    self._DockWasVisible = false
     return self
+end
+
+function MusicPlayer:_screenSize()
+    local screen = self.WindUI and self.WindUI.ScreenGui
+    return screen and screen.AbsoluteSize or Vector2.new(1280, 720)
 end
 
 function MusicPlayer:_targetIsUsable()
@@ -74,9 +74,14 @@ function MusicPlayer:_targetIsUsable()
         and target.AbsoluteSize.Y > 0
 end
 
+function MusicPlayer:_topRightPosition()
+    local viewport = self:_screenSize()
+    local x = math.max(SCREEN_MARGIN, viewport.X - FULL_SIZE.X - SCREEN_MARGIN)
+    return UDim2.fromOffset(math.floor(x), SCREEN_MARGIN)
+end
+
 function MusicPlayer:_defaultMiniPosition()
-    local screen = self.WindUI and self.WindUI.ScreenGui
-    local viewport = screen and screen.AbsoluteSize or Vector2.new(1280, 720)
+    local viewport = self:_screenSize()
     return UDim2.fromOffset(
         math.floor((viewport.X - MINI_SIZE.X) / 2),
         math.floor(viewport.Y * 0.80)
@@ -84,8 +89,7 @@ function MusicPlayer:_defaultMiniPosition()
 end
 
 function MusicPlayer:_dockGeometry()
-    local screen = self.WindUI and self.WindUI.ScreenGui
-    local viewport = screen and screen.AbsoluteSize or Vector2.new(1280, 720)
+    local viewport = self:_screenSize()
 
     if not self:_targetIsUsable() then
         return self:_defaultMiniPosition(), UDim2.fromOffset(MINI_SIZE.X, MINI_SIZE.Y), false
@@ -111,82 +115,96 @@ function MusicPlayer:_dockGeometry()
     return UDim2.fromOffset(math.floor(x), math.floor(y)), UDim2.fromOffset(MINI_SIZE.X, MINI_SIZE.Y), true
 end
 
-function MusicPlayer:_ensureTransitionShell()
-    if not self.UI or self.UI.TransitionShell then
-        return
+function MusicPlayer:_cancelDockTween()
+    if self._DockTween then
+        pcall(function()
+            self._DockTween:Cancel()
+        end)
+        self._DockTween = nil
     end
-
-    local shell = Instance.new("Frame")
-    shell.Name = "MusicDockTransition"
-    shell.BackgroundColor3 = self:_theme("Background", Color3.fromRGB(0, 0, 0))
-    shell.BackgroundTransparency = 0.03
-    shell.BorderSizePixel = 0
-    shell.Visible = false
-    shell.ZIndex = 7000
-    shell.Parent = self.WindUI.ScreenGui
-
-    local corner = Instance.new("UICorner")
-    corner.Name = "Corner"
-    corner.CornerRadius = UDim.new(0, 14)
-    corner.Parent = shell
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Name = "Stroke"
-    stroke.Color = self:_theme("Outline", Color3.fromRGB(90, 24, 36))
-    stroke.Transparency = 0.7
-    stroke.Thickness = 1
-    stroke.Parent = shell
-
-    self.UI.TransitionShell = shell
 end
 
-function MusicPlayer:_setMiniContentVisible(visible)
+function MusicPlayer:_cancelTransitionTween()
+    if self._TransitionTween then
+        pcall(function()
+            self._TransitionTween:Cancel()
+        end)
+        self._TransitionTween = nil
+    end
+end
+
+function MusicPlayer:_dockMiniOnce(animated)
     if not self.UI or not self.UI.Mini then
         return
     end
 
-    local mini = self.UI.Mini
-    for _, child in ipairs(mini:GetChildren()) do
-        if child:IsA("GuiObject") then
-            child.Visible = visible
-        end
-    end
-end
-
-function MusicPlayer:_snapMiniToDock()
-    if not self.UI or not self.UI.Mini or self.Transitioning then
+    local position, size, docked = self:_dockGeometry()
+    if not docked then
         return
     end
 
-    local position, size, docked = self:_dockGeometry()
-    if docked then
+    self:_cancelDockTween()
+
+    if animated then
+        local tween = TweenService:Create(self.UI.Mini, FOLLOW_INFO, {
+            Position = position,
+            Size = size,
+        })
+        self._DockTween = tween
+        tween:Play()
+        tween.Completed:Once(function()
+            if self._DockTween == tween then
+                self._DockTween = nil
+            end
+        end)
+    else
         self.UI.Mini.Position = position
         self.UI.Mini.Size = size
-        self.LastDockedPosition = position
     end
+
+    self.LastDockedPosition = position
+    self._LastDockTargetAbsolutePosition = self.DockTarget.AbsolutePosition
 end
 
 function MusicPlayer:ApplyTheme()
     BaseApplyTheme(self)
-    if self.UI and self.UI.TransitionShell then
-        self.UI.TransitionShell.BackgroundColor3 = self:_theme("Background", Color3.fromRGB(0, 0, 0))
-        local stroke = self.UI.TransitionShell:FindFirstChild("Stroke")
-        if stroke then
-            stroke.Color = self:_theme("Outline", Color3.fromRGB(90, 24, 36))
-        end
-    end
 end
 
 function MusicPlayer:Show()
     BaseShow(self)
-    self:_ensureTransitionShell()
 
-    if self.UI and self.UI.Root then
-        self.UI.Root.Size = UDim2.fromOffset(360, 258)
-        if self.LastFullPosition then
-            self.UI.Root.Position = self.LastFullPosition
-        end
+    if not self.UI or not self.UI.Root then
+        return
     end
+
+    self:_cancelTransitionTween()
+
+    local root = self.UI.Root
+    local finalPosition = self:_topRightPosition()
+    local finalSize = UDim2.fromOffset(FULL_SIZE.X, FULL_SIZE.Y)
+
+    self.LastFullPosition = finalPosition
+    self.LastFullSize = finalSize
+
+    root.Visible = true
+    root.ClipsDescendants = true
+    root.Position = UDim2.fromOffset(finalPosition.X.Offset + 18, finalPosition.Y.Offset - 6)
+    root.Size = UDim2.fromOffset(FULL_SIZE.X - 20, FULL_SIZE.Y - 14)
+
+    local tween = TweenService:Create(root, TweenInfo.new(0.26, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Position = finalPosition,
+        Size = finalSize,
+    })
+    self._TransitionTween = tween
+    self.Transitioning = true
+    tween:Play()
+    tween.Completed:Once(function()
+        if self._TransitionTween == tween then
+            self._TransitionTween = nil
+        end
+        root.ClipsDescendants = false
+        self.Transitioning = false
+    end)
 end
 
 function MusicPlayer:Minimize()
@@ -194,43 +212,49 @@ function MusicPlayer:Minimize()
         return
     end
 
-    self:_ensureTransitionShell()
-
     local root = self.UI.Root
     local mini = self.UI.Mini
-    local shell = self.UI.TransitionShell
-    if not root or not mini or not shell then
+    if not root or not mini then
         return
     end
+
+    self:_cancelTransitionTween()
+    self:_cancelDockTween()
 
     self.Transitioning = true
     self.LastFullPosition = root.Position
     self.LastFullSize = root.Size
 
-    local targetPosition, targetSize = self:_dockGeometry()
+    local targetPosition, targetSize, docked = self:_dockGeometry()
 
-    shell.Position = UDim2.fromOffset(root.AbsolutePosition.X, root.AbsolutePosition.Y)
-    shell.Size = UDim2.fromOffset(root.AbsoluteSize.X, root.AbsoluteSize.Y)
-    shell.BackgroundColor3 = self:_theme("Background", Color3.fromRGB(0, 0, 0))
-    shell.Visible = true
-
-    root.Visible = false
+    root.Visible = true
+    root.ClipsDescendants = true
     mini.Visible = false
-    mini.Size = targetSize
-    mini.Position = targetPosition
 
-    local tween = TweenService:Create(shell, TRANSITION_INFO, {
+    local tween = TweenService:Create(root, TRANSITION_INFO, {
         Position = targetPosition,
         Size = targetSize,
     })
+    self._TransitionTween = tween
     tween:Play()
 
     tween.Completed:Once(function()
-        shell.Visible = false
+        if self._TransitionTween == tween then
+            self._TransitionTween = nil
+        end
+
+        root.Visible = false
+        root.ClipsDescendants = false
+        root.Position = self.LastFullPosition or self:_topRightPosition()
+        root.Size = self.LastFullSize or UDim2.fromOffset(FULL_SIZE.X, FULL_SIZE.Y)
+
         mini.Position = targetPosition
         mini.Size = targetSize
         mini.Visible = true
+
         self.LastDockedPosition = targetPosition
+        self._DockWasVisible = docked
+        self._LastDockTargetAbsolutePosition = docked and self.DockTarget.AbsolutePosition or nil
         self.Transitioning = false
     end)
 end
@@ -240,40 +264,44 @@ function MusicPlayer:Restore()
         return
     end
 
-    self:_ensureTransitionShell()
-
     local root = self.UI.Root
     local mini = self.UI.Mini
-    local shell = self.UI.TransitionShell
-    if not root or not mini or not shell then
+    if not root or not mini then
         return
     end
 
+    self:_cancelTransitionTween()
+    self:_cancelDockTween()
     self.Transitioning = true
 
     local startPosition = UDim2.fromOffset(mini.AbsolutePosition.X, mini.AbsolutePosition.Y)
     local startSize = UDim2.fromOffset(mini.AbsoluteSize.X, mini.AbsoluteSize.Y)
+    local finalPosition = self.LastFullPosition or self:_topRightPosition()
+    local finalSize = self.LastFullSize or UDim2.fromOffset(FULL_SIZE.X, FULL_SIZE.Y)
 
-    local finalPosition = self.LastFullPosition or UDim2.new(0.5, -180, 0.5, -129)
-    local finalSize = self.LastFullSize or UDim2.fromOffset(360, 258)
-
-    shell.Position = startPosition
-    shell.Size = startSize
-    shell.BackgroundColor3 = self:_theme("Background", Color3.fromRGB(0, 0, 0))
-    shell.Visible = true
     mini.Visible = false
-    root.Visible = false
 
-    local tween = TweenService:Create(shell, TRANSITION_INFO, {
+    -- Animate the real player, not a blank shell. Its contents are already
+    -- present and reveal naturally as the clipped frame expands.
+    root.Position = startPosition
+    root.Size = startSize
+    root.ClipsDescendants = true
+    root.Visible = true
+
+    local tween = TweenService:Create(root, TRANSITION_INFO, {
         Position = finalPosition,
         Size = finalSize,
     })
+    self._TransitionTween = tween
     tween:Play()
 
     tween.Completed:Once(function()
-        shell.Visible = false
+        if self._TransitionTween == tween then
+            self._TransitionTween = nil
+        end
         root.Position = finalPosition
         root.Size = finalSize
+        root.ClipsDescendants = false
         root.Visible = true
         self.Transitioning = false
     end)
@@ -284,26 +312,41 @@ function MusicPlayer:Init(windui, config)
 
     RunService.RenderStepped:Connect(function()
         if not self.UI or not self.UI.Mini or not self.UI.Mini.Visible or self.Transitioning then
+            self._DockWasVisible = false
+            self._LastDockTargetAbsolutePosition = nil
             return
         end
 
         local dockVisible = self:_targetIsUsable()
-        if dockVisible then
-            local position, size = self:_dockGeometry()
-            local current = self.UI.Mini.Position
-            local dx = math.abs(current.X.Offset - position.X.Offset)
-            local dy = math.abs(current.Y.Offset - position.Y.Offset)
 
-            -- Follow a dragged Vanta badge. A short tween makes it feel attached
-            -- instead of snapping from point to point.
-            if dx > 1 or dy > 1 then
-                TweenService:Create(
-                    self.UI.Mini,
-                    TweenInfo.new(0.12, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-                    { Position = position, Size = size }
-                ):Play()
+        if dockVisible then
+            local targetPosition = self.DockTarget.AbsolutePosition
+
+            if not self._DockWasVisible then
+                -- Dock once when the badge first appears. After that, manual
+                -- mini-player dragging is respected instead of being overwritten.
+                self:_dockMiniOnce(true)
+            elseif self._LastDockTargetAbsolutePosition then
+                -- If the badge itself is dragged, move the mini-player by the
+                -- same delta. This keeps their relative placement without
+                -- recalculating and snapping the mini-player back.
+                local delta = targetPosition - self._LastDockTargetAbsolutePosition
+                if math.abs(delta.X) > 0.25 or math.abs(delta.Y) > 0.25 then
+                    local current = self.UI.Mini.Position
+                    self.UI.Mini.Position = UDim2.new(
+                        current.X.Scale,
+                        current.X.Offset + delta.X,
+                        current.Y.Scale,
+                        current.Y.Offset + delta.Y
+                    )
+                end
             end
+
+            self._LastDockTargetAbsolutePosition = targetPosition
+        else
+            self._LastDockTargetAbsolutePosition = nil
         end
+
         self._DockWasVisible = dockVisible
     end)
 
