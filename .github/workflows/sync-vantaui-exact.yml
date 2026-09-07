@@ -24,15 +24,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Mirror VantaUI exactly
+      - name: Mirror VantaUI except workflow files
         run: |
+          git show HEAD:.github/workflows/build-gui.yml > /tmp/build-gui.yml
+          git show HEAD:.github/workflows/sync-vantaui-exact.yml > /tmp/sync-vantaui-exact.yml
+
           git fetch --no-tags https://github.com/MrRos3/VantaUI.git main
           git read-tree --reset -u FETCH_HEAD
 
+          mkdir -p .github/workflows
+          cp /tmp/build-gui.yml .github/workflows/build-gui.yml
+          cp /tmp/sync-vantaui-exact.yml .github/workflows/sync-vantaui-exact.yml
+          git add .github/workflows/build-gui.yml .github/workflows/sync-vantaui-exact.yml
+
           if git diff --cached --quiet; then
-            echo "VantaTest already matches VantaUI."
+            echo "Non-workflow files already match VantaUI."
             exit 0
           fi
 
-          git commit -m "Sync VantaTest exactly with VantaUI [skip ci]"
+          git commit -m "Sync VantaTest content with VantaUI [skip ci]"
           git push origin HEAD:main
