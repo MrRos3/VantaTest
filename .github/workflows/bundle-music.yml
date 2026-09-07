@@ -1,0 +1,87 @@
+name: Bundle Vanta Music
+
+on:
+  push:
+    paths:
+      - '.github/workflows/bundle-music.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip yt-dlp
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Download and optimize built-in tracks
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/music/builtin /tmp/vanta_music
+
+          download_track() {
+            local url="$1"
+            local slug="$2"
+            local title="$3"
+
+            rm -f "/tmp/vanta_music/${slug}."* "/tmp/vanta_music/${slug}_thumb."*
+
+            yt-dlp \
+              --no-playlist \
+              --write-thumbnail \
+              --convert-thumbnails jpg \
+              -f 'bestaudio/best' \
+              -o "/tmp/vanta_music/${slug}.%(ext)s" \
+              "$url"
+
+            audio_file="$(find /tmp/vanta_music -maxdepth 1 -type f -name "${slug}.*" ! -name '*.jpg' | head -n 1)"
+            thumb_file="$(find /tmp/vanta_music -maxdepth 1 -type f -name "${slug}*.jpg" | head -n 1 || true)"
+
+            test -n "$audio_file"
+
+            ffmpeg -y -i "$audio_file" \
+              -map 0:a:0 -vn -ac 2 -ar 44100 \
+              -c:a libmp3lame -b:a 96k \
+              -metadata title="$title" \
+              "assets/music/builtin/${title}.mp3"
+
+            if [ -n "$thumb_file" ] && [ -f "$thumb_file" ]; then
+              ffmpeg -y -i "$thumb_file" -vf 'scale=512:-2' -q:v 4 \
+                "assets/music/builtin/${title}.jpg"
+            fi
+          }
+
+          download_track 'https://music.youtube.com/watch?v=LJhYHsN3PhU' 'azeri' 'Azeri Kavkaz'
+          download_track 'https://music.youtube.com/watch?v=1loRKEs26G4' 'love' 'I Love You So (Arabic Version - Slowed)'
+
+          ls -lh assets/music/builtin
+
+      - name: Commit music bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/music/builtin
+          if git diff --cached --quiet; then
+            echo 'Music bundle already up to date.'
+            exit 0
+          fi
+          git commit -m 'Bundle built-in Vanta music [skip ci]'
+          git push
