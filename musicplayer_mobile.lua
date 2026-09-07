@@ -1,41 +1,56 @@
--- VantaTest mobile/executor music discovery layer.
--- Finds user-provided tracks anywhere inside the executor-accessible workspace,
--- copies them into VantaTest/Music, and keeps premium presentation intact.
+-- VantaTest Android/mobile music discovery layer.
+-- Loads the named-track library layer, then searches common executor and Android
+-- paths for the user's supplied music pack and copies accessible files into
+-- VantaTest/Music automatically.
 
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-local PREMIUM_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_premium.lua?v=" .. CACHE_BUSTER
+local LIBRARY_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/musicplayer_library.lua?v=" .. CACHE_BUSTER
 
 local ok, source = pcall(function()
-    return game:HttpGet(PREMIUM_URL)
+    return game:HttpGet(LIBRARY_URL)
 end)
-assert(ok and type(source) == "string" and #source > 0, "[VantaTest Music] Could not load premium player")
+assert(ok and type(source) == "string" and #source > 0, "[VantaTest Music] Could not load library player")
 
 local loader, loadError = loadstring(source)
-assert(loader, "[VantaTest Music] Premium player compile failed: " .. tostring(loadError))
+assert(loader, "[VantaTest Music] Library player compile failed: " .. tostring(loadError))
 
 local MusicPlayer = loader()
-assert(type(MusicPlayer) == "table", "[VantaTest Music] Premium player returned an invalid value")
+assert(type(MusicPlayer) == "table", "[VantaTest Music] Library player returned an invalid value")
 
 local BaseRefresh = MusicPlayer.Refresh
-local BaseRenderList = MusicPlayer._renderList
-local BaseUpdate = MusicPlayer._update
+local BaseShow = MusicPlayer.Show
 
-local TRACK_INFO = {
-    ["azeri kavkaz"] = {
-        title = "Azeri Kavkaz",
-        artist = "Caucasus Dance",
-    },
-    ["i love you so (arabic version - slowed)"] = {
-        title = "I Love You So (Arabic Version - Slowed)",
-        artist = "aessy • Tom Vaulbert",
-    },
+local PACK_FILES = {
+    "Azeri Kavkaz.mp3",
+    "Azeri Kavkaz.png",
+    "I Love You So (Arabic Version - Slowed).mp3",
+    "I Love You So (Arabic Version - Slowed).png",
 }
 
-local WANTED_FILES = {
-    ["azeri kavkaz.mp3"] = true,
-    ["azeri kavkaz.png"] = true,
-    ["i love you so (arabic version - slowed).mp3"] = true,
-    ["i love you so (arabic version - slowed).png"] = true,
+local ROOTS = {
+    "VantaTest/Music",
+    "workspace/VantaTest/Music",
+    "VantaTest_Music_Pack/VantaTest/Music",
+    "VantaTest Music Pack/VantaTest/Music",
+    "workspace/VantaTest_Music_Pack/VantaTest/Music",
+    "workspace/VantaTest Music Pack/VantaTest/Music",
+    "Downloads/VantaTest/Music",
+    "Download/VantaTest/Music",
+    "Downloads/VantaTest_Music_Pack/VantaTest/Music",
+    "Download/VantaTest_Music_Pack/VantaTest/Music",
+    "/storage/emulated/0/Download/VantaTest/Music",
+    "/storage/emulated/0/Download/VantaTest_Music_Pack/VantaTest/Music",
+    "/storage/emulated/0/Downloads/VantaTest/Music",
+    "/storage/emulated/0/Downloads/VantaTest_Music_Pack/VantaTest/Music",
+    "/sdcard/Download/VantaTest/Music",
+    "/sdcard/Download/VantaTest_Music_Pack/VantaTest/Music",
+    "/sdcard/Downloads/VantaTest/Music",
+    "/sdcard/Downloads/VantaTest_Music_Pack/VantaTest/Music",
+    "workspace",
+    "Downloads",
+    "Download",
+    ".",
+    "",
 }
 
 local function norm(path)
@@ -46,21 +61,22 @@ local function basename(path)
     return norm(path):match("([^/]+)$") or norm(path)
 end
 
-local function stem(path)
-    return basename(path):gsub("%.[^%.]+$", "")
-end
-
 local function lower(value)
     return string.lower(tostring(value or ""))
 end
 
-local function existsFile(path)
+local wanted = {}
+for _, fileName in ipairs(PACK_FILES) do
+    wanted[lower(fileName)] = fileName
+end
+
+local function fileExists(path)
     if not isfile then return false end
     local okFile, value = pcall(isfile, path)
     return okFile and value == true
 end
 
-local function existsFolder(path)
+local function folderExists(path)
     if not isfolder then return false end
     local okFolder, value = pcall(isfolder, path)
     return okFolder and value == true
@@ -71,7 +87,7 @@ local function ensureFolder(path)
     local current = ""
     for part in norm(path):gmatch("[^/]+") do
         current = current == "" and part or (current .. "/" .. part)
-        if not existsFolder(current) then
+        if not folderExists(current) then
             pcall(makefolder, current)
         end
     end
@@ -79,166 +95,126 @@ end
 
 local function safeList(path)
     if not listfiles then return nil end
-    local okList, files = pcall(listfiles, path)
-    if okList and type(files) == "table" then
-        return files
+    local okList, result = pcall(listfiles, path)
+    if okList and type(result) == "table" then
+        return result
     end
     return nil
 end
 
-local function copyFile(sourcePath, destinationPath)
-    if not readfile or not writefile or existsFile(destinationPath) then
-        return existsFile(destinationPath)
+local function copyReadable(sourcePath, destinationPath)
+    if fileExists(destinationPath) then return true end
+
+    if copyfile then
+        local okCopy = pcall(copyfile, sourcePath, destinationPath)
+        if okCopy and fileExists(destinationPath) then return true end
     end
-    local okRead, bytes = pcall(readfile, sourcePath)
-    if not okRead or type(bytes) ~= "string" then
-        return false
+
+    if readfile and writefile then
+        local okCopy = pcall(function()
+            local bytes = readfile(sourcePath)
+            writefile(destinationPath, bytes)
+        end)
+        if okCopy and fileExists(destinationPath) then return true end
     end
-    local okWrite = pcall(writefile, destinationPath, bytes)
-    return okWrite and existsFile(destinationPath)
+
+    return false
 end
 
-function MusicPlayer:_discoverUserTracks()
-    if self._DiscoveryRunning or not listfiles then
-        return 0
-    end
-    self._DiscoveryRunning = true
+function MusicPlayer:_mobileDiscoverPack()
+    if self._MobileDiscoveryRunning or not listfiles then return 0 end
+    self._MobileDiscoveryRunning = true
 
-    local targetFolder = norm(self.Folder or "VantaTest/Music")
+    local target = norm(self.Folder or "VantaTest/Music")
     ensureFolder("VantaTest")
-    ensureFolder(targetFolder)
+    ensureFolder(target)
 
     local found = {}
     local visited = {}
     local scanned = 0
-    local MAX_SCANNED = 600
-    local MAX_DEPTH = 4
+    local MAX_ENTRIES = 900
+    local MAX_DEPTH = 5
 
-    local roots = {
-        targetFolder,
-        "VantaTest",
-        "VantaTest_Music_Pack",
-        "VantaTest_Music_Pack/VantaTest",
-        "VantaTest_Music_Pack/VantaTest/Music",
-        "workspace",
-        "scripts",
-        "autoexec",
-        ".",
-        "",
-    }
+    -- Try exact paths first. This is fast and catches the common Android cases.
+    for _, root in ipairs(ROOTS) do
+        for _, fileName in ipairs(PACK_FILES) do
+            local candidate
+            if root == "" or root == "." then
+                candidate = fileName
+            else
+                candidate = norm(root) .. "/" .. fileName
+            end
+            if fileExists(candidate) then
+                found[lower(fileName)] = candidate
+            end
+        end
+    end
 
     local function walk(path, depth)
-        if scanned >= MAX_SCANNED or depth > MAX_DEPTH then return end
+        if scanned >= MAX_ENTRIES or depth > MAX_DEPTH then return end
         local key = norm(path)
         if visited[key] then return end
         visited[key] = true
 
+        -- Some Android executors can list a path even when isfolder(path) lies,
+        -- so deliberately try listfiles without requiring folderExists first.
         local entries = safeList(path)
         if not entries then return end
 
-        for _, rawPath in ipairs(entries) do
-            if scanned >= MAX_SCANNED then break end
+        for _, raw in ipairs(entries) do
+            if scanned >= MAX_ENTRIES then break end
             scanned += 1
 
-            local candidate = norm(rawPath)
+            local candidate = norm(raw)
             local fileName = lower(basename(candidate))
-            if WANTED_FILES[fileName] and not found[fileName] then
+            if wanted[fileName] and not found[fileName] and fileExists(candidate) then
                 found[fileName] = candidate
-            elseif depth < MAX_DEPTH and existsFolder(candidate) then
-                local lowerPath = lower(candidate)
-                if not lowerPath:find("cache", 1, true)
-                    and not lowerPath:find("logs", 1, true)
-                    and not lowerPath:find("workspace/vantatest/music", 1, true) then
-                    walk(candidate, depth + 1)
+            elseif depth < MAX_DEPTH then
+                local canDescend = folderExists(candidate)
+                if canDescend then
+                    local lc = lower(candidate)
+                    if not lc:find("cache", 1, true)
+                        and not lc:find("logs", 1, true)
+                        and not lc:find("temp", 1, true) then
+                        walk(candidate, depth + 1)
+                    end
                 end
             end
         end
     end
 
-    for _, root in ipairs(roots) do
+    for _, root in ipairs(ROOTS) do
         walk(root, 0)
-        if scanned >= MAX_SCANNED then break end
+        if scanned >= MAX_ENTRIES then break end
     end
 
     local imported = 0
-    for fileName, sourcePath in pairs(found) do
-        local destination = targetFolder .. "/" .. basename(sourcePath)
-        if norm(sourcePath) ~= norm(destination) then
-            if copyFile(sourcePath, destination) then
-                imported += 1
-            end
-        elseif existsFile(destination) then
+    for lowerName, sourcePath in pairs(found) do
+        local canonical = wanted[lowerName]
+        local destination = target .. "/" .. canonical
+        if norm(sourcePath) == norm(destination) then
+            if fileExists(destination) then imported += 1 end
+        elseif copyReadable(sourcePath, destination) then
             imported += 1
         end
     end
 
-    self._DiscoveryRunning = false
-    self._LastDiscoveryCount = imported
+    self._MobileDiscoveryRunning = false
+    self._MobileDiscoveryImported = imported
     return imported
 end
 
-function MusicPlayer:_applyKnownTrackMetadata()
-    for _, track in ipairs(self.Tracks or {}) do
-        local info = TRACK_INFO[lower(stem(track.Path or track.Name))]
-        if info then
-            track.Name = info.title
-            track.Artist = info.artist
-        end
-    end
+function MusicPlayer:Refresh()
+    self:_mobileDiscoverPack()
+    return BaseRefresh(self)
 end
 
-function MusicPlayer:Refresh()
-    -- First try the normal folder. If the expected tracks are missing, search
-    -- the executor sandbox and import them automatically, then refresh again.
-    BaseRefresh(self)
-    self:_applyKnownTrackMetadata()
-
-    local hasKnown = false
-    for _, track in ipairs(self.Tracks or {}) do
-        if TRACK_INFO[lower(stem(track.Path or track.Name))] then
-            hasKnown = true
-            break
-        end
-    end
-
-    if not hasKnown then
-        local imported = self:_discoverUserTracks()
-        if imported > 0 then
-            BaseRefresh(self)
-            self:_applyKnownTrackMetadata()
-        end
-    end
+function MusicPlayer:Show()
+    self:_mobileDiscoverPack()
+    BaseShow(self)
 
     if self.UI and self.UI.Empty and #(self.Tracks or {}) == 0 then
-        self.UI.Empty.Text = "No songs found — put the MP3s inside your executor workspace/VantaTest/Music"
-    end
-end
-
-function MusicPlayer:_renderList()
-    BaseRenderList(self)
-
-    -- Replace generic LOCAL • MP3 subtitles with the artist for known tracks.
-    for index, row in ipairs(self.Rows or {}) do
-        local track = self.Tracks and self.Tracks[index]
-        if row and track and track.Artist then
-            for _, child in ipairs(row:GetChildren()) do
-                if child:IsA("TextLabel") and child.Text and child.Text:find("LOCAL", 1, true) then
-                    child.Text = track.Artist
-                    break
-                end
-            end
-        end
-    end
-end
-
-function MusicPlayer:_update()
-    BaseUpdate(self)
-
-    local track = self.CurrentIndex and self.Tracks[self.CurrentIndex] or nil
-    if track and track.Artist and self.UI then
-        if self.UI.Sub then
-            self.UI.Sub.Text = track.Artist .. "  •  LOCAL MP3"
-        end
+        self.UI.Empty.Text = "Songs still outside executor storage • move the pack into VantaTest/Music, then tap Refresh"
     end
 end
 
