@@ -1,5 +1,5 @@
 return {
-    version = "2026-09-09-direct-mp3-v1",
+    version = "2026-09-09-direct-mp3-v2",
     tracks = {
         {
             key = "azeri-kavkaz",
@@ -9,7 +9,7 @@ return {
             audio = {
                 ext = "mp3",
                 path = "azeri-kavkaz/audio",
-                chunks = 25,
+                chunks = 50,
                 bytes = 598268,
                 sha256 = "00c85f1415e477a48996ddb841bd56fbbc8865bfc60ed57ef8cad04d60705d9f",
             },
@@ -28,7 +28,7 @@ return {
             audio = {
                 ext = "mp3",
                 path = "i-love-you-so-arabic-slowed/audio",
-                chunks = 21,
+                chunks = 41,
                 bytes = 481707,
                 sha256 = "d0e2b86ad07968e15bea8908e1572640382ebf9793ad3a436b78b32fc970b461",
             },
