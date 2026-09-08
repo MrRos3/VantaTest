@@ -28,23 +28,22 @@ jobs:
         run: |
           set -euo pipefail
 
-          UA='VantaTestMusicBundler/1.0 (+https://github.com/MrRos3/VantaTest)'
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 VantaTestMusicBundler/1.0'
           mkdir -p assets/music/builtin /tmp/vanta_music
 
-          cat > /tmp/vanta_music/piped-instances.txt <<'EOF'
-          https://pipedapi.kavin.rocks
-          https://pipedapi.tokhmi.xyz
-          https://api-piped.mha.fi
-          https://piped-api.garudalinux.org
-          https://api.piped.projectsegfau.lt
-          https://pipedapi.adminforge.de
+          cat > /tmp/vanta_music/invidious-instances.txt <<'EOF'
+          https://inv.nadeko.net
+          https://invidious.nerdvpn.de
+          https://yt.chocolatemoo53.com
+          https://invidious.tiekoetter.com
+          https://invidious.f5.si
           EOF
-          sed -i 's/^ *//' /tmp/vanta_music/piped-instances.txt
+          sed -i 's/^ *//' /tmp/vanta_music/invidious-instances.txt
 
-          piped_audio() {
+          invidious_audio() {
             local video_id="$1"
             local output_file="$2"
-            local response=/tmp/vanta_music/piped-response.json
+            local response=/tmp/vanta_music/invidious-response.json
             local http_code media_url
 
             while IFS= read -r api; do
@@ -52,11 +51,11 @@ jobs:
               echo "==> Trying $api"
               rm -f "$response" "$output_file"
 
-              http_code="$(curl -sS -L --max-time 45 -A "$UA" \
+              http_code="$(curl -sS -L --max-time 60 -A "$UA" \
                 -H 'Accept: application/json' \
                 -o "$response" \
                 -w '%{http_code}' \
-                "${api%/}/streams/${video_id}" || true)"
+                "${api%/}/api/v1/videos/${video_id}" || true)"
 
               echo "    HTTP ${http_code:-curl-error}"
               case "$http_code" in
@@ -68,25 +67,30 @@ jobs:
                   ;;
               esac
 
-              if ! jq -e '.audioStreams | type == "array" and length > 0' "$response" >/dev/null 2>&1; then
-                echo '    No audioStreams in response'
+              if ! jq -e '.adaptiveFormats | type == "array" and length > 0' "$response" >/dev/null 2>&1; then
+                echo '    No adaptiveFormats in response'
                 head -c 700 "$response" | sed 's/^/      /'
                 echo
                 continue
               fi
 
-              # Prefer a direct/proxied audio-only stream near 128 kbps.
               media_url="$(jq -r '
-                [.audioStreams[] | select(.url != null and .url != "")]
+                [.adaptiveFormats[]
+                  | select((.type // "") | startswith("audio/"))
+                  | select(.url != null and .url != "")]
                 | sort_by((.bitrate // 0))
                 | reverse
                 | .[0].url // empty
               ' "$response")"
 
-              [ -n "$media_url" ] || continue
-              echo "    Found audio stream; downloading…"
+              [ -n "$media_url" ] || {
+                echo '    No usable audio-only URL'
+                continue
+              }
 
+              echo '    Found audio stream; downloading…'
               if curl -fL --retry 2 --retry-delay 1 --max-time 360 -A "$UA" \
+                -H "Referer: ${api%/}/" \
                 "$media_url" -o "$output_file"; then
                 if [ -s "$output_file" ] && ffprobe -v error -select_streams a:0 \
                   -show_entries stream=codec_type -of csv=p=0 "$output_file" | grep -q audio; then
@@ -94,9 +98,9 @@ jobs:
                   return 0
                 fi
               fi
-            done < /tmp/vanta_music/piped-instances.txt
+            done < /tmp/vanta_music/invidious-instances.txt
 
-            echo "No Piped instance could fetch video ${video_id}" >&2
+            echo "No Invidious instance could fetch video ${video_id}" >&2
             return 1
           }
 
@@ -108,14 +112,15 @@ jobs:
             local downloaded="/tmp/vanta_music/${slug}.source"
             local cover="assets/music/builtin/${slug}.jpg"
 
-            piped_audio "$video_id" "$downloaded"
+            invidious_audio "$video_id" "$downloaded"
 
+            # Small but still listenable for executor-side caching.
             ffmpeg -hide_banner -loglevel error -y -i "$downloaded" \
-              -map 0:a:0 -vn -ac 2 -ar 44100 \
-              -c:a libmp3lame -b:a 96k \
+              -map 0:a:0 -vn -ac 1 -ar 24000 \
+              -c:a libopus -b:a 24k -vbr on -compression_level 10 \
               -metadata title="$title" \
               -metadata artist="$artist" \
-              "assets/music/builtin/${slug}.mp3"
+              "assets/music/builtin/${slug}.ogg"
 
             if ! curl -fL --retry 2 --max-time 30 -A "$UA" \
               "https://i.ytimg.com/vi/${video_id}/maxresdefault.jpg" -o "$cover"; then
