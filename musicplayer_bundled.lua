@@ -17,9 +17,8 @@ assert(loader, "[VantaTest Music] Premium player compile failed: " .. tostring(l
 local MusicPlayer = loader()
 assert(type(MusicPlayer) == "table", "[VantaTest Music] Premium player returned an invalid value")
 
-local HttpService = game:GetService("HttpService")
 local RAW_ROOT = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/music/builtin/"
-local CACHE_VERSION = "vanta-builtins-2026-09-07-v1"
+local CACHE_VERSION = "vanta-builtins-2026-09-09-v2"
 
 local BUILTINS = {
     {
@@ -27,7 +26,7 @@ local BUILTINS = {
         LocalStem = "Vanta Builtin - Azeri Kavkaz",
         Title = "Azeri Kavkaz",
         Artist = "Caucasus Dance",
-        AudioRemote = "azeri-kavkaz.mp3",
+        AudioRemote = "azeri-kavkaz.ogg",
         CoverRemote = "azeri-kavkaz.jpg",
     },
     {
@@ -35,7 +34,7 @@ local BUILTINS = {
         LocalStem = "Vanta Builtin - I Love You So (Arabic Version - Slowed)",
         Title = "I Love You So (Arabic Version - Slowed)",
         Artist = "aessy • Tom Vaulbert",
-        AudioRemote = "i-love-you-so-arabic-slowed.mp3",
+        AudioRemote = "i-love-you-so-arabic-slowed.ogg",
         CoverRemote = "i-love-you-so-arabic-slowed.jpg",
     },
 }
@@ -102,7 +101,7 @@ local function looksLikeHtmlOrError(bytes)
     if type(bytes) ~= "string" then
         return true
     end
-    local head = bytes:sub(1, 160):lower()
+    local head = bytes:sub(1, 180):lower()
     return head:find("<!doctype html", 1, true)
         or head:find("<html", 1, true)
         or head:find("404: not found", 1, true)
@@ -128,7 +127,7 @@ end
 
 function MusicPlayer:_builtinPaths(item)
     local folder = tostring(self.Folder or "VantaTest/Music")
-    return join(folder, item.LocalStem .. ".mp3"), join(folder, item.LocalStem .. ".jpg")
+    return join(folder, item.LocalStem .. ".ogg"), join(folder, item.LocalStem .. ".jpg")
 end
 
 function MusicPlayer:_builtinMarkerPath()
@@ -155,12 +154,12 @@ function MusicPlayer:_downloadBuiltin(item)
     end
 
     local audioPath, coverPath = self:_builtinPaths(item)
-    local audio, audioError = fetchBinary(RAW_ROOT .. item.AudioRemote, 100000)
+    local audio, audioError = fetchBinary(RAW_ROOT .. item.AudioRemote, 50000)
     if not audio then
         return false, item.Title .. " audio: " .. tostring(audioError)
     end
 
-    local cover, coverError = fetchBinary(RAW_ROOT .. item.CoverRemote, 1000)
+    local cover, coverError = fetchBinary(RAW_ROOT .. item.CoverRemote, 500)
     if not cover then
         return false, item.Title .. " cover: " .. tostring(coverError)
     end
@@ -206,7 +205,7 @@ function MusicPlayer:_finishBuiltinInstall(success, errorMessage)
             self:_selectFirstBuiltin()
         elseif self.UI.Empty and #self.Tracks == 0 then
             self.UI.Empty.Visible = true
-            self.UI.Empty.Text = "Built-in music download failed  •  tap ↻ to retry"
+            self.UI.Empty.Text = "Couldn't cache Vanta music  •  tap ↻ to retry"
         end
     end
 end
@@ -234,7 +233,7 @@ function MusicPlayer:_ensureBuiltins(force)
 
     if self.UI and self.UI.Empty and #self.Tracks == 0 then
         self.UI.Empty.Visible = true
-        self.UI.Empty.Text = "Downloading Vanta music…"
+        self.UI.Empty.Text = "Getting Vanta music…"
     end
 
     task.spawn(function()
@@ -278,8 +277,8 @@ function MusicPlayer:Refresh()
     if self.UI and self.UI.Empty and #self.Tracks == 0 then
         self.UI.Empty.Visible = true
         self.UI.Empty.Text = self._BuiltinInstalling
-            and "Downloading Vanta music…"
-            or "Getting built-in music…"
+            and "Getting Vanta music…"
+            or "Preparing built-in music…"
     end
 
     self:_ensureBuiltins(self._BuiltinInstallError ~= nil)
@@ -291,11 +290,11 @@ function MusicPlayer:Show()
     if self.UI and self.UI.Empty and #self.Tracks == 0 then
         self.UI.Empty.Visible = true
         if self._BuiltinInstalling then
-            self.UI.Empty.Text = "Downloading Vanta music…"
+            self.UI.Empty.Text = "Getting Vanta music…"
         elseif self._BuiltinInstallError then
-            self.UI.Empty.Text = "Built-in music download failed  •  tap ↻ to retry"
+            self.UI.Empty.Text = "Couldn't cache Vanta music  •  tap ↻ to retry"
         else
-            self.UI.Empty.Text = "Getting built-in music…"
+            self.UI.Empty.Text = "Preparing built-in music…"
         end
     end
 end
@@ -334,9 +333,9 @@ function MusicPlayer:_renderList()
     if #self.Tracks == 0 and self.UI.Empty then
         self.UI.Empty.Visible = true
         if self._BuiltinInstalling then
-            self.UI.Empty.Text = "Downloading Vanta music…"
+            self.UI.Empty.Text = "Getting Vanta music…"
         elseif self._BuiltinInstallError then
-            self.UI.Empty.Text = "Built-in music download failed  •  tap ↻ to retry"
+            self.UI.Empty.Text = "Couldn't cache Vanta music  •  tap ↻ to retry"
         end
     end
 
