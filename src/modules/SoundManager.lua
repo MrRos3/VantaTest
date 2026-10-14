@@ -37,6 +37,11 @@ local Events = {
 	"Error",
 }
 
+local MUTED_EVENTS = {
+	Notification = true,
+	NotificationClose = true,
+}
+
 local Assets = {
 	["soft-pop"] = "soft-pop.wav",
 	["soft-tick"] = "soft-tick.wav",
@@ -58,8 +63,8 @@ local Presets = {
 		SliderTick = { Sound = "soft-tick", Volume = 0.24, Pitch = 1.28 },
 		InputFocus = { Sound = "soft-tick", Volume = 0.34, Pitch = 1.16 },
 		InputSubmit = { Sound = "soft-pop", Volume = 0.55, Pitch = 1 },
-		Notification = { Sound = "soft-pop", Volume = 0.76, Pitch = 0.96 },
-		NotificationClose = { Sound = "soft-tick", Volume = 0.4, Pitch = 0.76 },
+		Notification = false,
+		NotificationClose = false,
 		WindowOpen = { Sound = "soft-pop", Volume = 0.8, Pitch = 0.82 },
 		WindowClose = { Sound = "soft-tick", Volume = 0.64, Pitch = 0.7 },
 		Success = { Sound = "soft-pop", Volume = 0.82, Pitch = 1.18 },
@@ -77,8 +82,8 @@ local Presets = {
 		SliderTick = { Sound = "minimal-tick", Volume = 0.24, Pitch = 1.28 },
 		InputFocus = { Sound = "minimal-tick", Volume = 0.34, Pitch = 1.16 },
 		InputSubmit = { Sound = "minimal-confirm", Volume = 0.55, Pitch = 1 },
-		Notification = { Sound = "minimal-confirm", Volume = 0.76, Pitch = 0.96 },
-		NotificationClose = { Sound = "minimal-tick", Volume = 0.4, Pitch = 0.76 },
+		Notification = false,
+		NotificationClose = false,
 		WindowOpen = { Sound = "minimal-confirm", Volume = 0.8, Pitch = 0.82 },
 		WindowClose = { Sound = "minimal-tick", Volume = 0.64, Pitch = 0.7 },
 		Success = { Sound = "minimal-confirm", Volume = 0.82, Pitch = 1.18 },
@@ -147,10 +152,13 @@ function SoundManager:Init(WindUI)
 		Pitch = 1,
 		Folder = "VantaUI",
 		BaseUrl = DEFAULT_BASE_URL,
-		Overrides = {},
+		Overrides = {
+			Notification = false,
+			NotificationClose = false,
+		},
 		Assets = {},
 	}
-	self.ActiveMap = copyTable(Presets.Soft)
+	self:_refreshMap()
 	return self
 end
 
@@ -164,6 +172,7 @@ end
 
 function SoundManager:_download(url)
 	local errors = {}
+
 	if game.HttpGet then
 		local success, body = pcall(function()
 			return game:HttpGet(url)
@@ -201,6 +210,7 @@ function SoundManager:_sourceFor(soundName)
 	if Assets[soundName] and not string.match(source, "^https?://") and not string.match(source, "^rbxasset") then
 		return self.Config.BaseUrl:gsub("/+$", "") .. "/" .. source
 	end
+
 	return source
 end
 
@@ -265,11 +275,14 @@ function SoundManager:_loadSoundId(soundName)
 end
 
 function SoundManager:_playEntry(eventName, entry, options)
+	if MUTED_EVENTS[eventName] then
+		return false
+	end
 	if not entry or entry == false or not entry.Sound then
 		return false
 	end
-	options = options or {}
 
+	options = options or {}
 	local now = os.clock()
 	local rateLimit = tonumber(options.RateLimit) or RateLimits[eventName] or 0
 	if not options.Force and now - (self.LastPlayed[eventName] or 0) < rateLimit then
@@ -282,20 +295,13 @@ function SoundManager:_playEntry(eventName, entry, options)
 		local sound = Instance.new("Sound")
 		sound.Name = "VantaUI_" .. sanitize(eventName)
 		sound.SoundId = soundId
-		sound.Volume = math.clamp(
-			(tonumber(options.Volume) or tonumber(entry.Volume) or 1) * self.Config.Volume,
-			0,
-			10
-		)
-		sound.PlaybackSpeed = math.clamp(
-			(tonumber(options.Pitch) or tonumber(entry.Pitch) or 1) * self.Config.Pitch,
-			0.25,
-			4
-		)
+		sound.Volume = math.clamp((tonumber(options.Volume) or tonumber(entry.Volume) or 1) * self.Config.Volume, 0, 10)
+		sound.PlaybackSpeed = math.clamp((tonumber(options.Pitch) or tonumber(entry.Pitch) or 1) * self.Config.Pitch, 0.25, 4)
 		sound.Parent = SoundService
 		sound:Play()
 		Debris:AddItem(sound, 6)
 	end)
+
 	return true
 end
 
@@ -304,6 +310,8 @@ function SoundManager:_refreshMap()
 	for eventName, override in pairs(self.Config.Overrides) do
 		self.ActiveMap[eventName] = mergeEntry(self.ActiveMap[eventName], override)
 	end
+	self.ActiveMap.Notification = false
+	self.ActiveMap.NotificationClose = false
 end
 
 function SoundManager:Configure(config)
@@ -311,8 +319,8 @@ function SoundManager:Configure(config)
 		self.Config.Enabled = false
 		return self:GetConfig()
 	end
-	config = config or {}
 
+	config = config or {}
 	if config.Enabled ~= nil then
 		self.Config.Enabled = config.Enabled == true
 	end
@@ -338,14 +346,20 @@ function SoundManager:Configure(config)
 	end
 	if typeof(config.Overrides) == "table" then
 		for eventName, entry in pairs(config.Overrides) do
-			self.Config.Overrides[eventName] = typeof(entry) == "table" and copyTable(entry) or entry
+			if not MUTED_EVENTS[eventName] then
+				self.Config.Overrides[eventName] = typeof(entry) == "table" and copyTable(entry) or entry
+			end
 		end
 	end
 
+	self.Config.Overrides.Notification = false
+	self.Config.Overrides.NotificationClose = false
 	self:_refreshMap()
+
 	if self.Config.Enabled then
 		self:PreloadPreset()
 	end
+
 	return self:GetConfig()
 end
 
@@ -383,6 +397,12 @@ function SoundManager:SetSoundForEvent(eventName, sound, options)
 	if not table.find(Events, eventName) then
 		return false
 	end
+	if MUTED_EVENTS[eventName] then
+		self.Config.Overrides[eventName] = false
+		self:_refreshMap()
+		return false
+	end
+
 	if sound == false then
 		self.Config.Overrides[eventName] = false
 	else
@@ -392,22 +412,33 @@ function SoundManager:SetSoundForEvent(eventName, sound, options)
 		end
 		self.Config.Overrides[eventName] = entry
 	end
+
 	self:_refreshMap()
 	return true
 end
 
 function SoundManager:ClearSoundOverride(eventName)
-	self.Config.Overrides[eventName] = nil
+	if MUTED_EVENTS[eventName] then
+		self.Config.Overrides[eventName] = false
+	else
+		self.Config.Overrides[eventName] = nil
+	end
 	self:_refreshMap()
 end
 
 function SoundManager:ClearSoundOverrides()
-	self.Config.Overrides = {}
+	self.Config.Overrides = {
+		Notification = false,
+		NotificationClose = false,
+	}
 	self:_refreshMap()
 end
 
 function SoundManager:Play(eventName, options)
 	options = options or {}
+	if MUTED_EVENTS[eventName] then
+		return false
+	end
 	if not self.Config.Enabled and not options.Force then
 		return false
 	end
@@ -428,10 +459,11 @@ function SoundManager:PreloadPreset()
 	if not self.Config.Enabled then
 		return
 	end
+
 	task.spawn(function()
 		local seen = {}
-		for _, entry in pairs(self.ActiveMap) do
-			if entry and entry.Sound and not seen[entry.Sound] then
+		for eventName, entry in pairs(self.ActiveMap) do
+			if not MUTED_EVENTS[eventName] and entry and entry.Sound and not seen[entry.Sound] then
 				seen[entry.Sound] = true
 				self:_loadSoundId(entry.Sound)
 			end

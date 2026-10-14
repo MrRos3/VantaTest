@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.3.5  |  2026-09-06  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.8  |  2026-10-12  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaUI
     Project: VantaUI by MrRos3
@@ -616,15 +616,45 @@ local i=a.load'a'local j=
 
 d.Heartbeat
 
-local l="https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"
+local l={
+"https://cdn.jsdelivr.net/gh/Footagesus/Icons@46d30c19ba7bc601d6ec794a48dc3a89568b1eec/Main-v2.lua",
+"https://raw.githubusercontent.com/Footagesus/Icons/46d30c19ba7bc601d6ec794a48dc3a89568b1eec/Main-v2.lua",
+}
 
 local m
-if d:IsStudio()or not writefile then
+if d:IsStudio()then
 m=a.load'b'
 else
-m=loadstring(
-game.HttpGet and game:HttpGet(l)or h:GetAsync(l)
-)()
+local iconErrors={}
+for _,iconUrl in ipairs(l)do
+local fetchOk,iconSource=pcall(function()
+return game.HttpGet and game:HttpGet(iconUrl)or h:GetAsync(iconUrl)
+end)
+if fetchOk and type(iconSource)=="string"and#iconSource>100 then
+iconSource=iconSource:gsub("return request and true or false","return true",1)
+iconSource=iconSource:gsub(
+"https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/",
+"https://cdn.jsdelivr.net/gh/Footagesus/Icons@46d30c19ba7bc601d6ec794a48dc3a89568b1eec/"
+)
+local iconChunk,iconCompileError=loadstring(iconSource)
+if type(iconChunk)=="function"then
+local runOk,iconLibrary=pcall(iconChunk)
+if runOk and type(iconLibrary)=="table"and type(iconLibrary.SetIconsType)=="function"then
+m=iconLibrary
+break
+else
+table.insert(iconErrors,"runtime: "..tostring(iconLibrary))
+end
+else
+table.insert(iconErrors,"compile: "..tostring(iconCompileError))
+end
+else
+table.insert(iconErrors,"fetch: "..tostring(iconUrl))
+end
+end
+if type(m)~="table"then
+error("[VantaUI] Failed to load Lucide icon runtime: "..table.concat(iconErrors," | "),0)
+end
 end
 
 m.SetIconsType"lucide"
@@ -1729,6 +1759,11 @@ local i={
 }
 
 local l={
+Notification=true,
+NotificationClose=true,
+}
+
+local m={
 ["soft-pop"]="soft-pop.wav",
 ["soft-tick"]="soft-tick.wav",
 ["minimal-tick"]="minimal-tick.wav",
@@ -1736,7 +1771,7 @@ local l={
 ["error-buzz"]="error-buzz.wav",
 }
 
-local m={
+local p={
 Soft={
 Hover={Sound="soft-tick",Volume=0.18,Pitch=1.22},
 Click={Sound="soft-tick",Volume=0.72,Pitch=1},
@@ -1749,8 +1784,8 @@ Select={Sound="soft-tick",Volume=0.62,Pitch=1.08},
 SliderTick={Sound="soft-tick",Volume=0.24,Pitch=1.28},
 InputFocus={Sound="soft-tick",Volume=0.34,Pitch=1.16},
 InputSubmit={Sound="soft-pop",Volume=0.55,Pitch=1},
-Notification={Sound="soft-pop",Volume=0.76,Pitch=0.96},
-NotificationClose={Sound="soft-tick",Volume=0.4,Pitch=0.76},
+Notification=false,
+NotificationClose=false,
 WindowOpen={Sound="soft-pop",Volume=0.8,Pitch=0.82},
 WindowClose={Sound="soft-tick",Volume=0.64,Pitch=0.7},
 Success={Sound="soft-pop",Volume=0.82,Pitch=1.18},
@@ -1768,8 +1803,8 @@ Select={Sound="minimal-tick",Volume=0.62,Pitch=1.08},
 SliderTick={Sound="minimal-tick",Volume=0.24,Pitch=1.28},
 InputFocus={Sound="minimal-tick",Volume=0.34,Pitch=1.16},
 InputSubmit={Sound="minimal-confirm",Volume=0.55,Pitch=1},
-Notification={Sound="minimal-confirm",Volume=0.76,Pitch=0.96},
-NotificationClose={Sound="minimal-tick",Volume=0.4,Pitch=0.76},
+Notification=false,
+NotificationClose=false,
 WindowOpen={Sound="minimal-confirm",Volume=0.8,Pitch=0.82},
 WindowClose={Sound="minimal-tick",Volume=0.64,Pitch=0.7},
 Success={Sound="minimal-confirm",Volume=0.82,Pitch=1.18},
@@ -1777,383 +1812,410 @@ Error={Sound="error-buzz",Volume=0.7,Pitch=1},
 },
 }
 
-local p={
+local r={
 Hover=0.075,
 SliderTick=0.045,
 Click=0.025,
 Tab=0.04,
 }
 
-local function copyTable(r)
-local u={}
-if typeof(r)=="table"then
-for v,x in pairs(r)do
-u[v]=typeof(x)=="table"and copyTable(x)or x
-end
-end
-return u
-end
-
-local function sanitize(r)
-return tostring(r):gsub("[^%w%-_]","_"):sub(1,80)
-end
-
-local function ensureFolder(r)
-if not makefolder then
-return
-end
-
-local u=""
-for v in string.gmatch(r,"[^/]+")do
-u=u==""and v or u.."/"..v
-if not isfolder or not isfolder(u)then
-pcall(makefolder,u)
-end
-end
-end
-
-local function mergeEntry(r,u)
-if u==false then
-return false
-end
-if typeof(u)=="string"then
-u={Sound=u}
-end
-
-local v=copyTable(r)
+local function copyTable(u)
+local v={}
 if typeof(u)=="table"then
 for x,z in pairs(u)do
-v[x]=z
+v[x]=typeof(z)=="table"and copyTable(z)or z
 end
 end
 return v
 end
 
-function f.Init(r,u)
-r.WindUI=u
-r.Config={
+local function sanitize(u)
+return tostring(u):gsub("[^%w%-_]","_"):sub(1,80)
+end
+
+local function ensureFolder(u)
+if not makefolder then
+return
+end
+
+local v=""
+for x in string.gmatch(u,"[^/]+")do
+v=v==""and x or v.."/"..x
+if not isfolder or not isfolder(v)then
+pcall(makefolder,v)
+end
+end
+end
+
+local function mergeEntry(u,v)
+if v==false then
+return false
+end
+if typeof(v)=="string"then
+v={Sound=v}
+end
+
+local x=copyTable(u)
+if typeof(v)=="table"then
+for z,A in pairs(v)do
+x[z]=A
+end
+end
+return x
+end
+
+function f.Init(u,v)
+u.WindUI=v
+u.Config={
 Enabled=true,
 Preset="Soft",
 Volume=0.45,
 Pitch=1,
 Folder="VantaUI",
 BaseUrl=g,
-Overrides={},
+Overrides={
+Notification=false,
+NotificationClose=false,
+},
 Assets={},
 }
-r.ActiveMap=copyTable(m.Soft)
-return r
+u:_refreshMap()
+return u
 end
 
-function f._warnOnce(r,u,v)
-if r.Warned[u]then
+function f._warnOnce(u,v,x)
+if u.Warned[v]then
 return
 end
-r.Warned[u]=true
-warn("[VantaUI Sounds] "..v)
+u.Warned[v]=true
+warn("[VantaUI Sounds] "..x)
 end
 
-function f._download(r,u)
-local v={}
+function f._download(u,v)
+local x={}
+
 if game.HttpGet then
-local x,z=pcall(function()
-return game:HttpGet(u)
+local z,A=pcall(function()
+return game:HttpGet(v)
 end)
-if x and typeof(z)=="string"and#z>0 then
-return z
+if z and typeof(A)=="string"and#A>0 then
+return A
 end
-table.insert(v,tostring(z))
+table.insert(x,tostring(A))
 end
 
-if r.Request then
-local x,z=pcall(function()
-return r.Request{
-Url=u,
+if u.Request then
+local z,A=pcall(function()
+return u.Request{
+Url=v,
 Method="GET",
 Headers={["User-Agent"]="Roblox/Executor"},
 }
 end)
-local A=x and typeof(z)=="table"and(z.Body or z.body)or z
-if x and typeof(A)=="string"and#A>0 then
-return A
+local B=z and typeof(A)=="table"and(A.Body or A.body)or A
+if z and typeof(B)=="string"and#B>0 then
+return B
 end
-table.insert(v,tostring(z))
-end
-
-error("Unable to download sound: "..table.concat(v,"; "))
+table.insert(x,tostring(A))
 end
 
-function f._sourceFor(r,u)
-local v=r.Config.Assets[u]or l[u]or u
-if typeof(v)~="string"then
+error("Unable to download sound: "..table.concat(x,"; "))
+end
+
+function f._sourceFor(u,v)
+local x=u.Config.Assets[v]or m[v]or v
+if typeof(x)~="string"then
 return nil
 end
 
-if l[u]and not string.match(v,"^https?://")and not string.match(v,"^rbxasset")then
-return r.Config.BaseUrl:gsub("/+$","").."/"..v
-end
-return v
+if m[v]and not string.match(x,"^https?://")and not string.match(x,"^rbxasset")then
+return u.Config.BaseUrl:gsub("/+$","").."/"..x
 end
 
-function f._loadSoundId(r,u)
-local v=r:_sourceFor(u)
-if not v then
+return x
+end
+
+function f._loadSoundId(u,v)
+local x=u:_sourceFor(v)
+if not x then
 return h
 end
-if string.match(v,"^rbxasset")or string.match(v,"^synasset")then
-return v
+if string.match(x,"^rbxasset")or string.match(x,"^synasset")then
+return x
 end
-if not string.match(v,"^https?://")then
-return v
+if not string.match(x,"^https?://")then
+return x
 end
-if r.Cache[v]then
-return r.Cache[v]
+if u.Cache[x]then
+return u.Cache[x]
 end
 
-while r.Loading[v]do
+while u.Loading[x]do
 task.wait()
 end
-if r.Cache[v]then
-return r.Cache[v]
+if u.Cache[x]then
+return u.Cache[x]
 end
 
-local x=getcustomasset or getsynasset
-if not writefile or not x then
-r:_warnOnce("unsupported","This executor cannot load downloaded audio, so the built-in fallback sound is being used.")
-r.Cache[v]=h
+local z=getcustomasset or getsynasset
+if not writefile or not z then
+u:_warnOnce("unsupported","This executor cannot load downloaded audio, so the built-in fallback sound is being used.")
+u.Cache[x]=h
 return h
 end
 
-r.Loading[v]=true
-local z,A=pcall(function()
-local z=v:match"^([^?#]+)"or v
-local A=z:match"%.([%w]+)$"or"wav"
-local B="WindUI/"..sanitize(r.Config.Folder).."/sounds"
-local C=B.."/"..sanitize(u).."."..string.lower(A)
-ensureFolder(B)
+u.Loading[x]=true
+local A,B=pcall(function()
+local A=x:match"^([^?#]+)"or x
+local B=A:match"%.([%w]+)$"or"wav"
+local C="WindUI/"..sanitize(u.Config.Folder).."/sounds"
+local F=C.."/"..sanitize(v).."."..string.lower(B)
+ensureFolder(C)
 
-if not isfile or not isfile(C)then
-writefile(C,r:_download(v))
+if not isfile or not isfile(F)then
+writefile(F,u:_download(x))
 end
 
-local F,G=pcall(x,C)
-if not F then
-writefile(C,r:_download(v))
-G=x(C)
+local G,H=pcall(z,F)
+if not G then
+writefile(F,u:_download(x))
+H=z(F)
 end
-return G
+return H
 end)
-r.Loading[v]=nil
+u.Loading[x]=nil
 
-if z and A then
-r.Cache[v]=A
-return A
+if A and B then
+u.Cache[x]=B
+return B
 end
 
-r:_warnOnce(v,"Could not load "..tostring(u)..": "..tostring(A))
-r.Cache[v]=h
+u:_warnOnce(x,"Could not load "..tostring(v)..": "..tostring(B))
+u.Cache[x]=h
 return h
 end
 
-function f._playEntry(r,u,v,x)
-if not v or v==false or not v.Sound then
+function f._playEntry(u,v,x,z)
+if l[v]then
 return false
 end
-x=x or{}
+if not x or x==false or not x.Sound then
+return false
+end
 
-local z=os.clock()
-local A=tonumber(x.RateLimit)or p[u]or 0
-if not x.Force and z-(r.LastPlayed[u]or 0)<A then
+z=z or{}
+local A=os.clock()
+local B=tonumber(z.RateLimit)or r[v]or 0
+if not z.Force and A-(u.LastPlayed[v]or 0)<B then
 return false
 end
-r.LastPlayed[u]=z
+u.LastPlayed[v]=A
 
 task.spawn(function()
-local B=r:_loadSoundId(v.Sound)
-local C=Instance.new"Sound"
-C.Name="VantaUI_"..sanitize(u)
-C.SoundId=B
-C.Volume=math.clamp(
-(tonumber(x.Volume)or tonumber(v.Volume)or 1)*r.Config.Volume,
-0,
-10
-)
-C.PlaybackSpeed=math.clamp(
-(tonumber(x.Pitch)or tonumber(v.Pitch)or 1)*r.Config.Pitch,
-0.25,
-4
-)
-C.Parent=e
-C:Play()
-d:AddItem(C,6)
+local C=u:_loadSoundId(x.Sound)
+local F=Instance.new"Sound"
+F.Name="VantaUI_"..sanitize(v)
+F.SoundId=C
+F.Volume=math.clamp((tonumber(z.Volume)or tonumber(x.Volume)or 1)*u.Config.Volume,0,10)
+F.PlaybackSpeed=math.clamp((tonumber(z.Pitch)or tonumber(x.Pitch)or 1)*u.Config.Pitch,0.25,4)
+F.Parent=e
+F:Play()
+d:AddItem(F,6)
 end)
+
 return true
 end
 
-function f._refreshMap(r)
-r.ActiveMap=copyTable(m[r.Config.Preset]or m.Soft)
-for u,v in pairs(r.Config.Overrides)do
-r.ActiveMap[u]=mergeEntry(r.ActiveMap[u],v)
+function f._refreshMap(u)
+u.ActiveMap=copyTable(p[u.Config.Preset]or p.Soft)
+for v,x in pairs(u.Config.Overrides)do
+u.ActiveMap[v]=mergeEntry(u.ActiveMap[v],x)
 end
-end
-
-function f.Configure(r,u)
-if u==false then
-r.Config.Enabled=false
-return r:GetConfig()
-end
-u=u or{}
-
-if u.Enabled~=nil then
-r.Config.Enabled=u.Enabled==true
-end
-if u.Preset and m[u.Preset]then
-r.Config.Preset=u.Preset
-end
-if u.Volume~=nil then
-r.Config.Volume=math.clamp(tonumber(u.Volume)or r.Config.Volume,0,2)
-end
-if u.Pitch~=nil then
-r.Config.Pitch=math.clamp(tonumber(u.Pitch)or r.Config.Pitch,0.5,2)
-end
-if u.Folder then
-r.Config.Folder=tostring(u.Folder)
-end
-if u.BaseUrl then
-r.Config.BaseUrl=tostring(u.BaseUrl)
-end
-if typeof(u.Assets)=="table"then
-for v,x in pairs(u.Assets)do
-r.Config.Assets[v]=x
-end
-end
-if typeof(u.Overrides)=="table"then
-for v,x in pairs(u.Overrides)do
-r.Config.Overrides[v]=typeof(x)=="table"and copyTable(x)or x
-end
+u.ActiveMap.Notification=false
+u.ActiveMap.NotificationClose=false
 end
 
-r:_refreshMap()
-if r.Config.Enabled then
-r:PreloadPreset()
-end
-return r:GetConfig()
-end
-
-function f.SetEnabled(r,u)
-r.Config.Enabled=u==true
-if r.Config.Enabled then
-r:PreloadPreset()
-end
-return r.Config.Enabled
-end
-
-function f.SetPreset(r,u)
-if not m[u]then
-return false
-end
-r.Config.Preset=u
-r:_refreshMap()
-if r.Config.Enabled then
-r:PreloadPreset()
-end
-return true
-end
-
-function f.SetVolume(r,u)
-r.Config.Volume=math.clamp(tonumber(u)or r.Config.Volume,0,2)
-return r.Config.Volume
-end
-
-function f.SetPitch(r,u)
-r.Config.Pitch=math.clamp(tonumber(u)or r.Config.Pitch,0.5,2)
-return r.Config.Pitch
-end
-
-function f.SetSoundForEvent(r,u,v,x)
-if not table.find(i,u)then
-return false
-end
+function f.Configure(u,v)
 if v==false then
-r.Config.Overrides[u]=false
-else
-local z=typeof(v)=="table"and copyTable(v)or copyTable(x)
-if typeof(v)=="string"then
-z.Sound=v
+u.Config.Enabled=false
+return u:GetConfig()
 end
-r.Config.Overrides[u]=z
+
+v=v or{}
+if v.Enabled~=nil then
+u.Config.Enabled=v.Enabled==true
 end
-r:_refreshMap()
+if v.Preset and p[v.Preset]then
+u.Config.Preset=v.Preset
+end
+if v.Volume~=nil then
+u.Config.Volume=math.clamp(tonumber(v.Volume)or u.Config.Volume,0,2)
+end
+if v.Pitch~=nil then
+u.Config.Pitch=math.clamp(tonumber(v.Pitch)or u.Config.Pitch,0.5,2)
+end
+if v.Folder then
+u.Config.Folder=tostring(v.Folder)
+end
+if v.BaseUrl then
+u.Config.BaseUrl=tostring(v.BaseUrl)
+end
+if typeof(v.Assets)=="table"then
+for x,z in pairs(v.Assets)do
+u.Config.Assets[x]=z
+end
+end
+if typeof(v.Overrides)=="table"then
+for x,z in pairs(v.Overrides)do
+if not l[x]then
+u.Config.Overrides[x]=typeof(z)=="table"and copyTable(z)or z
+end
+end
+end
+
+u.Config.Overrides.Notification=false
+u.Config.Overrides.NotificationClose=false
+u:_refreshMap()
+
+if u.Config.Enabled then
+u:PreloadPreset()
+end
+
+return u:GetConfig()
+end
+
+function f.SetEnabled(u,v)
+u.Config.Enabled=v==true
+if u.Config.Enabled then
+u:PreloadPreset()
+end
+return u.Config.Enabled
+end
+
+function f.SetPreset(u,v)
+if not p[v]then
+return false
+end
+u.Config.Preset=v
+u:_refreshMap()
+if u.Config.Enabled then
+u:PreloadPreset()
+end
 return true
 end
 
-function f.ClearSoundOverride(r,u)
-r.Config.Overrides[u]=nil
-r:_refreshMap()
+function f.SetVolume(u,v)
+u.Config.Volume=math.clamp(tonumber(v)or u.Config.Volume,0,2)
+return u.Config.Volume
 end
 
-function f.ClearSoundOverrides(r)
-r.Config.Overrides={}
-r:_refreshMap()
+function f.SetPitch(u,v)
+u.Config.Pitch=math.clamp(tonumber(v)or u.Config.Pitch,0.5,2)
+return u.Config.Pitch
 end
 
-function f.Play(r,u,v)
-v=v or{}
-if not r.Config.Enabled and not v.Force then
+function f.SetSoundForEvent(u,v,x,z)
+if not table.find(i,v)then
 return false
 end
-return r:_playEntry(u,r.ActiveMap[u],v)
+if l[v]then
+u.Config.Overrides[v]=false
+u:_refreshMap()
+return false
 end
 
-function f.Preview(r,u,v)
-v=copyTable(v)
-v.Force=true
-return r:_playEntry("Preview_"..tostring(u),{
-Sound=u,
+if x==false then
+u.Config.Overrides[v]=false
+else
+local A=typeof(x)=="table"and copyTable(x)or copyTable(z)
+if typeof(x)=="string"then
+A.Sound=x
+end
+u.Config.Overrides[v]=A
+end
+
+u:_refreshMap()
+return true
+end
+
+function f.ClearSoundOverride(u,v)
+if l[v]then
+u.Config.Overrides[v]=false
+else
+u.Config.Overrides[v]=nil
+end
+u:_refreshMap()
+end
+
+function f.ClearSoundOverrides(u)
+u.Config.Overrides={
+Notification=false,
+NotificationClose=false,
+}
+u:_refreshMap()
+end
+
+function f.Play(u,v,x)
+x=x or{}
+if l[v]then
+return false
+end
+if not u.Config.Enabled and not x.Force then
+return false
+end
+return u:_playEntry(v,u.ActiveMap[v],x)
+end
+
+function f.Preview(u,v,x)
+x=copyTable(x)
+x.Force=true
+return u:_playEntry("Preview_"..tostring(v),{
+Sound=v,
 Volume=0.82,
 Pitch=1,
-},v)
+},x)
 end
 
-function f.PreloadPreset(r)
-if not r.Config.Enabled then
+function f.PreloadPreset(u)
+if not u.Config.Enabled then
 return
 end
+
 task.spawn(function()
-local u={}
-for v,x in pairs(r.ActiveMap)do
-if x and x.Sound and not u[x.Sound]then
-u[x.Sound]=true
-r:_loadSoundId(x.Sound)
+local v={}
+for x,z in pairs(u.ActiveMap)do
+if not l[x]and z and z.Sound and not v[z.Sound]then
+v[z.Sound]=true
+u:_loadSoundId(z.Sound)
 end
 end
 end)
 end
 
-function f.GetConfig(r)
-return copyTable(r.Config)
+function f.GetConfig(u)
+return copyTable(u.Config)
 end
 
-function f.GetEvents(r)
+function f.GetEvents(u)
 return copyTable(i)
 end
 
-function f.GetPresetNames(r)
+function f.GetPresetNames(u)
 return{"Soft","Minimal"}
 end
 
-function f.GetSoundNames(r)
-local u={}
-for v in pairs(l)do
-table.insert(u,v)
+function f.GetSoundNames(u)
+local v={}
+for x in pairs(m)do
+table.insert(v,x)
 end
-for v in pairs(r.Config.Assets)do
-if not table.find(u,v)then
-table.insert(u,v)
+for x in pairs(u.Config.Assets)do
+if not table.find(v,x)then
+table.insert(v,x)
 end
 end
-table.sort(u)
-return u
+table.sort(v)
+return v
 end
 
 return f end function a.f()
@@ -3019,7 +3081,8 @@ New=a.load'k'.New
 return[[
 {
     "name": "mrros3-vantaui",
-    "version": "0.3.5",
+    "version": "0.3.8",
+    "private": false,
     "main": "./dist/main.lua",
     "repository": "https://github.com/MrRos3/VantaUI",
     "author": "MrRos3",
@@ -13635,12 +13698,12 @@ Branding=aw,
 BrandImage=ax,
 Folder=av.Folder,
 Resizable=av.Resizable~=false,
-Background=av.Background,
-BackgroundImageTransparency=av.BackgroundImageTransparency or 0,
+Background=av.Background or"https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/salty-special.png",
+BackgroundImageTransparency=av.BackgroundImageTransparency or 0.32,
 ShadowTransparency=av.ShadowTransparency or 0.6,
 User=av.User or{},
 Footer=av.Footer or{},
-Topbar=av.Topbar or{Height=52,ButtonsType="Default"},
+Topbar={Height=(typeof(av.Topbar)=="table"and av.Topbar.Height)or 44,ButtonsType="Mac"},
 
 Size=av.Size,
 
@@ -13653,11 +13716,11 @@ ToggleKey=av.ToggleKey,
 ElementsRadius=av.ElementsRadius,
 Radius=av.Radius or 16,
 Transparent=av.Transparent or false,
-HideSearchBar=av.HideSearchBar~=false,
+HideSearchBar=true,
 ScrollBarEnabled=av.ScrollBarEnabled or false,
 SideBarWidth=av.SideBarWidth or 200,
 Acrylic=av.Acrylic or false,
-NewElements=av.NewElements or false,
+NewElements=true,
 IgnoreAlerts=av.IgnoreAlerts or false,
 HidePanelBackground=av.HidePanelBackground or false,
 AutoScale=av.AutoScale~=false,
@@ -13709,7 +13772,7 @@ UIPadding=(aB.NewElements and 10 or 13),
 UICorner=aB.ElementsRadius or(aB.NewElements and 23 or 16),
 }
 
-local b=aB.Size or UDim2.new(0,580,0,460)
+local b=aB.Size or UDim2.fromOffset(620,420)
 aB.Size=UDim2.new(
 b.X.Scale,
 math.clamp(b.X.Offset,aB.MinSize.X,aB.MaxSize.X),
@@ -13718,7 +13781,7 @@ math.clamp(b.Y.Offset,aB.MinSize.Y,aB.MaxSize.Y)
 )
 
 if aB.Topbar=={}then
-aB.Topbar={Height=52,ButtonsType="Default"}
+aB.Topbar={Height=44,ButtonsType="Mac"}
 end
 
 if not ai:IsStudio()and aB.Folder and writefile then
@@ -15798,7 +15861,7 @@ return aB
 end end end
 
 local aa={
-Name="Gui",
+Name="VantaUI",
 Window=nil,
 Theme=nil,
 Creator=a.load'd',
@@ -15915,7 +15978,7 @@ Scale=aa.UIScale,
 aa.UIScaleObj=aA
 
 aa.ScreenGui=at("ScreenGui",{
-Name="Gui",
+Name="VantaUI",
 Parent=aw,
 IgnoreGuiInset=true,
 ScreenInsets="None",
@@ -15943,19 +16006,19 @@ Name="ToolTips",
 })
 
 aa.NotificationGui=at("ScreenGui",{
-Name="Gui/Notifications",
+Name="VantaUI/Notifications",
 Parent=aw,
 IgnoreGuiInset=true,
 DisplayOrder=ax+3,
 })
 aa.DropdownGui=at("ScreenGui",{
-Name="Gui/Dropdowns",
+Name="VantaUI/Dropdowns",
 Parent=aw,
 IgnoreGuiInset=true,
 DisplayOrder=ax+2,
 })
 aa.TooltipGui=at("ScreenGui",{
-Name="Gui/Tooltips",
+Name="VantaUI/Tooltips",
 Parent=aw,
 IgnoreGuiInset=true,
 DisplayOrder=ax+1,
@@ -16174,6 +16237,30 @@ end
 
 aa.Themes=a.load'w'(aa,as)
 
+aa.Themes["Salty Special"]={
+Name="Salty Special",
+Accent=Color3.fromHex"#12070A",
+Dialog=Color3.fromHex"#0A0709",
+Outline=Color3.fromHex"#5A1824",
+Text=Color3.fromHex"#FFFFFF",
+Placeholder=Color3.fromHex"#9A9AA3",
+Background=Color3.fromHex"#000000",
+Button=Color3.fromHex"#251016",
+Icon=Color3.fromHex"#E2DDE0",
+Toggle=Color3.fromHex"#A1162F",
+Slider=Color3.fromHex"#A1162F",
+Checkbox=Color3.fromHex"#D23A57",
+Primary=Color3.fromHex"#A1162F",
+SliderIcon=Color3.fromHex"#F1E3E7",
+PanelBackground=Color3.fromHex"#050406",
+PanelBackgroundTransparency=0.42,
+LabelBackground=Color3.fromHex"#0A080A",
+LabelBackgroundTransparency=0.08,
+ElementBackground=Color3.fromHex"#151116",
+ElementBackgroundTransparency=0.16,
+}
+
+
 aa.Themes["Gui Dark"]={
 Name="Gui Dark",
 Accent=Color3.fromHex"#151923",
@@ -16245,11 +16332,17 @@ ElementBackgroundTransparency=0,
 
 as.Themes=aa.Themes
 
-aa:SetTheme"Gui Dark"
+aa:SetTheme"Salty Special"
 aa:SetLanguage(as.Language)
 
 function aa.CreateWindow(aC,aD)
+aD=aD or{}
 local b=a.load'af'
+if aD.Branding==nil then
+local d="https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
+aD.Branding={Name="VANTA",Image=d,WindowIcon=d,OpenButtonIcon=d,
+IconSize=24,IconRadius=7,OpenButtonIconRadius=8}
+end
 
 if not am:IsStudio()and writefile then
 if not isfolder"Gui"then
@@ -16282,7 +16375,7 @@ aa:ConfigureSounds(d)
 
 local f=true
 
-local g=aa.Themes[aD.Theme or"Gui Dark"]
+local g=aa.Themes[aD.Theme or"Salty Special"]or aa.Theme
 
 
 as.SetTheme(g)

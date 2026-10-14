@@ -1,5 +1,5 @@
 local WindUI = {
-	Name = "Gui",
+	Name = "VantaUI",
 	Window = nil,
 	Theme = nil,
 	Creator = require("./modules/Creator"),
@@ -116,7 +116,7 @@ local UIScaleObj = New("UIScale", {
 WindUI.UIScaleObj = UIScaleObj
 
 WindUI.ScreenGui = New("ScreenGui", {
-	Name = "Gui",
+	Name = "VantaUI",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	ScreenInsets = "None",
@@ -144,19 +144,19 @@ WindUI.ScreenGui = New("ScreenGui", {
 })
 
 WindUI.NotificationGui = New("ScreenGui", {
-	Name = "Gui/Notifications",
+	Name = "VantaUI/Notifications",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	DisplayOrder = TOP_DISPLAY_ORDER + 3,
 })
 WindUI.DropdownGui = New("ScreenGui", {
-	Name = "Gui/Dropdowns",
+	Name = "VantaUI/Dropdowns",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	DisplayOrder = TOP_DISPLAY_ORDER + 2,
 })
 WindUI.TooltipGui = New("ScreenGui", {
-	Name = "Gui/Tooltips",
+	Name = "VantaUI/Tooltips",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	DisplayOrder = TOP_DISPLAY_ORDER + 1,
@@ -375,6 +375,30 @@ end
 
 WindUI.Themes = require("./themes/Init")(WindUI, Creator)
 
+WindUI.Themes["Salty Special"] = {
+	Name = "Salty Special",
+	Accent = Color3.fromHex("#12070A"),
+	Dialog = Color3.fromHex("#0A0709"),
+	Outline = Color3.fromHex("#5A1824"),
+	Text = Color3.fromHex("#FFFFFF"),
+	Placeholder = Color3.fromHex("#9A9AA3"),
+	Background = Color3.fromHex("#000000"),
+	Button = Color3.fromHex("#251016"),
+	Icon = Color3.fromHex("#E2DDE0"),
+	Toggle = Color3.fromHex("#A1162F"),
+	Slider = Color3.fromHex("#A1162F"),
+	Checkbox = Color3.fromHex("#D23A57"),
+	Primary = Color3.fromHex("#A1162F"),
+	SliderIcon = Color3.fromHex("#F1E3E7"),
+	PanelBackground = Color3.fromHex("#050406"),
+	PanelBackgroundTransparency = 0.42,
+	LabelBackground = Color3.fromHex("#0A080A"),
+	LabelBackgroundTransparency = 0.08,
+	ElementBackground = Color3.fromHex("#151116"),
+	ElementBackgroundTransparency = 0.16,
+}
+
+
 WindUI.Themes["Gui Dark"] = {
 	Name = "Gui Dark",
 	Accent = Color3.fromHex("#151923"),
@@ -446,11 +470,17 @@ WindUI.Themes["Gui Violet"] = {
 
 Creator.Themes = WindUI.Themes
 
-WindUI:SetTheme("Gui Dark")
+WindUI:SetTheme("Salty Special")
 WindUI:SetLanguage(Creator.Language)
 
 function WindUI:CreateWindow(Config)
+	Config = Config or {}
 	local CreateWindow = require("./components/window/Init")
+	if Config.Branding == nil then
+		local brand = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
+		Config.Branding = { Name = "VANTA", Image = brand, WindowIcon = brand, OpenButtonIcon = brand,
+			IconSize = 24, IconRadius = 7, OpenButtonIconRadius = 8 }
+	end
 
 	if not RunService:IsStudio() and writefile then
 		if not isfolder("Gui") then
@@ -483,7 +513,7 @@ function WindUI:CreateWindow(Config)
 
 	local CanLoadWindow = true
 
-	local Theme = WindUI.Themes[Config.Theme or "Gui Dark"]
+	local Theme = WindUI.Themes[Config.Theme or "Salty Special"] or WindUI.Theme
 
 	--WindUI.Theme = Theme
 	Creator.SetTheme(Theme)

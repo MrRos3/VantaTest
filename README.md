@@ -2,6 +2,16 @@
 
 A polished AMOLED-first Roblox UI library by **MrRos3**.
 
+## Current version
+
+**VantaUI 0.3.8** is the only active production version in this repository.
+
+The public loader always uses the current `dist/main.lua` runtime. The old stable-base chaining used by earlier 0.3.x builds has been removed.
+
+## Modern UI by default
+
+The old plain flat-card layout is retired as the default. Both the public `main.lua` loader and direct `dist/main.lua` use the Salty Special black/red theme, floral wallpaper, translucent rounded cards, compact three-dot topbar and clean sidebar without the legacy search field. The official Vanta launcher icon is automatic. Existing window/tab/element APIs, explicit backgrounds, and alternate themes remain available.
+
 ## Loader
 
 ```lua
@@ -13,15 +23,41 @@ local VantaUI = loadstring(game:HttpGet(
 
 ## Vanta brand identity
 
-VantaUI v0.3.4 automatically uses the official Vanta artwork for the window's top-left icon and keeps the minimized/open badge square and image-only. This applies even when an older script later edits the button with a title or outdated icon. The current artwork uses a versioned asset filename so executor caches cannot restore an older badge.
+VantaUI automatically uses the official Vanta artwork for the window icon and minimized/open badge unless custom branding is explicitly requested.
 
-Custom branding remains possible with `Branding = { UseDefault = false, Image = "..." }`. Set `Branding = false` only when a script intentionally should not use Vanta branding.
+Custom branding remains supported:
+
+```lua
+Branding = {
+    UseDefault = false,
+    Name = "SALTY",
+    Image = "https://example.com/brand.png",
+}
+```
+
+Set `Branding = false` only when a script intentionally should not use Vanta branding.
+
+## Default theme
+
+The production default is **Salty Special**.
+
+Built-in themes:
+
+- Salty Special
+- Vanta Smoked
+- Vanta Dark
+- Vanta AMOLED
+- Vanta Violet
+
+Salty Special automatically uses the Vanta wallpaper when the window does not provide a custom background.
 
 ## Interface sounds
 
-VantaUI v0.3.2 enables the selected **Soft** sound style by default, with Minimal still available as an alternative. Buttons, tabs, toggles, dropdowns, sliders, inputs, notifications, and window opening or closing use the small original sounds hosted in `assets/sounds`.
+VantaUI keeps its interface sound system for buttons, tabs, toggles, dropdowns, sliders, inputs, and window state.
 
-Supported executors cache the sounds in `WindUI/<folder>/sounds` and load them through `getcustomasset` or `getsynasset`. Executors without downloadable asset support use a built-in Roblox fallback. Sounds can be adjusted per window:
+**Notification open and notification close sounds are disabled in production.** They cannot be accidentally re-enabled by a preset or by clearing sound overrides.
+
+Sounds can still be adjusted per window:
 
 ```lua
 Sounds = {
@@ -32,47 +68,19 @@ Sounds = {
 }
 ```
 
-Set `Sounds = false` to mute a window. The runtime also exposes `SetSoundEnabled`, `SetSoundVolume`, `SetSoundPitch`, and `SetSoundForEvent` for live changes.
+Set `Sounds = false` to mute the entire window.
 
-## v0.3.5
+The runtime also exposes `SetSoundEnabled`, `SetSoundVolume`, `SetSoundPitch`, and `SetSoundForEvent` for live changes.
 
-- Windows now start on the first-created tab by default, regardless of its title.
-- `StartupTab` can still select a different tab by its title or numeric position.
+## 0.3.8 production notes
 
-## v0.3.4
-
-- Keeps default Vanta minimized branding square and image-only after any later `EditOpenButton` call.
-
-## v0.3.3
-
-- Official Vanta artwork is now the automatic window icon and minimized badge
-- Old script icon values are replaced unless Vanta branding is explicitly disabled
-- Versioned brand asset prevents stale executor image caches
-
-## v0.3.2
-
-- Soft GUI sound style selected as the production default
-- Minimal remains available through `SetSoundPreset("Minimal")`
-
-## v0.3.1
-
-- Minimal GUI sound style enabled by default
-- Separate cues for clicks, tabs, toggles, dropdowns, sliders, inputs, notifications, and window state
-- Per-window mute, volume, pitch, and event override controls
-
-## v0.3.0
-
-- Public brand is **VantaUI**
-- Default theme is **Vanta AMOLED**
-- Startup tab defaults to **Home**
-- Includes **Vanta Smoked**, **Vanta Dark**, **Vanta AMOLED**, and **Vanta Violet**
-- ON toggles stay green across all built-in themes
-- Compact capsule toggles and fixed dropdown second-click closing
-- Runtime GUI names use the `VantaUI` brand
-- Config storage defaults to `VantaUI/...`
-- Notifications default to the `VantaUI` title
-- Legacy theme aliases remain supported for compatibility
-- GitHub Actions automatically regenerates `dist/main.lua` when source files change
+- Public loader points directly at the current runtime
+- Executor compatibility repair is applied only when the raw dist runtime cannot compile directly
+- Vanta branding and Salty Special defaults are restored by the public loader
+- Notification and notification-close sounds are permanently muted
+- Lucide icon loading uses the repaired production runtime path
+- Startup tab selection supports both numeric index and title
+- GitHub Actions regenerates `dist/main.lua` from `src/` changes
 
 ## Example
 
@@ -84,12 +92,14 @@ loadstring(game:HttpGet(
 
 ## Project layout
 
-- `main.lua` - stable VantaUI public loader and customization layer
-- `dist/main.lua` - compiled runtime
+- `main.lua` - current VantaUI 0.3.8 public loader and customization layer
+- `dist/main.lua` - current compiled runtime
 - `src/` - editable UI source
 - `build/` - build tooling
 - `example.lua` - showcase and test script
 - `.github/workflows/build-gui.yml` - automatic source build
+
+There are no separate legacy runtime files kept as active versions. Older releases remain only in Git history.
 
 ## License
 

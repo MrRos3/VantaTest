@@ -61,12 +61,12 @@ return function(Config)
 		BrandImage = BrandImage,
 		Folder = Config.Folder,
 		Resizable = Config.Resizable ~= false,
-		Background = Config.Background,
-		BackgroundImageTransparency = Config.BackgroundImageTransparency or 0,
+		Background = Config.Background or "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/salty-special.png",
+		BackgroundImageTransparency = Config.BackgroundImageTransparency or 0.32,
 		ShadowTransparency = Config.ShadowTransparency or 0.6,
 		User = Config.User or {},
 		Footer = Config.Footer or {},
-		Topbar = Config.Topbar or { Height = 52, ButtonsType = "Default" }, -- Default or Mac
+		Topbar = { Height = (typeof(Config.Topbar) == "table" and Config.Topbar.Height) or 44, ButtonsType = "Mac" }, -- modern style
 
 		Size = Config.Size,
 
@@ -79,11 +79,11 @@ return function(Config)
 		ElementsRadius = Config.ElementsRadius,
 		Radius = Config.Radius or 16,
 		Transparent = Config.Transparent or false,
-		HideSearchBar = Config.HideSearchBar ~= false,
+		HideSearchBar = true, -- legacy search presentation retired
 		ScrollBarEnabled = Config.ScrollBarEnabled or false,
 		SideBarWidth = Config.SideBarWidth or 200,
 		Acrylic = Config.Acrylic or false,
-		NewElements = Config.NewElements or false,
+		NewElements = true, -- legacy flat cards retired
 		IgnoreAlerts = Config.IgnoreAlerts or false,
 		HidePanelBackground = Config.HidePanelBackground or false,
 		AutoScale = Config.AutoScale ~= false,
@@ -135,7 +135,7 @@ return function(Config)
 		UICorner = Window.ElementsRadius or (Window.NewElements and 23 or 16),
 	}
 
-	local WindowSize = Window.Size or UDim2.new(0, 580, 0, 460)
+	local WindowSize = Window.Size or UDim2.fromOffset(620, 420)
 	Window.Size = UDim2.new(
 		WindowSize.X.Scale,
 		math.clamp(WindowSize.X.Offset, Window.MinSize.X, Window.MaxSize.X),
@@ -144,7 +144,7 @@ return function(Config)
 	)
 
 	if Window.Topbar == {} then
-		Window.Topbar = { Height = 52, ButtonsType = "Default" }
+		Window.Topbar = { Height = 44, ButtonsType = "Mac" }
 	end
 
 	if not RunService:IsStudio() and Window.Folder and writefile then
