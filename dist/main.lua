@@ -2389,8 +2389,8 @@ end
 
 local m=b.NewRoundFrame(f.UICorner,"Squircle",{
 Size=UDim2.new(0,0,1,0),
-ImageColor3=Color3.fromHex"#811328",
-ImageTransparency=0.25,
+ImageColor3=Color3.fromHex"#251016",
+ImageTransparency=0,
 })
 
 local p=d("Frame",{
