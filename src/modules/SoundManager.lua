@@ -14,7 +14,7 @@ local SoundManager = {
 	Warned = {},
 }
 
-local DEFAULT_BASE_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/sounds"
+local DEFAULT_BASE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/sounds"
 local FALLBACK_SOUND = "rbxasset://sounds/electronicpingshort.wav"
 
 local Events = {
