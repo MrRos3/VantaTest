@@ -1,108 +1,64 @@
-# VantaUI
+# VantaTest 🧪
 
-A polished AMOLED-first Roblox UI library by **MrRos3**.
+An independent test copy of [VantaUI](https://github.com/MrRos3/VantaUI). Use this repository to experiment with components, themes, motion and styling without changing production VantaUI.
 
-## Current version
+## Run the full UI laboratory
 
-**VantaUI 0.3.8** is the only active production version in this repository.
-
-The public loader always uses the current `dist/main.lua` runtime. The old stable-base chaining used by earlier 0.3.x builds has been removed.
-
-## Modern UI by default
-
-The old plain flat-card layout is retired as the default. Both the public `main.lua` loader and direct `dist/main.lua` use the Salty Special black/red theme, floral wallpaper, translucent rounded cards, compact three-dot topbar and clean sidebar without the legacy search field. The official Vanta launcher icon is automatic. Existing window/tab/element APIs, explicit backgrounds, and alternate themes remain available.
-
-## Loader
-
-```lua
-local cacheBuster = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-local VantaUI = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaUI/main/main.lua?v=" .. cacheBuster
-))()
-```
-
-## Vanta brand identity
-
-VantaUI automatically uses the official Vanta artwork for the window icon and minimized/open badge unless custom branding is explicitly requested.
-
-Custom branding remains supported:
-
-```lua
-Branding = {
-    UseDefault = false,
-    Name = "SALTY",
-    Image = "https://example.com/brand.png",
-}
-```
-
-Set `Branding = false` only when a script intentionally should not use Vanta branding.
-
-## Default theme
-
-The production default is **Salty Special**.
-
-Built-in themes:
-
-- Salty Special
-- Vanta Smoked
-- Vanta Dark
-- Vanta AMOLED
-- Vanta Violet
-
-Salty Special automatically uses the Vanta wallpaper when the window does not provide a custom background.
-
-## Interface sounds
-
-VantaUI keeps its interface sound system for buttons, tabs, toggles, dropdowns, sliders, inputs, and window state.
-
-**Notification open and notification close sounds are disabled in production.** They cannot be accidentally re-enabled by a preset or by clearing sound overrides.
-
-Sounds can still be adjusted per window:
-
-```lua
-Sounds = {
-    Enabled = true,
-    Preset = "Soft",
-    Volume = 0.45,
-    Pitch = 1,
-}
-```
-
-Set `Sounds = false` to mute the entire window.
-
-The runtime also exposes `SetSoundEnabled`, `SetSoundVolume`, `SetSoundPitch`, and `SetSoundForEvent` for live changes.
-
-## 0.3.8 production notes
-
-- Public loader points directly at the current runtime
-- Executor compatibility repair is applied only when the raw dist runtime cannot compile directly
-- Vanta branding and Salty Special defaults are restored by the public loader
-- Notification and notification-close sounds are permanently muted
-- Lucide icon loading uses the repaired production runtime path
-- Startup tab selection supports both numeric index and title
-- GitHub Actions regenerates `dist/main.lua` from `src/` changes
-
-## Example
+Execute in your Roblox client:
 
 ```lua
 loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaUI/main/example.lua?v=" .. os.time()
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/example.lua?v=" .. os.time()
 ))()
 ```
 
-## Project layout
+The LAB showcase creates a complete window. Loading the library by itself does **not** create a window.
 
-- `main.lua` - current VantaUI 0.3.8 public loader and customization layer
-- `dist/main.lua` - current compiled runtime
-- `src/` - editable UI source
-- `build/` - build tooling
-- `example.lua` - showcase and test script
-- `.github/workflows/build-gui.yml` - automatic source build
+## What's available?
 
-There are no separate legacy runtime files kept as active versions. Older releases remain only in Git history.
+| Tab | Interactive demos |
+| --- | --- |
+| Home | Runtime information, button counter, notification preview |
+| Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
+| Toggles | Switches, checkbox variant, rebindable hotkey |
+| Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
+| Dropdowns | Single-select, multi-select, searchable, and dynamically refreshed lists |
+| Inputs | Single-line and multiline entry, color pickers, transparency |
+| Themes | All 5 built-in themes, sound switch and stacked notifications |
+| Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
+| Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-## License
+All **18 element types currently registered** in the library are represented: Paragraph, Button, Toggle, Slider, ProgressBar, Keybind, Input, Dropdown, Code, Colorpicker, Section, Divider, Space, Image, Group, HStack, VStack, Viewport.
 
-VantaUI is released under the MIT License, Copyright (c) 2026 MrRos3. See [`LICENSE`](./LICENSE).
+The Video element exists in the source tree but is deliberately **not registered** in the shipped library, so it is not included as an available control.
 
-Required notices for inherited permissively licensed portions are preserved separately in [`THIRD_PARTY_NOTICES`](./THIRD_PARTY_NOTICES).
+The lab shows component-construction failures in the executor console, and also includes a diagnostics button. Browser-previewing the source is not equivalent to a live Roblox client test.
+
+## Import the library without a showcase window
+
+```lua
+local VantaTest = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua?v=" .. os.time()
+))()
+-- Then call VantaTest:CreateWindow({ Title = "Your GUI" }) and add tabs.
+```
+
+The public loader and branding image URLs now use **MrRos3/VantaTest**. All changes here stay independent of production VantaUI.
+
+## Style baseline
+
+- Salty Special, AMOLED-first black and red
+- Solid OLED-black lower-right notifications
+- Full-height burgundy timeout overlay matching the Close Window button (#251016)
+- Rounded components with the compact three-dot window topbar
+- Optional themes: Smoked, Dark, AMOLED and Violet
+- v0.3.8 runtime; changes to `src/` trigger the GitHub build workflow for `dist/main.lua`
+
+## Build
+
+```bash
+npm install
+npm run build
+```
+
+Licensing information: [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
