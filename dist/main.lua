@@ -2386,17 +2386,11 @@ Text="",
 end
 
 
-local m=d("Frame",{
-Name="TimeoutProgress",
-Size=UDim2.new(0,0,0,3),
-Position=UDim2.new(0,0,1,-3),
-BorderSizePixel=0,
-BackgroundColor3=Color3.fromHex"#811328",
-BackgroundTransparency=0,
-},{
-d("UICorner",{
-CornerRadius=UDim.new(0,2),
-}),
+
+local m=b.NewRoundFrame(f.UICorner,"Squircle",{
+Size=UDim2.new(0,0,1,0),
+ImageColor3=Color3.fromHex"#811328",
+ImageTransparency=0.25,
 })
 
 local p=d("Frame",{
@@ -2539,7 +2533,7 @@ Enum.EasingDirection.Out
 ):Play()
 e(r,0.45,{Position=UDim2.new(0,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 if h.Duration then
-m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,0,3)
+m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,1,0)
 e(
 r.DurationFrame.Frame,
 h.Duration,
