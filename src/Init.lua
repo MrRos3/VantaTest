@@ -1,5 +1,5 @@
 local WindUI = {
-	Name = "VantaUI",
+	Name = "VantaTest",
 	Window = nil,
 	Theme = nil,
 	Creator = require("./modules/Creator"),
@@ -116,7 +116,7 @@ local UIScaleObj = New("UIScale", {
 WindUI.UIScaleObj = UIScaleObj
 
 WindUI.ScreenGui = New("ScreenGui", {
-	Name = "VantaUI",
+	Name = "VantaTest",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	ScreenInsets = "None",
@@ -144,19 +144,19 @@ WindUI.ScreenGui = New("ScreenGui", {
 })
 
 WindUI.NotificationGui = New("ScreenGui", {
-	Name = "VantaUI/Notifications",
+	Name = "VantaTest/Notifications",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	DisplayOrder = TOP_DISPLAY_ORDER + 3,
 })
 WindUI.DropdownGui = New("ScreenGui", {
-	Name = "VantaUI/Dropdowns",
+	Name = "VantaTest/Dropdowns",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	DisplayOrder = TOP_DISPLAY_ORDER + 2,
 })
 WindUI.TooltipGui = New("ScreenGui", {
-	Name = "VantaUI/Tooltips",
+	Name = "VantaTest/Tooltips",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	DisplayOrder = TOP_DISPLAY_ORDER + 1,
@@ -477,7 +477,7 @@ function WindUI:CreateWindow(Config)
 	Config = Config or {}
 	local CreateWindow = require("./components/window/Init")
 	if Config.Branding == nil then
-		local brand = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
+		local brand = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg"
 		Config.Branding = { Name = "VANTA", Image = brand, WindowIcon = brand, OpenButtonIcon = brand,
 			IconSize = 24, IconRadius = 7, OpenButtonIconRadius = 8 }
 	end
@@ -507,7 +507,7 @@ function WindUI:CreateWindow(Config)
 		SoundConfig = {}
 	end
 	if typeof(SoundConfig) == "table" and SoundConfig.Folder == nil then
-		SoundConfig.Folder = Config.Folder or Config.Title or "VantaUI"
+		SoundConfig.Folder = Config.Folder or Config.Title or "VantaTest"
 	end
 	WindUI:ConfigureSounds(SoundConfig)
 
