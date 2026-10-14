@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.3.8  |  2026-10-12  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.8  |  2026-10-14  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaUI
     Project: VantaUI by MrRos3
@@ -2249,8 +2249,9 @@ local d=b.New
 local e=b.Tween
 
 local f={
-Size=UDim2.new(0,300,1,-156),
-SizeLower=UDim2.new(0,300,1,-56),
+
+Size=UDim2.new(0,300,1,-96),
+SizeLower=UDim2.new(0,300,1,-84),
 UICorner=18,
 UIPadding=14,
 
@@ -2384,13 +2385,18 @@ Text="",
 })
 end
 
-local m=b.NewRoundFrame(f.UICorner,"Squircle",{
-Size=UDim2.new(0,0,1,0),
-ThemeTag={
-ImageTransparency="NotificationDurationTransparency",
-ImageColor3="NotificationDuration",
-},
 
+local m=d("Frame",{
+Name="TimeoutProgress",
+Size=UDim2.new(0,0,0,3),
+Position=UDim2.new(0,0,1,-3),
+BorderSizePixel=0,
+BackgroundColor3=Color3.fromHex"#811328",
+BackgroundTransparency=0,
+},{
+d("UICorner",{
+CornerRadius=UDim.new(0,2),
+}),
 })
 
 local p=d("Frame",{
@@ -2451,19 +2457,11 @@ Size=UDim2.new(1,0,0,0),
 Position=UDim2.new(2,0,1,0),
 AnchorPoint=Vector2.new(0,1),
 AutomaticSize="Y",
-ImageTransparency=0.05,
-ThemeTag={
-ImageColor3="Notification",
-},
+
+ImageColor3=Color3.fromRGB(0,0,0),
+ImageTransparency=0,
 
 },{
-b.NewRoundFrame(f.UICorner,"Squircle",{
-Size=UDim2.new(1,0,1,0),
-ThemeTag={
-ImageColor3="Notification2",
-ImageTransparency="Notification2Transparency",
-},
-}),
 d("Frame",{
 Size=UDim2.new(1,0,1,0),
 BackgroundTransparency=1,
@@ -2541,7 +2539,7 @@ Enum.EasingDirection.Out
 ):Play()
 e(r,0.45,{Position=UDim2.new(0,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 if h.Duration then
-m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,1,0)
+m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,0,3)
 e(
 r.DurationFrame.Frame,
 h.Duration,
