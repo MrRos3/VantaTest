@@ -11,9 +11,9 @@
 
 local PROJECT_VERSION = "0.3.8"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
-local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/dist/main.lua?v=" .. CACHE_BUSTER
-local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
-local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/salty-special.png"
+local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua?v=" .. CACHE_BUSTER
+local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg"
+local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"
 local SALTY_SPECIAL_WALLPAPER_TRANSPARENCY = 0.32
 
 local function patchRuntime(source)
@@ -56,16 +56,16 @@ assert(runtimeOk and type(VantaUI) == "table", "[VantaUI] Current runtime return
 
 VantaUI.RuntimeVersion = tostring(VantaUI.Version or PROJECT_VERSION)
 VantaUI.Version = PROJECT_VERSION
-VantaUI.Name = "VantaUI"
+VantaUI.Name = "VantaTest"
 VantaUI.DefaultTheme = "Salty Special"
 VantaUI.DefaultStartupTab = 1
 VantaUI.TransparencyValue = 0.1
 
 VantaUI.GuiInfo = {
-    Name = "VantaUI",
+    Name = "VantaTest",
     Version = PROJECT_VERSION,
     Owner = "MrRos3",
-    Repository = "MrRos3/VantaUI",
+    Repository = "MrRos3/VantaTest",
     Runtime = "dist/main.lua",
     License = "MIT",
 }
@@ -261,16 +261,16 @@ end
 
 local function renameRuntimeGui()
     if VantaUI.ScreenGui then
-        VantaUI.ScreenGui.Name = "VantaUI"
+        VantaUI.ScreenGui.Name = "VantaTest"
     end
     if VantaUI.NotificationGui then
-        VantaUI.NotificationGui.Name = "VantaUI/Notifications"
+        VantaUI.NotificationGui.Name = "VantaTest/Notifications"
     end
     if VantaUI.DropdownGui then
-        VantaUI.DropdownGui.Name = "VantaUI/Dropdowns"
+        VantaUI.DropdownGui.Name = "VantaTest/Dropdowns"
     end
     if VantaUI.TooltipGui then
-        VantaUI.TooltipGui.Name = "VantaUI/Tooltips"
+        VantaUI.TooltipGui.Name = "VantaTest/Tooltips"
     end
 end
 
@@ -303,7 +303,7 @@ local function applyDefaultBranding(config)
         branding.Name = "VANTA"
     end
     if branding.Folder == nil then
-        branding.Folder = "VantaUI"
+        branding.Folder = "VantaTest"
     end
     if branding.IconSize == nil then
         branding.IconSize = 24
@@ -329,7 +329,7 @@ local function applyDefaultBranding(config)
 
     local openButton = copyConfig(config.OpenButton)
     if openButton.Title == nil then
-        openButton.Title = "Open VantaUI"
+        openButton.Title = "Open VantaTest"
     end
     if openButton.Enabled == nil then
         openButton.Enabled = true
@@ -378,7 +378,7 @@ function VantaUI:CreateWindow(config)
         config.Theme = VantaUI.DefaultTheme
     end
     if config.Folder == nil then
-        config.Folder = "VantaUI"
+        config.Folder = "VantaTest"
     end
     -- Retire legacy flat cards and the old search/sidebar presentation.
     config.NewElements = true
