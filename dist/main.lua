@@ -1735,7 +1735,7 @@ LastPlayed={},
 Warned={},
 }
 
-local g="https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/sounds"
+local g="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/sounds"
 local h="rbxasset://sounds/electronicpingshort.wav"
 
 local i={
@@ -13690,7 +13690,7 @@ Branding=aw,
 BrandImage=ax,
 Folder=av.Folder,
 Resizable=av.Resizable~=false,
-Background=av.Background or"https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/salty-special.png",
+Background=av.Background or"https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png",
 BackgroundImageTransparency=av.BackgroundImageTransparency or 0.32,
 ShadowTransparency=av.ShadowTransparency or 0.6,
 User=av.User or{},
