@@ -139,18 +139,12 @@ function NotificationModule.New(Config)
 		})
 	end
 
-	-- A crisp dark-red countdown line replaces the old full-card fade.
-	local Duration = New("Frame", {
-		Name = "TimeoutProgress",
-		Size = UDim2.new(0, 0, 0, 3),
-		Position = UDim2.new(0, 0, 1, -3),
-		BorderSizePixel = 0,
-		BackgroundColor3 = Color3.fromHex("#811328"),
-		BackgroundTransparency = 0,
-	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(0, 2),
-		}),
+	-- Original full-height countdown overlay, now in muted dark red.
+	-- The parent clips its width down to zero over the notification duration.
+	local Duration = Creator.NewRoundFrame(NotificationModule.UICorner, "Squircle", {
+		Size = UDim2.new(0, 0, 1, 0),
+		ImageColor3 = Color3.fromHex("#811328"),
+		ImageTransparency = 0.25,
 	})
 
 	local TextContainer = New("Frame", {
@@ -293,7 +287,7 @@ function NotificationModule.New(Config)
 		):Play()
 		Tween(Main, 0.45, { Position = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 		if Notification.Duration then
-			Duration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 0, 3)
+			Duration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 1, 0)
 			Tween(
 				Main.DurationFrame.Frame,
 				Notification.Duration,
