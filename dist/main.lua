@@ -15853,7 +15853,7 @@ return aB
 end end end
 
 local aa={
-Name="VantaUI",
+Name="VantaTest",
 Window=nil,
 Theme=nil,
 Creator=a.load'd',
@@ -15970,7 +15970,7 @@ Scale=aa.UIScale,
 aa.UIScaleObj=aA
 
 aa.ScreenGui=at("ScreenGui",{
-Name="VantaUI",
+Name="VantaTest",
 Parent=aw,
 IgnoreGuiInset=true,
 ScreenInsets="None",
@@ -15998,19 +15998,19 @@ Name="ToolTips",
 })
 
 aa.NotificationGui=at("ScreenGui",{
-Name="VantaUI/Notifications",
+Name="VantaTest/Notifications",
 Parent=aw,
 IgnoreGuiInset=true,
 DisplayOrder=ax+3,
 })
 aa.DropdownGui=at("ScreenGui",{
-Name="VantaUI/Dropdowns",
+Name="VantaTest/Dropdowns",
 Parent=aw,
 IgnoreGuiInset=true,
 DisplayOrder=ax+2,
 })
 aa.TooltipGui=at("ScreenGui",{
-Name="VantaUI/Tooltips",
+Name="VantaTest/Tooltips",
 Parent=aw,
 IgnoreGuiInset=true,
 DisplayOrder=ax+1,
@@ -16331,7 +16331,7 @@ function aa.CreateWindow(aC,aD)
 aD=aD or{}
 local b=a.load'af'
 if aD.Branding==nil then
-local d="https://raw.githubusercontent.com/MrRos3/VantaUI/main/assets/vanta-brand-v2.jpeg"
+local d="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg"
 aD.Branding={Name="VANTA",Image=d,WindowIcon=d,OpenButtonIcon=d,
 IconSize=24,IconRadius=7,OpenButtonIconRadius=8}
 end
@@ -16361,7 +16361,7 @@ if d==nil then
 d={}
 end
 if typeof(d)=="table"and d.Folder==nil then
-d.Folder=aD.Folder or aD.Title or"VantaUI"
+d.Folder=aD.Folder or aD.Title or"VantaTest"
 end
 aa:ConfigureSounds(d)
 
