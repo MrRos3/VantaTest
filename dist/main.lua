@@ -11546,7 +11546,7 @@ al.Window.Folder,
 "Image",
 false
 )
-if an and an.Parent then
+if an then
 an.Parent=al.Parent
 an.Size=UDim2.new(1,0,0,0)
 an.BackgroundTransparency=1
