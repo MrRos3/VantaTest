@@ -10,6 +10,7 @@ function Element:New(Config)
 		Title = Config.Title or "Section",
 		Desc = Config.Desc,
 		Icon = Config.Icon,
+		IconColor = Config.IconColor,
 		IconThemed = Config.IconThemed,
 		TextXAlignment = Config.TextXAlignment or "Left",
 		TextSize = Config.TextSize or 19,
@@ -46,10 +47,13 @@ function Element:New(Config)
 				0,
 				Config.Window.Folder,
 				Section.__type,
-				true,
+				Section.IconColor == nil,
 				Section.IconThemed,
 				"SectionIcon"
 			)
+			if Section.IconColor and Icon.ImageLabel then
+				Icon.ImageLabel.ImageColor3 = Section.IconColor
+			end
 			Icon.Size = UDim2.new(0, Section.IconSize, 0, Section.IconSize)
 		end
 	end

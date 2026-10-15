@@ -54,6 +54,7 @@ function NotificationModule.New(Config)
 		Title = Config.Title or "Notification",
 		Content = Config.Content or nil,
 		Icon = Config.Icon or nil,
+		IconColor = Config.IconColor,
 		IconThemed = Config.IconThemed,
 		Background = Config.Background,
 		BackgroundImageTransparency = Config.BackgroundImageTransparency,
@@ -109,6 +110,9 @@ function NotificationModule.New(Config)
 			"Notification",
 			Notification.IconThemed
 		)
+		if Notification.IconColor and Icon.ImageLabel then
+			Icon.ImageLabel.ImageColor3 = Notification.IconColor
+		end
 		Icon.Size = UDim2.new(0, 26, 0, 26)
 		Icon.Position = UDim2.new(0, NotificationModule.UIPadding, 0, NotificationModule.UIPadding)
 		-- Icon.LayoutOrder = -1
