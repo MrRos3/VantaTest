@@ -12,7 +12,7 @@
 local PROJECT_VERSION = "0.3.8"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua?v=" .. CACHE_BUSTER
-local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg?v=badge-20261015"
+local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
 local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"
 local SALTY_SPECIAL_WALLPAPER_TRANSPARENCY = 0.32
 
@@ -94,8 +94,6 @@ local VantaThemes = {
         Placeholder = Color3.fromHex("#9A9AA3"),
         Background = Color3.fromHex("#000000"),
         Button = Color3.fromHex("#251016"),
-        ProgressBarTrack = Color3.fromHex("#251016"),
-        ProgressBarTrackTransparency = 0,
         Icon = Color3.fromHex("#E2DDE0"),
         Toggle = Color3.fromHex("#A1162F"),
         Slider = Color3.fromHex("#A1162F"),

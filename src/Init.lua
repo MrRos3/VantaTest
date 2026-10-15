@@ -384,8 +384,6 @@ WindUI.Themes["Salty Special"] = {
 	Placeholder = Color3.fromHex("#9A9AA3"),
 	Background = Color3.fromHex("#000000"),
 	Button = Color3.fromHex("#251016"),
-	ProgressBarTrack = Color3.fromHex("#251016"),
-	ProgressBarTrackTransparency = 0,
 	Icon = Color3.fromHex("#E2DDE0"),
 	Toggle = Color3.fromHex("#A1162F"),
 	Slider = Color3.fromHex("#A1162F"),
@@ -479,7 +477,7 @@ function WindUI:CreateWindow(Config)
 	Config = Config or {}
 	local CreateWindow = require("./components/window/Init")
 	if Config.Branding == nil then
-		local brand = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg?v=badge-20261015"
+		local brand = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
 		Config.Branding = { Name = "VANTA", Image = brand, WindowIcon = brand, OpenButtonIcon = brand,
 			IconSize = 24, IconRadius = 7, OpenButtonIconRadius = 8 }
 	end

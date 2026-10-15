@@ -188,7 +188,6 @@ return function(Config)
 			Size = UDim2.new(0, 48 * 2, 0, 48 * 2),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://120997033468887",
-			ImageColor3 = Color3.fromHex("#251016"),
 			Position = UDim2.new(0.5, -16, 0.5, -16),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			ImageTransparency = 1, -- .8; .35
@@ -642,8 +641,8 @@ return function(Config)
 	end
 
 	local BottomDragFrame = Creator.NewRoundFrame(99, "Squircle", {
-		ImageTransparency = 0,
-		ImageColor3 = Color3.fromHex("#251016"),
+		ImageTransparency = 0.8,
+		ImageColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.new(0, 0, 0, 4), -- 200
 		Position = UDim2.new(0.5, 0, 1, 4),
 		AnchorPoint = Vector2.new(0.5, 0),
@@ -1381,7 +1380,7 @@ return function(Config)
 			Tween(
 				BottomDragFrame,
 				0.45,
-				{ Size = UDim2.new(0, Window.DragFrameSize, 0, 4), ImageTransparency = 0 },
+				{ Size = UDim2.new(0, Window.DragFrameSize, 0, 4), ImageTransparency = 0.8 },
 				Enum.EasingStyle.Exponential,
 				Enum.EasingDirection.Out
 			):Play()
@@ -1391,7 +1390,7 @@ return function(Config)
 				Tween(
 					ResizeHandle.ImageLabel,
 					0.45,
-					{ ImageTransparency = 0 },
+					{ ImageTransparency = 0.8 },
 					Enum.EasingStyle.Exponential,
 					Enum.EasingDirection.Out
 				):Play()
@@ -2022,7 +2021,7 @@ return function(Config)
 					FullScreenIcon.Active = false
 					--Tween(FullScreenIcon, 0.2, {ImageTransparency = 1}):Play()
 					--Tween(FullScreenIcon.ImageLabel, 0.17, {ImageTransparency = 1}):Play()
-					Tween(ResizeHandle.ImageLabel, 0.17, { ImageTransparency = 0 }):Play()
+					Tween(ResizeHandle.ImageLabel, 0.17, { ImageTransparency = 0.8 }):Play()
 				end
 			end)
 		end
@@ -2082,7 +2081,7 @@ return function(Config)
 			return
 		end
 		if not isResizing then
-			Tween(ResizeHandle.ImageLabel, 0.17, { ImageTransparency = 0 }):Play()
+			Tween(ResizeHandle.ImageLabel, 0.17, { ImageTransparency = 0.8 }):Play()
 		end
 	end)
 
