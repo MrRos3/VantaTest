@@ -13836,7 +13836,6 @@ ao("ImageLabel",{
 Size=UDim2.new(0,96,0,96),
 BackgroundTransparency=1,
 Image="rbxassetid://120997033468887",
-ImageColor3=Color3.fromHex"#251016",
 Position=UDim2.new(0.5,-16,0.5,-16),
 AnchorPoint=Vector2.new(0.5,0.5),
 ImageTransparency=1,
@@ -14290,8 +14289,8 @@ CornerRadius=UDim.new(0,aB.UICorner),
 end
 
 local A=an.NewRoundFrame(99,"Squircle",{
-ImageTransparency=0,
-ImageColor3=Color3.fromHex"#251016",
+ImageTransparency=0.8,
+ImageColor3=Color3.new(1,1,1),
 Size=UDim2.new(0,0,0,4),
 Position=UDim2.new(0.5,0,1,4),
 AnchorPoint=Vector2.new(0.5,0),
@@ -15029,7 +15028,7 @@ Enum.EasingDirection.Out
 ap(
 A,
 0.45,
-{Size=UDim2.new(0,aB.DragFrameSize,0,4),ImageTransparency=0},
+{Size=UDim2.new(0,aB.DragFrameSize,0,4),ImageTransparency=0.8},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
@@ -15039,7 +15038,7 @@ if aB.Resizable then
 ap(
 f.ImageLabel,
 0.45,
-{ImageTransparency=0},
+{ImageTransparency=0.8},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
@@ -15670,7 +15669,7 @@ isResizing=false
 g.Active=false
 
 
-ap(f.ImageLabel,0.17,{ImageTransparency=0}):Play()
+ap(f.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
 end
 end)
 end
@@ -15730,7 +15729,7 @@ if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=aD then
 return
 end
 if not isResizing then
-ap(f.ImageLabel,0.17,{ImageTransparency=0}):Play()
+ap(f.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
 end
 end)
 
@@ -16258,8 +16257,6 @@ Text=Color3.fromHex"#FFFFFF",
 Placeholder=Color3.fromHex"#9A9AA3",
 Background=Color3.fromHex"#000000",
 Button=Color3.fromHex"#251016",
-ProgressBarTrack=Color3.fromHex"#251016",
-ProgressBarTrackTransparency=0,
 Icon=Color3.fromHex"#E2DDE0",
 Toggle=Color3.fromHex"#A1162F",
 Slider=Color3.fromHex"#A1162F",
@@ -16353,7 +16350,7 @@ function aa.CreateWindow(aC,aD)
 aD=aD or{}
 local b=a.load'af'
 if aD.Branding==nil then
-local d="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg?v=badge-20261015"
+local d="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
 aD.Branding={Name="VANTA",Image=d,WindowIcon=d,OpenButtonIcon=d,
 IconSize=24,IconRadius=7,OpenButtonIconRadius=8}
 end
