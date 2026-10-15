@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.3.8  |  2026-10-14  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.8  |  2026-10-15  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaUI
     Project: VantaUI by MrRos3
@@ -1467,24 +1467,27 @@ assert(A,"This executor does not support getcustomasset")
 
 z=z or"Temp"
 local B="WindUI/"..z.."/assets"
-local C=B
-.."/.RemoteImage-"
-..r.SanitizeFilename(x)
-..GetImageExtension(x)
+
+local C=r.SanitizeFilename(x)
+local F=x:match"%?([^#]+)"
+if F and F~=""then
+C=C.."_"..r.SanitizeFilename(F)
+end
+local G=B.."/.RemoteImage-"..C..GetImageExtension(x)
 
 EnsureFolder(B)
 
-if not isfile or not isfile(C)then
-writefile(C,Download(x))
+if not isfile or not isfile(G)then
+writefile(G,Download(x))
 end
 
-local F,G=pcall(A,C)
-if not F then
-writefile(C,Download(x))
-G=A(C)
+local H,J=pcall(A,G)
+if not H then
+writefile(G,Download(x))
+J=A(G)
 end
 
-return G,C
+return J,G
 end
 
 function r.Image(x,z,A,B,C,F,G,H)
@@ -5220,17 +5223,28 @@ IconSize=16,
 }
 
 local ai
+local aj=typeof(af.Window)=="table"and af.Window.Folder or af.Window
+if type(aj)~="string"or aj==""then
+aj="VantaTest"
+end
+local function paintBadgeIcon(ak)
+local al=ai and ai:FindFirstChildWhichIsA("ImageLabel",true)
+if not al or typeof(ak)~="Color3"then return end
+local am=type(ah.Icon)=="string"and ah.Icon:match"^https?://"~=nil
+al.ImageColor3=am and Color3.new(1,1,1)or ak
+end
 if ah.Icon then
-ai=ab.Image(ah.Icon,ah.Icon,0,af.Window,"Tag",false)
+ai=ab.Image(ah.Icon,ah.Icon,0,aj,"Tag",false)
 
 ai.Size=UDim2.new(0,ah.IconSize,0,ah.IconSize)
-ai.ImageLabel.ImageColor3=typeof(ah.Color)=="Color3"
-and ab.GetTextColorForHSB(ah.Color)
-or typeof(ah.Color)=="string"
-and(ab.GetTextColorForHSB(ab.GetThemeProperty(ah.Color,ab.Theme)))
+local ak=typeof(ah.Color)=="Color3"and ah.Color
+or(typeof(ah.Color)=="string"and ab.GetThemeProperty(ah.Color,ab.Theme))
+if typeof(ak)=="Color3"then
+paintBadgeIcon(ab.GetTextColorForHSB(ak))
+end
 end
 
-local aj=ac("TextLabel",{
+local ak=ac("TextLabel",{
 BackgroundTransparency=1,
 AutomaticSize="XY",
 TextSize=ah.TextSize,
@@ -5241,21 +5255,21 @@ ah.Color
 )=="string"and(ab.GetTextColorForHSB(ab.GetThemeProperty(ah.Color,ab.Theme))),
 })
 
-local ak
+local al
 
 if typeof(ah.Color)=="table"then
-ak=ac"UIGradient"
-for al,am in next,ah.Color do
-ak[al]=am
+al=ac"UIGradient"
+for am,an in next,ah.Color do
+al[am]=an
 end
 
-aj.TextColor3=ab.GetTextColorForHSB(ab.GetAverageColor(ak))
+ak.TextColor3=ab.GetTextColorForHSB(ab.GetAverageColor(al))
 if ai then
-ai.ImageLabel.ImageColor3=ab.GetTextColorForHSB(ab.GetAverageColor(ak))
+paintBadgeIcon(ab.GetTextColorForHSB(ab.GetAverageColor(al)))
 end
 end
 
-local al=ab.NewRoundFrame(ah.Radius,"Squircle",{
+local am=ab.NewRoundFrame(ah.Radius,"Squircle",{
 AutomaticSize="X",
 Size=UDim2.new(0,0,0,ah.Height),
 Parent=ag,
@@ -5266,7 +5280,7 @@ ThemeTag=typeof(ah.Color)=="string"and{
 ImageColor3=ah.Color,
 },
 },{
-ak,
+al,
 ab.NewRoundFrame(ah.Radius+1,"SquircleGlass",{
 Size=UDim2.new(1,1,1,1),
 AnchorPoint=Vector2.new(0.5,0.5),
@@ -5283,7 +5297,7 @@ Name="Content",
 BackgroundTransparency=1,
 },{
 ai,
-aj,
+ak,
 ac("UIPadding",{
 PaddingLeft=UDim.new(0,ah.Padding),
 PaddingRight=UDim.new(0,ah.Padding),
@@ -5296,50 +5310,51 @@ Padding=UDim.new(0,ah.Padding/1.5),
 }),
 })
 
-function ah.SetTitle(am,an)
-ah.Title=an
-aj.Text=an
+function ah.SetTitle(an,ao)
+ah.Title=ao
+ak.Text=ao
 
 return ah
 end
 
-function ah.SetColor(am,an)
-ah.Color=an
-if typeof(an)=="table"then
-local ao=ab.GetAverageColor(an)
-ad(aj,0.06,{TextColor3=ab.GetTextColorForHSB(ao)}):Play()
-local ap=al:FindFirstChildOfClass"UIGradient"or ac("UIGradient",{Parent=al})
-for aq,ar in next,an do
-ap[aq]=ar
+function ah.SetColor(an,ao)
+ah.Color=ao
+if typeof(ao)=="table"then
+local ap=ab.GetAverageColor(ao)
+ad(ak,0.06,{TextColor3=ab.GetTextColorForHSB(ap)}):Play()
+local aq=am:FindFirstChildOfClass"UIGradient"or ac("UIGradient",{Parent=am})
+for ar,as in next,ao do
+aq[ar]=as
 end
-ad(al,0.06,{ImageColor3=Color3.new(1,1,1)}):Play()
+ad(am,0.06,{ImageColor3=Color3.new(1,1,1)}):Play()
 else
-if ak then
-ak:Destroy()
+if al then
+al:Destroy()
 end
-ad(aj,0.06,{TextColor3=ab.GetTextColorForHSB(an)}):Play()
+ad(ak,0.06,{TextColor3=ab.GetTextColorForHSB(ao)}):Play()
 if ai then
-ad(ai.ImageLabel,0.06,{ImageColor3=ab.GetTextColorForHSB(an)}):Play()
+paintBadgeIcon(ab.GetTextColorForHSB(ao))
 end
-ad(al,0.06,{ImageColor3=an}):Play()
+ad(am,0.06,{ImageColor3=ao}):Play()
 end
 
 return ah
 end
 
-function ah.SetIcon(am,an)
-ah.Icon=an
+function ah.SetIcon(an,ao)
+ah.Icon=ao
 
-if an then
-ai=ab.Image(an,an,0,af.Window,"Tag",false)
+if ao then
+if ai then ai:Destroy()end
+ai=ab.Image(ao,ao,0,aj,"Tag",false)
 
 ai.Size=UDim2.new(0,ah.IconSize,0,ah.IconSize)
-ai.Parent=al
+ai.Parent=am.Content
 
 if typeof(ah.Color)=="Color3"then
-ai.ImageLabel.ImageColor3=ab.GetTextColorForHSB(ah.Color)
+paintBadgeIcon(ab.GetTextColorForHSB(ah.Color))
 elseif typeof(ah.Color)=="table"then
-ai.ImageLabel.ImageColor3=ab.GetTextColorForHSB(ab.GetAverageColor(ak))
+paintBadgeIcon(ab.GetTextColorForHSB(ab.GetAverageColor(al)))
 end
 else
 if ai then
@@ -5350,15 +5365,19 @@ end
 return ah
 end
 
-function ah.Destroy(am)
-al:Destroy()
+function ah.Destroy(an)
+am:Destroy()
 return ah
 end
 
-ab:OnThemeChange(function(am,an)
-aj.TextColor3=ab.GetTextColorForHSB(ab.GetThemeProperty(ah.Color,ab.Theme))
-ai.ImageLabel.ImageColor3=
-ab.GetTextColorForHSB(ab.GetThemeProperty(ah.Color,ab.Theme))
+ab:OnThemeChange(function()
+local an=typeof(ah.Color)=="string"
+and ab.GetThemeProperty(ah.Color,ab.Theme)or ah.Color
+if typeof(an)=="Color3"then
+local ao=ab.GetTextColorForHSB(an)
+ak.TextColor3=ao
+paintBadgeIcon(ao)
+end
 end)
 
 return ah
@@ -13817,6 +13836,7 @@ ao("ImageLabel",{
 Size=UDim2.new(0,96,0,96),
 BackgroundTransparency=1,
 Image="rbxassetid://120997033468887",
+ImageColor3=Color3.fromHex"#251016",
 Position=UDim2.new(0.5,-16,0.5,-16),
 AnchorPoint=Vector2.new(0.5,0.5),
 ImageTransparency=1,
@@ -14270,8 +14290,8 @@ CornerRadius=UDim.new(0,aB.UICorner),
 end
 
 local A=an.NewRoundFrame(99,"Squircle",{
-ImageTransparency=0.8,
-ImageColor3=Color3.new(1,1,1),
+ImageTransparency=0,
+ImageColor3=Color3.fromHex"#251016",
 Size=UDim2.new(0,0,0,4),
 Position=UDim2.new(0.5,0,1,4),
 AnchorPoint=Vector2.new(0.5,0),
@@ -15009,7 +15029,7 @@ Enum.EasingDirection.Out
 ap(
 A,
 0.45,
-{Size=UDim2.new(0,aB.DragFrameSize,0,4),ImageTransparency=0.8},
+{Size=UDim2.new(0,aB.DragFrameSize,0,4),ImageTransparency=0},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
@@ -15019,7 +15039,7 @@ if aB.Resizable then
 ap(
 f.ImageLabel,
 0.45,
-{ImageTransparency=0.8},
+{ImageTransparency=0},
 Enum.EasingStyle.Exponential,
 Enum.EasingDirection.Out
 ):Play()
@@ -15650,7 +15670,7 @@ isResizing=false
 g.Active=false
 
 
-ap(f.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
+ap(f.ImageLabel,0.17,{ImageTransparency=0}):Play()
 end
 end)
 end
@@ -15710,7 +15730,7 @@ if av.WindUI.CurrentInput and av.WindUI.CurrentInput~=aD then
 return
 end
 if not isResizing then
-ap(f.ImageLabel,0.17,{ImageTransparency=0.8}):Play()
+ap(f.ImageLabel,0.17,{ImageTransparency=0}):Play()
 end
 end)
 
@@ -16238,6 +16258,8 @@ Text=Color3.fromHex"#FFFFFF",
 Placeholder=Color3.fromHex"#9A9AA3",
 Background=Color3.fromHex"#000000",
 Button=Color3.fromHex"#251016",
+ProgressBarTrack=Color3.fromHex"#251016",
+ProgressBarTrackTransparency=0,
 Icon=Color3.fromHex"#E2DDE0",
 Toggle=Color3.fromHex"#A1162F",
 Slider=Color3.fromHex"#A1162F",
@@ -16331,7 +16353,7 @@ function aa.CreateWindow(aC,aD)
 aD=aD or{}
 local b=a.load'af'
 if aD.Branding==nil then
-local d="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg"
+local d="https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2.jpeg?v=badge-20261015"
 aD.Branding={Name="VANTA",Image=d,WindowIcon=d,OpenButtonIcon=d,
 IconSize=24,IconRadius=7,OpenButtonIconRadius=8}
 end
