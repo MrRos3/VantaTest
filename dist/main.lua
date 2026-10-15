@@ -2303,6 +2303,7 @@ local h={
 Title=g.Title or"Notification",
 Content=g.Content or nil,
 Icon=g.Icon or nil,
+IconColor=g.IconColor,
 IconThemed=g.IconThemed,
 Background=g.Background,
 BackgroundImageTransparency=g.BackgroundImageTransparency,
@@ -2358,6 +2359,9 @@ g.Window,
 "Notification",
 h.IconThemed
 )
+if h.IconColor and i.ImageLabel then
+i.ImageLabel.ImageColor3=h.IconColor
+end
 i.Size=UDim2.new(0,26,0,26)
 i.Position=UDim2.new(0,f.UIPadding,0,f.UIPadding)
 
@@ -11150,6 +11154,7 @@ __type="Section",
 Title=am.Title or"Section",
 Desc=am.Desc,
 Icon=am.Icon,
+IconColor=am.IconColor,
 IconThemed=am.IconThemed,
 TextXAlignment=am.TextXAlignment or"Left",
 TextSize=am.TextSize or 19,
@@ -11186,10 +11191,13 @@ aq..":"..an.Title,
 0,
 am.Window.Folder,
 an.__type,
-true,
+an.IconColor==nil,
 an.IconThemed,
 "SectionIcon"
 )
+if an.IconColor and ao.ImageLabel then
+ao.ImageLabel.ImageColor3=an.IconColor
+end
 ao.Size=UDim2.new(0,an.IconSize,0,an.IconSize)
 end
 end
