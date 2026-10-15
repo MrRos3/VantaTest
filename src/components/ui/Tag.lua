@@ -20,14 +20,25 @@ function Tag:New(TagConfig, Parent)
 	}
 
 	local TagIcon
+	local iconFolder = typeof(TagConfig.Window) == "table" and TagConfig.Window.Folder or TagConfig.Window
+	if type(iconFolder) ~= "string" or iconFolder == "" then
+		iconFolder = "VantaTest"
+	end
+	local function paintBadgeIcon(color)
+		local image = TagIcon and TagIcon:FindFirstChildWhichIsA("ImageLabel", true)
+		if not image or typeof(color) ~= "Color3" then return end
+		local isBrandImage = type(TagModule.Icon) == "string" and TagModule.Icon:match("^https?://") ~= nil
+		image.ImageColor3 = isBrandImage and Color3.new(1, 1, 1) or color
+	end
 	if TagModule.Icon then
-		TagIcon = Creator.Image(TagModule.Icon, TagModule.Icon, 0, TagConfig.Window, "Tag", false)
+		TagIcon = Creator.Image(TagModule.Icon, TagModule.Icon, 0, iconFolder, "Tag", false)
 
 		TagIcon.Size = UDim2.new(0, TagModule.IconSize, 0, TagModule.IconSize)
-		TagIcon.ImageLabel.ImageColor3 = typeof(TagModule.Color) == "Color3"
-				and Creator.GetTextColorForHSB(TagModule.Color)
-			or typeof(TagModule.Color) == "string"
-				and (Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color, Creator.Theme)))
+		local baseColor = typeof(TagModule.Color) == "Color3" and TagModule.Color
+			or (typeof(TagModule.Color) == "string" and Creator.GetThemeProperty(TagModule.Color, Creator.Theme))
+		if typeof(baseColor) == "Color3" then
+			paintBadgeIcon(Creator.GetTextColorForHSB(baseColor))
+		end
 	end
 
 	local TagTitle = New("TextLabel", {
@@ -51,7 +62,7 @@ function Tag:New(TagConfig, Parent)
 
 		TagTitle.TextColor3 = Creator.GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient))
 		if TagIcon then
-			TagIcon.ImageLabel.ImageColor3 = Creator.GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient))
+			paintBadgeIcon(Creator.GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient)))
 		end
 	end
 
@@ -119,7 +130,7 @@ function Tag:New(TagConfig, Parent)
 			end
 			Tween(TagTitle, 0.06, { TextColor3 = Creator.GetTextColorForHSB(color) }):Play()
 			if TagIcon then
-				Tween(TagIcon.ImageLabel, 0.06, { ImageColor3 = Creator.GetTextColorForHSB(color) }):Play()
+				paintBadgeIcon(Creator.GetTextColorForHSB(color))
 			end
 			Tween(TagFrame, 0.06, { ImageColor3 = color }):Play()
 		end
@@ -131,15 +142,16 @@ function Tag:New(TagConfig, Parent)
 		TagModule.Icon = icon
 
 		if icon then
-			TagIcon = Creator.Image(icon, icon, 0, TagConfig.Window, "Tag", false)
+			if TagIcon then TagIcon:Destroy() end
+			TagIcon = Creator.Image(icon, icon, 0, iconFolder, "Tag", false)
 
 			TagIcon.Size = UDim2.new(0, TagModule.IconSize, 0, TagModule.IconSize)
-			TagIcon.Parent = TagFrame
+			TagIcon.Parent = TagFrame.Content
 
 			if typeof(TagModule.Color) == "Color3" then
-				TagIcon.ImageLabel.ImageColor3 = Creator.GetTextColorForHSB(TagModule.Color)
+				paintBadgeIcon(Creator.GetTextColorForHSB(TagModule.Color))
 			elseif typeof(TagModule.Color) == "table" then
-				TagIcon.ImageLabel.ImageColor3 = Creator.GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient))
+				paintBadgeIcon(Creator.GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient)))
 			end
 		else
 			if TagIcon then
@@ -155,10 +167,14 @@ function Tag:New(TagConfig, Parent)
 		return TagModule
 	end
 
-	Creator:OnThemeChange(function(NewTheme, OldTheme)
-		TagTitle.TextColor3 = Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color, Creator.Theme))
-		TagIcon.ImageLabel.ImageColor3 =
-			Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color, Creator.Theme))
+	Creator:OnThemeChange(function()
+		local color = typeof(TagModule.Color) == "string"
+			and Creator.GetThemeProperty(TagModule.Color, Creator.Theme) or TagModule.Color
+		if typeof(color) == "Color3" then
+			local textColor = Creator.GetTextColorForHSB(color)
+			TagTitle.TextColor3 = textColor
+			paintBadgeIcon(textColor)
+		end
 	end)
 
 	return TagModule

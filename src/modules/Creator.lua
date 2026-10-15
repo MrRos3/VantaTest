@@ -833,10 +833,13 @@ function Creator.LoadRemoteImage(url, folder)
 
 	folder = folder or "Temp"
 	local assetFolder = "WindUI/" .. folder .. "/assets"
-	local fileName = assetFolder
-		.. "/.RemoteImage-"
-		.. Creator.SanitizeFilename(url)
-		.. GetImageExtension(url)
+	-- Include the query in the cache key so updated brand files are not stuck on old local copies.
+	local cacheKey = Creator.SanitizeFilename(url)
+	local query = url:match("%?([^#]+)")
+	if query and query ~= "" then
+		cacheKey = cacheKey .. "_" .. Creator.SanitizeFilename(query)
+	end
+	local fileName = assetFolder .. "/.RemoteImage-" .. cacheKey .. GetImageExtension(url)
 
 	EnsureFolder(assetFolder)
 

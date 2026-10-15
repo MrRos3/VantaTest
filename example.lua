@@ -28,6 +28,8 @@ local Window = VantaTest:CreateWindow({
     },
     OpenButton = {
         Title = "Open VantaTest",
+        Icon = VantaTest.Brand.Image,
+        ImageZoom = 1,
         Enabled = true,
         OnlyMobile = false,
         OnlyIcon = true,
@@ -423,7 +425,7 @@ add(Advanced, "Button", {
 
 if type(Window.Tag) == "function" then
     pcall(function()
-        Window:Tag({ Title = "LAB v" .. tostring(VantaTest.Version), Icon = "flask-conical", Color = Color3.fromHex("#251016"), Border = true })
+        Window:Tag({ Title = "LAB v" .. tostring(VantaTest.Version), Icon = VantaTest.Brand.Image, Color = Color3.fromHex("#251016"), Border = true })
     end)
 end
 
