@@ -29,7 +29,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat 3.0 — dedicated Vanta participants
+### Vanta Chat 3.1 — dedicated Vanta participants
 
 The Chat tab now uses **dedicated VantaEN / VantaAR channels**, with explicit server admission. It never falls back to public Roblox server chat or default whispers. Its GUI and transport are separate modules. An owned-experience server is required; loading client code in an unrelated game does not create a Vanta network there.
 
@@ -81,6 +81,7 @@ npm run build
 ```
 
 Licensing information: [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
+
 
 
 

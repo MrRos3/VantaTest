@@ -134,6 +134,10 @@ local okChat, chatError = pcall(function()
     assert(type(ChatModule.Mount) == "function", "Chat UI module is not ready")
     local Transport = assert(loadstring(game:HttpGet(BASE .. "roblox-chat/Transport.lua?v=" .. versionToken)))()
     local IconAssets = assert(loadstring(game:HttpGet(BASE .. "roblox-chat/IconAssets.lua?v=" .. versionToken)))()
+    IconAssets.Configure({
+        LoadRemoteImage=VantaTest.Creator and VantaTest.Creator.LoadRemoteImage,
+        Request=VantaTest.Creator and VantaTest.Creator.Request,
+    })
     ChatModule.Mount(ChatTab,{Transport=Transport.new(),IconResolver=IconAssets.Resolve})
 end)
 if not okChat then
@@ -463,6 +467,7 @@ if type(Window.Tag) == "function" then
 end
 
 print("[VantaTest LAB] Showcase ready. Components failed:", #failures)
+
 
 
 

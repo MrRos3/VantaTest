@@ -81,6 +81,23 @@ class ChatTests(unittest.TestCase):
         self.runlua("local files={};downloads=0;makefolder=function()end;readfile=function(p)return files[p]end;writefile=function(p,d)files[p]=d end;getcustomasset=function(p)return 'customasset://'..p end;game.HttpGet=function(_,url)downloads=downloads+1;assert(url:find('MrRos3/SaltyIcons/',1,true));return string.char(137)..'PNG'..string.char(13,10,26,10)..'original bytes'end")
         self.lua.globals().Icons=self.lua.execute((ROOT/'roblox-chat/IconAssets.lua').read_text(encoding='utf-8'))
         self.runlua("assert(Icons.Resolve('send')=='customasset://VantaTest/SaltyIcons-b7db826/send.png');assert(Icons.Resolve('send'));assert(downloads==1);assert(not Icons.Resolve('../anything'))")
+    def test_png_loader_works_without_readfile_or_makefolder(self):
+        self.runlua("writefile=function(path,data)written=path end;getcustomasset=function(path)return 'customasset://'..path end;game.HttpGet=function()return string.char(137)..'PNG'..string.char(13,10,26,10)..'image bytes'end")
+        self.lua.globals().Icons=self.lua.execute((ROOT/'roblox-chat/IconAssets.lua').read_text(encoding='utf-8'))
+        self.runlua("assert(Icons.Resolve('send')=='customasset://VantaTest-SaltyIcons-b7db826-send.png');assert(written=='VantaTest-SaltyIcons-b7db826-send.png')")
+    def test_icon_loader_uses_existing_library_pipeline(self):
+        self.lua.globals().Icons=self.lua.execute((ROOT/'roblox-chat/IconAssets.lua').read_text(encoding='utf-8'))
+        self.runlua("Icons.Configure({LoadRemoteImage=function(url,folder)assert(url:find('/social/send.png',1,true));assert(folder=='VantaTestChat');return 'customasset://existing-library/send'end});assert(Icons.Resolve('send')=='customasset://existing-library/send')")
+    def test_binary_request_fallback_for_failed_httpget(self):
+        self.runlua("writefile=function()end;getcustomasset=function(path)return 'customasset://'..path end;game.HttpGet=function()error('binary route failed')end")
+        self.lua.globals().Icons=self.lua.execute((ROOT/'roblox-chat/IconAssets.lua').read_text(encoding='utf-8'))
+        self.runlua("Icons.Configure({Request=function(request)assert(request.Method=='GET');return {Body=string.char(137)..'PNG'..string.char(13,10,26,10)..'binary bytes'}end});assert(Icons.Resolve('send'))")
+    def test_unavailable_reason_persists_in_feed_and_composer(self):
+        self.mount()
+        self.runlua("local reason='Vanta network is not installed in this experience.';assert(find('ComposerInput').PlaceholderText==reason);local found=false;for _,obj in ipairs(find('MessageFeed'):FindFirstChild('MessageRow'):GetChildren())do if obj.Text==reason then found=true end end;assert(found)")
+    def test_failed_icon_label_uses_button_area_at_readable_size(self):
+        self.runlua('unloadedIcons=true');self.mount()
+        self.runlua("local label=find('SendMessage'):FindFirstChildOfClass('TextLabel');assert(label.Text=='Send');assert(label.TextScaled==false and label.TextSize==10);assert(label.Size[1]==1 and label.Size[2]==1)")
     def test_all_packaged_salty_icons_match_original_hash_and_dimensions(self):
         assets=ROOT/'assets/salty-chat'
         entries=json.loads((assets/'manifest.json').read_text())
@@ -97,5 +114,6 @@ class ChatTests(unittest.TestCase):
         self.server();self.runlua('tcs.PlatformIntegratedChat=Enum.RolloutState.Enabled');self.mount()
         self.runlua("assert(find('RobloxChatWindow').Target==channels:FindFirstChild('VantaEN'));assert(not find('Composer').Visible);assert(not find('ComposerInput').TextEditable)")
 if __name__=='__main__': unittest.main()
+
 
 

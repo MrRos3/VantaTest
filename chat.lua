@@ -40,7 +40,7 @@ local ICON = {
     mention="rbxassetid://125917586170394",
     down="rbxassetid://93700951703515",
 }
-local BUILD="VANTA CHAT 3.0"
+local BUILD="VANTA CHAT 3.1"
 local LIMIT=150
 local EMOJI={"😀","😂","😍","🥹","😭","❤️","🖤","🌹","🔥","👍","👀","✨","😎","💀","💋","🙏"}
 
@@ -83,15 +83,26 @@ local function image(parent,key,size,props)
     for k,v in pairs(props or {}) do t[k]=v end
     local icon=inst("ImageLabel",t,parent)
     local resolved=false
+    local resolveError=nil
     if iconResolver then
         task.spawn(function()
-            local ok,asset=pcall(iconResolver,key)
+            local ok,asset,reason=pcall(iconResolver,key)
+            if not ok then resolveError=tostring(asset) elseif not asset then resolveError=reason end
             if ok and asset and icon.Parent then icon.Image=asset;resolved=true end
         end)
     end
     -- Published SaltyIcons IDs include Decals. A Decal ID can fail as a texture.
     -- rbxthumb resolves that same asset, not a replacement or handmade icon.
     local fallback
+    local function fallbackLabel()
+        local button=parent:IsA("TextButton") or parent:IsA("ImageButton")
+        local labels={send="Send",attach="Files",heart="Emoji",like="Like",reply="Reply",copy="Copy",more="More",remove="Hide",x="Close",down="Latest"}
+        return text(parent,labels[key] or key,button and 10 or 9,P.dim,true,{
+            Position=button and UDim2.fromOffset(0,0) or icon.Position,
+            Size=button and UDim2.fromScale(1,1) or icon.Size,ZIndex=icon.ZIndex,
+            TextScaled=false,TextXAlignment=Enum.TextXAlignment.Center,
+        })
+    end
     local triedThumbnail=false
     local function useThumbnail()
         if not icon.Parent or icon.IsLoaded or triedThumbnail or resolved then return end
@@ -108,24 +119,22 @@ local function image(parent,key,size,props)
         end
         if not icon.Parent or icon.IsLoaded then return end
         icon.Visible=false
-        fallback=text(parent,key=="send" and "Send" or key,9,P.dim,true,{
-            Position=icon.Position,Size=icon.Size,ZIndex=icon.ZIndex,
-            TextScaled=true,TextXAlignment=Enum.TextXAlignment.Center,
-        })
-        warn("[VantaTest] SaltyIcons asset unavailable: "..key.." "..ICON[key])
+        fallback=fallbackLabel()
+        warn("[VantaTest] SaltyIcons "..key..": "..tostring(resolveError or "Image content could not be loaded.").." · "..ICON[key])
     end)
     task.delay(12,function()
         if icon.Parent and not icon.IsLoaded and not fallback then
             icon.Visible=false
-            fallback=text(parent,key=="send" and "Send" or key,9,P.dim,true,{
-                Position=icon.Position,Size=icon.Size,ZIndex=icon.ZIndex,TextScaled=true,
-                TextXAlignment=Enum.TextXAlignment.Center,
-            })
+            fallback=fallbackLabel()
         end
     end)
     icon:GetPropertyChangedSignal("IsLoaded"):Connect(function()
         if icon.IsLoaded then icon.Visible=true;if fallback then fallback:Destroy();fallback=nil end end
     end)
+    if icon.IsLoaded then
+        icon.Visible=true
+        if fallback then fallback:Destroy();fallback=nil end
+    end
     return icon
 end
 local function click(parent,name,sz,props)
@@ -205,6 +214,7 @@ function Chat.Mount(tab,options)
     local choices=nil
     local friendLoading=false
     local joined=false
+    local connectionReason="Join Vanta to start."
     local joinNetwork
     local render
     local selectRoom
@@ -662,14 +672,14 @@ function Chat.Mount(tab,options)
         if count==0 then
             local empty=inst("Frame",{
                 Name="MessageRow",LayoutOrder=1,BackgroundTransparency=1,
-                Size=UDim2.new(1,0,0,98),
+                Size=UDim2.new(1,0,0,112),
             },feed)
             image(empty,"chat",28,{Position=UDim2.new(0.5,-14,0,4),ImageColor3=P.orange})
             text(empty,activeChannel and "A little hello goes a long way" or currentDM and "Private chat unavailable" or "Chat unavailable",13,P.pale,true,{
                 Position=UDim2.fromOffset(8,36),Size=UDim2.new(1,-16,0,22),TextXAlignment=Enum.TextXAlignment.Center,
             })
-            text(empty,activeChannel and "Choose EN or AR. Only Vanta members can take part." or currentDM and "Roblox hasn't opened this private conversation. Check its chat controls." or "This experience needs the Vanta server module and Roblox chat permission.",10,P.dim,false,{
-                Position=UDim2.fromOffset(12,60),Size=UDim2.new(1,-24,0,30),TextWrapped=true,
+            text(empty,activeChannel and "Choose EN or AR. Only Vanta members can take part." or currentDM and "Roblox hasn't opened this private conversation. Check its chat controls." or connectionReason,10,P.dim,false,{
+                Position=UDim2.fromOffset(12,60),Size=UDim2.new(1,-24,0,44),TextWrapped=true,
                 TextXAlignment=Enum.TextXAlignment.Center,
             })
         end
@@ -845,6 +855,7 @@ function Chat.Mount(tab,options)
     watch(networkButton.MouseButton1Click:Connect(function()
         if joined then
             joined=false
+            connectionReason="You left Vanta. Join to chat again."
             if transport then transport:Destroy() end
             table.clear(messages);table.clear(byId)
             currentDM=nil;selectRoom()
@@ -889,12 +900,12 @@ function Chat.Mount(tab,options)
             end)
             if ok then nativeWindow=window else windowFailed=true end
         end
-        status.Text=windowFailed and "Native window unavailable" or usable and (currentDM and "Private · Vanta members" or "Room · Vanta members") or "Join / permission required"
+        status.Text=windowFailed and "Native window unavailable" or usable and (currentDM and "Private · Vanta members" or "Room · Vanta members") or connectionReason
         indicator.BackgroundColor3=usable and not windowFailed and P.mint or P.orange
         entry.TextEditable=usable and not integrated
         send.AutoButtonColor=entry.TextEditable
         send.BackgroundColor3=entry.TextEditable and P.orange or P.orangeDeep
-        entry.PlaceholderText=usable and ("Message Vanta "..room.."...") or "Vanta unavailable · join required"
+        entry.PlaceholderText=usable and ("Message Vanta "..room.."...") or (joined and "Roblox chat permission unavailable" or connectionReason)
         render()
     end
     selectRoom=function()
@@ -1049,12 +1060,13 @@ function Chat.Mount(tab,options)
         joining=true
         networkButton.Text="Joining..."
         if not transport then
-            joining=false;networkButton.Text="Join Vanta";notify("Vanta transport is not loaded.");return
+            joining=false;connectionReason="Chat transport module is missing.";networkButton.Text="Join Vanta";selectRoom();notify(connectionReason);return
         end
         local ok,result,reason=pcall(function()return transport:Join()end)
         joining=false
         if not alive then return end
         joined=ok and result==true
+        connectionReason=joined and "" or (reason or "Vanta admission failed. Check Roblox permissions.")
         networkButton.Text=joined and "Leave" or "Join Vanta"
         selectRoom();drawFaces()
         if not joined then notify(reason or "Vanta requires its server module in this owned experience.") end
@@ -1071,6 +1083,7 @@ function Chat.Mount(tab,options)
 end
 
 return Chat
+
 
 
 

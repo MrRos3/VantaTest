@@ -1,4 +1,4 @@
-# Vanta Chat 3.0 — supported implementation and setup
+# Vanta Chat 3.1 — supported implementation and setup
 
 This replaces the public-chat/whisper fallback in NIGHTLINE 2.0. Vanta Chat has a dedicated GUI and a separate transport. No Vanta message is sent to RBXGeneral, a default whisper, Render, a browser, or an external messenger.
 
@@ -101,3 +101,8 @@ Owner acceptance test:
 - [SaltyIcons source manifest](https://github.com/MrRos3/SaltyIcons/blob/b7db826820a3456fe953f0097b1924de9e04ff97/roblox/upload-manifest.csv)
 
 
+
+
+## 3.1 compatibility fix
+
+The example now passes VantaTest.Creator.LoadRemoteImage and its binary request function into IconAssets. That proven library path is preferred. The standalone fallback requires only writing and local-image registration; file reading and folder creation are optional. It can use the binary request route when HttpGet fails. Admission failures remain visible in the feed and composer, and text fallbacks use the full button area at a readable fixed size. These changes do not grant or bypass chat permissions.
