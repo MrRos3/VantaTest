@@ -1,0 +1,38 @@
+name: Check Vanta Chat LAB
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - chat.lua
+      - example.lua
+      - .github/workflows/check-chat.yml
+  pull_request:
+    paths:
+      - chat.lua
+      - example.lua
+      - .github/workflows/check-chat.yml
+
+permissions:
+  contents: read
+
+jobs:
+  chat-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua parser
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: '5.1'
+      - name: Parse Vanta Chat and example with Lua 5.1
+        run: |
+          luac -p chat.lua
+          luac -p example.lua
+      - name: Check script-only chat and language feature markers
+        run: |
+          grep -q 'VCHAT2|' chat.lua
+          grep -q 'SendAsync' chat.lua
+          grep -q 'TextChatService.MessageReceived' chat.lua
+          grep -q 'roomName=="AR"' chat.lua
+          grep -q 'EmojiPicker' chat.lua
