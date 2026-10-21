@@ -40,6 +40,10 @@ class ChatTests(unittest.TestCase):
     def test_stale_leave_cannot_remove_a_new_client_session(self):
         self.server()
         self.runlua("local r=storage:FindFirstChild('VantaChatMembership');local a,b,newLease=r.OnServerInvoke(me,'join');assert(a);assert(newLease~=aliceLease);assert(not r.OnServerInvoke(me,'leave',aliceLease));assert(me:GetAttribute('VantaChatJoined'));assert(r.OnServerInvoke(me,'leave',newLease));assert(not me:GetAttribute('VantaChatJoined'))")
+    def test_avatar_bubble_display_is_rejected(self):
+        self.server(False)
+        self.runlua("local bubbles=Instance.new('BubbleChatConfiguration');bubbles.Enabled=true;bubbles.Parent=tcs")
+        self.mount();self.runlua("assert(not me:GetAttribute('VantaChatJoined'));assert(not find('ComposerInput').TextEditable)")
     def test_two_clients_join_and_leave_removes_access(self):
         self.server()
         self.runlua("local c=channels:FindFirstChild('VantaEN');assert(#c:GetChildren()==2);local m={MessageId='first',TextSource={UserId=11}};assert(c.ShouldDeliverCallback(m,{UserId=22}));storage:FindFirstChild('VantaChatMembership').OnServerInvoke(friend,'leave',bobLease);assert(not c.ShouldDeliverCallback(m,{UserId=22}));assert(not friend:GetAttribute('VantaChatJoined'))")
@@ -93,4 +97,5 @@ class ChatTests(unittest.TestCase):
         self.server();self.runlua('tcs.PlatformIntegratedChat=Enum.RolloutState.Enabled');self.mount()
         self.runlua("assert(find('RobloxChatWindow').Target==channels:FindFirstChild('VantaEN'));assert(not find('Composer').Visible);assert(not find('ComposerInput').TextEditable)")
 if __name__=='__main__': unittest.main()
+
 

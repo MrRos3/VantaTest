@@ -103,6 +103,10 @@ membership.OnServerInvoke=function(player,action,session)
         leave(player);return true
     end
     if action~="join" then return false,"Invalid Vanta membership request." end
+    local bubbles=TextChatService:FindFirstChild("BubbleChatConfiguration")
+    if bubbles and bubbles.Enabled then
+        return false,"Disable avatar speech bubbles in Studio to keep Vanta messages inside its GUI."
+    end
     local config=TextChatService:FindFirstChild("ChatWindowConfiguration")
     local configured,displayMode=pcall(function()return config.TextChannelDisplayMode end)
     local input=TextChatService:FindFirstChild("ChatInputBarConfiguration")
@@ -185,5 +189,6 @@ end
 membership.Parent=ReplicatedStorage;dm.Parent=ReplicatedStorage
 reaction.Parent=ReplicatedStorage;updates.Parent=ReplicatedStorage
 Players.PlayerRemoving:Connect(function(player)leave(player);lastRequest[player]=nil;busy[player]=nil;sendTimes[player.UserId]=nil end)
+
 
 
