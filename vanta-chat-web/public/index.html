@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vanta Chat</title><link rel="stylesheet" href="/style.css"></head>
+<body><main class="shell">
+<header><div><h1>Vanta Chat <span>LAB</span></h1><small>Worldwide companion chat · EN / AR · VantaTest</small></div><span id="status">● Connecting</span></header>
+<section id="auth" class="auth"><h2>Welcome to Vanta Chat</h2><p>Create a chat account or sign in. This is a separate companion site, not Roblox in-game messaging.</p>
+<input id="username" placeholder="Username" maxlength="24" autocomplete="username"><input id="password" type="password" placeholder="Password (10+ characters)" autocomplete="current-password">
+<div class="buttons"><button id="login">Sign in</button><button id="register">Create account</button></div><p id="auth-error" role="alert"></p></section>
+<section id="app" hidden><div class="room"><div class="brand">◈</div><div><b>Vanta Global</b><small>Independent companion chat</small></div><div class="grow"></div><button data-room="EN" class="active">EN</button><button data-room="AR">AR</button><button id="logout" title="Sign out">⎋</button></div>
+<div id="messages" role="log" aria-live="polite"></div><div id="reply" hidden><span id="reply-text"></span><button id="cancel-reply">×</button></div>
+<div class="composer"><button id="emoji-toggle" title="Emojis">☺</button><input id="draft" maxlength="700" placeholder="Message in EN…"><button id="send">➤</button></div>
+<div id="emoji-list" hidden></div><p id="notice" role="alert"></p><p class="disclaimer">Public community chat, not end-to-end encrypted. Report or block inappropriate messages. Never share passwords, private details or contact information.</p></section>
+</main><script src="/app.js" defer></script></body></html>
