@@ -53,6 +53,10 @@ function methods:SetDirectChatRequester(player)self:AddUserAsync(player.UserId)e
 function methods:SendAsync(content,metadata)
     self.sent=content;self.sentMetadata=metadata
     if sendError then error("engine send error")end
+    if self.Name=="RBXGeneral" and content=="/whisper @Bob" and commandCreatesWhisper then
+        local channel=Instance.new("TextChannel");channel.Name="RBXWhisper:11_22";channel.Parent=channels
+        channel:AddUserAsync(11);channel:AddUserAsync(22)
+    end
     return {Status=sendStatus or Enum.TextChatMessageStatus.Success}
 end
 objects={}
@@ -74,6 +78,15 @@ function players:GetPlayerByUserId(id)if id==11 then return me elseif id==22 and
 storage=Instance.new("ReplicatedStorage")
 tcs=Instance.new("TextChatService");tcs.MessageReceived=signal()
 channels=Instance.new("Folder");channels.Name="TextChannels";channels.Parent=tcs
+function existingChat()
+    local general=Instance.new("TextChannel");general.Name="RBXGeneral";general.Parent=channels
+    general:AddUserAsync(11);general:AddUserAsync(22)
+    local commands=Instance.new("Folder");commands.Name="TextChatCommands";commands.Parent=tcs
+    local command=Instance.new("TextChatCommand");command.Name="RBXWhisperCommand";command.PrimaryAlias="/whisper";command.Enabled=true;command.Parent=commands
+    for _,name in ipairs({"ChatWindowConfiguration","ChatInputBarConfiguration"})do
+        local config=Instance.new(name);config.Name=name;config.Enabled=true;config.Parent=tcs
+    end
+end
 function tcs:CanUsersDirectChatAsync(_,ids)if permissionDenied then return {}end;return ids end
 local services={Players=players,TextChatService=tcs,ReplicatedStorage=storage,
     ContentProvider={PreloadAsync=function()end},TextService={GetTextSize=function(_,value,size,_,width)
@@ -88,4 +101,5 @@ function allText()
 end
 now=10
 os.clock=function()return now end
+
 

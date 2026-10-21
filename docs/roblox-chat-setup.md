@@ -1,6 +1,26 @@
-# VantaTest Roblox chat — setup and limits
+# VantaTest NIGHTLINE 2.0 — setup and limits
 
-## What changed
+## NIGHTLINE 2.0: current behavior
+
+The new UI keeps the Vanta black/crimson identity with a compact conversation card, brighter gradients, avatar friend rows, right-aligned outgoing bubbles and bounded overlays. Friends, emoji and mention panels close each other. No fake conversations or script-user presence counts are inserted.
+
+**The requested private chat across different games/servers is not available through this client script.** There is no supported Roblox API here that creates private cross-experience messaging between arbitrary script users. The code does not send Roblox conversations to Render or another relay, claim that friends have the script, or bypass account communications restrictions.
+
+An optional existing-channel path now works without Vanta server installation: the tab uses `RBXGeneral` when Vanta rooms are absent, and Friends can select existing `RBXWhisper:[id]_[id]` channels. If allowed, it requests a new whisper using Roblox's enabled built-in `/whisper @Username` command. Only the recipient-selection command goes through General, never a private draft. If the command is missing, denied, or does not create a channel, sending stays disabled for the selected friend. The UI asks the user to open a whisper in Roblox's own chat first where appropriate. Existing whispers are same-server and do not require the friend to use this script.
+
+The **Roblox UI** button locally hides the default chat window/input only after an available channel exists. **Restore UI** returns the original settings, as does module destruction. This changes the frontend only; it leaves the actual game chat services, filters, commands and permissions intact. Restore the Roblox UI whenever you want its chat controls; Roblox's main menu safety tools remain available. No server-wide system-chat replacement is performed by a client script.
+
+For existing General fallback, EN/AR are typing/alignment preferences for the same server channel, not two separate audiences. With the optional Vanta server, they select its two separate public rooms. In platform-integrated mode, retain the explicit Studio configuration below; Roblox renders messages/input, and programmatic SendAsync cannot be used to recreate hidden message content.
+
+### Test the new path
+
+1. Reload VantaTest's existing `example.lua` and open Chat. Look for **NIGHTLINE 2.0** and **Server lounge**. If this game exposes RBXGeneral and permits this frontend, test two-way room messaging with another eligible account in the same server without installing the Vanta server module.
+2. Open Friends and select a friend who is here. Test an existing whisper and creation through the enabled built-in command. Confirm the heading is private before typing. Test a denied whisper and a departing friend: no private body may be sent to General.
+3. Open emoji then Friends, and reverse the order. Only one panel should remain open. Test desktop/mobile widths, incoming/outgoing alignment, scrolling, avatar cards and loaded SaltyIcons.
+4. Toggle Roblox UI / Restore UI and destroy/remount the module. Verify original chat visibility settings return. Test permissions-denied settings without any elevated APIs.
+5. Test messages in the other direction through Roblox's native whisper UI too. A friend need not use this frontend. Friends in unrelated games remain outside this chat's supported delivery route.
+
+## Owned-experience path and earlier implementation details
 
 `chat.lua` is shared by the existing `example.lua` Chat tab and the Studio installer. Pulse-inspired warm charcoal/orange styling remains. Child controls now inherit increasing ZIndex; the composer stays within a height that follows its tab; timestamps have reserved space; narrow headers hide avatar decoration; reading older messages no longer jumps to the latest on receipt. Replies carry only a Roblox message ID in metadata, and quote only messages already received through Roblox. Reactions and hide/delete are explicitly local conveniences, not shared reactions or remote deletion.
 
@@ -27,7 +47,7 @@ The status indicator describes channel availability in **this server**. Successf
    Rojo users can sync `chat.project.json` instead; it maps those same three files. The legacy `default.project.json` is not the chat installer.
 6. Publish to your owned experience and test with two eligible real accounts that are friends, in the **same server**. Studio local players alone cannot prove real-account friendship, communication eligibility, filtering or delivery. No Roblox experience access/deployment was supplied during this implementation; installation and real-account validation remain owner steps.
 
-The existing public `example.lua` loader is retained for its existing environment. It is not the Studio install path and cannot install trusted server code in someone else's experience. Loading the client alone shows setup/permission status, not a working global chat.
+The existing public `example.lua` loader is retained for its existing environment. It is not the Studio install path and cannot install trusted server code in someone else's experience. Loading the client alone can use existing channels where supported; it never creates a working cross-game private chat.
 
 ## SaltyIcons loading
 
@@ -75,4 +95,5 @@ Owner acceptance test:
 - [Cross-server chat](https://create.roblox.com/docs/chat/cross-server-chat)
 - [Platform-integrated chat](https://create.roblox.com/docs/chat/platform-integrated-chat) (documentation currently says it becomes required in May 2027)
 - [SaltyIcons upload manifest](https://github.com/MrRos3/SaltyIcons/blob/main/roblox/upload-manifest.csv)
+
 

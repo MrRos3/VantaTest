@@ -113,7 +113,7 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Live Chat LAB, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 add(Home, "Button", {
     Title = "Open Vanta Chat",
-    Desc = "Roblox EN/AR rooms and friend DMs. Requires the Vanta server module in your experience.",
+    Desc = "NIGHTLINE 2.0: redesigned chat, existing Roblox server chat and private whispers.",
     Icon = "messages-square",
     Callback = function()
         if ChatTab and ChatTab.Index then
@@ -127,7 +127,7 @@ add(Home, "Button", {
 -- VANTA CHAT -----------------------------------------------------------------
 -- Native Chat UI using Roblox TextChatService; see docs/roblox-chat-setup.md.
 -- No external web launch, bypass of Roblox chat privacy, or unfiltered relay.
-ChatTab = tab("Chat", "messages-square", "Roblox chat and same-server friend DMs")
+ChatTab = tab("Chat", "messages-square", "NIGHTLINE 2.0 · server chat and friend whispers")
 local okChat, chatError = pcall(function()
     local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
     local ChatModule = assert(loadstring(chatSource))()
@@ -461,4 +461,5 @@ if type(Window.Tag) == "function" then
 end
 
 print("[VantaTest LAB] Showcase ready. Components failed:", #failures)
+
 

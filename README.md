@@ -29,17 +29,17 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat — Roblox rooms and friend DMs
+### Vanta Chat — NIGHTLINE 2.0
 
-**Visible build: `PULSE STYLE 1.1`.** The existing in-window Chat tab now uses Roblox TextChatService for real same-server EN/AR rooms and friend DMs when the owned-experience server module is installed. There are no demo messages or raw draft echoes. Client-only loading reports setup/permission status.
+The in-script Chat tab has a new black/crimson design, gradient accents, avatar friend cards, right-aligned outgoing bubbles, improved empty states, and mutually exclusive friends/emoji panels. Real SaltyIcons remain throughout.
 
-The Pulse-inspired charcoal/orange shell, SaltyIcons, composer, replies and compact bubbles remain in supported custom-frontend mode. Platform-integrated mode embeds Roblox's native TextChannelWindow in the tab; Roblox renders its conversation and input. SaltyIcons IDs are retained, with same-asset thumbnail fallback, load diagnostics and visible text labels if an icon remains unavailable. This does not guarantee asset permissions in every experience.
+It can now reuse the game's existing **RBXGeneral** and **RBXWhisper** channels without the Vanta server module where Roblox permits a custom frontend. Friends selects an existing private whisper or requests Roblox's built-in recipient-only whisper command. A failed private-chat request disables sending; it never switches your draft into public chat. The **Roblox UI / Restore UI** toggle switches the visible default chat interface and restores its original settings when this Chat module is destroyed. It does not replace Roblox filtering or permissions.
 
-**[Setup, exact limits and two-account test instructions](docs/roblox-chat-setup.md)**. Install `chat.lua` as ReplicatedStorage.VantaChatUI plus `roblox-chat/Server.server.lua`; use the supplied LocalScript host or mount the module into your existing VantaTest Chat tab. `chat.project.json` is the optional Rojo mapping.
+**Cross-game private messaging is not implemented.** A client script cannot create a supported private network with script users in unrelated games or servers. Installing this UI on both clients does not create such a route, prove that a friend uses the script, or bypass Roblox communication restrictions. The Render browser companion remains separate.
 
-Friend DMs require both friends in the same server and Roblox communication permission. Across-server Global remains Roblox's default tab within the same universe; it is not a guaranteed friend DM route or a custom-window target. The Render companion is separate and does not carry Roblox conversations. Reactions/hiding are local; successful send is not a recipient delivery receipt.
+The optional owned-experience server still supplies custom Vanta EN/AR rooms and permission-gated DMs. Without those rooms, EN/AR changes typing preferences while both select the same existing server channel. Platform-integrated mode uses Roblox's native TextChannelWindow in the Vanta shell. Private whispers remain same-server.
 
-Automated syntax and engine-double logic tests are included. Actual Roblox visual rendering, filtering and two-account delivery must be validated in your published owned experience; they were not verified by those tests.
+See [setup, exact limits and testing](docs/roblox-chat-setup.md). Automated syntax/logic checks do not establish real Roblox rendering or delivery; validate in the actual experience with eligible accounts.
 
 **VantaUI production remains unchanged.**
 
@@ -83,4 +83,5 @@ npm run build
 ```
 
 Licensing information: [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
+
 

@@ -109,6 +109,83 @@ class ChatTests(unittest.TestCase):
             assert(not allText():find("private draft",1,true))
         ''')
 
+    def test_existing_game_chat_works_without_vanta_server(self):
+        self.runlua('existingChat()')
+        self.mount()
+        self.runlua('''
+            assert(find("ComposerInput").TextEditable)
+            find("ComposerInput").Text="room draft"
+            find("SendMessage").MouseButton1Click:Fire()
+            assert(channels:FindFirstChild("RBXGeneral").sent=="room draft")
+            tcs.MessageReceived:Fire({Status=Enum.TextChatMessageStatus.Success,
+                TextChannel=channels:FindFirstChild("RBXGeneral"),TextSource={UserId=22},
+                MessageId="game-one",Text="filtered game message"})
+            assert(allText():find("filtered game message",1,true))
+        ''')
+
+    def test_native_whisper_command_only_sends_recipient_then_private_body(self):
+        self.runlua('existingChat();commandCreatesWhisper=true')
+        self.mount()
+        self.runlua('''
+            find("ChooseFriend").MouseButton1Click:Fire()
+            find("Friend_22").MouseButton1Click:Fire()
+            assert(channels:FindFirstChild("RBXGeneral").sent=="/whisper @Bob")
+            find("ComposerInput").Text="private draft"
+            find("SendMessage").MouseButton1Click:Fire()
+            assert(channels:FindFirstChild("RBXWhisper:11_22").sent=="private draft")
+            assert(channels:FindFirstChild("RBXGeneral").sent=="/whisper @Bob")
+        ''')
+
+    def test_failed_private_open_never_falls_back_to_public(self):
+        self.runlua('existingChat()')
+        self.mount()
+        self.runlua('''
+            find("ChooseFriend").MouseButton1Click:Fire()
+            find("Friend_22").MouseButton1Click:Fire()
+            assert(not find("ComposerInput").TextEditable)
+            find("ComposerInput").Text="private draft"
+            find("SendMessage").MouseButton1Click:Fire()
+            assert(channels:FindFirstChild("RBXGeneral").sent=="/whisper @Bob")
+        ''')
+
+    def test_lost_private_channel_never_selects_public(self):
+        self.runlua('existingChat();commandCreatesWhisper=true')
+        self.mount()
+        self.runlua('''
+            find("ChooseFriend").MouseButton1Click:Fire()
+            find("Friend_22").MouseButton1Click:Fire()
+            local private=channels:FindFirstChild("RBXWhisper:11_22")
+            private:Destroy();channels.ChildRemoved:Fire(private)
+            assert(not find("ComposerInput").TextEditable)
+            find("ComposerInput").Text="private after departure"
+            find("SendMessage").MouseButton1Click:Fire()
+            assert(channels:FindFirstChild("RBXGeneral").sent=="/whisper @Bob")
+        ''')
+
+    def test_popups_are_exclusive_and_friend_panel_clips_content(self):
+        self.mount()
+        self.runlua('''
+            find("EmojiPickerToggle").MouseButton1Click:Fire()
+            assert(find("EmojiPicker").Visible)
+            find("ChooseFriend").MouseButton1Click:Fire()
+            assert(find("FriendChoices").Visible and not find("EmojiPicker").Visible)
+            assert(find("FriendChoices").ClipsDescendants)
+            find("EmojiPickerToggle").MouseButton1Click:Fire()
+            assert(not find("FriendChoices").Visible and find("EmojiPicker").Visible)
+        ''')
+
+    def test_system_chat_toggle_restores_original_settings_on_destroy(self):
+        self.runlua('existingChat()')
+        self.mount()
+        self.runlua('''
+            find("SystemChatToggle").MouseButton1Click:Fire()
+            assert(not tcs:FindFirstChild("ChatWindowConfiguration").Enabled)
+            assert(not tcs:FindFirstChild("ChatInputBarConfiguration").Enabled)
+            find("VantaChatExperiment"):Destroy()
+            assert(tcs:FindFirstChild("ChatWindowConfiguration").Enabled)
+            assert(tcs:FindFirstChild("ChatInputBarConfiguration").Enabled)
+        ''')
+
     def test_read_only_source_disables_composer(self):
         self.server()
         self.runlua('''
@@ -138,4 +215,5 @@ class ChatTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
 
