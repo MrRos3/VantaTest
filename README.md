@@ -19,7 +19,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Tab | Interactive demos |
 | --- | --- |
 | Home | Runtime information, button counter, notification preview and Chat shortcut |
-| Chat | Pulse-inspired dark chat UI, real Roblox server messages, player avatars, EN/RU filters, @replies and send bar |
+| Chat | Telegram-inspired Vanta chat: native vector icons, EN/AR rooms, emoji tray, filtered script-only same-server messages, replies, reactions, timestamps, copy and hide |
 | Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
 | Toggles | Switches, checkbox variant, rebindable hotkey |
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
@@ -31,11 +31,13 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 
 ### Vanta Chat LAB (experimental)
 
-The **Chat** tab loads `chat.lua` and displays a rounded dark chat panel inspired by the reference screenshot. The controls are interactive, not just a static mockup. **Only** public Roblox `TextChatService` messages from the current game's `RBXGeneral` channel are sent and received. Message text is provided by Roblox's filtered chat delivery. The online counter and profile avatars reflect actual players in this server.
+The **Chat** tab loads `chat.lua` and features Telegram-inspired rounded chat bubbles, timestamps, player avatars, reply previews, per-message actions (Reply, Copy, React ❤️ / 👍, Hide locally), and a bottom-left emoji picker. The chat, send, reply, close and emoji icons are rendered with Roblox UI shapes rather than unreliable Unicode icon glyphs.
 
-The **EN / RU** toggles filter messages by script, and are not independent global chat rooms. Initially labeled `DEMO` bubbles illustrate the design when no real messages have arrived; the bubbles are replaced as soon as live chat begins. If an experience does not expose `RBXGeneral`, the send bar indicates that chat is unavailable. This feature has **no cross-server relay or database** and makes no claim to global presence. Click a real message to prefill an `@reply`.
+**EN and AR (Arabic)** are UI-filtered room selections. Arabic messages align to the right. Sending attaches compact `VCHAT2|` metadata through `TextChannel:SendAsync()`, and only messages bearing this metadata appear in the Vanta Chat feed. Normal Roblox game chat is not copied into the chat tab. All displayed received messages come from Roblox's already-filtered `TextChatService.MessageReceived`. Players who run the chat in the **same Roblox server** can interact if RBXGeneral and chat permissions are enabled.
 
-The chat prototype lives exclusively in **VantaTest**; VantaUI was not modified.
+**Important:** This is **not global across different servers or Roblox games**. That requires an external hosted relay with authentication, text moderation/filtering, anti-spam and appropriate Roblox safety protections. None is deployed in this repository. The room counter is the number of players present in the current server, not the number using the script; EN/AR room membership is not a global presence measure.
+
+The example bubbles are marked `PREVIEW` and give way to live script-to-script messages. Replies carry Roblox message IDs using chat metadata, so quoted previews appear when their original messages are still available locally. Emoji reactions and Hide locally are local presentation actions; they do **not** edit, unsend or propagate reactions on Roblox chat messages. Custom backgrounds and core VantaUI functionality remain unchanged.
 
 All **18 element types currently registered** in the library are represented: Paragraph, Button, Toggle, Slider, ProgressBar, Keybind, Input, Dropdown, Code, Colorpicker, Section, Divider, Space, Image, Group, HStack, VStack, Viewport.
 
