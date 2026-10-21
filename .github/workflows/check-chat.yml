@@ -39,6 +39,10 @@ jobs:
           grep -q 'room=="AR"' chat.lua
           grep -q 'setReply' chat.lua
           grep -q 'local function sendDemo' chat.lua
+          grep -q 'MAX_HISTORY = 150' chat.lua
+          grep -q 'JumpToLatest' chat.lua
+          grep -q 'Name="Mentions"' chat.lua
+          grep -q 'MentionCandidate' chat.lua
           if grep -q 'TextChatService.MessageReceived' chat.lua; then exit 1; fi
           if grep -q 'SendAsync(' chat.lua; then exit 1; fi
           if grep -q 'http.*onrender.com' chat.lua; then exit 1; fi

@@ -31,7 +31,10 @@ local ICONS = {
     remove = "rbxassetid://71091959578714",
     user = "rbxassetid://108864475481601",
     clock = "rbxassetid://118647085388941",
+    mention = "rbxassetid://125917586170394",
+    down = "rbxassetid://93700951703515",
 }
+local MAX_HISTORY = 150 -- cap render load like Pulse's sampled message list
 local EMOJIS = {"😀","😂","😍","🥹","😭","❤️","🖤","🌹","🔥","👍","👀","✨","😎","💀","💋","🙏"}
 
 local function new(class, props, parent)
@@ -209,6 +212,16 @@ function Chat.Mount(tab)
         Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder,
     },feed)
 
+    -- Scroll-to-latest control for large chat histories.
+    local jump=button(root,"JumpToLatest",UDim2.fromOffset(30,30),{
+        Position=UDim2.new(1,-48,1,-91),
+        BackgroundTransparency=0.07,BackgroundColor3=PALETTE.burgundy,
+        Visible=false,ZIndex=8,
+    })
+    round(jump,15)
+    outline(jump,PALETTE.border,0.25)
+    icon(jump,"down",16,{Position=UDim2.fromOffset(7,7),ZIndex=9})
+
     local compose=new("Frame",{
         Name="Composer",Position=UDim2.new(0,10,1,-55),
         Size=UDim2.new(1,-20,0,45),
@@ -223,10 +236,16 @@ function Chat.Mount(tab)
     -- The smile icon is not published in SaltyIcons' uploaded Roblox IDs.
     -- Use the user's real heart icon to open an actual emoji picker.
     icon(emojiBtn,"heart",20,{Position=UDim2.fromOffset(6,7),ImageColor3=PALETTE.dim})
+    local mentionBtn=button(compose,"MentionToggle",UDim2.fromOffset(29,37),{
+        Position=UDim2.fromOffset(38,4),
+    })
+    icon(mentionBtn,"mention",17,{
+        Position=UDim2.fromOffset(6,9),ImageColor3=PALETTE.dim,
+    })
     local entry=new("TextBox",{
         Name="ComposerInput",
-        Position=UDim2.fromOffset(45,1),
-        Size=UDim2.new(1,-94,1,-2),
+        Position=UDim2.fromOffset(72,1),
+        Size=UDim2.new(1,-121,1,-2),
         BackgroundTransparency=1,BorderSizePixel=0,
         Text="",ClearTextOnFocus=false,MultiLine=false,
         PlaceholderText="Type a local demo message...",
@@ -243,6 +262,62 @@ function Chat.Mount(tab)
     icon(send,"send",20,{
         Position=UDim2.fromOffset(7,7),
     })
+
+    -- Local-only name suggestions, inspired by Pulse's Mentions pane.
+    -- The suggestions are NOT a list of global chat participants.
+    local mentions=new("Frame",{
+        Name="Mentions",Visible=false,
+        Position=UDim2.new(0,42,1,-127),
+        Size=UDim2.fromOffset(226,60),ZIndex=24,
+        BackgroundColor3=PALETTE.card,BorderSizePixel=0,
+    },root)
+    round(mentions,10)
+    outline(mentions,PALETTE.border,0.3)
+    label(mentions,"SERVER NAME · LOCAL DEMO",9,PALETTE.rose,true,{
+        Position=UDim2.fromOffset(9,4),
+        Size=UDim2.new(1,-18,0,17),ZIndex=25,
+    })
+    local mentionChoice=button(mentions,"MentionCandidate",UDim2.new(1,-14,0,28),{
+        Position=UDim2.fromOffset(7,27),BackgroundTransparency=.5,
+        BackgroundColor3=PALETTE.bubble,ZIndex=25,
+    })
+    round(mentionChoice,6)
+    icon(mentionChoice,"mention",16,{
+        Position=UDim2.fromOffset(7,6),ZIndex=26,
+    })
+    local mentionName=label(mentionChoice,"",11,PALETTE.pale,false,{
+        Position=UDim2.fromOffset(30,0),Size=UDim2.new(1,-37,1,0),ZIndex=26,
+    })
+    local mentionTarget=nil
+    local function updateMentions()
+        local query=entry.Text:match("@([%w_]*)$")
+        if not query or #query>24 then
+            mentions.Visible=false
+            return
+        end
+        local found=nil
+        for _,user in ipairs(Players:GetPlayers()) do
+            if user.Name:lower():sub(1,#query)==query:lower() then
+                found=user.Name
+                break
+            end
+        end
+        mentionTarget=found
+        mentions.Visible=found~=nil
+        if found then mentionName.Text="@"..found.."  (preview)" end
+    end
+    watch(mentionBtn.MouseButton1Click:Connect(function()
+        entry.Text=entry.Text.."@"
+        entry:CaptureFocus()
+        updateMentions()
+    end))
+    watch(mentionChoice.MouseButton1Click:Connect(function()
+        if not mentionTarget then return end
+        entry.Text=entry.Text:gsub("@[%w_]*$","@"..mentionTarget.." ")
+        mentions.Visible=false
+        entry:CaptureFocus()
+    end))
+    watch(entry:GetPropertyChangedSignal("Text"):Connect(updateMentions))
 
     local replyBar=new("Frame",{
         Name="ReplyPreview",Visible=false,
@@ -372,6 +447,10 @@ function Chat.Mount(tab)
         }
         messages[#messages+1]=item
         byId[item.id]=item
+        if #messages>MAX_HISTORY then
+            local dropped=table.remove(messages,1)
+            if dropped then byId[dropped.id]=nil end
+        end
         return item
     end
 
@@ -478,9 +557,16 @@ function Chat.Mount(tab)
             if alive and feed.Parent then
                 feed.CanvasPosition=Vector2.new(0,math.max(0,
                     layout.AbsoluteContentSize.Y-feed.AbsoluteSize.Y+21))
+                jump.Visible=false
             end
         end)
     end
+    watch(jump.MouseButton1Click:Connect(bottom))
+    watch(feed:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+        if not alive then return end
+        local remaining=layout.AbsoluteContentSize.Y-feed.AbsoluteSize.Y-feed.CanvasPosition.Y
+        jump.Visible=remaining>75
+    end))
 
     local function render()
         if not alive then return end
@@ -515,6 +601,7 @@ function Chat.Mount(tab)
     watch(clearReply.MouseButton1Click:Connect(function() setReply(nil) end))
     watch(emojiBtn.MouseButton1Click:Connect(function()
         actions.Visible=false
+        mentions.Visible=false
         emojiTray.Visible=not emojiTray.Visible
     end))
 
@@ -564,6 +651,7 @@ function Chat.Mount(tab)
         entry.Text=""
         setReply(nil)
         emojiTray.Visible=false
+        mentions.Visible=false
         actions.Visible=false
         render()
         notify("Local demo only. Your message was not transmitted.")
