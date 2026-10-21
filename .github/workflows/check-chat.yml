@@ -29,10 +29,16 @@ jobs:
         run: |
           luac -p chat.lua
           luac -p example.lua
-      - name: Check safe companion launcher and SaltyIcons
+      - name: Check native in-window preview and published SaltyIcons assets
         run: |
-          grep -q 'https://vanta-chat-lab.onrender.com' chat.lua
-          grep -q 'SaltyIcons' chat.lua
-          grep -q 'OpenCompanionLink' chat.lua
+          grep -q 'VantaChatExperiment' chat.lua
+          grep -q 'MessageFeed' chat.lua
+          grep -q 'EmojiPicker' chat.lua
+          grep -q 'LOCAL DEMO' chat.lua
+          grep -q 'rbxassetid://104783825572790' chat.lua
+          grep -q 'room=="AR"' chat.lua
+          grep -q 'setReply' chat.lua
+          grep -q 'local function sendDemo' chat.lua
           if grep -q 'TextChatService.MessageReceived' chat.lua; then exit 1; fi
           if grep -q 'SendAsync(' chat.lua; then exit 1; fi
+          if grep -q 'http.*onrender.com' chat.lua; then exit 1; fi

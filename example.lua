@@ -113,7 +113,7 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Live Chat LAB, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 add(Home, "Button", {
     Title = "Open Vanta Chat",
-    Desc = "Preview the dark chat UI and talk through this game's public chat channel.",
+    Desc = "Try the native EN/AR message bubbles, emojis, reactions and replies (local-only demo).",
     Icon = "messages-square",
     Callback = function()
         if ChatTab and ChatTab.Index then
@@ -125,10 +125,9 @@ add(Home, "Button", {
 })
 
 -- VANTA CHAT -----------------------------------------------------------------
--- Visual experiment. Only filtered RBXGeneral messages from the current game
--- server are sent/received. EN/RU switches filter the local view; no fake
--- worldwide rooms, user counts or cross-server transport are implied.
-ChatTab = tab("Chat", "messages-square", "Hosted Vanta Chat companion, separate from Roblox chat")
+-- Interactive native Chat LAB interface with honest LOCAL-ONLY message previews.
+-- No external web launch, bypass of Roblox chat privacy, or unfiltered relay.
+ChatTab = tab("Chat", "messages-square", "Native EN/AR chat design preview inside VantaTest")
 local okChat, chatError = pcall(function()
     local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
     local ChatModule = assert(loadstring(chatSource))()

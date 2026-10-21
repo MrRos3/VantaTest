@@ -19,7 +19,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Tab | Interactive demos |
 | --- | --- |
 | Home | Runtime information, button counter, notification preview and Chat shortcut |
-| Chat | Hosted invite-only Vanta Chat companion launcher using real SaltyIcons asset IDs; EN/AR messaging occurs in the separate web app |
+| Chat | Native in-window Telegram-inspired Chat LAB demo: EN/AR tabs, message bubbles, replies, emoji picker, reactions, SaltyIcons, timestamps and local send |
 | Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
 | Toggles | Switches, checkbox variant, rebindable hotkey |
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
@@ -29,15 +29,15 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat LAB (external companion)
+### Vanta Chat LAB (in-script preview)
 
-The **Chat** tab no longer sends messages through Roblox's `RBXGeneral` or `TextChatService`, because users encountered chat-privacy restrictions. It now launches access to [Vanta Chat](https://vanta-chat-lab.onrender.com) by copying the hosted companion URL. Its GUI icons use your actual, previously uploaded **SaltyIcons** Roblox asset IDs, not handmade glyphs.
+The **Chat** tab runs an interactive Roblox GUI directly **inside VantaTest**. It includes English and Arabic room toggles (with right-aligned Arabic), timestamped sender/recipient bubbles, player avatar, real published Roblox asset IDs from [MrRos3/SaltyIcons](https://github.com/MrRos3/SaltyIcons), emoji tray at bottom-left, message selection, Reply, Copy, React ❤️, Hide locally, and deletion of your locally composed demo messages.
 
-The hosted website provides separate invite-only EN/AR chat rooms, Arabic text alignment, user accounts, messages shared between browsers, timestamps, replies, emoji reactions, reports, blocking, message deletion and lightweight automatic safety filters. The UI uses SVGs sourced from [MrRos3/SaltyIcons](https://github.com/MrRos3/SaltyIcons).
+It is a **local UI preview**, not a networked chat. Sample messages are labeled `PREVIEW`; messages you type are labeled `LOCAL` and appear only on your current client. They are not delivered to another user, game, server, or to the hosted companion. The message history disappears when the local UI is destroyed. Online counts are intentionally absent. This also does not bypass Roblox chat permissions.
 
-**Limitations:** This is an external companion chat, not in-game cross-server messaging. Render free hosting may sleep, and its current local SQLite database is ephemeral: accounts and messages may disappear when the service restarts. The separately provisioned Render Postgres database is not connected, since the current integration does not expose a database credential for the service. For now it is an invitation-only prototype, not a production-ready private messenger; messages are not end-to-end encrypted. No user should share passwords, real-world contact details or sensitive information.
+An independent **web companion** from earlier experiments is available at [Vanta Chat](https://vanta-chat-lab.onrender.com), but it is not linked to this in-script GUI. It supports invite-only EN/AR chat in browsers, and its free-tier database is currently ephemeral. The source remains in [vanta-chat-web](vanta-chat-web). Integrating unrestricted web messaging into arbitrary Roblox executors would bypass Roblox's in-game communication protections, so the in-script preview is deliberately disconnected.
 
-The chat project lives in [vanta-chat-web](vanta-chat-web). VantaUI is untouched.
+**No production VantaUI changes** were made.
 
 All **18 element types currently registered** in the library are represented: Paragraph, Button, Toggle, Slider, ProgressBar, Keybind, Input, Dropdown, Code, Colorpicker, Section, Divider, Space, Image, Group, HStack, VStack, Viewport.
 
