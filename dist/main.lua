@@ -507,8 +507,6 @@ TabBackgroundHover="Hover",
 TabBackgroundHoverTransparency=0.97,
 TabBackgroundActive="Hover",
 TabBackgroundActiveTransparency=0.93,
-
-TabSelectionOutlineTransparency=0.91,
 TabText="Text",
 TabTextTransparency=0.3,
 TabTextTransparencyActive=0,
@@ -12674,11 +12672,11 @@ end)
 end
 
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
-if not ar.Locked and not ar.Selected then
+if not ar.Locked then
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBackgroundHoverTransparency",
 ImageColor3="TabBackgroundHover",
-},0.12)
+},0.1)
 end
 end)
 ak.AddSignal(ar.UIElements.Main.InputEnded,function()
@@ -12698,10 +12696,10 @@ aw=nil
 end
 end
 
-if not ar.Locked and not ar.Selected then
+if not ar.Locked then
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
-},0.12)
+},0.1)
 end
 end)
 
@@ -12869,15 +12867,13 @@ ao.SelectedTab=aq
 for ar,as in next,ao.Tabs do
 if not as.Locked then
 ak.SetThemeTag(as.UIElements.Main,{
-ImageColor3="TabBackground",
 ImageTransparency="TabBorderTransparency",
 },0.15)
-ak.SetThemeTag(as.UIElements.Main.Frame,{
-ImageTransparency="TabBorderTransparency",
-},0.15)
+if as.Border then
 ak.SetThemeTag(as.UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
+end
 ak.SetThemeTag(as.UIElements.Main.Frame.TextLabel,{
 TextTransparency="TabTextTransparency",
 },0.15)
@@ -12892,15 +12888,12 @@ end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main,{
 ImageColor3="TabBackgroundActive",
 ImageTransparency="TabBackgroundActiveTransparency",
-},0.17)
-ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame,{
-ImageTransparency="TabBorderTransparency",
 },0.15)
-
+if ao.Tabs[aq].Border then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Outline,{
-ImageTransparency=ao.Tabs[aq].Border
-and"TabBorderTransparencyActive"or"TabSelectionOutlineTransparency",
-},0.18)
+ImageTransparency="TabBorderTransparencyActive",
+},0.15)
+end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame.TextLabel,{
 TextTransparency="TabTextTransparencyActive",
 },0.15)
@@ -16412,12 +16405,6 @@ LabelBackground=Color3.fromHex"#0A080A",
 LabelBackgroundTransparency=0.08,
 ElementBackground=Color3.fromHex"#151116",
 ElementBackgroundTransparency=0.16,
-
-TabBackgroundActive=Color3.fromHex"#0B0B0E",
-TabBackgroundActiveTransparency=0.34,
-TabBackgroundHover=Color3.fromHex"#111115",
-TabBackgroundHoverTransparency=0.64,
-TabSelectionOutlineTransparency=0.91,
 }
 
 
