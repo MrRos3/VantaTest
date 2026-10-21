@@ -552,6 +552,7 @@ return function(Config)
 	local IsVideoBG = false
 	local BGImage = nil
 	local BGAnimationConnection
+	local BGAtlasImage
 	local BGAnimation = typeof(Window.AnimatedBackground) == "table"
 		and Window.AnimatedBackground.Enabled ~= false and Window.AnimatedBackground or nil
 
@@ -572,25 +573,57 @@ return function(Config)
 		local spriteAsset = spriteSource
 		if typeof(spriteSource) == "string" and spriteSource:match("^https?://") then
 			local ok, downloaded = pcall(Creator.LoadRemoteImage, spriteSource, Window.Folder or "Temp")
-			if ok then
+			if ok and type(downloaded) == "string" and downloaded ~= "" then
 				spriteAsset = downloaded
 			else
-				warn("[VantaTest Crimson01] Cannot load animated sprite sheet: " .. tostring(downloaded))
-				spriteAsset = ""
+				warn("[VantaTest Crimson01] Could not load the animation: " .. tostring(downloaded))
+				spriteAsset = nil
 			end
 		end
-		BGImage = New("ImageLabel", {
-			Name = "Crimson01AnimatedWallpaper",
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 1, 0),
-			Image = typeof(spriteAsset) == "string" and spriteAsset or "",
-			ImageTransparency = 0,
-			ScaleType = "Crop",
-			ImageRectSize = Vector2.new(BGAnimation.FrameWidth or 224, BGAnimation.FrameHeight or 126),
-			ImageRectOffset = Vector2.new(0, 0),
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, Window.UICorner) }),
-		})
+
+		if type(spriteAsset) == "string" and spriteAsset ~= "" then
+			local columns = math.max(1, math.floor(tonumber(BGAnimation.Columns) or 8))
+			local rows = math.ceil(math.max(1, tonumber(BGAnimation.TotalFrames) or 40) / columns)
+
+			-- The executor's local images don't reliably support ImageRectSize.
+			-- Render the *whole* atlas once, then clip its pixels to one moving cell.
+			-- This prevents duplicated characters and random empty/black frames.
+			BGImage = New("CanvasGroup", {
+				Name = "Crimson01AnimatedWallpaper",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+				Size = UDim2.fromScale(1, 1),
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, Window.UICorner) }),
+				New("ImageLabel", {
+					Name = "Crimson01Atlas",
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+					Image = spriteAsset,
+					ImageTransparency = 0,
+					ScaleType = "Stretch",
+					Size = UDim2.fromScale(columns, rows),
+					Position = UDim2.fromOffset(0, 0),
+				}),
+			})
+			BGAtlasImage = BGImage:FindFirstChild("Crimson01Atlas")
+		else
+			-- A failed asset download must not leave the entire GUI pure black.
+			BGAnimation = nil
+			local legacyUrl = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"
+			local ok, stillAsset = pcall(Creator.LoadRemoteImage, legacyUrl, Window.Folder or "Temp")
+			BGImage = New("ImageLabel", {
+				Name = "Crimson01FallbackWallpaper",
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				Image = ok and stillAsset or "",
+				ImageTransparency = 0,
+				ScaleType = "Crop",
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, Window.UICorner) }),
+			})
+		end
 	elseif typeof(Window.Background) == "string" and BGVideo then
 		IsVideoBG = true
 
@@ -1218,44 +1251,61 @@ return function(Config)
 		end
 	end
 
-	-- Advance only when the displayed frame changes, avoiding per-render redraws.
-	-- Keep the original 3.6-second GIF duration and stop on window destruction.
-	if BGAnimation and BGImage then
+	-- Crop in GUI space instead of ImageRectOffset, which many executor assets
+	-- ignore. One clipping viewport always displays exactly ONE animation cell.
+	if BGAnimation and BGImage and BGAtlasImage then
 		local columns = math.max(1, math.floor(tonumber(BGAnimation.Columns) or 8))
 		local totalFrames = math.max(1, math.floor(tonumber(BGAnimation.TotalFrames) or 40))
-		local frameWidth = tonumber(BGAnimation.FrameWidth) or 224
-		local frameHeight = tonumber(BGAnimation.FrameHeight) or 126
+		local rows = math.ceil(totalFrames / columns)
+		local cellAspect = (tonumber(BGAnimation.FrameWidth) or 224)
+			/ math.max(1, (tonumber(BGAnimation.FrameHeight) or 126))
 		local frameDuration = math.max(0.016, tonumber(BGAnimation.FrameDuration) or 0.09)
 		local startedAt = os.clock()
 		local lastFrame = -1
+		local lastWidth, lastHeight = -1, -1
+
 		BGAnimationConnection = RunService.Heartbeat:Connect(function()
-			if Window.Destroyed or not BGImage.Parent then
-				BGAnimationConnection:Disconnect()
-				BGAnimationConnection = nil
+			if Window.Destroyed or not BGImage.Parent or not BGAtlasImage.Parent then
+				if BGAnimationConnection then
+					BGAnimationConnection:Disconnect()
+					BGAnimationConnection = nil
+				end
 				return
 			end
-			if Window.Closed or BGImage.ImageTransparency >= 1 then
+			if Window.Closed or BGAtlasImage.ImageTransparency >= 0.999 then
 				return
 			end
+
 			local frame = math.floor((os.clock() - startedAt) / frameDuration) % totalFrames
-			if frame ~= lastFrame then
-				lastFrame = frame
-				BGImage.ImageRectOffset = Vector2.new(
-					(frame % columns) * frameWidth,
-					math.floor(frame / columns) * frameHeight
-				)
-			end
+			local size = BGImage.AbsoluteSize
+			local width, height = size.X, size.Y
+			if width <= 0 or height <= 0 then return end
+			if frame == lastFrame and width == lastWidth and height == lastHeight then return end
+			lastFrame, lastWidth, lastHeight = frame, width, height
+
+			-- "Crop" each 16:9 frame naturally into the resizable window,
+			-- without squashing the girl's face or allowing adjacent atlas cells.
+			local cellWidth = math.max(width, height * cellAspect)
+			local cellHeight = math.max(height, width / cellAspect)
+			local column = frame % columns
+			local row = math.floor(frame / columns)
+			BGAtlasImage.Size = UDim2.fromOffset(cellWidth * columns, cellHeight * rows)
+			BGAtlasImage.Position = UDim2.fromOffset(
+				-column * cellWidth - (cellWidth - width) / 2,
+				-row * cellHeight - (cellHeight - height) / 2
+			)
 		end)
 	end
 
 	function Window:SetBackgroundImage(id)
-		Window.UIElements.Main.Background.ImageLabel.Image = id
+		local image = BGAtlasImage or (BGImage and BGImage:IsA("ImageLabel") and BGImage)
+		if image then image.Image = id end
 	end
 	function Window:SetBackgroundImageTransparency(v)
-		if BGImage and BGImage:IsA("ImageLabel") then
-			BGImage.ImageTransparency = math.floor(v * 10 + 0.5) / 10
-		end
-		Window.BackgroundImageTransparency = math.floor(v * 10 + 0.5) / 10
+		local transparency = math.floor(math.clamp(tonumber(v) or 0, 0, 1) * 10 + 0.5) / 10
+		local image = BGAtlasImage or (BGImage and BGImage:IsA("ImageLabel") and BGImage)
+		if image then image.ImageTransparency = transparency end
+		Window.BackgroundImageTransparency = transparency
 	end
 
 	function Window:SetBackgroundTransparency(v)
@@ -1422,7 +1472,7 @@ return function(Config)
 				if BGImage:IsA("VideoFrame") then
 					BGImage.Visible = true
 				else
-					Tween(BGImage, 0.2, {
+					Tween(BGAtlasImage or BGImage, 0.2, {
 						ImageTransparency = Window.BackgroundImageTransparency,
 					}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 				end
@@ -1533,7 +1583,7 @@ return function(Config)
 			if BGImage:IsA("VideoFrame") then
 				BGImage.Visible = false
 			else
-				Tween(BGImage, 0.3, {
+				Tween(BGAtlasImage or BGImage, 0.3, {
 					ImageTransparency = 1,
 				}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 			end

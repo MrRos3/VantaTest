@@ -240,7 +240,7 @@ local function applyThemeWallpaper(window, themeName)
         return
     end
 
-    local transparency = themeName == "Salty Special" and SALTY_SPECIAL_WALLPAPER_TRANSPARENCY or 1
+    local transparency = SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
     if type(window.SetBackgroundImageTransparency) == "function" then
         window:SetBackgroundImageTransparency(transparency)
     end
@@ -401,9 +401,7 @@ function VantaUI:CreateWindow(config)
             TotalFrames = 40,
             FrameDuration = 0.09,
         }
-        config.BackgroundImageTransparency = config.Theme == "Salty Special"
-                and SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
-            or 1
+        config.BackgroundImageTransparency = SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
     end
 
     config.Topbar = config.Topbar or {}

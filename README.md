@@ -52,10 +52,10 @@ The public loader and branding image URLs now use **MrRos3/VantaTest**. All chan
 - Full-height burgundy timeout overlay matching the Close Window button (#251016)
 - **Animated Crimson01 original wallpaper** replaces the former Salty Special still image in VantaTest
   - 40 unique looped frames, 8×5 sprite sheet, 224×126 per frame, 90 ms/frame (3.6-second loop)
-  - The library animates `ImageRectOffset` on the existing window background, not the controls
+  - The library clips a single frame of the sprite sheet, preventing repeated characters and black frames even with executor image assets
   - Custom `Background` overrides remain supported; animation runs only when configured/defaulted
   - Remote sprite cache is handled through the existing image download/getcustomasset path, so executor support is required
-  - Changing away from Salty Special hides the default wallpaper
+  - The background stays animated when switching themes; failed sprite downloads fall back to a static wallpaper
 - Rounded components with the compact three-dot window topbar
 - Optional themes: Smoked, Dark, AMOLED and Violet
 - v0.3.8 runtime; changes to `src/` trigger the GitHub build workflow for `dist/main.lua`
