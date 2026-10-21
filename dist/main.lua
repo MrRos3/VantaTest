@@ -517,6 +517,7 @@ TabIconTransparencyActive=0.1,
 TabBorderTransparency=1,
 TabBorderTransparencyActive=0.75,
 TabBorder="White",
+TabSelectionStroke="Outline",
 
 ElementBackground="Text",
 ElementBackgroundTransparency=0.93,
@@ -12437,6 +12438,31 @@ PaddingBottom=UDim.new(0,ar.TabPaddingY),
 }),
 },true)
 
+
+
+ar.UIElements.SelectionOutline=al("Frame",{
+Name="SelectionOutline",
+Parent=ar.UIElements.Main,
+Size=UDim2.new(1,-2,1,-2),
+Position=UDim2.fromOffset(1,1),
+BackgroundTransparency=1,
+BorderSizePixel=0,
+Active=false,
+ZIndex=ar.UIElements.Main.ZIndex+1,
+},{
+al("UICorner",{
+CornerRadius=UDim.new(0,ar.UICorner),
+}),
+al("UIStroke",{
+Name="SelectionStroke",
+Thickness=1,
+Transparency=1,
+ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+ThemeTag={Color="TabSelectionStroke"},
+}),
+})
+ar.UIElements.SelectionStroke=ar.UIElements.SelectionOutline.SelectionStroke
+
 local at=0
 local au
 local av
@@ -12672,7 +12698,7 @@ end)
 end
 
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
-if not ar.Locked then
+if not ar.Locked and not ar.Selected then
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBackgroundHoverTransparency",
 ImageColor3="TabBackgroundHover",
@@ -12696,7 +12722,7 @@ aw=nil
 end
 end
 
-if not ar.Locked then
+if not ar.Locked and not ar.Selected then
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.1)
@@ -12867,8 +12893,12 @@ ao.SelectedTab=aq
 for ar,as in next,ao.Tabs do
 if not as.Locked then
 ak.SetThemeTag(as.UIElements.Main,{
+ImageColor3="TabBackground",
 ImageTransparency="TabBorderTransparency",
 },0.15)
+ak.Tween(as.UIElements.SelectionStroke,0.16,{
+Transparency=1,
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
 if as.Border then
 ak.SetThemeTag(as.UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparency",
@@ -12888,7 +12918,10 @@ end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main,{
 ImageColor3="TabBackgroundActive",
 ImageTransparency="TabBackgroundActiveTransparency",
-},0.15)
+},0.16)
+ak.Tween(ao.Tabs[aq].UIElements.SelectionStroke,0.18,{
+Transparency=0.24,
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
 if ao.Tabs[aq].Border then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparencyActive",
@@ -16405,6 +16438,12 @@ LabelBackground=Color3.fromHex"#0A080A",
 LabelBackgroundTransparency=0.08,
 ElementBackground=Color3.fromHex"#151116",
 ElementBackgroundTransparency=0.16,
+
+TabBackgroundActive=Color3.fromHex"#0B0A0C",
+TabBackgroundActiveTransparency=0.57,
+TabBackgroundHover=Color3.fromHex"#151013",
+TabBackgroundHoverTransparency=0.76,
+TabSelectionStroke=Color3.fromHex"#7A394A",
 }
 
 
