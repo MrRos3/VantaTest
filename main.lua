@@ -13,7 +13,7 @@ local PROJECT_VERSION = "0.3.8"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua?v=" .. CACHE_BUSTER
 local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
-local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png"
+local SALTY_SPECIAL_WALLPAPER_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/crimson01-spritesheet.png?v=crimson01-20261021"
 local SALTY_SPECIAL_WALLPAPER_TRANSPARENCY = 0.32
 
 local function patchRuntime(source)
@@ -389,9 +389,18 @@ function VantaUI:CreateWindow(config)
 
     applyDefaultBranding(config)
 
-    local usesThemeWallpaper = config.Background == nil
+    local usesThemeWallpaper = config.Background == nil and config.AnimatedBackground == nil
     if usesThemeWallpaper then
         config.Background = SALTY_SPECIAL_WALLPAPER_URL
+        config.AnimatedBackground = {
+            Enabled = true,
+            Image = SALTY_SPECIAL_WALLPAPER_URL,
+            FrameWidth = 224,
+            FrameHeight = 126,
+            Columns = 8,
+            TotalFrames = 40,
+            FrameDuration = 0.09,
+        }
         config.BackgroundImageTransparency = config.Theme == "Salty Special"
                 and SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
             or 1

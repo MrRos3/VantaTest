@@ -26,6 +26,21 @@ local ConfigManager = require("../../config/Init")
 
 local Notified = false
 
+-- VantaTest's default wallpaper is an animated Crimson01 sprite sheet.
+-- Each cell preserves one original GIF frame; the GUI itself stays static.
+local CRIMSON01_SPRITESHEET_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/crimson01-spritesheet.png?v=crimson01-20261021"
+local function defaultCrimsonBackground()
+	return {
+		Enabled = true,
+		Image = CRIMSON01_SPRITESHEET_URL,
+		FrameWidth = 224,
+		FrameHeight = 126,
+		Columns = 8,
+		TotalFrames = 40,
+		FrameDuration = 0.09,
+	}
+end
+
 return function(Config)
 	local Branding = typeof(Config.Branding) == "table" and Config.Branding or {}
 	local BrandImage = Branding.Image
@@ -61,7 +76,9 @@ return function(Config)
 		BrandImage = BrandImage,
 		Folder = Config.Folder,
 		Resizable = Config.Resizable ~= false,
-		Background = Config.Background or "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/salty-special.png",
+		Background = Config.Background or CRIMSON01_SPRITESHEET_URL,
+		AnimatedBackground = Config.AnimatedBackground == nil and Config.Background == nil
+			and defaultCrimsonBackground() or Config.AnimatedBackground,
 		BackgroundImageTransparency = Config.BackgroundImageTransparency or 0.32,
 		ShadowTransparency = Config.ShadowTransparency or 0.6,
 		User = Config.User or {},
@@ -534,6 +551,9 @@ return function(Config)
 
 	local IsVideoBG = false
 	local BGImage = nil
+	local BGAnimationConnection
+	local BGAnimation = typeof(Window.AnimatedBackground) == "table"
+		and Window.AnimatedBackground.Enabled ~= false and Window.AnimatedBackground or nil
 
 	local BGVideo = typeof(Window.Background) == "string" and string.match(Window.Background, "^video:(.+)") or nil
 
@@ -547,7 +567,31 @@ return function(Config)
 			and string.match(Window.Background, "^rbxassetid://%d+")
 		or nil
 
-	if typeof(Window.Background) == "string" and BGVideo then
+	if BGAnimation then
+		local spriteSource = BGAnimation.Image or Window.Background
+		local spriteAsset = spriteSource
+		if typeof(spriteSource) == "string" and spriteSource:match("^https?://") then
+			local ok, downloaded = pcall(Creator.LoadRemoteImage, spriteSource, Window.Folder or "Temp")
+			if ok then
+				spriteAsset = downloaded
+			else
+				warn("[VantaTest Crimson01] Cannot load animated sprite sheet: " .. tostring(downloaded))
+				spriteAsset = ""
+			end
+		end
+		BGImage = New("ImageLabel", {
+			Name = "Crimson01AnimatedWallpaper",
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 1, 0),
+			Image = typeof(spriteAsset) == "string" and spriteAsset or "",
+			ImageTransparency = 0,
+			ScaleType = "Crop",
+			ImageRectSize = Vector2.new(BGAnimation.FrameWidth or 224, BGAnimation.FrameHeight or 126),
+			ImageRectOffset = Vector2.new(0, 0),
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, Window.UICorner) }),
+		})
+	elseif typeof(Window.Background) == "string" and BGVideo then
 		IsVideoBG = true
 
 		if string.find(BGVideo, "http") then
@@ -1174,6 +1218,36 @@ return function(Config)
 		end
 	end
 
+	-- Advance only when the displayed frame changes, avoiding per-render redraws.
+	-- Keep the original 3.6-second GIF duration and stop on window destruction.
+	if BGAnimation and BGImage then
+		local columns = math.max(1, math.floor(tonumber(BGAnimation.Columns) or 8))
+		local totalFrames = math.max(1, math.floor(tonumber(BGAnimation.TotalFrames) or 40))
+		local frameWidth = tonumber(BGAnimation.FrameWidth) or 224
+		local frameHeight = tonumber(BGAnimation.FrameHeight) or 126
+		local frameDuration = math.max(0.016, tonumber(BGAnimation.FrameDuration) or 0.09)
+		local startedAt = os.clock()
+		local lastFrame = -1
+		BGAnimationConnection = RunService.Heartbeat:Connect(function()
+			if Window.Destroyed or not BGImage.Parent then
+				BGAnimationConnection:Disconnect()
+				BGAnimationConnection = nil
+				return
+			end
+			if Window.Closed or BGImage.ImageTransparency >= 1 then
+				return
+			end
+			local frame = math.floor((os.clock() - startedAt) / frameDuration) % totalFrames
+			if frame ~= lastFrame then
+				lastFrame = frame
+				BGImage.ImageRectOffset = Vector2.new(
+					(frame % columns) * frameWidth,
+					math.floor(frame / columns) * frameHeight
+				)
+			end
+		end)
+	end
+
 	function Window:SetBackgroundImage(id)
 		Window.UIElements.Main.Background.ImageLabel.Image = id
 	end
@@ -1512,6 +1586,10 @@ return function(Config)
 					Window.AcrylicPaint.Model:Destroy()
 				end
 
+				if BGAnimationConnection then
+					BGAnimationConnection:Disconnect()
+					BGAnimationConnection = nil
+				end
 				Window.Destroyed = true
 
 				task.wait(0.4)
