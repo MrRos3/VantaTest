@@ -185,10 +185,10 @@ function TabModule.New(Config, UIScale)
 		New("UIGradient", {
 			Rotation = 0,
 			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.25),
-				NumberSequenceKeypoint.new(0.28, 0.48),
-				NumberSequenceKeypoint.new(0.55, 0.82),
-				NumberSequenceKeypoint.new(0.85, 1.00),
+				NumberSequenceKeypoint.new(0.00, 0.40),
+				NumberSequenceKeypoint.new(0.22, 0.58),
+				NumberSequenceKeypoint.new(0.50, 0.84),
+				NumberSequenceKeypoint.new(0.82, 1.00),
 				NumberSequenceKeypoint.new(1.00, 1.00),
 			}),
 		}),
