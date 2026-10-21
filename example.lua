@@ -74,6 +74,7 @@ local function tab(title, icon, desc)
 end
 
 -- HOME -----------------------------------------------------------------------
+local ChatTab -- forward declaration for the Home quick-launch button
 local Home = tab("Home", "house", "VantaTest component playground")
 add(Home, "Section", {
     Title = "VantaTest UI Laboratory",
@@ -115,13 +116,11 @@ add(Home, "Button", {
     Desc = "Preview the dark chat UI and talk through this game's public chat channel.",
     Icon = "messages-square",
     Callback = function()
-        for _, item in ipairs(Window.Tabs or {}) do
-            if item.Title == "Chat" and item.Index then
-                Window:SelectTab(item.Index)
-                return
-            end
+        if ChatTab and ChatTab.Index then
+            Window:SelectTab(ChatTab.Index)
+        else
+            toast("Vanta Chat", "Open the Chat tab in the left sidebar.", "message-circle", 4)
         end
-        toast("Vanta Chat", "Open the Chat tab in the left sidebar.", "message-circle", 4)
     end,
 })
 
@@ -129,7 +128,7 @@ add(Home, "Button", {
 -- Visual experiment. Only filtered RBXGeneral messages from the current game
 -- server are sent/received. EN/RU switches filter the local view; no fake
 -- worldwide rooms, user counts or cross-server transport are implied.
-local ChatTab = tab("Chat", "messages-square", "Pulse-inspired chat, connected to this Roblox server")
+ChatTab = tab("Chat", "messages-square", "Pulse-inspired chat, connected to this Roblox server")
 local okChat, chatError = pcall(function()
     local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
     local ChatModule = assert(loadstring(chatSource))()
