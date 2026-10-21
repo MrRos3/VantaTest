@@ -507,7 +507,8 @@ TabBackgroundHover="Hover",
 TabBackgroundHoverTransparency=0.97,
 TabBackgroundActive="Hover",
 TabBackgroundActiveTransparency=0.93,
-TabSelectionAccent="Primary",
+
+TabSelectionOutlineTransparency=0.91,
 TabText="Text",
 TabTextTransparency=0.3,
 TabTextTransparencyActive=0,
@@ -12438,26 +12439,6 @@ PaddingBottom=UDim.new(0,ar.TabPaddingY),
 }),
 },true)
 
-
-
-ar.UIElements.ActiveIndicator=al("Frame",{
-Name="ActiveIndicator",
-Parent=ar.UIElements.Main,
-AnchorPoint=Vector2.new(0,0.5),
-Position=UDim2.new(0,4,0.5,0),
-Size=UDim2.fromOffset(3,18),
-BorderSizePixel=0,
-BackgroundTransparency=1,
-ZIndex=ar.UIElements.Main.ZIndex+2,
-ThemeTag={
-BackgroundColor3="TabSelectionAccent",
-},
-},{
-al("UICorner",{
-CornerRadius=UDim.new(1,0),
-}),
-})
-
 local at=0
 local au
 local av
@@ -12894,16 +12875,9 @@ ImageTransparency="TabBorderTransparency",
 ak.SetThemeTag(as.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
-if as.UIElements.ActiveIndicator then
-ak.Tween(as.UIElements.ActiveIndicator,0.16,{
-BackgroundTransparency=1,
-},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
-end
-if as.Border then
 ak.SetThemeTag(as.UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
-end
 ak.SetThemeTag(as.UIElements.Main.Frame.TextLabel,{
 TextTransparency="TabTextTransparency",
 },0.15)
@@ -12922,16 +12896,11 @@ ImageTransparency="TabBackgroundActiveTransparency",
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
-if ao.Tabs[aq].UIElements.ActiveIndicator then
-ak.Tween(ao.Tabs[aq].UIElements.ActiveIndicator,0.2,{
-BackgroundTransparency=0,
-},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
-end
-if ao.Tabs[aq].Border then
+
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Outline,{
-ImageTransparency="TabBorderTransparencyActive",
-},0.15)
-end
+ImageTransparency=ao.Tabs[aq].Border
+and"TabBorderTransparencyActive"or"TabSelectionOutlineTransparency",
+},0.18)
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame.TextLabel,{
 TextTransparency="TabTextTransparencyActive",
 },0.15)
@@ -16443,11 +16412,12 @@ LabelBackground=Color3.fromHex"#0A080A",
 LabelBackgroundTransparency=0.08,
 ElementBackground=Color3.fromHex"#151116",
 ElementBackgroundTransparency=0.16,
-TabBackgroundActive=Color3.fromHex"#2D111B",
-TabBackgroundActiveTransparency=0.10,
-TabBackgroundHover=Color3.fromHex"#271018",
-TabBackgroundHoverTransparency=0.42,
-TabSelectionAccent=Color3.fromHex"#C42C4B",
+
+TabBackgroundActive=Color3.fromHex"#0B0B0E",
+TabBackgroundActiveTransparency=0.34,
+TabBackgroundHover=Color3.fromHex"#111115",
+TabBackgroundHoverTransparency=0.64,
+TabSelectionOutlineTransparency=0.91,
 }
 
 
