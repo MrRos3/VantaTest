@@ -166,30 +166,34 @@ function TabModule.New(Config, UIScale)
 		}),
 	}, true)
 
-	-- VantaTest laboratory: a hairline rounded outline around the active tab.
-	-- Keep it separate from the tab content and entirely click-through.
-	Tab.UIElements.SelectionOutline = New("Frame", {
-		Name = "SelectionOutline",
+	-- Active tab: a soft left-to-right tint that disappears into the wallpaper.
+	-- Render underneath the tab's icons and text so content stays sharp.
+	Tab.UIElements.SelectionFade = New("Frame", {
+		Name = "SelectionFade",
 		Parent = Tab.UIElements.Main,
-		Size = UDim2.new(1, -2, 1, -2),
-		Position = UDim2.fromOffset(1, 1),
+		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromScale(0, 0),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		Active = false,
-		ZIndex = Tab.UIElements.Main.ZIndex + 1,
+		ZIndex = Tab.UIElements.Main.ZIndex,
+		ThemeTag = { BackgroundColor3 = "TabSelectionFade" },
 	}, {
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Tab.UICorner),
 		}),
-		New("UIStroke", {
-			Name = "SelectionStroke",
-			Thickness = 1,
-			Transparency = 1,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			ThemeTag = { Color = "TabSelectionStroke" },
+		New("UIGradient", {
+			Rotation = 0,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 0.25),
+				NumberSequenceKeypoint.new(0.28, 0.48),
+				NumberSequenceKeypoint.new(0.55, 0.82),
+				NumberSequenceKeypoint.new(0.85, 1.00),
+				NumberSequenceKeypoint.new(1.00, 1.00),
+			}),
 		}),
 	})
-	Tab.UIElements.SelectionStroke = Tab.UIElements.SelectionOutline.SelectionStroke
+	Tab.UIElements.Main.Frame.ZIndex = Tab.UIElements.Main.ZIndex + 1
 
 	local TextOffset = 0
 	local Icon
@@ -624,9 +628,12 @@ function TabModule:SelectTab(TabIndex)
 					ImageColor3 = "TabBackground",
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
-				Creator.Tween(TabObject.UIElements.SelectionStroke, 0.16, {
-					Transparency = 1,
+				Creator.Tween(TabObject.UIElements.SelectionFade, 0.16, {
+					BackgroundTransparency = 1,
 				}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+				Creator.SetThemeTag(TabObject.UIElements.Main.Frame, {
+					ImageTransparency = "TabBorderTransparency",
+				}, 0.15)
 				if TabObject.Border then
 					Creator.SetThemeTag(TabObject.UIElements.Main.Outline, {
 						ImageTransparency = "TabBorderTransparency",
@@ -647,9 +654,12 @@ function TabModule:SelectTab(TabIndex)
 			ImageColor3 = "TabBackgroundActive",
 			ImageTransparency = "TabBackgroundActiveTransparency",
 		}, 0.16)
-		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.SelectionStroke, 0.18, {
-			Transparency = 0.24,
+		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.SelectionFade, 0.18, {
+			BackgroundTransparency = 0,
 		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame, {
+			ImageTransparency = "TabBorderTransparency",
+		}, 0.12)
 		if TabModule.Tabs[TabIndex].Border then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Outline, {
 				ImageTransparency = "TabBorderTransparencyActive",

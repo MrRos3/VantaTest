@@ -106,12 +106,12 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.08,
         ElementBackground = Color3.fromHex("#151116"),
         ElementBackgroundTransparency = 0.16,
-        -- A thin, muted border replaces the heavy tab highlight in the lab.
+        -- Let the Crimson01 artwork show through; selection fades away to the right.
         TabBackgroundActive = Color3.fromHex("#0B0A0C"),
-        TabBackgroundActiveTransparency = 0.57,
+        TabBackgroundActiveTransparency = 1,
         TabBackgroundHover = Color3.fromHex("#151013"),
-        TabBackgroundHoverTransparency = 0.76,
-        TabSelectionStroke = Color3.fromHex("#7A394A"),
+        TabBackgroundHoverTransparency = 0.82,
+        TabSelectionFade = Color3.fromHex("#4A1C2B"),
     },
     {
         Name = "Vanta Smoked",
