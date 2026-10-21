@@ -152,7 +152,15 @@ end
 
 local function safeExcerpt(value)
     local result = tostring(value or ""):gsub("[%c]", " ")
-    return result:sub(1, 64)
+    local valid, position = pcall(utf8.offset, result, 65)
+    if valid and position then return result:sub(1, position - 1) end
+    return result
+end
+
+local function truncateUtf8(value, count)
+    local ok, position = pcall(utf8.offset, value, count + 1)
+    if ok and position then return value:sub(1, position - 1) end
+    return value
 end
 
 function Chat.Mount(tab)
@@ -594,10 +602,10 @@ function Chat.Mount(tab)
         local meta={v=2,lang=roomName}
         if type(replyId)=="string" and #replyId<110 then meta.r=replyId end
         local encoded=META_PREFIX..HttpService:JSONEncode(meta)
-        local value=utf8.len(trimmed) and trimmed or raw
+        local value=truncateUtf8(trimmed, 200)
         task.spawn(function()
             local ok,err=pcall(function()
-                target:SendAsync(value:sub(1,300),encoded)
+                target:SendAsync(value,encoded)
             end)
             if destroyed then return end
             sending=false
