@@ -1,5 +1,5 @@
 -- VantaTest Chat LAB v2
--- Telegram-inspired, Roblox-filtered script-to-script messaging in the SAME server.
+-- Telegram-inspired script-tagged feed, sent via PUBLIC Roblox chat in the SAME server.
 -- Cross-game chat requires a separate authenticated, moderated hosted relay.
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
@@ -192,7 +192,7 @@ function Chat.Mount(tab)
     label(root,"Chat",18,WHITE,true,{
         Position=UDim2.fromOffset(14,6),Size=UDim2.new(1,-85,0,24),
     })
-    local description = label(root,"Private UI room  ·  current Roblox server",10,DIM,false,{
+    local description = label(root,"Public Roblox chat  ·  current server",10,DIM,false,{
         Position=UDim2.fromOffset(14,29),Size=UDim2.new(1,-85,0,17),
     })
     local statusDot = make("Frame", {
@@ -200,8 +200,8 @@ function Chat.Mount(tab)
         BackgroundColor3=GREEN,BorderSizePixel=0,
     },root)
     corner(statusDot,7)
-    local status = label(root,"LIVE",10,GREEN,true,{
-        Position=UDim2.new(1,-47,0,12),Size=UDim2.fromOffset(42,21),
+    local status = label(root,"SERVER",9,GREEN,true,{
+        Position=UDim2.new(1,-47,0,12),Size=UDim2.fromOffset(46,21),
     })
 
     local head = make("Frame",{
@@ -381,11 +381,11 @@ function Chat.Mount(tab)
         if destroyed then return end
         local available=generalChannel()~=nil
         statusDot.BackgroundColor3=available and GREEN or Color3.fromRGB(244,168,93)
-        status.Text=available and "LIVE" or "OFF"
+        status.Text=available and "SERVER" or "OFF"
         status.TextColor3=available and GREEN or Color3.fromRGB(244,168,93)
-        description.Text=available and "Script-to-script chat  ·  same server"
+        description.Text=available and "Public game chat  ·  same server"
             or "Chat unavailable in this experience"
-        entry.PlaceholderText=available and (roomName=="AR" and "اكتب رسالة..." or "Message in EN...")
+        entry.PlaceholderText=available and (roomName=="AR" and "رسالة عامة..." or "Public chat in EN...")
             or "TextChatService unavailable"
         entry.TextXAlignment=roomName=="AR" and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left
     end
