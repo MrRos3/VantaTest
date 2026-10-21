@@ -10,6 +10,7 @@ import secrets
 import hashlib
 import sqlite3
 from functools import wraps
+from contextlib import contextmanager
 from pathlib import Path
 from flask import Flask, request, jsonify, session, send_from_directory
 
@@ -37,12 +38,17 @@ SPAM_PATTERN = re.compile(r"(.)\1{25,}", re.DOTALL)
 ABUSE_PATTERN = re.compile(r"(?i)\b(kys|kill yourself|nigger|faggot)\b")
 
 
+@contextmanager
 def database():
     connection = sqlite3.connect(DB_PATH, timeout=15)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA busy_timeout = 10000")
     connection.execute("PRAGMA foreign_keys = ON")
-    return connection
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
 
 
 def initialize():
@@ -96,7 +102,8 @@ def reply_error(text, code=400):
 
 
 def json_body():
-    return request.get_json(silent=True) or {}
+    value = request.get_json(silent=True)
+    return value if isinstance(value, dict) else {}
 
 
 def client_key():
@@ -256,12 +263,18 @@ def message_rows(db, room, after, user_id):
                (SELECT GROUP_CONCAT(r.emoji,' ') FROM reactions r WHERE r.message_id=m.id) reactions
         FROM messages m JOIN users u ON m.user_id=u.id
         LEFT JOIN messages parent ON m.reply_id=parent.id AND parent.deleted=0
+          AND NOT EXISTS(SELECT 1 FROM blocks b WHERE
+              (b.owner=:viewer AND b.target=parent.user_id) OR
+              (b.target=:viewer AND b.owner=parent.user_id))
         LEFT JOIN users pu ON parent.user_id=pu.id
-        WHERE m.room=? AND m.id>? AND m.deleted=0
-          AND m.user_id NOT IN (SELECT target FROM blocks WHERE owner=?)
+        WHERE m.room=:room AND m.id>:after AND m.deleted=0
+          AND NOT EXISTS(SELECT 1 FROM blocks b WHERE
+              (b.owner=:viewer AND b.target=m.user_id) OR
+              (b.target=:viewer AND b.owner=m.user_id))
           AND (SELECT count(*) FROM reports rpt WHERE rpt.message_id=m.id) < 2
         ORDER BY m.id DESC LIMIT 80
-    """, (room, after, user_id)).fetchall()
+    """,
+        {"room": room, "after": after, "viewer": user_id}).fetchall()
     return [dict(x) for x in reversed(rows)]
 
 
@@ -292,7 +305,7 @@ def post_message():
     obj = json_body()
     content = obj.get("content")
     room = obj.get("room")
-    if room not in ROOMS or not isinstance(content, str):
+    if not isinstance(room, str) or room not in ROOMS or not isinstance(content, str):
         return reply_error("Invalid room or message.")
     content = content.strip()
     if not 1 <= len(content) <= 500 or len(content.encode("utf-8")) > 1800:
@@ -314,8 +327,10 @@ def post_message():
         if count >= 10: return reply_error("You reached the 10 messages/minute limit.", 429)
         if reply_id is not None:
             parent = db.execute(
-                "SELECT 1 FROM messages WHERE id=? AND room=? AND deleted=0",
-                (reply_id, room)
+                "SELECT 1 FROM messages m WHERE id=? AND room=? AND deleted=0 "
+                "AND NOT EXISTS(SELECT 1 FROM blocks b WHERE "
+                "(b.owner=? AND b.target=m.user_id) OR (b.target=? AND b.owner=m.user_id))",
+                (reply_id, room, session["user_id"], session["user_id"])
             ).fetchone()
             if not parent: return reply_error("Reply message is no longer available.")
         mid = db.execute(
@@ -335,7 +350,11 @@ def react():
     emoji = obj.get("emoji")
     if emoji not in ("❤️","👍","😂","🔥","🌹"): return reply_error("Invalid reaction.")
     with database() as db:
-        found = db.execute("SELECT 1 FROM messages WHERE id=? AND deleted=0",(mid,)).fetchone()
+        found = db.execute(
+            "SELECT 1 FROM messages m WHERE id=? AND deleted=0 "
+            "AND NOT EXISTS(SELECT 1 FROM blocks b WHERE "
+            "(b.owner=? AND b.target=m.user_id) OR (b.target=? AND b.owner=m.user_id))",
+            (mid, session["user_id"], session["user_id"])).fetchone()
         if not found: return reply_error("Message not available.",404)
         db.execute(
             "INSERT INTO reactions(message_id,user_id,emoji) VALUES(?,?,?) "
@@ -398,4 +417,5 @@ def delete_message():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT","10000")))
+
 

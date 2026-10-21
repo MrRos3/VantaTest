@@ -2,9 +2,9 @@ name: Check Vanta Roblox Chat
 on:
   push:
     branches: [main]
-    paths: ['chat.lua', 'example.lua', 'roblox-chat/**', 'tests/*chat*', 'chat.project.json', '.github/workflows/check-chat.yml']
+    paths: ['chat.lua', 'example.lua', 'roblox-chat/**', 'tests/*chat*', 'chat.project.json', 'assets/salty-chat/**', '.github/workflows/check-chat.yml']
   pull_request:
-    paths: ['chat.lua', 'example.lua', 'roblox-chat/**', 'tests/*chat*', 'chat.project.json', '.github/workflows/check-chat.yml']
+    paths: ['chat.lua', 'example.lua', 'roblox-chat/**', 'tests/*chat*', 'chat.project.json', 'assets/salty-chat/**', '.github/workflows/check-chat.yml']
 permissions:
   contents: read
 jobs:
@@ -23,7 +23,8 @@ jobs:
           from pathlib import Path
           for file in [Path('chat.lua'), *Path('roblox-chat').glob('*.lua')]:
               text = file.read_text()
-              for forbidden in ('onrender.com', 'HttpService', 'MessagingService', 'FireServer(', 'DisplaySystemMessage('):
+              for forbidden in ('onrender.com', 'HttpService', 'MessagingService', 'FireServer(', 'DisplaySystemMessage(', 'RBXGeneral', 'RBXWhisper'):
                   assert forbidden not in text, (file, forbidden)
           PY
+
 

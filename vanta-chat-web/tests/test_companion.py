@@ -31,9 +31,9 @@ class ChatSmokeTest(unittest.TestCase):
     def test_everything(self):
         self.assertEqual(self.alice.get("/api/health").status_code, 200)
         self.assertFalse(self.alice.get("/api/health").get_json()["roblox_transport"])
-        self.assertEqual(self.alice.get("/").status_code, 200)
-        self.assertEqual(self.alice.get("/icons/social/send.svg").status_code, 200)
-        self.assertEqual(self.alice.get("/wallpaper").status_code, 200)
+        for path in ("/", "/icons/social/send.svg", "/wallpaper"):
+            with self.alice.get(path) as response:
+                self.assertEqual(response.status_code, 200)
         alice = self.register(self.alice, "Beta_Alice")
         bob = self.register(self.bob, "Beta_Bob")
         forbidden = self.post(self.alice,"messages",{"room":"EN","content":"Hi"}, "wrong")
@@ -68,4 +68,5 @@ class ChatSmokeTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 

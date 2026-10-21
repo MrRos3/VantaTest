@@ -1,0 +1,120 @@
+[
+  {
+    "key": "chat",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/social/messages-square.png",
+    "sha256": "84447e76e8925ee2c82aa5f694392a9ca927869888571e15fdb655ab8c278bd7",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "send",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/social/send.png",
+    "sha256": "f5cbe618e51f7e52a827354c3fa852db9d0eb5342beabf147b88831680eb2657",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "attach",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/files/file-plus.png",
+    "sha256": "c8df05350f74f2b393bb1dd7faabf541f0189a5dd809849691086be23526bd98",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "heart",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/social/heart.png",
+    "sha256": "29b5f0260563a9e6518640b4a83f5c546924baed4a206b145bc82ecfde9e48d4",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "like",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/social/thumbs-up.png",
+    "sha256": "2d8ce302ba4f999e50c97482e75c884ca3e01b793be46e5480d789e43a946080",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "reply",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/navigation/corner-up-left.png",
+    "sha256": "756a6a285a32c0ac3e55a352ba30ccffa5b026d35618557b6af473f9cc6a11bb",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "copy",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/misc/copy.png",
+    "sha256": "4042f304a1e815c6b816e57f7d751dd862ba918c4efd1ceef793c3e074b48184",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "more",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/misc/ellipsis.png",
+    "sha256": "592e89789cd93514c2c908416a585224fb11036dfd4576d3fce9fcdad0567937",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "remove",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/misc/trash-2.png",
+    "sha256": "8d12640bd8aed52dd7a32e8fb6137b16c43cc90cbb6855c35ff0c6c5ddcc8b65",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "user",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/social/user.png",
+    "sha256": "06cb242fdb085907f15b1510986b4b51c45264382652821b6641417192e48dcf",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "x",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/status/x.png",
+    "sha256": "61b0129ed1734bac295c6a02d880e74c02a78609214cf8a995ac1b7368d5f890",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "mention",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/social/at-sign.png",
+    "sha256": "fa70368daef34652d5936e48daa2946745409e3697c89cf6b24c225b1448f413",
+    "size": [
+      96,
+      96
+    ]
+  },
+  {
+    "key": "down",
+    "source": "https://raw.githubusercontent.com/MrRos3/SaltyIcons/b7db826820a3456fe953f0097b1924de9e04ff97/icons/png/96/navigation/chevron-down.png",
+    "sha256": "442ed4a0c6b3a0a03af78e090369bf2a426dca14ea17fedc3a280279fb659a67",
+    "size": [
+      96,
+      96
+    ]
+  }
+]
+

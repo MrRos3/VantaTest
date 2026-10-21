@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 local Chat = require(ReplicatedStorage:WaitForChild("VantaChatUI"))
+local Transport = require(ReplicatedStorage:WaitForChild("VantaChatTransport"))
 local gui = Instance.new("ScreenGui")
 gui.Name = "VantaTestChat"
 gui.ResetOnSpawn = false
@@ -39,5 +40,6 @@ holder.Size = UDim2.new(1, -8, 1, -38)
 holder.Parent = window
 tabButton.Activated:Connect(function() holder.Visible = not holder.Visible end)
 gui.Parent = playerGui
-Chat.Mount({UIElements = {ContainerFrame = holder}})
+Chat.Mount({UIElements = {ContainerFrame = holder}},{Transport=Transport.new()})
+
 

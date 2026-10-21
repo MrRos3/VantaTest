@@ -1,99 +1,102 @@
-# VantaTest NIGHTLINE 2.0 — setup and limits
+# Vanta Chat 3.0 — supported implementation and setup
 
-## NIGHTLINE 2.0: current behavior
+This replaces the public-chat/whisper fallback in NIGHTLINE 2.0. Vanta Chat has a dedicated GUI and a separate transport. No Vanta message is sent to RBXGeneral, a default whisper, Render, a browser, or an external messenger.
 
-The new UI keeps the Vanta black/crimson identity with a compact conversation card, brighter gradients, avatar friend rows, right-aligned outgoing bubbles and bounded overlays. Friends, emoji and mention panels close each other. No fake conversations or script-user presence counts are inserted.
+## Working source and scope
 
-**The requested private chat across different games/servers is not available through this client script.** There is no supported Roblox API here that creates private cross-experience messaging between arbitrary script users. The code does not send Roblox conversations to Render or another relay, claim that friends have the script, or bypass account communications restrictions.
+| Requirement | Implemented behavior |
+| --- | --- |
+| Dedicated participants | Players explicitly admitted to Vanta by its owned-experience server; never all server players automatically |
+| EN / AR | Separate VantaEN and VantaAR TextChannels |
+| Real send / receive | Roblox SendAsync and successful filtered MessageReceived events; no draft echo or seed messages |
+| Identity | Roblox-authenticated Player.UserId, platform display name / username and avatar |
+| Time / replies | Roblox message timestamp when available; message-ID reply metadata and recipient-filtered local quote |
+| Shared reactions | Server-authorized fixed emoji reactions, versioned updates to eligible recipients; UI toolbar toggles thumbs-up |
+| History | Last 150 successfully received messages in this mounted client; retained while switching rooms |
+| Private friend chat | Both friends must join Vanta in this server and pass Roblox friendship/direct-chat permission checks |
+| Icons | Original 96px transparent SaltyIcons PNGs, pinned source, file hashes and licenses; optional local-image loader plus published-ID fallback |
+| Pulse styling | Warm charcoal/orange surfaces, compact left-aligned bubbles, colored names, avatars, timestamp space, EN/AR pill, docked composer and compact action rail |
+| Presence / status | Only server-confirmed opted-in members in the avatar/friend UI. No global online count or recipient-delivery receipt |
 
-An optional existing-channel path now works without Vanta server installation: the tab uses `RBXGeneral` when Vanta rooms are absent, and Friends can select existing `RBXWhisper:[id]_[id]` channels. If allowed, it requests a new whisper using Roblox's enabled built-in `/whisper @Username` command. Only the recipient-selection command goes through General, never a private draft. If the command is missing, denied, or does not create a channel, sending stays disabled for the selected friend. The UI asks the user to open a whisper in Roblox's own chat first where appropriate. Existing whispers are same-server and do not require the friend to use this script.
+The exact cross-game blocker: Roblox requires in-game conversations to go through TextChannel for both sending and delivery, including filtering, privacy and reporting. A public Render HTTP relay with independent accounts cannot substitute for that delivery path. Current native cross-server Global chat is same-universe, grouped by Roblox, and not a target for a custom TextChannelWindow. Thus an arbitrary cross-experience Vanta network entirely inside this GUI is not implemented. This is based on the documented APIs, not a claim that Pulse's private implementation is known. Its GUI dump contains no protocol/authentication evidence.
 
-The **Roblox UI** button locally hides the default chat window/input only after an available channel exists. **Restore UI** returns the original settings, as does module destruction. This changes the frontend only; it leaves the actual game chat services, filters, commands and permissions intact. Restore the Roblox UI whenever you want its chat controls; Roblox's main menu safety tools remain available. No server-wide system-chat replacement is performed by a client script.
-
-For existing General fallback, EN/AR are typing/alignment preferences for the same server channel, not two separate audiences. With the optional Vanta server, they select its two separate public rooms. In platform-integrated mode, retain the explicit Studio configuration below; Roblox renders messages/input, and programmatic SendAsync cannot be used to recreate hidden message content.
-
-### Test the new path
-
-1. Reload VantaTest's existing `example.lua` and open Chat. Look for **NIGHTLINE 2.0** and **Server lounge**. If this game exposes RBXGeneral and permits this frontend, test two-way room messaging with another eligible account in the same server without installing the Vanta server module.
-2. Open Friends and select a friend who is here. Test an existing whisper and creation through the enabled built-in command. Confirm the heading is private before typing. Test a denied whisper and a departing friend: no private body may be sent to General.
-3. Open emoji then Friends, and reverse the order. Only one panel should remain open. Test desktop/mobile widths, incoming/outgoing alignment, scrolling, avatar cards and loaded SaltyIcons.
-4. Toggle Roblox UI / Restore UI and destroy/remount the module. Verify original chat visibility settings return. Test permissions-denied settings without any elevated APIs.
-5. Test messages in the other direction through Roblox's native whisper UI too. A friend need not use this frontend. Friends in unrelated games remain outside this chat's supported delivery route.
-
-## Owned-experience path and earlier implementation details
-
-`chat.lua` is shared by the existing `example.lua` Chat tab and the Studio installer. Pulse-inspired warm charcoal/orange styling remains. Child controls now inherit increasing ZIndex; the composer stays within a height that follows its tab; timestamps have reserved space; narrow headers hide avatar decoration; reading older messages no longer jumps to the latest on receipt. Replies carry only a Roblox message ID in metadata, and quote only messages already received through Roblox. Reactions and hide/delete are explicitly local conveniences, not shared reactions or remote deletion.
-
-There are no seeded messages or local raw-message echoes. EN and AR select separate **public rooms in this server**, not private language groups or worldwide networks. The Friends menu lists friends currently in this server. Opening a DM sends only a numeric UserId to the server. The server checks friendship, `CanUsersDirectChatAsync`, and channel admission, sets `SetDirectChatRequester`, and admits only the two participants. Message bodies travel exclusively through `TextChannel:SendAsync` and Roblox's receive pipeline, or through Roblox's native window. Roblox continues enforcing filtering, blocking and communication restrictions. Never use a raw-text RemoteEvent, HTTP relay, MessagingService relay or `DisplaySystemMessage` to substitute for this path.
-
-The status indicator describes channel availability in **this server**. Successful SendAsync means accepted by Roblox, not a delivery or read receipt. A room can have no other eligible recipients. There is no offline mailbox, global friend presence, persistent transcript or guaranteed recipient delivery.
+There is no offline mailbox, persistence across reconnects, replay of pre-join chat, or cross-server reaction service. Message bodies are not stored on the Vanta server or exported to Render. The server retains only bounded message handles / participant authorization / fixed reaction data. Hiding/deleting a bubble is local, not remote deletion. A successful SendAsync is acceptance by Roblox, not proof that a recipient saw the message. Session-local history cannot prove another participant received it.
 
 ## Install in an experience you control
 
-1. Open your owned experience in Studio. Keep TextChatService and its default channels and commands enabled. Keep Roblox's default chat/safety interface available for reporting, blocking and muting.
-2. Copy `chat.lua` into a **ModuleScript named VantaChatUI in ReplicatedStorage**. Copy `roblox-chat/Server.server.lua` into a **Script in ServerScriptService**. Install exactly one copy of the server script.
-3. Enable the documented **Chat & Voice Groups APIs** setting under Experience Settings → Communication if required for direct-chat permission APIs on your rollout, and accept the Roblox terms. API failure denies the DM; the module never relaxes that requirement.
-4. Choose your chat mode explicitly:
-   - Existing custom frontend mode: Studio `PlatformIntegratedChat` Disabled; leave `PLATFORM_INTEGRATED_CHAT = false` in the server script. The Pulse feed/composer sends through SendAsync and displays only successful received TextChatMessages.
-   - Platform-integrated mode: set Studio `PlatformIntegratedChat` Enabled and set `PLATFORM_INTEGRATED_CHAT = true` in the server script. Roblox's `TextChannelWindow` provides the real message area and input **inside the Vanta Chat tab**. The surrounding Pulse header and friend/room selectors remain, but Roblox controls the conversation styling and tools. The custom bubble/composer area is hidden. Do not try to read or reconstruct hidden message content.
-   Roblox's rollout property may be script-protected; the matching replicated attribute is the explicit fallback configuration. If native window creation fails, the UI reports it and does not enable a custom replacement sender. Test the chosen mode in the published experience.
-5. For a Studio host, copy `roblox-chat/Client.client.lua` into a **LocalScript in StarterPlayerScripts**. This is a minimal host for the same VantaTest chat module, not a browser product. If your experience already has a VantaTest window, omit that host and mount the module in its existing tab:
+1. In Studio, keep TextChatService enabled with its default TextChannels folder. Install exactly one copy of `roblox-chat/Server.server.lua` in ServerScriptService.
+2. Put `chat.lua` in ReplicatedStorage as ModuleScript **VantaChatUI** and `roblox-chat/Transport.lua` there as **VantaChatTransport**. Put `roblox-chat/Client.client.lua` in StarterPlayerScripts for the supplied host. Alternatively mount into your existing VantaTest Chat tab:
 
    ```lua
-   local Chat = require(game:GetService("ReplicatedStorage"):WaitForChild("VantaChatUI"))
-   Chat.Mount(ChatTab) -- existing VantaTest tab with UIElements.ContainerFrame
+   local storage = game:GetService("ReplicatedStorage")
+   local Chat = require(storage:WaitForChild("VantaChatUI"))
+   local Transport = require(storage:WaitForChild("VantaChatTransport"))
+   Chat.Mount(ChatTab, { Transport = Transport.new() })
    ```
 
-   Rojo users can sync `chat.project.json` instead; it maps those same three files. The legacy `default.project.json` is not the chat installer.
-6. Publish to your owned experience and test with two eligible real accounts that are friends, in the **same server**. Studio local players alone cannot prove real-account friendship, communication eligibility, filtering or delivery. No Roblox experience access/deployment was supplied during this implementation; installation and real-account validation remain owner steps.
+   `chat.project.json` maps these four files for Rojo. The existing `example.lua` loads the same GUI/transport plus the SaltyIcons resolver; it does not install trusted server code into someone else's game.
+3. Configure **Vanta-only display** in Studio. Prefer ChatWindowConfiguration.TextChannelDisplayMode = DefaultTextChannels where the property is available. This keeps custom Vanta channels out of the default chat window. On engine versions without this setting, configure both ChatWindowConfiguration.Enabled and ChatInputBarConfiguration.Enabled = false for your owned experience's custom frontend. This changes interface visibility, not account chat permission. Admission fails closed until one of these display configurations is in place. Keep Roblox's main-menu reporting/blocking/muting tools available.
+4. Choose the engine mode explicitly. With PlatformIntegratedChat Disabled, leave `PLATFORM_INTEGRATED_CHAT = false` in Server.server.lua: Pulse-style bubbles/composer use SendAsync/MessageReceived. With PlatformIntegratedChat Enabled in Studio, set that flag to true: the Vanta shell hosts a native TextChannelWindow for the selected Vanta channel, and Roblox owns conversation/input rendering. The custom actions/replies/reactions are not available in that native window; Roblox's native tools apply. Do not try to reconstruct hidden message text. Some rollouts protect the property from scripts, so the flag is the owner's explicit matching configuration.
+5. Enable Chat & Voice Groups APIs / required terms in Studio Communication settings where required for permission APIs. A permission/API failure denies admission or the private chat. Never alter Roblox account restrictions to circumvent them.
+6. Publish to your owned experience. The tab attempts opt-in admission when mounted. Join/Leave controls that membership. Leaving removes its TextSources and private channels. A session lease prevents an old window's delayed cleanup from removing a newly mounted session. Membership is an authenticated opt-in, not cryptographic proof of which client code someone is running; a client-visible shared secret would not establish that proof.
 
-The existing public `example.lua` loader is retained for its existing environment. It is not the Studio install path and cannot install trusted server code in someone else's experience. Loading the client alone can use existing channels where supported; it never creates a working cross-game private chat.
+No owned experience ID, Studio access or eligible real test accounts were supplied for deployment. The modules are integrated and tested as source; installing them in a published Roblox experience and validating live accounts remains an owner step.
 
-## SaltyIcons loading
+## Icons
 
-The icon IDs in `chat.lua` match MrRos3/SaltyIcons `roblox/upload-manifest.csv`, including Send `104783825572790`, MessagesSquare `110915451876713`, and ThumbsUp `75110458023624`. They were not replaced with handmade icons or a different pack. The existing general Vanta library icon provider is separate and was not rewritten.
+The real artwork is included in `assets/salty-chat/` with original source links, SHA-256 hashes and licenses. It is copied from MrRos3/SaltyIcons commit b7db826820a3456fe953f0097b1924de9e04ff97, not redrawn. All 13 PNGs, including send, were decoded and checked as non-empty 96x96 RGBA images and visually inspected as a contact sheet.
 
-On 2026-10-21, unauthenticated asset delivery for the send ID required authentication. Roblox's thumbnail endpoint identified its image as a **Decal**, with state Completed; the chat mark thumbnail returned Pending. Those observations do not prove that either texture will load in a particular experience. Image controls now preload the existing asset ID and try `rbxthumb://type=Asset` for that same published SaltyIcons asset if needed, with a delayed fallback for slow preloads. Text action labels appear if both paths fail, and loaded images replace the labels when available. This is a visible error fallback, not a fabricated icon.
+`roblox-chat/IconAssets.lua` uses the existing GUI environment's optional local-image capability to load those exact PNG masks. It caches fixed filenames, validates the PNG signature, rejects unknown icon keys, and sends only static asset requests. There are no chat messages, account tokens or identities in those requests. The example passes this resolver into the GUI. If unavailable, Roblox published image IDs / same-asset thumbnails remain the fallback, with a visible label and warning on failure; a missing image is never called loaded.
 
-If a particular asset remains inaccessible/moderated in your experience, the owner must fix its asset permissions or upload the **original white transparent 96px PNG from SaltyIcons**, grant the experience access where required, and update the corresponding ICON entry with the usable **image/texture ID**. Neither an ID being listed in GitHub nor a successful preload in an engine double proves live rendering. Check Roblox Output and ContentProvider warnings.
+Normal Roblox LocalScripts do not provide that optional filesystem/local-image API. For Studio-native deployment, upload the supplied original PNGs under the experience owner, grant required asset access and replace the corresponding ICON entries in chat.lua with usable image/texture IDs. No upload credentials were available, so native asset permission checks still require owner validation. The resolver fixes the script environment's dependency on failing Decal IDs; source tests do not establish rendering on every Roblox client.
 
-## Across servers
+## Security and delivery design
 
-Roblox documents native Global chat across servers in the **same universe**, grouping users by age/language/occupancy (about 200 per channel). It does not promise that a specific friend will be in the same global group, and private servers disable Global. Enable/inspect it through Creator Dashboard → Audience → Communication Settings. Use Roblox's default Global tab: the documented platform-integrated API **does not allow Global as a custom TextChannelWindow target**. Accordingly, this implementation does not label its EN/AR rooms as cross-server and does not build a relay to simulate cross-server DMs. Arbitrary worldwide friend DMs across unrelated experiences are outside the supported architecture here.
+- Roblox authenticates Player identities passed to the membership, DM and reaction remotes. Clients do not submit author usernames or Roblox credentials.
+- Message text goes only through TextChannel:SendAsync and the Roblox filtered receive pipeline. Membership and reaction remotes accept only control actions, numeric target IDs, generated message handles and fixed emoji enums; they never carry free-form conversations.
+- The server gates TextSources and delivery on membership. DM admission also checks friendship, CanUserChatAsync, CanUsersDirectChatAsync, ordinary pair permissions and SetDirectChatRequester.
+- Reaction changes require a known message, matching channel, an eligible viewer, membership and current communication permissions. Only fixed counts/emoji and a message handle are broadcast to eligible recipients. The callback's viewer record is an authorization envelope, not a delivery/read receipt; clients display an update only for a message they actually received.
+- Rate limits: join/DM admission requests are spaced by 2 seconds, reactions by 0.5 seconds, and room messages by 4 new handles per 8 seconds / 10 per minute, in addition to Roblox's own limits. Message authorization/reaction records are bounded to 300 handles.
+- Roblox handles abuse reporting, filtering, muting, blocking and account restrictions for TextChannel messages. No custom moderation dashboard, universal account ban service or anti-exploit identity attestation is claimed.
 
-## Render investigation
+## Render backend investigation
 
-Confirmed service: `vanta-chat-lab`, service `srv-dbcdn7mq1p3s73d3qtmg`, Frankfurt, `https://vanta-chat-lab.onrender.com`, GitHub MrRos3/VantaTest main with auto-deploy. Build: `pip install -r vanta-chat-web/requirements.txt`; start: `cd vanta-chat-web && gunicorn --workers 1 --bind 0.0.0.0:$PORT server:app`. The live `/api/health` responded successfully before this change.
+Live service inspected: **vanta-chat-lab**, srv-dbcdn7mq1p3s73d3qtmg, Frankfurt, free plan, auto-deploy from MrRos3/VantaTest main. Build: `pip install -r vanta-chat-web/requirements.txt`; start: `cd vanta-chat-web && gunicorn --workers 1 --bind 0.0.0.0:$PORT server:app`. `/api/health` was reachable and explicitly returned roblox_transport=false, roblox_filtering=false.
 
-The code is an independent Flask browser companion with its own password accounts, invitation gate, CSRF tokens, SQLite, polling, reports/blocks and a small regex denylist. These are not Roblox identities, communication permissions or Roblox chat filtering. Its SQLite data on the configured free ephemeral filesystem can disappear on restart/deploy. The Roblox UI does not call this service. Health metadata now explicitly declares `roblox_transport: false` and `roblox_filtering: false`. Existing web functionality remains separate. Do not put Roblox draft messages, account cookies, or personal conversation logs into it.
+This Flask service already implements an independent browser-account chat with password hashing, invitation gate, secure/HttpOnly/SameSite session cookies, CSRF checks, SQLite history, polling, replies, reactions, blocking and reporting. These are not verified Roblox identities or Roblox communication permissions; the small regex denylist is not Roblox filtering. Its free ephemeral storage is not durable across restarts/deploys. No backend secrets were read or exposed, and no real-user conversations were used in tests.
 
-## Verification and acceptance checklist
+The audit fixed one-way block handling, quote leakage from blocked authors, unauthorized reactions to blocked messages, malformed JSON/room payload errors, and unclosed database connections. These improve the existing independent companion. They do not connect it to the in-game GUI. An external relay would still lack the required TextChannel delivery/permission integration, even with stronger authentication or moderation.
 
-Automated checks: Lua 5.1 syntax for chat/example/installer; engine-double logic tests for server absence, sending without local echo, filtered receive/deduplication, denied send preserving drafts, DM permission denial/rate limit/nonfriends/missing targets, failed admission cleanup, player departure cleanup and the native-window branch. These tests do **not** run Roblox filtering, render the UI, or simulate a real network. The separate Flask test exercises two-account send/receive/reply, EN/AR isolation, CSRF, blocking, reporting and deletion. Live health proves only companion reachability.
+## Tests and exact evidence limits
 
-Run locally/CI:
+Run:
 
 ```sh
-python -m pip install lupa==2.8 -r vanta-chat-web/requirements.txt
+python -m pip install lupa==2.8 -r vanta-chat-web/requirements.txt -r vanta-chat-web/tests/requirements.txt
 python -m unittest discover -s tests -p test_chat.py -v
 python -m unittest discover -s vanta-chat-web/tests -v
 ```
 
+Lua tests compile the GUI/example/installer/transport/icon modules with Lua 5.1. Engine doubles exercise opt-in admission, no public fallback, permission denial, same-server friend gates, rollback, session leases, rate limits, room isolation, local history, duplicate receive suppression, no raw draft echo, failed-send draft preservation, shared reaction authorization/toggling, popup exclusivity, membership-only presence and original-PNG loading/caching.
+
+Separate tests start a real loopback HTTPS server and use independent cookie jars for Alice/Bob (plus a third client for quoted-reply authorization). They exchange actual HTTP message requests in both directions and check history, Arabic room isolation, replies, reactions, CSRF, blocking, malformed payloads and foreign deletion. Certificate verification is disabled only for this test's self-signed loopback certificate. No browser is opened.
+
+Those HTTP tests prove the independent companion works, not that Roblox is connected. Engine doubles do not run Roblox's real filtering, permissions, rendering, transport or Studio. Do not describe either as live two-player Roblox validation.
+
 Owner acceptance test:
 
-1. In a published server, Alice sends an EN message and Bob sees the **Roblox-filtered** result; Bob replies and Alice sees it. Test Arabic and emoji in AR and room isolation.
-2. Both open Friends and select one another. Exchange DM messages both directions; a third player must not receive them. Re-open the same DM from the other participant. Test unfriended, blocked, ineligible and departed recipients; none should silently become public chat.
-3. Test Roblox communication-disabled/read-only accounts without changing their settings to circumvent restrictions. Confirm denial/failure status and preserved drafts. Use Roblox's reporting/blocking/muting tools.
-4. Check real SaltyIcons, EN/AR header, composer, text/timestamps and replies at desktop, 390px and narrow mobile widths. Resize, scroll upward while messages arrive, jump latest, switch tabs, and remount/destroy without duplicate reception. In native mode test the native window's input and safety tools instead of custom bubbles.
-5. Test cross-server using the **default Roblox Global tab** in two public servers of this universe. Do not treat lack of pairing as a bug in Vanta DMs or build a relay around it.
+1. Install in a published owned experience with two eligible real accounts in one server. Mount Vanta on Alice only. Bob must not receive its Vanta messages or appear in its opted-in UI. Mount on Bob, join EN and exchange messages both directions.
+2. Switch to AR and exchange Arabic text; ensure EN messages remain separate. Verify usernames/avatars, timestamps, filtered replies, thumbs-up toggling on both clients and 150-item session history while switching rooms.
+3. Leave on Bob and confirm access is removed. Test denied/blocked accounts, invalid DM targets, a departing friend, spam, failed sends, and rapid destroy/remount. No failure may send the message to public chat or assert recipient delivery.
+4. Confirm Vanta messages appear only inside its tab under the selected display mode. In native engine mode, test the native window and Roblox safety tools instead of the custom renderer.
+5. Verify all SaltyIcons, especially send, on the actual client; test narrow/mobile sizes, scrolling, emoji/friend/mention overlap, action rails and local hide. Validate image permissions for native Studio use.
 
-## Official references checked on 2026-10-21
+## Official sources checked 2026-10-21
 
+- [Chat system guidelines](https://create.roblox.com/docs/chat/guidelines)
 - [TextChatService](https://create.roblox.com/docs/reference/engine/classes/TextChatService)
 - [TextChannel](https://create.roblox.com/docs/reference/engine/classes/TextChannel)
-- [Chat system guidelines](https://create.roblox.com/docs/chat/guidelines)
+- [Platform-integrated chat](https://create.roblox.com/docs/chat/platform-integrated-chat)
 - [Cross-server chat](https://create.roblox.com/docs/chat/cross-server-chat)
-- [Platform-integrated chat](https://create.roblox.com/docs/chat/platform-integrated-chat) (documentation currently says it becomes required in May 2027)
-- [SaltyIcons upload manifest](https://github.com/MrRos3/SaltyIcons/blob/main/roblox/upload-manifest.csv)
-
+- [SaltyIcons source manifest](https://github.com/MrRos3/SaltyIcons/blob/b7db826820a3456fe953f0097b1924de9e04ff97/roblox/upload-manifest.csv)
 

@@ -20,6 +20,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r vanta-chat-web/requirements.txt
+      - run: pip install -r vanta-chat-web/tests/requirements.txt
       - run: python -m compileall -q vanta-chat-web
       - run: python -m unittest discover -s vanta-chat-web/tests -v
         env:
@@ -48,3 +49,4 @@ jobs:
                   assert r.status == 200, path
           print("Live Vanta Chat endpoints and SaltyIcons are reachable.")
           PY
+

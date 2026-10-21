@@ -113,7 +113,7 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Live Chat LAB, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 add(Home, "Button", {
     Title = "Open Vanta Chat",
-    Desc = "NIGHTLINE 2.0: redesigned chat, existing Roblox server chat and private whispers.",
+    Desc = "Vanta Chat 3.0: dedicated EN/AR rooms, Vanta members, shared reactions.",
     Icon = "messages-square",
     Callback = function()
         if ChatTab and ChatTab.Index then
@@ -127,12 +127,14 @@ add(Home, "Button", {
 -- VANTA CHAT -----------------------------------------------------------------
 -- Native Chat UI using Roblox TextChatService; see docs/roblox-chat-setup.md.
 -- No external web launch, bypass of Roblox chat privacy, or unfiltered relay.
-ChatTab = tab("Chat", "messages-square", "NIGHTLINE 2.0 · server chat and friend whispers")
+ChatTab = tab("Chat", "messages-square", "Vanta-only channels · owned-experience transport")
 local okChat, chatError = pcall(function()
     local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
     local ChatModule = assert(loadstring(chatSource))()
     assert(type(ChatModule.Mount) == "function", "Chat UI module is not ready")
-    ChatModule.Mount(ChatTab)
+    local Transport = assert(loadstring(game:HttpGet(BASE .. "roblox-chat/Transport.lua?v=" .. versionToken)))()
+    local IconAssets = assert(loadstring(game:HttpGet(BASE .. "roblox-chat/IconAssets.lua?v=" .. versionToken)))()
+    ChatModule.Mount(ChatTab,{Transport=Transport.new(),IconResolver=IconAssets.Resolve})
 end)
 if not okChat then
     warn("[VantaTest LAB / Chat] " .. tostring(chatError))
@@ -461,5 +463,6 @@ if type(Window.Tag) == "function" then
 end
 
 print("[VantaTest LAB] Showcase ready. Components failed:", #failures)
+
 
 

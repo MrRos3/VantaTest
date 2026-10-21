@@ -2,9 +2,13 @@
   "name": "VantaTestChat",
   "tree": {
     "$className": "DataModel",
-    "ReplicatedStorage": {"VantaChatUI": {"$path": "chat.lua"}},
+    "ReplicatedStorage": {
+      "VantaChatUI": {"$path": "chat.lua"},
+      "VantaChatTransport": {"$path": "roblox-chat/Transport.lua"}
+    },
     "ServerScriptService": {"VantaChatServer": {"$path": "roblox-chat/Server.server.lua"}},
     "StarterPlayer": {"StarterPlayerScripts": {"VantaChatClient": {"$path": "roblox-chat/Client.client.lua"}}}
   }
 }
+
 

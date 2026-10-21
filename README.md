@@ -29,17 +29,15 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat — NIGHTLINE 2.0
+### Vanta Chat 3.0 — dedicated Vanta participants
 
-The in-script Chat tab has a new black/crimson design, gradient accents, avatar friend cards, right-aligned outgoing bubbles, improved empty states, and mutually exclusive friends/emoji panels. Real SaltyIcons remain throughout.
+The Chat tab now uses **dedicated VantaEN / VantaAR channels**, with explicit server admission. It never falls back to public Roblox server chat or default whispers. Its GUI and transport are separate modules. An owned-experience server is required; loading client code in an unrelated game does not create a Vanta network there.
 
-It can now reuse the game's existing **RBXGeneral** and **RBXWhisper** channels without the Vanta server module where Roblox permits a custom frontend. Friends selects an existing private whisper or requests Roblox's built-in recipient-only whisper command. A failed private-chat request disables sending; it never switches your draft into public chat. The **Roblox UI / Restore UI** toggle switches the visible default chat interface and restores its original settings when this Chat module is destroyed. It does not replace Roblox filtering or permissions.
+Supported source includes authenticated Roblox identities, filtered send/receive, friend DMs between opted-in eligible members, timestamped replies, server-synchronized reaction counts, 150-item received session history, admission/message/reaction limits and cleanup leases. No fake conversations, online counts or delivery receipts are shown.
 
-**Cross-game private messaging is not implemented.** A client script cannot create a supported private network with script users in unrelated games or servers. Installing this UI on both clients does not create such a route, prove that a friend uses the script, or bypass Roblox communication restrictions. The Render browser companion remains separate.
+The warm charcoal/orange Pulse-inspired UI uses original **SaltyIcons PNGs**, including send, through the optional original-image resolver. `assets/salty-chat/` includes those exact files, hashes and licenses for native uploads. Platform-integrated mode uses Roblox's native channel window inside the Vanta shell.
 
-The optional owned-experience server still supplies custom Vanta EN/AR rooms and permission-gated DMs. Without those rooms, EN/AR changes typing preferences while both select the same existing server channel. Platform-integrated mode uses Roblox's native TextChannelWindow in the Vanta shell. Private whispers remain same-server.
-
-See [setup, exact limits and testing](docs/roblox-chat-setup.md). Automated syntax/logic checks do not establish real Roblox rendering or delivery; validate in the actual experience with eligible accounts.
+**[Setup, architecture audit, blockers and test instructions](docs/roblox-chat-setup.md)**. The requested arbitrary cross-game network and persistent pre-join history remain outside this supported implementation; the report explains the exact boundary. The Render companion is tested and hardened separately, not used as an in-game relay.
 
 **VantaUI production remains unchanged.**
 
@@ -83,5 +81,6 @@ npm run build
 ```
 
 Licensing information: [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
+
 
 

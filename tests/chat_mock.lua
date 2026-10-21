@@ -43,7 +43,12 @@ function methods:Destroy()self.Destroying:Fire();for _,v in ipairs(self:GetChild
 function methods:SetAttribute(k,v)self.attributes[k]=v end
 function methods:GetAttribute(k)return self.attributes[k]end
 function methods:CaptureFocus()end
-function methods:InvokeServer(...)return self.OnServerInvoke(me,...)end
+function methods:InvokeServer(...)return self.OnServerInvoke(caller or me,...)end
+function methods:FireClient(player,payload)
+    self.deliveries=self.deliveries or {}
+    table.insert(self.deliveries,{userId=player.UserId,payload=payload})
+    if player==(caller or me) then self.OnClientEvent:Fire(payload) end
+end
 function methods:AddUserAsync(id)
     if admissionDenied then return nil end
     local source=Instance.new("TextSource");source.Name=id==11 and "Alice" or "Bob";source.UserId=id;source.CanSend=true;source.Parent=self
@@ -65,7 +70,7 @@ Instance={new=function(class)
         AbsoluteSize={X=450,Y=405},AbsolutePosition={X=0,Y=0},AbsoluteContentSize={X=0,Y=0},
         CanvasPosition={X=0,Y=0},IsLoaded=not unloadedIcons,Destroying=signal(),
         MouseButton1Click=signal(),Activated=signal(),FocusLost=signal(),
-        ChildAdded=signal(),ChildRemoved=signal(),DescendantAdded=signal(),DescendantRemoving=signal()}, {__index=methods})
+        OnClientEvent=signal(),ChildAdded=signal(),ChildRemoved=signal(),DescendantAdded=signal(),DescendantRemoving=signal()}, {__index=methods})
     table.insert(objects,o);return o
 end}
 me=Instance.new("Player");me.UserId=11;me.Name="Alice";me.DisplayName="Alice";me.Parent=true
@@ -78,6 +83,9 @@ function players:GetPlayerByUserId(id)if id==11 then return me elseif id==22 and
 storage=Instance.new("ReplicatedStorage")
 tcs=Instance.new("TextChatService");tcs.MessageReceived=signal()
 channels=Instance.new("Folder");channels.Name="TextChannels";channels.Parent=tcs
+windowConfig=Instance.new("ChatWindowConfiguration")
+windowConfig.TextChannelDisplayMode=Enum.TextChannelDisplayMode.DefaultTextChannels
+windowConfig.Enabled=true;windowConfig.Parent=tcs
 function existingChat()
     local general=Instance.new("TextChannel");general.Name="RBXGeneral";general.Parent=channels
     general:AddUserAsync(11);general:AddUserAsync(22)
@@ -88,6 +96,8 @@ function existingChat()
     end
 end
 function tcs:CanUsersDirectChatAsync(_,ids)if permissionDenied then return {}end;return ids end
+function tcs:CanUserChatAsync(id)return not (chatDenied or deniedUser==id)end
+function tcs:CanUsersChatAsync(a,b)return not pairDenied end
 local services={Players=players,TextChatService=tcs,ReplicatedStorage=storage,
     ContentProvider={PreloadAsync=function()end},TextService={GetTextSize=function(_,value,size,_,width)
         return {X=math.min(#value*6,width.X),Y=math.max(16,math.ceil(#value*6/width.X)*16)}end}}
@@ -101,5 +111,6 @@ function allText()
 end
 now=10
 os.clock=function()return now end
+
 
 
