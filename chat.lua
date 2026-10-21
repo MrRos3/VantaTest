@@ -5,7 +5,6 @@ local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local HttpService = game:GetService("HttpService")
 local TextService = game:GetService("TextService")
-local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local Chat = {}
@@ -244,7 +243,7 @@ function Chat.Mount(tab)
     local function presence()
         if destroyed then return end
         local players=Players:GetPlayers()
-        members.Text=tostring(#players).." here  ·  same server"
+        members.Text=tostring(#players).." players  ·  this server"
         for _,child in ipairs(heads:GetChildren()) do child:Destroy() end
         for i=1,math.min(3,#players) do
             local iconHead=make("ImageLabel",{
@@ -507,14 +506,14 @@ function Chat.Mount(tab)
                 TextXAlignment=Enum.TextXAlignment.Center,
             })
         end
-        sub(bubble.MouseButton1Click:Connect(function()
+        bubble.MouseButton1Click:Connect(function()
             menuFor=item
             emojiVisible=false
             popup.Visible=false
             context.Visible=true
             local relY=math.max(115,math.min(root.AbsoluteSize.Y-211,row.AbsolutePosition.Y-root.AbsolutePosition.Y))
             context.Position=UDim2.new(1,-149,0,relY)
-        end))
+        end)
     end
 
     local function render()
@@ -580,14 +579,16 @@ function Chat.Mount(tab)
         sub(b.MouseButton1Click:Connect(function()contextAction(i)end))
     end
 
+    local lastSend = 0
     local function outgoing()
-        if destroyed or sending then return end
+        if destroyed or sending or os.clock()-lastSend < 0.85 then return end
         local raw=tostring(entry.Text or "")
         local trimmed=raw:match("^%s*(.-)%s*$") or ""
         if trimmed=="" then return end
         local target=generalChannel()
         if not target then updateStatus();return end
         sending=true
+        lastSend=os.clock()
         send.BackgroundColor3=Color3.fromRGB(79,66,71)
         local replyId=replyTo and (replyTo.messageId or replyTo.id) or nil
         local meta={v=2,lang=roomName}
