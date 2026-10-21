@@ -1,12 +1,48 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vanta Chat</title><link rel="stylesheet" href="/style.css"></head>
-<body><main class="shell">
-<header><div><h1>Vanta Chat <span>LAB</span></h1><small>Worldwide companion chat · EN / AR · VantaTest</small></div><span id="status">● Connecting</span></header>
-<section id="auth" class="auth"><h2>Welcome to Vanta Chat</h2><p>Create a chat account or sign in. This is a separate companion site, not Roblox in-game messaging.</p>
-<input id="username" placeholder="Username" maxlength="24" autocomplete="username"><input id="password" type="password" placeholder="Password (10+ characters)" autocomplete="current-password">
-<div class="buttons"><button id="login">Sign in</button><button id="register">Create account</button></div><p id="auth-error" role="alert"></p></section>
-<section id="app" hidden><div class="room"><div class="brand">◈</div><div><b>Vanta Global</b><small>Independent companion chat</small></div><div class="grow"></div><button data-room="EN" class="active">EN</button><button data-room="AR">AR</button><button id="logout" title="Sign out">⎋</button></div>
-<div id="messages" role="log" aria-live="polite"></div><div id="reply" hidden><span id="reply-text"></span><button id="cancel-reply">×</button></div>
-<div class="composer"><button id="emoji-toggle" title="Emojis">☺</button><input id="draft" maxlength="700" placeholder="Message in EN…"><button id="send">➤</button></div>
-<div id="emoji-list" hidden></div><p id="notice" role="alert"></p><p class="disclaimer">Public community chat, not end-to-end encrypted. Report or block inappropriate messages. Never share passwords, private details or contact information.</p></section>
-</main><script src="/app.js" defer></script></body></html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0a0e"><title>Vanta Chat · LAB</title>
+<link rel="stylesheet" href="/style.css"></head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div class="top-title"><span class="hero-icon"><i class="icon" data-icon="social/messages-square"></i></span><div><h1>Vanta Chat <span>LAB</span></h1><p>Our own worldwide companion messenger</p></div></div>
+    <div class="connection"><span class="dot"></span><span id="status">Connecting</span></div>
+  </header>
+  <section class="auth-area" id="auth">
+    <div class="auth-panel">
+      <span class="overline">VANTA PRIVATE BETA</span>
+      <h2>Welcome to your chat.</h2>
+      <p>One community, two rooms. Chat with invited Vanta users from anywhere, independently of Roblox game chat.</p>
+      <label for="username">Username</label><input id="username" autocomplete="username" placeholder="Choose your nickname" maxlength="24">
+      <label for="password">Password</label><input id="password" autocomplete="current-password" type="password" placeholder="At least 10 characters">
+      <label for="invite">Beta invite code <span class="muted">(new accounts only)</span></label><input id="invite" placeholder="VANTA-..." autocomplete="off">
+      <label class="agreement"><input id="guidelines" type="checkbox"> I agree to the rules: no harassment, personal contacts, unsafe content or spam.</label>
+      <div class="auth-actions"><button type="button" id="register" class="btn primary">Create account</button><button type="button" id="login" class="btn">Sign in</button></div>
+      <p id="auth-error" class="error" role="alert"></p>
+      <p class="footnote">Invite-only beta · Basic filtering and reporting · Not end-to-end encrypted</p>
+    </div>
+  </section>
+  <section id="app" hidden>
+    <div class="room-strip">
+      <div class="room-icon"><i class="icon" data-icon="social/message-circle"></i></div>
+      <div class="room-info"><strong>Vanta Chat</strong><span><b id="online">1</b> in room · EN / AR</span></div>
+      <div class="room-tabs" role="group" aria-label="Room">
+        <button type="button" data-room="EN" class="active">EN</button><button type="button" data-room="AR">AR</button>
+      </div>
+      <button id="logout" type="button" class="tiny-button" title="Sign out" aria-label="Sign out"><i class="icon" data-icon="security/lock"></i></button>
+    </div>
+    <div id="messages" class="messages" aria-label="Messages" role="log" aria-live="polite"></div>
+    <div id="reply" class="reply-bar" hidden><div class="reply-accent"></div><div><strong>Replying to</strong><span id="reply-text"></span></div><button type="button" id="cancel-reply" class="tiny-button" aria-label="Cancel reply"><i class="icon" data-icon="status/x"></i></button></div>
+    <div class="composer">
+      <button type="button" id="emoji-toggle" class="tiny-button emoji-button" aria-label="Emoji picker">☺</button>
+      <input id="draft" type="text" maxlength="500" autocomplete="off" placeholder="Message in EN...">
+      <button type="button" id="send" aria-label="Send message"><i class="icon" data-icon="social/send"></i></button>
+    </div>
+    <div id="emoji-list" class="emoji-list" hidden></div>
+    <p class="notice" id="notice" role="alert"></p>
+    <footer><span>Beta chat · Shared across devices and games</span><span class="muted">No links or contact details · Report abuse</span></footer>
+  </section>
+</main>
+<script src="/app.js" defer></script>
+</body></html>

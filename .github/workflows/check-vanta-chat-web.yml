@@ -1,0 +1,27 @@
+name: Test Vanta Chat Companion
+on:
+  push:
+    branches: [main]
+    paths:
+      - "vanta-chat-web/**"
+      - ".github/workflows/check-vanta-chat-web.yml"
+  pull_request:
+    paths:
+      - "vanta-chat-web/**"
+      - ".github/workflows/check-vanta-chat-web.yml"
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r vanta-chat-web/requirements.txt
+      - run: python -m compileall -q vanta-chat-web
+      - run: python -m unittest discover -s vanta-chat-web/tests -v
+        env:
+          SECRET_KEY: "ci-only-test-key"
+          INVITE_CODE: "VANTA-CI"
