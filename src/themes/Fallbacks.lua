@@ -34,8 +34,6 @@ return function(Creator)
 		TabBackgroundHoverTransparency = 0.97,
 		TabBackgroundActive = "Hover",
 		TabBackgroundActiveTransparency = 0.93,
-		-- A faint monochrome contour keeps active tabs legible over wallpaper.
-		TabSelectionOutlineTransparency = 0.91,
 		TabText = "Text",
 		TabTextTransparency = 0.3,
 		TabTextTransparencyActive = 0,

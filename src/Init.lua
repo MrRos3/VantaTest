@@ -396,12 +396,6 @@ WindUI.Themes["Salty Special"] = {
 	LabelBackgroundTransparency = 0.08,
 	ElementBackground = Color3.fromHex("#151116"),
 	ElementBackgroundTransparency = 0.16,
-	-- Smoked glass selection: dark contrast, gentle edge, no red indicator.
-	TabBackgroundActive = Color3.fromHex("#0B0B0E"),
-	TabBackgroundActiveTransparency = 0.34,
-	TabBackgroundHover = Color3.fromHex("#111115"),
-	TabBackgroundHoverTransparency = 0.64,
-	TabSelectionOutlineTransparency = 0.91,
 }
 
 

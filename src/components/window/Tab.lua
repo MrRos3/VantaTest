@@ -401,11 +401,11 @@ function TabModule.New(Config, UIScale)
 	end
 
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
-		if not Tab.Locked and not Tab.Selected then
+		if not Tab.Locked then
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBackgroundHoverTransparency",
 				ImageColor3 = "TabBackgroundHover",
-			}, 0.12)
+			}, 0.1)
 		end
 	end)
 	Creator.AddSignal(Tab.UIElements.Main.InputEnded, function()
@@ -425,10 +425,10 @@ function TabModule.New(Config, UIScale)
 			end
 		end
 
-		if not Tab.Locked and not Tab.Selected then
+		if not Tab.Locked then
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBorderTransparency",
-			}, 0.12)
+			}, 0.1)
 		end
 	end)
 
@@ -596,15 +596,13 @@ function TabModule:SelectTab(TabIndex)
 		for _, TabObject in next, TabModule.Tabs do
 			if not TabObject.Locked then
 				Creator.SetThemeTag(TabObject.UIElements.Main, {
-					ImageColor3 = "TabBackground",
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
-				Creator.SetThemeTag(TabObject.UIElements.Main.Frame, {
-					ImageTransparency = "TabBorderTransparency",
-				}, 0.15)
-				Creator.SetThemeTag(TabObject.UIElements.Main.Outline, {
-					ImageTransparency = "TabBorderTransparency",
-				}, 0.15)
+				if TabObject.Border then
+					Creator.SetThemeTag(TabObject.UIElements.Main.Outline, {
+						ImageTransparency = "TabBorderTransparency",
+					}, 0.15)
+				end
 				Creator.SetThemeTag(TabObject.UIElements.Main.Frame.TextLabel, {
 					TextTransparency = "TabTextTransparency",
 				}, 0.15)
@@ -619,15 +617,12 @@ function TabModule:SelectTab(TabIndex)
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main, {
 			ImageColor3 = "TabBackgroundActive",
 			ImageTransparency = "TabBackgroundActiveTransparency",
-		}, 0.17)
-		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame, {
-			ImageTransparency = "TabBorderTransparency",
 		}, 0.15)
-		-- Quiet monochrome glass: subtle outline, never a bright accent rail.
-		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Outline, {
-			ImageTransparency = TabModule.Tabs[TabIndex].Border
-				and "TabBorderTransparencyActive" or "TabSelectionOutlineTransparency",
-		}, 0.18)
+		if TabModule.Tabs[TabIndex].Border then
+			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Outline, {
+				ImageTransparency = "TabBorderTransparencyActive",
+			}, 0.15)
+		end
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame.TextLabel, {
 			TextTransparency = "TabTextTransparencyActive",
 		}, 0.15)
