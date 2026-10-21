@@ -180,7 +180,8 @@ def wallpaper():
 @app.get("/api/health")
 def health():
     return jsonify(ok=True, service="vanta-chat-companion", rooms=["EN", "AR"],
-                   persistence="ephemeral-free-tier", invite_only=True)
+                   persistence="ephemeral-free-tier", invite_only=True,
+                   roblox_transport=False, roblox_filtering=False)
 
 
 @app.get("/api/me")
@@ -397,3 +398,4 @@ def delete_message():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT","10000")))
+

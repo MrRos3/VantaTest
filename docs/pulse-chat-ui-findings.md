@@ -27,3 +27,8 @@ Source: user's `PulseChat_FOCUSED_DUMP.json`, captured from executed Pulse Hub o
 
 - `chat.lua` in VantaTest is the in-game preview.
 - `vanta-chat-web/` is an independent companion prototype, **not** connected to the in-script UI.
+
+## Superseded transport status (2026-10-21)
+
+The local-demo status above describes the earlier checkpoint. PULSE STYLE 1.1 removes sample echoes and integrates Roblox TextChatService for owned-experience rooms and same-server friend DMs. See [current setup and validation limits](roblox-chat-setup.md). The GUI dump still supplies no transport evidence.
+

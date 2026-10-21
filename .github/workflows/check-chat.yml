@@ -1,52 +1,29 @@
-name: Check Vanta Chat LAB
-
+name: Check Vanta Roblox Chat
 on:
   push:
     branches: [main]
-    paths:
-      - chat.lua
-      - example.lua
-      - .github/workflows/check-chat.yml
+    paths: ['chat.lua', 'example.lua', 'roblox-chat/**', 'tests/*chat*', 'chat.project.json', '.github/workflows/check-chat.yml']
   pull_request:
-    paths:
-      - chat.lua
-      - example.lua
-      - .github/workflows/check-chat.yml
-
+    paths: ['chat.lua', 'example.lua', 'roblox-chat/**', 'tests/*chat*', 'chat.project.json', '.github/workflows/check-chat.yml']
 permissions:
   contents: read
-
 jobs:
-  chat-syntax:
+  chat:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Lua parser
-        uses: leafo/gh-actions-lua@v11
+      - uses: actions/setup-python@v5
         with:
-          luaVersion: '5.1'
-      - name: Parse Vanta Chat and example with Lua 5.1
+          python-version: '3.12'
+      - run: pip install lupa==2.8
+      - run: python -m unittest discover -s tests -p test_chat.py -v
+      - name: Reject third-party transport in Roblox chat
         run: |
-          luac -p chat.lua
-          luac -p example.lua
-      - name: Check Pulse-style native chat UI and actual SaltyIcons assets
-        run: |
-          grep -q 'VantaChatExperiment' chat.lua
-          grep -q 'PULSE STYLE 1.0' chat.lua
-          grep -q 'ChatRoomHeader' chat.lua
-          grep -q 'RoomLanguage' chat.lua
-          grep -q 'MessageFeed' chat.lua
-          grep -q 'MessageBubble' chat.lua
-          grep -q 'QuickMessageActions' chat.lua
-          grep -q 'ComposerInput' chat.lua
-          grep -q 'EmojiPicker' chat.lua
-          grep -q 'Mentions' chat.lua
-          grep -q 'ReplyBar' chat.lua
-          grep -q 'LOCAL' chat.lua
-          grep -q 'rbxassetid://104783825572790' chat.lua
-          grep -q 'rbxassetid://75110458023624' chat.lua
-          grep -q 'local function sendLocal' chat.lua
-          grep -q 'room=="AR"' chat.lua
-          if grep -q 'TextChatService.MessageReceived' chat.lua; then exit 1; fi
-          if grep -q 'SendAsync(' chat.lua; then exit 1; fi
-          if grep -q 'http.*onrender.com' chat.lua; then exit 1; fi
+          python - <<'PY'
+          from pathlib import Path
+          for file in [Path('chat.lua'), *Path('roblox-chat').glob('*.lua')]:
+              text = file.read_text()
+              for forbidden in ('onrender.com', 'HttpService', 'MessagingService', 'FireServer(', 'DisplaySystemMessage('):
+                  assert forbidden not in text, (file, forbidden)
+          PY
+

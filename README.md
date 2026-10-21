@@ -29,13 +29,17 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat LAB (native Pulse-style UI, local preview)
+### Vanta Chat — Roblox rooms and friend DMs
 
-**Visible build:** `PULSE STYLE 1.0`. The Chat page was visually rebuilt from the user-supplied Pulse Hub screenshot. Its compact warm-charcoal message bubbles are left-aligned and content-width (not full-width burgundy cards), with colored usernames, small avatar circles, bottom-right timestamps, an orange chat mark, rounded EN/AR filters, and a bright orange send button. The compact four-icon message toolbar replaces the previous oversized popup.
+**Visible build: `PULSE STYLE 1.1`.** The existing in-window Chat tab now uses Roblox TextChatService for real same-server EN/AR rooms and friend DMs when the owned-experience server module is installed. There are no demo messages or raw draft echoes. Client-only loading reports setup/permission status.
 
-The layout includes a docked composer with an emoji tray, a read-only attachment hint, an @mention suggestion popup populated from names in the **current Roblox server only**, a reply strip, a scroll-to-latest button, and hide/delete for locally stored messages. The top headshot strip also shows only current-server players; it is **not** a global connected-user list. Icons use published [SaltyIcons](https://github.com/MrRos3/SaltyIcons) Roblox asset IDs. The 150-message history bound is for UI performance and is **not** inferred to be Pulse's own storage limit.
+The Pulse-inspired charcoal/orange shell, SaltyIcons, composer, replies and compact bubbles remain in supported custom-frontend mode. Platform-integrated mode embeds Roblox's native TextChannelWindow in the tab; Roblox renders its conversation and input. SaltyIcons IDs are retained, with same-asset thumbnail fallback, load diagnostics and visible text labels if an icon remains unavailable. This does not guarantee asset permissions in every experience.
 
-This is **only a local UI prototype**: demo samples are labeled `DEMO`, your own messages are labeled `LOCAL`, and no real-time chat backend is connected. Messages are not sent to other players, servers, experiences, or to the independent web companion in [vanta-chat-web](vanta-chat-web). This prototype intentionally makes no attempts to bypass Roblox's chat filtering or communication settings. UI behavior has repository syntax checks, but visual rendering must still be inspected in Roblox.
+**[Setup, exact limits and two-account test instructions](docs/roblox-chat-setup.md)**. Install `chat.lua` as ReplicatedStorage.VantaChatUI plus `roblox-chat/Server.server.lua`; use the supplied LocalScript host or mount the module into your existing VantaTest Chat tab. `chat.project.json` is the optional Rojo mapping.
+
+Friend DMs require both friends in the same server and Roblox communication permission. Across-server Global remains Roblox's default tab within the same universe; it is not a guaranteed friend DM route or a custom-window target. The Render companion is separate and does not carry Roblox conversations. Reactions/hiding are local; successful send is not a recipient delivery receipt.
+
+Automated syntax and engine-double logic tests are included. Actual Roblox visual rendering, filtering and two-account delivery must be validated in your published owned experience; they were not verified by those tests.
 
 **VantaUI production remains unchanged.**
 
@@ -79,3 +83,4 @@ npm run build
 ```
 
 Licensing information: [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
+

@@ -30,6 +30,7 @@ class ChatSmokeTest(unittest.TestCase):
 
     def test_everything(self):
         self.assertEqual(self.alice.get("/api/health").status_code, 200)
+        self.assertFalse(self.alice.get("/api/health").get_json()["roblox_transport"])
         self.assertEqual(self.alice.get("/").status_code, 200)
         self.assertEqual(self.alice.get("/icons/social/send.svg").status_code, 200)
         self.assertEqual(self.alice.get("/wallpaper").status_code, 200)
@@ -67,3 +68,4 @@ class ChatSmokeTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

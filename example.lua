@@ -113,7 +113,7 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Live Chat LAB, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 add(Home, "Button", {
     Title = "Open Vanta Chat",
-    Desc = "Try the native EN/AR message bubbles, emojis, reactions and replies (local-only demo).",
+    Desc = "Roblox EN/AR rooms and friend DMs. Requires the Vanta server module in your experience.",
     Icon = "messages-square",
     Callback = function()
         if ChatTab and ChatTab.Index then
@@ -125,9 +125,9 @@ add(Home, "Button", {
 })
 
 -- VANTA CHAT -----------------------------------------------------------------
--- Interactive native Chat LAB interface with honest LOCAL-ONLY message previews.
+-- Native Chat UI using Roblox TextChatService; see docs/roblox-chat-setup.md.
 -- No external web launch, bypass of Roblox chat privacy, or unfiltered relay.
-ChatTab = tab("Chat", "messages-square", "Native EN/AR chat design preview inside VantaTest")
+ChatTab = tab("Chat", "messages-square", "Roblox chat and same-server friend DMs")
 local okChat, chatError = pcall(function()
     local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
     local ChatModule = assert(loadstring(chatSource))()
@@ -137,7 +137,7 @@ end)
 if not okChat then
     warn("[VantaTest LAB / Chat] " .. tostring(chatError))
     add(ChatTab, "Paragraph", {
-        Title = "Chat preview unavailable",
+        Title = "Chat unavailable",
         Desc = "The chat module could not load: " .. tostring(chatError),
     })
 end
@@ -461,3 +461,4 @@ if type(Window.Tag) == "function" then
 end
 
 print("[VantaTest LAB] Showcase ready. Components failed:", #failures)
+

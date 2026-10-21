@@ -1,8 +1,11 @@
 -- VantaTest Chat: Pulse-inspired in-window interface, visual revision 1.0.
 -- The original Pulse screenshot supplied the visual reference, NOT source code or transport.
 -- Every image icon below uses uploaded MrRos3/SaltyIcons Roblox asset IDs.
--- This is a local-only chat UI, never a hidden HTTP relay or Roblox chat bypass.
+-- Messages use Roblox TextChatService only. Install roblox-chat/Server.server.lua in your experience.
 local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ContentProvider = game:GetService("ContentProvider")
 local TextService = game:GetService("TextService")
 local LocalPlayer = Players.LocalPlayer
 
@@ -36,13 +39,16 @@ local ICON = {
     mention="rbxassetid://125917586170394",
     down="rbxassetid://93700951703515",
 }
-local BUILD="PULSE STYLE 1.0"
+local BUILD="PULSE STYLE 1.1"
 local LIMIT=150
 local EMOJI={"😀","😂","😍","🥹","😭","❤️","🖤","🌹","🔥","👍","👀","✨","😎","💀","💋","🙏"}
 
 local function inst(class,props,parent)
     local obj=Instance.new(class)
     for k,v in pairs(props or {}) do obj[k]=v end
+    if obj:IsA("GuiObject") and not (props and props.ZIndex) then
+        obj.ZIndex=parent and parent:IsA("GuiObject") and parent.ZIndex+1 or 1
+    end
     if parent then obj.Parent=parent end
     return obj
 end
@@ -74,7 +80,45 @@ local function image(parent,key,size,props)
         ScaleType=Enum.ScaleType.Fit,
     }
     for k,v in pairs(props or {}) do t[k]=v end
-    return inst("ImageLabel",t,parent)
+    local icon=inst("ImageLabel",t,parent)
+    -- Published SaltyIcons IDs include Decals. A Decal ID can fail as a texture.
+    -- rbxthumb resolves that same asset, not a replacement or handmade icon.
+    local fallback
+    local triedThumbnail=false
+    local function useThumbnail()
+        if not icon.Parent or icon.IsLoaded or triedThumbnail then return end
+        triedThumbnail=true
+        icon.Image="rbxthumb://type=Asset&id="..ICON[key]:match("%d+").."&w=150&h=150"
+    end
+    task.delay(5,useThumbnail)
+    task.spawn(function()
+        local ok=pcall(function() ContentProvider:PreloadAsync({icon}) end)
+        if not icon.Parent then return end
+        if not ok or not icon.IsLoaded then
+            useThumbnail()
+            pcall(function() ContentProvider:PreloadAsync({icon}) end)
+        end
+        if not icon.Parent or icon.IsLoaded then return end
+        icon.Visible=false
+        fallback=text(parent,key=="send" and "Send" or key,9,P.dim,true,{
+            Position=icon.Position,Size=icon.Size,ZIndex=icon.ZIndex,
+            TextScaled=true,TextXAlignment=Enum.TextXAlignment.Center,
+        })
+        warn("[VantaTest] SaltyIcons asset unavailable: "..key.." "..ICON[key])
+    end)
+    task.delay(12,function()
+        if icon.Parent and not icon.IsLoaded and not fallback then
+            icon.Visible=false
+            fallback=text(parent,key=="send" and "Send" or key,9,P.dim,true,{
+                Position=icon.Position,Size=icon.Size,ZIndex=icon.ZIndex,TextScaled=true,
+                TextXAlignment=Enum.TextXAlignment.Center,
+            })
+        end
+    end)
+    icon:GetPropertyChangedSignal("IsLoaded"):Connect(function()
+        if icon.IsLoaded then icon.Visible=true;if fallback then fallback:Destroy();fallback=nil end end
+    end)
+    return icon
 end
 local function click(parent,name,sz,props)
     local t={
@@ -100,7 +144,8 @@ local function avatarURL(userId)
     return ("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100"):format(userId)
 end
 
-function Chat.Mount(tab)
+function Chat.Mount(tab,options)
+    options=options or {}
     local holder=assert(tab.UIElements and tab.UIElements.ContainerFrame,"Vanta Chat container missing")
     local previous=holder:FindFirstChild("VantaChatExperiment")
     if previous then previous:Destroy() end
@@ -124,6 +169,20 @@ function Chat.Mount(tab)
     local alive=true
     local connections={}
     local room="EN"
+    local activeChannel=nil
+    local currentDM=nil
+    local sending=false
+    local channelFolder=TextChatService:FindFirstChild("TextChannels")
+    local nativeWindow=nil
+    -- This property is protected on some Roblox rollouts. The owner must configure
+    -- the matching attribute in Studio; never try to elevate access to read it.
+    local integrated=options.PlatformIntegratedChat
+    if integrated==nil then integrated=ReplicatedStorage:GetAttribute("VantaPlatformIntegratedChat")==true end
+    pcall(function()
+        local state=TextChatService.PlatformIntegratedChat
+        if state==Enum.RolloutState.Enabled then integrated=true
+        elseif state==Enum.RolloutState.Disabled then integrated=false end
+    end)
     local messages={}
     local byId={}
     local serial=0
@@ -131,6 +190,7 @@ function Chat.Mount(tab)
     local replying=nil
     local rowArea=nil
     local render
+    local selectRoom
     local function watch(connection)
         connections[#connections+1]=connection
         return connection
@@ -140,7 +200,7 @@ function Chat.Mount(tab)
     text(root,"Chat",19,P.pale,true,{
         Position=UDim2.fromOffset(12,5),Size=UDim2.new(1,-85,0,27),
     })
-    text(root,"Talk with Vanta users  ·  "..BUILD,10,P.dim,false,{
+    text(root,"Roblox chat  ·  "..BUILD,10,P.dim,false,{
         Position=UDim2.fromOffset(12,31),Size=UDim2.new(1,-30,0,15),
     })
     local me=inst("ImageLabel",{
@@ -176,8 +236,8 @@ function Chat.Mount(tab)
         BackgroundColor3=P.orange,BorderSizePixel=0,
     },top)
     corner(indicator,5)
-    text(top,"local preview · offline",10,P.dim,false,{
-        Position=UDim2.fromOffset(68,28),Size=UDim2.new(1,-237,0,21),
+    local status=text(top,"Setup required",10,P.dim,false,{
+        Position=UDim2.fromOffset(68,28),Size=UDim2.new(1,-214,0,21),
     })
     local language=inst("Frame",{
         Name="RoomLanguage",Position=UDim2.new(1,-151,0,14),
@@ -228,8 +288,8 @@ function Chat.Mount(tab)
         BackgroundColor3=P.stroke,BackgroundTransparency=0.64,BorderSizePixel=0,
     },root)
     local feed=inst("ScrollingFrame",{
-        Name="MessageFeed",Position=UDim2.fromOffset(9,126),
-        Size=UDim2.new(1,-18,1,-187),
+        Name="MessageFeed",Position=UDim2.fromOffset(9,160),
+        Size=UDim2.new(1,-18,1,-221),
         BackgroundTransparency=1,BorderSizePixel=0,
         CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.Y,
@@ -276,6 +336,7 @@ function Chat.Mount(tab)
     })
     local entry=inst("TextBox",{
         Name="ComposerInput",Text="",ClearTextOnFocus=false,MultiLine=false,
+        RichText=false,TextEditable=false,
         Position=UDim2.fromOffset(73,2),
         Size=UDim2.new(1,-126,1,-4),
         PlaceholderText="Message in EN...",
@@ -284,7 +345,7 @@ function Chat.Mount(tab)
         TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Center,
         BackgroundTransparency=1,BorderSizePixel=0,
     },composer)
-    local send=click(composer,"SendLocal",UDim2.fromOffset(37,37),{
+    local send=click(composer,"SendMessage",UDim2.fromOffset(37,37),{
         Position=UDim2.new(1,-42,0,5),
         BackgroundTransparency=0,BackgroundColor3=P.orangeDeep,
     })
@@ -332,7 +393,7 @@ function Chat.Mount(tab)
     },root)
     corner(mentions,10)
     stroke(mentions,P.stroke,0.22)
-    text(mentions,"CURRENT SERVER · LOCAL ONLY",9,P.gold,true,{
+    text(mentions,"CURRENT SERVER · NAME SUGGESTIONS",9,P.gold,true,{
         Position=UDim2.fromOffset(9,4),Size=UDim2.new(1,-12,0,15),ZIndex=43,
     })
     local suggest=click(mentions,"MentionSuggestion",UDim2.new(1,-12,0,28),{
@@ -347,7 +408,8 @@ function Chat.Mount(tab)
     local mentionMatch=nil
 
     local notice=text(root,"",10,P.gold,false,{
-        Position=UDim2.new(0,16,1,-10),Size=UDim2.new(1,-32,0,10),
+        Position=UDim2.new(0,16,1,-82),Size=UDim2.new(1,-32,0,22),
+        BackgroundColor3=P.panel2,BackgroundTransparency=0.05,
         Visible=false,ZIndex=50,
     })
     local function notify(value)
@@ -406,7 +468,7 @@ function Chat.Mount(tab)
         return btn
     end
     local hideAction=menuRow(1,"Hide","Hide locally")
-    local deleteAction=menuRow(2,"Delete","Delete mine")
+    local deleteAction=menuRow(2,"Delete","Hide mine locally")
 
     local function styleLanguages()
         en.BackgroundColor3=room=="EN" and P.orange or P.panel2
@@ -422,9 +484,9 @@ function Chat.Mount(tab)
         replyBar.Visible=item~=nil
         if item then
             replyLabel.Text="Reply to "..item.name..": "..item.content
-            feed.Size=UDim2.new(1,-18,1,-219)
+            feed.Size=UDim2.new(1,-18,1,-253)
         else
-            feed.Size=UDim2.new(1,-18,1,-187)
+            feed.Size=UDim2.new(1,-18,1,-221)
         end
     end
     local function addMessage(name,content,lang,preview,mine,replyId)
@@ -437,25 +499,19 @@ function Chat.Mount(tab)
         byId[item.id]=item
         if #messages>LIMIT then
             local removed=table.remove(messages,1)
-            if removed then byId[removed.id]=nil end
+            if removed then byId[removed.id]=nil;if removed.messageId then byId[removed.messageId]=nil end end
         end
         return item
     end
-    -- These are explicitly labeled sample messages, not fictional online players.
-    addMessage("Vanta Preview","Welcome to the lounge.","EN",true,false)
-    addMessage("Design Demo","Tap a message for reactions and replies.","EN",true,false)
-    addMessage("SaltyIcons Demo","Your icons. A real Pulse-inspired layout. 🖤","EN",true,false)
-    addMessage("تجربة فانتـا","هلا والله! جرب الردود والإيموجي هنا 🤍","AR",true,false)
-
     local function closeActions()
         selected=nil
         actions.Visible=false
         extras.Visible=false
     end
     local function makeRow(item,order)
-        local available=feed.AbsoluteSize.X>140 and feed.AbsoluteSize.X or 450
-        local maxWidth=math.max(147,math.min(335,available-52))
-        local displayName=item.name..(item.preview and " · DEMO" or item.mine and " · LOCAL" or "")
+        local available=math.max(120,feed.AbsoluteSize.X)
+        local maxWidth=math.max(65,math.min(335,available-58))
+        local displayName=item.name..(item.preview and " · DEMO" or item.mine and " · YOU" or "")
         local nameW=bounds(displayName,11,Enum.Font.GothamBold,1000).X
         local bodyW=bounds(item.content,12,Enum.Font.Gotham,1000).X
         local quote=byId[item.replyId]
@@ -465,7 +521,7 @@ function Chat.Mount(tab)
             math.max(nameW+25,bodyW+48,quoteW+25))))
         local bodyHeight=math.max(16,bounds(item.content,12,Enum.Font.Gotham,bubbleWidth-22).Y)
         local quoted=quote and 26 or 0
-        local bubbleHeight=math.max(49,bodyHeight+34+quoted)
+        local bubbleHeight=math.max(49,bodyHeight+42+quoted)
         local extraReaction=item.reaction and 8 or 0
         local itemRow=inst("Frame",{
             Name="MessageRow",LayoutOrder=order,
@@ -479,10 +535,10 @@ function Chat.Mount(tab)
             BorderSizePixel=0,
         },itemRow)
         corner(face,16)
-        if item.mine then
+        if item.mine or item.userId then
             local avatar=inst("ImageLabel",{
                 BackgroundTransparency=1,
-                Image=avatarURL(LocalPlayer.UserId),Size=UDim2.fromScale(1,1),
+                Image=avatarURL(item.userId or LocalPlayer.UserId),Size=UDim2.fromScale(1,1),
             },face)
             corner(avatar,16)
         else
@@ -545,7 +601,7 @@ function Chat.Mount(tab)
                 bubble.AbsolutePosition.X-root.AbsolutePosition.X+bubble.AbsoluteSize.X+4),
                 math.max(6,root.AbsoluteSize.X-125))
             local y=math.clamp(bubble.AbsolutePosition.Y-root.AbsolutePosition.Y+4,
-                120,math.max(120,root.AbsoluteSize.Y-98))
+                160,math.max(160,root.AbsoluteSize.Y-98))
             actions.Position=UDim2.fromOffset(x,y)
             actions.Visible=true
         end)
@@ -559,15 +615,17 @@ function Chat.Mount(tab)
             jump.Visible=false
         end)
     end
-    render=function()
+    render=function(preserveScroll)
         if not alive then return end
+        local oldPosition=feed.CanvasPosition
+        local readingOlder=preserveScroll and list.AbsoluteContentSize.Y-feed.AbsoluteSize.Y-oldPosition.Y>70
         closeActions()
         for _,v in ipairs(feed:GetChildren()) do
             if v.Name=="MessageRow" then v:Destroy() end
         end
         local count=0
         for _,item in ipairs(messages) do
-            if not item.hidden and item.lang==room then
+            if not item.hidden and item.channel== (activeChannel and activeChannel.Name) then
                 count=count+1
                 makeRow(item,count)
             end
@@ -577,14 +635,18 @@ function Chat.Mount(tab)
                 Name="MessageRow",LayoutOrder=1,BackgroundTransparency=1,
                 Size=UDim2.new(1,0,0,86),
             },feed)
-            text(empty,"No messages in this local room yet.",12,P.dim,false,{
+            text(empty,"No received messages. Select a room or friend above.\nRequires the Vanta server script in your experience.",12,P.dim,false,{
                 Position=UDim2.fromOffset(10,12),
                 Size=UDim2.new(1,-20,0,44),
                 TextWrapped=true,
                 TextXAlignment=Enum.TextXAlignment.Center,
             })
         end
-        jumpBottom()
+        if readingOlder then
+            task.defer(function()if alive then feed.CanvasPosition=oldPosition;jump.Visible=true end end)
+        else
+            jumpBottom()
+        end
     end
 
     local function doAction(kind)
@@ -593,6 +655,7 @@ function Chat.Mount(tab)
         if not item then return end
         if kind=="like" then
             item.reaction="👍"
+            notify("Reaction saved on this device only.")
             render()
         elseif kind=="reply" then
             setReply(item)
@@ -653,7 +716,7 @@ function Chat.Mount(tab)
         entry:CaptureFocus()
     end))
     watch(attachment.MouseButton1Click:Connect(function()
-        notify("Attachments aren't supported in the local preview.")
+        notify("Attachments aren't supported in the chat.")
     end))
     watch(emoji.MouseButton1Click:Connect(function()
         closeActions()
@@ -671,31 +734,41 @@ function Chat.Mount(tab)
         end))
     end
 
-    local function sendLocal()
+    local function sendMessage()
         if not alive then return end
         local content=entry.Text:match("^%s*(.-)%s*$") or ""
         if content=="" then return end
         local ok,size=pcall(utf8.len,content)
         if not ok or not size then notify("Invalid message.");return end
-        if size>280 then notify("Maximum 280 characters in this preview.");return end
-        addMessage(LocalPlayer.DisplayName or LocalPlayer.Name,
-            content,room,false,true,replying and replying.id or nil)
-        entry.Text=""
+        if size>280 then notify("Maximum 280 characters.");return end
+        if not activeChannel then notify("Chat unavailable. Install the server script and check Roblox permissions.");return end
+        if sending or not entry.TextEditable then return end
+        sending=true
+        local channel=activeChannel
+        local replyMetadata=replying and replying.messageId and ("vanta-reply:"..replying.messageId) or ""
+        local ok,result=pcall(function() return channel:SendAsync(content,replyMetadata) end)
+        sending=false
+        if not alive then return end
+        if not ok or not result or result.Status~=Enum.TextChatMessageStatus.Success then
+            notify("Roblox could not send this message. Check permissions or wait and retry.")
+            return
+        end
+        -- Never insert the unfiltered draft or claim recipient delivery/read receipts.
+        if activeChannel==channel and entry.Text:match("^%s*(.-)%s*$")==content then entry.Text="" end
         setReply(nil)
         hidePopups()
-        render()
-        notify("Local-only preview. Not delivered to other players.")
+        notify("Accepted by Roblox. Recipient delivery is not confirmed.")
     end
-    watch(send.MouseButton1Click:Connect(sendLocal))
+    watch(send.MouseButton1Click:Connect(sendMessage))
     watch(entry.FocusLost:Connect(function(entered)
-        if entered then sendLocal() end
+        if entered then task.spawn(sendMessage) end
     end))
     watch(replyClose.MouseButton1Click:Connect(function()setReply(nil)end))
     watch(en.MouseButton1Click:Connect(function()
-        room="EN";setReply(nil);hidePopups();styleLanguages();render()
+        room="EN";currentDM=nil;setReply(nil);hidePopups();styleLanguages();selectRoom()
     end))
     watch(ar.MouseButton1Click:Connect(function()
-        room="AR";setReply(nil);hidePopups();styleLanguages();render()
+        room="AR";currentDM=nil;setReply(nil);hidePopups();styleLanguages();selectRoom()
     end))
     watch(jump.MouseButton1Click:Connect(jumpBottom))
     watch(feed:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
@@ -716,11 +789,174 @@ function Chat.Mount(tab)
         for _,signal in ipairs(connections) do signal:Disconnect() end
         table.clear(connections)
     end))
+    -- The control-plane remote takes only a target UserId. No message text leaves TextChatService.
+    local friendButton=click(root,"ChooseFriend",UDim2.new(1,-112,0,28),{
+        Position=UDim2.fromOffset(10,125),Text="Friends in this server",TextSize=11,
+        BackgroundTransparency=0.15,BackgroundColor3=P.panel2,
+    })
+    corner(friendButton,8)
+    local roomButton=click(root,"ChooseRoom",UDim2.fromOffset(87,28),{
+        Position=UDim2.new(1,-97,0,125),Text="Room",TextSize=11,
+        BackgroundTransparency=0.15,BackgroundColor3=P.panel2,
+    })
+    corner(roomButton,8)
+    local choices=inst("ScrollingFrame",{
+        Name="FriendChoices",Visible=false,ZIndex=60,Position=UDim2.fromOffset(10,156),
+        Size=UDim2.new(1,-20,0,120),BackgroundColor3=P.panel2,BorderSizePixel=0,
+        CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollBarThickness=3,
+    },root)
+    inst("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder},choices)
+    local function selectChannel(channel)
+        activeChannel=channel
+        entry.Text=""
+        setReply(nil)
+        friendButton.Text=currentDM and ("DM · "..currentDM) or "Friends in this server"
+        if nativeWindow then nativeWindow:Destroy();nativeWindow=nil end
+        feed.Visible=not integrated
+        composer.Visible=not integrated
+        local usable=channel~=nil
+        if channel then
+            usable=false
+            for _,source in ipairs(channel:GetChildren()) do
+                if source:IsA("TextSource") and source.UserId==LocalPlayer.UserId and source.CanSend then
+                    usable=true
+                end
+            end
+        end
+        local windowFailed=false
+        if integrated and channel then
+            local ok,window=pcall(function()
+                local w=Instance.new("TextChannelWindow")
+                w.Name="RobloxChatWindow"
+                w.Position=UDim2.fromOffset(10,160)
+                w.Size=UDim2.new(1,-20,1,-170)
+                w.BackgroundColor3=P.panel
+                w.Target=channel
+                w.ZIndex=feed.ZIndex
+                w.Parent=root
+                return w
+            end)
+            if ok then nativeWindow=window else windowFailed=true end
+        end
+        status.Text=windowFailed and "Native window unavailable" or usable and (currentDM and "Friend DM · this server" or "Room · this server") or "Setup / permission required"
+        indicator.BackgroundColor3=usable and not windowFailed and P.mint or P.orange
+        entry.TextEditable=usable and not integrated
+        send.AutoButtonColor=entry.TextEditable
+        send.BackgroundColor3=entry.TextEditable and P.orange or P.orangeDeep
+        entry.PlaceholderText=usable and "Message via Roblox..." or "Chat unavailable · setup required"
+        render()
+    end
+    selectRoom=function()
+        channelFolder=TextChatService:FindFirstChild("TextChannels")
+        selectChannel(channelFolder and channelFolder:FindFirstChild("Vanta"..room))
+    end
+    local function refreshFriendChoices()
+        for _,child in ipairs(choices:GetChildren()) do
+            if child:IsA("GuiObject") then child:Destroy() end
+        end
+        local count=0
+        for _,player in ipairs(Players:GetPlayers()) do
+            if player~=LocalPlayer then
+                local ok,isFriend=pcall(function() return LocalPlayer:IsFriendsWith(player.UserId) end)
+                if not alive then return end
+                if ok and isFriend then
+                    count=count+1
+                    local button=click(choices,"Friend_"..player.UserId,UDim2.new(1,0,0,32),{
+                        Text=player.DisplayName.." (@"..player.Name..")",TextSize=11,LayoutOrder=count,
+                    })
+                    button.MouseButton1Click:Connect(function()
+                        choices.Visible=false
+                        local remote=ReplicatedStorage:FindFirstChild("VantaChatOpen")
+                        if not remote or not remote:IsA("RemoteFunction") then notify("Server module is not installed.");return end
+                        task.spawn(function()
+                            local opened,name,reason=pcall(function() return remote:InvokeServer(player.UserId) end)
+                            if not alive then return end
+                            if not opened or not name then notify(reason or "Roblox denied the conversation.");return end
+                            local channel=channelFolder and channelFolder:WaitForChild(name,5)
+                            if not alive then return end
+                            if not channel then notify("Conversation has not replicated. Retry.");return end
+                            currentDM=player.DisplayName
+                            selectChannel(channel)
+                        end)
+                    end)
+                end
+            end
+        end
+        if count==0 then
+            text(choices,"No friends here. Ask a friend to join this server.",11,P.dim,false,{
+                Size=UDim2.new(1,0,0,40),TextWrapped=true,
+            })
+        end
+    end
+    watch(friendButton.MouseButton1Click:Connect(function()
+        choices.Visible=not choices.Visible
+        if choices.Visible then task.spawn(refreshFriendChoices) end
+    end))
+    watch(roomButton.MouseButton1Click:Connect(function()currentDM=nil;selectRoom()end))
+    watch(TextChatService.MessageReceived:Connect(function(message)
+        if integrated or not alive or message.Status~=Enum.TextChatMessageStatus.Success then return end
+        local channel=message.TextChannel
+        local source=message.TextSource
+        if not channel or not source or not channel.Name:match("^Vanta") or message.Text=="" then return end
+        if byId[message.MessageId] then return end
+        local player=Players:GetPlayerByUserId(source.UserId)
+        local item=addMessage(player and player.DisplayName or tostring(source.UserId),message.Text,
+            room,false,source.UserId==LocalPlayer.UserId)
+        item.channel=channel.Name
+        item.userId=source.UserId
+        local parentId=(message.Metadata or ""):match("^vanta%-reply:(.+)$")
+        local parent=parentId and byId[parentId]
+        item.replyId=parent and parent.channel==channel.Name and parent.id or nil
+        byId[message.MessageId]=item
+        item.messageId=message.MessageId
+        if not activeChannel or (channel~=activeChannel and channel.Name:match("^VantaDM_")) then
+            notify("New friend message. Open Friends and select the sender.")
+        end
+        render(true)
+    end))
+    local attachedFolder=nil
+    local function attachFolder(folder)
+        if attachedFolder==folder then return end
+        channelFolder=folder
+        attachedFolder=folder
+        watch(channelFolder.ChildAdded:Connect(function(channel)
+            if channel.Name=="Vanta"..room and not currentDM then selectRoom() end
+        end))
+        watch(channelFolder.ChildRemoved:Connect(function(channel)
+            if channel==activeChannel then currentDM=nil;selectRoom() end
+        end))
+        watch(channelFolder.DescendantAdded:Connect(function(source)
+            if source:IsA("TextSource") and source.UserId==LocalPlayer.UserId then
+                task.defer(function()
+                    if alive and source.Parent==activeChannel then selectChannel(activeChannel) end
+                end)
+                watch(source:GetPropertyChangedSignal("CanSend"):Connect(function()
+                    if alive and source.Parent==activeChannel then selectChannel(activeChannel) end
+                end))
+            end
+        end))
+        if not currentDM then selectRoom() end
+    end
+    if channelFolder then attachFolder(channelFolder) end
+    watch(TextChatService.ChildAdded:Connect(function(folder)
+        if folder.Name=="TextChannels" then attachFolder(folder) end
+    end))
+    local function resize()
+        root.Size=UDim2.new(1,0,0,math.max(300,holder.AbsoluteSize.Y-8))
+        local narrow=root.AbsoluteSize.X<390
+        faces.Visible=not narrow
+        language.Position=UDim2.new(1,narrow and -97 or -151,0,14)
+    end
+    watch(holder:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize))
+    resize()
+    selectRoom()
     drawFaces()
     styleLanguages()
+    if not entry.TextEditable then entry.PlaceholderText="Chat unavailable · setup / permission required" end
     render()
-    print("[VantaTest Chat] "..BUILD.." loaded: visual UI only; global transport NOT connected.")
+    print("[VantaTest Chat] "..BUILD.." · Roblox TextChatService; no external chat relay.")
     return root
 end
 
 return Chat
+
