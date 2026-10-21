@@ -29,23 +29,24 @@ jobs:
         run: |
           luac -p chat.lua
           luac -p example.lua
-      - name: Check native in-window preview and published SaltyIcons assets
+      - name: Check Pulse-style native chat UI and actual SaltyIcons assets
         run: |
           grep -q 'VantaChatExperiment' chat.lua
+          grep -q 'PULSE STYLE 1.0' chat.lua
+          grep -q 'ChatRoomHeader' chat.lua
+          grep -q 'RoomLanguage' chat.lua
           grep -q 'MessageFeed' chat.lua
+          grep -q 'MessageBubble' chat.lua
+          grep -q 'QuickMessageActions' chat.lua
+          grep -q 'ComposerInput' chat.lua
           grep -q 'EmojiPicker' chat.lua
-          grep -q 'LOCAL DEMO' chat.lua
+          grep -q 'Mentions' chat.lua
+          grep -q 'ReplyBar' chat.lua
+          grep -q 'LOCAL' chat.lua
           grep -q 'rbxassetid://104783825572790' chat.lua
+          grep -q 'rbxassetid://75110458023624' chat.lua
+          grep -q 'local function sendLocal' chat.lua
           grep -q 'room=="AR"' chat.lua
-          grep -q 'setReply' chat.lua
-          grep -q 'local function sendDemo' chat.lua
-          grep -q 'MAX_HISTORY = 150' chat.lua
-          grep -q 'PULSE UI 0.6' chat.lua
-          grep -q 'PulseStudyAccent' chat.lua
-          grep -q 'LOCAL ONLY' chat.lua
-          grep -q 'JumpToLatest' chat.lua
-          grep -q 'Name="Mentions"' chat.lua
-          grep -q 'MentionCandidate' chat.lua
           if grep -q 'TextChatService.MessageReceived' chat.lua; then exit 1; fi
           if grep -q 'SendAsync(' chat.lua; then exit 1; fi
           if grep -q 'http.*onrender.com' chat.lua; then exit 1; fi

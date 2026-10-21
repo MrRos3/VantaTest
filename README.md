@@ -29,19 +29,15 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat LAB (in-script preview)
+### Vanta Chat LAB (native Pulse-style UI, local preview)
 
-**Visible build:** `PULSE UI 0.6` is displayed in the Chat tab header. This is an immediately visible proof that the latest `chat.lua` loaded. The previous UI patch added almost entirely hidden interactions, so the interface looked unchanged. The new header, crimson accent stripe, `VANTA LOUNGE` title, and updated preview bubbles make the new build recognizable.
+**Visible build:** `PULSE STYLE 1.0`. The Chat page was visually rebuilt from the user-supplied Pulse Hub screenshot. Its compact warm-charcoal message bubbles are left-aligned and content-width (not full-width burgundy cards), with colored usernames, small avatar circles, bottom-right timestamps, an orange chat mark, rounded EN/AR filters, and a bright orange send button. The compact four-icon message toolbar replaces the previous oversized popup.
 
+The layout includes a docked composer with an emoji tray, a read-only attachment hint, an @mention suggestion popup populated from names in the **current Roblox server only**, a reply strip, a scroll-to-latest button, and hide/delete for locally stored messages. The top headshot strip also shows only current-server players; it is **not** a global connected-user list. Icons use published [SaltyIcons](https://github.com/MrRos3/SaltyIcons) Roblox asset IDs. The 150-message history bound is for UI performance and is **not** inferred to be Pulse's own storage limit.
 
+This is **only a local UI prototype**: demo samples are labeled `DEMO`, your own messages are labeled `LOCAL`, and no real-time chat backend is connected. Messages are not sent to other players, servers, experiences, or to the independent web companion in [vanta-chat-web](vanta-chat-web). This prototype intentionally makes no attempts to bypass Roblox's chat filtering or communication settings. UI behavior has repository syntax checks, but visual rendering must still be inspected in Roblox.
 
-The **Chat** tab runs an interactive Roblox GUI directly **inside VantaTest**. It includes English and Arabic room toggles (with right-aligned Arabic), timestamped sender/recipient bubbles, player avatar, real published Roblox asset IDs from [MrRos3/SaltyIcons](https://github.com/MrRos3/SaltyIcons), emoji tray at bottom-left, message selection, Reply, Copy, React ❤️, Hide locally, and deletion of your locally composed demo messages. The latest Pulse-inspired update adds a **150-entry bounded message history**, a **scroll-to-latest** action, and a **local @mention suggestion panel** using usernames from your current server. Mentions are only text insertion, not delivery to users.
-
-It is a **local UI preview**, not a networked chat. Sample messages are labeled `PREVIEW`; messages you type are labeled `LOCAL` and appear only on your current client. They are not delivered to another user, game, server, or to the hosted companion. The message history disappears when the local UI is destroyed. Online counts are intentionally absent. This also does not bypass Roblox chat permissions.
-
-An independent **web companion** from earlier experiments is available at [Vanta Chat](https://vanta-chat-lab.onrender.com), but it is not linked to this in-script GUI. It supports invite-only EN/AR chat in browsers, and its free-tier database is currently ephemeral. The source remains in [vanta-chat-web](vanta-chat-web). Integrating unrestricted web messaging into arbitrary Roblox executors would bypass Roblox's in-game communication protections, so the in-script preview is deliberately disconnected.
-
-**No production VantaUI changes** were made.
+**VantaUI production remains unchanged.**
 
 All **18 element types currently registered** in the library are represented: Paragraph, Button, Toggle, Slider, ProgressBar, Keybind, Input, Dropdown, Code, Colorpicker, Section, Divider, Space, Image, Group, HStack, VStack, Viewport.
 

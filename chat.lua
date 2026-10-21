@@ -1,120 +1,109 @@
--- VantaTest Chat LAB · native in-window interactive PREVIEW.
--- Real SaltyIcons Roblox IDs from MrRos3/SaltyIcons/roblox/Icons.lua.
--- Intentionally NO Roblox TextChatService, HTTP chat relay, or external browser.
--- Local messages never transmit to other Roblox clients or to the hosted site.
+-- VantaTest Chat: Pulse-inspired in-window interface, visual revision 1.0.
+-- The original Pulse screenshot supplied the visual reference, NOT source code or transport.
+-- Every image icon below uses uploaded MrRos3/SaltyIcons Roblox asset IDs.
+-- This is a local-only chat UI, never a hidden HTTP relay or Roblox chat bypass.
 local Players = game:GetService("Players")
 local TextService = game:GetService("TextService")
 local LocalPlayer = Players.LocalPlayer
 
 local Chat = {}
-local PALETTE = {
-    black = Color3.fromRGB(13, 11, 14),
-    dark = Color3.fromRGB(20, 17, 21),
-    card = Color3.fromRGB(34, 28, 33),
-    bubble = Color3.fromRGB(45, 37, 43),
-    mine = Color3.fromRGB(73, 37, 52),
-    border = Color3.fromRGB(84, 55, 68),
-    burgundy = Color3.fromRGB(142, 50, 76),
-    pale = Color3.fromRGB(247, 241, 243),
-    dim = Color3.fromRGB(173, 159, 168),
-    rose = Color3.fromRGB(241, 151, 185),
+local P = {
+    bg=Color3.fromRGB(19,16,16),
+    panel=Color3.fromRGB(29,24,22),
+    panel2=Color3.fromRGB(35,29,27),
+    bubble=Color3.fromRGB(45,39,36),
+    own=Color3.fromRGB(47,40,36),
+    stroke=Color3.fromRGB(76,62,54),
+    orange=Color3.fromRGB(229,106,25),
+    orangeDeep=Color3.fromRGB(153,62,18),
+    pale=Color3.fromRGB(240,237,233),
+    dim=Color3.fromRGB(162,153,146),
+    mint=Color3.fromRGB(87,209,153),
+    gold=Color3.fromRGB(247,190,57),
 }
-local ICONS = {
-    chat = "rbxassetid://110915451876713",
-    message = "rbxassetid://126050900811446",
-    send = "rbxassetid://104783825572790",
-    heart = "rbxassetid://80686764701725",
-    reply = "rbxassetid://70778094695584",
-    copy = "rbxassetid://103363146431717",
-    close = "rbxassetid://104564513546348",
-    more = "rbxassetid://138158933921955",
-    remove = "rbxassetid://71091959578714",
-    user = "rbxassetid://108864475481601",
-    clock = "rbxassetid://118647085388941",
-    mention = "rbxassetid://125917586170394",
-    down = "rbxassetid://93700951703515",
+local ICON = {
+    chat="rbxassetid://110915451876713",
+    send="rbxassetid://104783825572790",
+    attach="rbxassetid://98782810652239",
+    heart="rbxassetid://80686764701725",
+    like="rbxassetid://75110458023624",
+    reply="rbxassetid://70778094695584",
+    copy="rbxassetid://103363146431717",
+    more="rbxassetid://138158933921955",
+    remove="rbxassetid://71091959578714",
+    user="rbxassetid://108864475481601",
+    x="rbxassetid://104564513546348",
+    mention="rbxassetid://125917586170394",
+    down="rbxassetid://93700951703515",
 }
-local MAX_HISTORY = 150 -- UI performance bound; NOT proof of Pulse's server limit
-local UI_BUILD = "PULSE UI 0.6"
-local EMOJIS = {"😀","😂","😍","🥹","😭","❤️","🖤","🌹","🔥","👍","👀","✨","😎","💀","💋","🙏"}
+local BUILD="PULSE STYLE 1.0"
+local LIMIT=150
+local EMOJI={"😀","😂","😍","🥹","😭","❤️","🖤","🌹","🔥","👍","👀","✨","😎","💀","💋","🙏"}
 
-local function new(class, props, parent)
-    local obj = Instance.new(class)
-    for k,v in pairs(props or {}) do
-        obj[k] = v
-    end
-    if parent then obj.Parent = parent end
+local function inst(class,props,parent)
+    local obj=Instance.new(class)
+    for k,v in pairs(props or {}) do obj[k]=v end
+    if parent then obj.Parent=parent end
     return obj
 end
-
-local function round(parent, radius)
-    return new("UICorner", {CornerRadius=UDim.new(0,radius)}, parent)
+local function corner(parent,r)
+    return inst("UICorner",{CornerRadius=UDim.new(0,r)},parent)
 end
-
-local function outline(parent, color, transparency)
-    return new("UIStroke", {
-        Color=color or PALETTE.border,
-        Transparency=transparency or 0, Thickness=1,
-    }, parent)
+local function stroke(parent,c,transparency)
+    return inst("UIStroke",{Color=c or P.stroke,Transparency=transparency or 0,Thickness=1},parent)
 end
-
-local function label(parent, value, size, color, bold, extra)
-    local props = {
-        Text=tostring(value or ""),TextColor3=color or PALETTE.pale,
-        TextSize=size or 12,Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham,
-        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Center,
-        TextTruncate=Enum.TextTruncate.AtEnd,BackgroundTransparency=1,
-        BorderSizePixel=0,
+local function text(parent,value,size,color,strong,props)
+    local t={
+        BackgroundTransparency=1,BorderSizePixel=0,
+        Text=tostring(value or ""),TextSize=size or 12,
+        TextColor3=color or P.pale,
+        Font=strong and Enum.Font.GothamBold or Enum.Font.Gotham,
+        TextXAlignment=Enum.TextXAlignment.Left,
+        TextYAlignment=Enum.TextYAlignment.Center,
+        TextTruncate=Enum.TextTruncate.AtEnd,
     }
-    for k,v in pairs(extra or {}) do props[k]=v end
-    return new("TextLabel",props,parent)
+    for k,v in pairs(props or {}) do t[k]=v end
+    return inst("TextLabel",t,parent)
 end
-
-local function icon(parent, kind, size, extra)
-    local props={
-        Name="SaltyIcon_"..kind,
-        Image=assert(ICONS[kind],"Missing SaltyIcons asset: "..tostring(kind)),
-        ImageColor3=PALETTE.pale,
+local function image(parent,key,size,props)
+    local t={
+        Name="SaltyIcon_"..key,
+        Image=assert(ICON[key],"Missing SaltyIcons asset "..key),
         BackgroundTransparency=1,
-        Size=UDim2.fromOffset(size,size),
+        ImageColor3=P.pale,Size=UDim2.fromOffset(size,size),
         ScaleType=Enum.ScaleType.Fit,
     }
-    for k,v in pairs(extra or {}) do props[k]=v end
-    return new("ImageLabel",props,parent)
+    for k,v in pairs(props or {}) do t[k]=v end
+    return inst("ImageLabel",t,parent)
 end
-
-local function button(parent, name, size, extra)
-    local props={
-        Name=name,Text="",AutoButtonColor=true,
-        BorderSizePixel=0,BackgroundTransparency=1,
-        Size=size,TextColor3=PALETTE.pale,
-        Font=Enum.Font.GothamBold,TextSize=12,
+local function click(parent,name,sz,props)
+    local t={
+        Name=name,Text="",BackgroundTransparency=1,
+        BorderSizePixel=0,AutoButtonColor=true,
+        TextColor3=P.pale,Font=Enum.Font.GothamBold,TextSize=11,
+        Size=sz,
     }
-    for k,v in pairs(extra or {}) do props[k]=v end
-    return new("TextButton",props,parent)
+    for k,v in pairs(props or {}) do t[k]=v end
+    return inst("TextButton",t,parent)
 end
-
-local function timeString(timestamp)
-    local ok,result=pcall(os.date,"%H:%M",timestamp or os.time())
+local function bounds(value,fontSize,font,width)
+    local ok,b=pcall(function()
+        return TextService:GetTextSize(tostring(value),fontSize,font,Vector2.new(math.max(30,width),1500))
+    end)
+    return ok and b or Vector2.new(95,16)
+end
+local function timestamp(when)
+    local ok,result=pcall(os.date,"%H:%M",when or os.time())
     return ok and result or ""
 end
-
-local function countSize(message, width)
-    local ok,bounds=pcall(TextService.GetTextSize,TextService,tostring(message),12,
-        Enum.Font.Gotham,Vector2.new(math.max(100,width),2000))
-    return ok and math.max(18,bounds.Y) or 30
-end
-
-local function headshot(id)
-    return ("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100"):format(id)
+local function avatarURL(userId)
+    return ("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100"):format(userId)
 end
 
 function Chat.Mount(tab)
-    local holder=assert(tab.UIElements and tab.UIElements.ContainerFrame,
-        "Vanta Chat requires a VantaTest tab")
+    local holder=assert(tab.UIElements and tab.UIElements.ContainerFrame,"Vanta Chat container missing")
     local previous=holder:FindFirstChild("VantaChatExperiment")
     if previous then previous:Destroy() end
-
     local pad=holder:FindFirstChildOfClass("UIPadding")
     if pad then
         pad.PaddingTop=UDim.new(0,4)
@@ -123,561 +112,614 @@ function Chat.Mount(tab)
         pad.PaddingRight=UDim.new(0,4)
     end
 
-    local root=new("Frame",{
-        Name="VantaChatExperiment", LayoutOrder=1,
-        Size=UDim2.new(1,0,0,405),ZIndex=2,
-        BorderSizePixel=0, BackgroundColor3=PALETTE.black,
-        BackgroundTransparency=0.08,ClipsDescendants=true,
+    local root=inst("Frame",{
+        Name="VantaChatExperiment",LayoutOrder=1,
+        Size=UDim2.new(1,0,0,405),BorderSizePixel=0,
+        BackgroundColor3=P.bg,BackgroundTransparency=0.05,
+        ClipsDescendants=true,
     },holder)
-    round(root,15)
-    outline(root,PALETTE.border,0.28)
+    corner(root,16)
+    stroke(root,P.stroke,0.38)
 
     local alive=true
+    local connections={}
     local room="EN"
     local messages={}
     local byId={}
+    local serial=0
     local selected=nil
     local replying=nil
-    local serial=0
-    local globals={}
-    local controls={}
-    local function watch(signal)
-        globals[#globals+1]=signal
-        return signal
+    local rowArea=nil
+    local render
+    local function watch(connection)
+        connections[#connections+1]=connection
+        return connection
     end
 
-    label(root,"VANTA CHAT",17,PALETTE.pale,true,{
-        Position=UDim2.fromOffset(14,3),Size=UDim2.new(1,-132,0,26),
+    -- Top title matches the compact Pulse hierarchy; don't imitate its online counts.
+    text(root,"Chat",19,P.pale,true,{
+        Position=UDim2.fromOffset(12,5),Size=UDim2.new(1,-85,0,27),
     })
-    label(root,UI_BUILD.."  |  Chat layout rebuilt from the Pulse dump",10,PALETTE.rose,true,{
-        Position=UDim2.fromOffset(14,28),Size=UDim2.new(1,-28,0,16),
+    text(root,"Talk with Vanta users  ·  "..BUILD,10,P.dim,false,{
+        Position=UDim2.fromOffset(12,31),Size=UDim2.new(1,-30,0,15),
     })
-    local accent=new("Frame",{
-        Name="PulseStudyAccent",
-        BackgroundColor3=PALETTE.burgundy,BorderSizePixel=0,
-        Position=UDim2.fromOffset(15,48),Size=UDim2.new(1,-30,0,2),
+    local me=inst("ImageLabel",{
+        Name="YourAvatar",Position=UDim2.new(1,-45,0,8),
+        Size=UDim2.fromOffset(34,34),BackgroundColor3=P.panel,
+        BorderSizePixel=0,Image=avatarURL(LocalPlayer.UserId),
     },root)
-    round(accent,2)
-    local statusDot=new("Frame",{
-        Position=UDim2.new(1,-107,0,17),Size=UDim2.fromOffset(6,6),
-        BackgroundColor3=PALETTE.rose,BorderSizePixel=0,
-    },root)
-    round(statusDot,5)
-    label(root,"LOCAL ONLY",10,PALETTE.rose,true,{
-        Position=UDim2.new(1,-101,0,9),Size=UDim2.fromOffset(95,20),
-    })
+    corner(me,18)
+    stroke(me,P.orange,0.28)
 
-    local header=new("Frame",{
-        Name="RoomHeader",Position=UDim2.fromOffset(10,53),
-        Size=UDim2.new(1,-20,0,55),BackgroundColor3=PALETTE.dark,
-        BorderSizePixel=0,
+    -- Pulse-like room bar: icon, name, activity indicator, compact language chips, avatars.
+    local top=inst("Frame",{
+        Name="ChatRoomHeader",
+        Position=UDim2.fromOffset(9,55),Size=UDim2.new(1,-18,0,61),
+        BackgroundColor3=P.panel,BackgroundTransparency=0.2,BorderSizePixel=0,
     },root)
-    round(header,12)
-    outline(header,PALETTE.border,0.62)
-    local square=new("Frame",{
-        Position=UDim2.fromOffset(9,11),Size=UDim2.fromOffset(34,34),
-        BackgroundColor3=PALETTE.burgundy,BorderSizePixel=0,
-    },header)
-    round(square,9)
-    icon(square,"chat",22,{
-        AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),
+    corner(top,14)
+    stroke(top,P.stroke,0.43)
+    local mark=inst("Frame",{
+        BackgroundColor3=P.orangeDeep,BorderSizePixel=0,
+        Position=UDim2.fromOffset(10,11),Size=UDim2.fromOffset(36,36),
+    },top)
+    corner(mark,11)
+    inst("UIGradient",{
+        Color=ColorSequence.new(P.orange,P.orangeDeep),Rotation=90,
+    },mark)
+    image(mark,"chat",21,{Position=UDim2.fromOffset(7,7)})
+    text(top,"Vanta Chat",13,P.pale,true,{
+        Position=UDim2.fromOffset(56,9),Size=UDim2.new(1,-230,0,21),
     })
-    label(header,"VANTA LOUNGE  •  EN / AR",13,PALETTE.pale,true,{
-        Position=UDim2.fromOffset(52,8),Size=UDim2.new(1,-195,0,19),
+    local indicator=inst("Frame",{
+        Position=UDim2.fromOffset(56,37),Size=UDim2.fromOffset(6,6),
+        BackgroundColor3=P.orange,BorderSizePixel=0,
+    },top)
+    corner(indicator,5)
+    text(top,"local preview · offline",10,P.dim,false,{
+        Position=UDim2.fromOffset(68,28),Size=UDim2.new(1,-237,0,21),
     })
-    label(header,"Replies · reactions · @mentions",10,PALETTE.dim,false,{
-        Position=UDim2.fromOffset(52,29),Size=UDim2.new(1,-195,0,15),
+    local language=inst("Frame",{
+        Name="RoomLanguage",Position=UDim2.new(1,-151,0,14),
+        Size=UDim2.fromOffset(89,31),
+        BackgroundColor3=P.bg,BackgroundTransparency=0.25,BorderSizePixel=0,
+    },top)
+    corner(language,17)
+    stroke(language,P.stroke,0.5)
+    local ar=click(language,"AR",UDim2.fromOffset(43,27),{
+        Position=UDim2.fromOffset(2,2),Text="AR",TextSize=10,
+        BackgroundTransparency=0,BackgroundColor3=P.panel2,
     })
-    local function roomButton(name,x)
-        local obj=button(header,name.."Room",UDim2.fromOffset(37,26),{
-            Text=name,TextSize=10,BackgroundTransparency=0,
-            BackgroundColor3=PALETTE.card,
-            Position=UDim2.new(1,x,0,14),
-        })
-        round(obj,16)
-        return obj
+    corner(ar,14)
+    local en=click(language,"EN",UDim2.fromOffset(42,27),{
+        Position=UDim2.fromOffset(45,2),Text="EN",TextSize=10,
+        BackgroundTransparency=0,BackgroundColor3=P.orange,
+    })
+    corner(en,14)
+
+    local faces=inst("Frame",{
+        Name="CurrentServerAvatars",
+        Position=UDim2.new(1,-57,0,14),
+        Size=UDim2.fromOffset(52,31),BackgroundTransparency=1,
+    },top)
+    local function drawFaces()
+        if not alive then return end
+        for _,v in ipairs(faces:GetChildren()) do
+            if v.Name=="LocalServerAvatar" then v:Destroy() end
+        end
+        -- Actual players in THIS server only; never presented as global chat users.
+        for index,user in ipairs(Players:GetPlayers()) do
+            if index>3 then break end
+            local a=inst("ImageLabel",{
+                Name="LocalServerAvatar",Image=avatarURL(user.UserId),
+                Position=UDim2.fromOffset((index-1)*11,3),
+                Size=UDim2.fromOffset(26,26),
+                BackgroundColor3=P.panel2,BorderSizePixel=0,ZIndex=4+index,
+            },faces)
+            corner(a,14)
+            stroke(a,P.stroke,0)
+        end
     end
-    local en=roomButton("EN",-85)
-    local ar=roomButton("AR",-43)
 
-    local feed=new("ScrollingFrame",{
-        Name="MessageFeed",Position=UDim2.fromOffset(10,114),
-        Size=UDim2.new(1,-20,1,-177),
-        BorderSizePixel=0,BackgroundColor3=PALETTE.dark,
-        BackgroundTransparency=0.39,
+    -- Thin divider, flush scrolling area, more like Pulse than giant purple cards.
+    inst("Frame",{
+        Name="ChatDivider",
+        Position=UDim2.fromOffset(11,121),Size=UDim2.new(1,-22,0,1),
+        BackgroundColor3=P.stroke,BackgroundTransparency=0.64,BorderSizePixel=0,
+    },root)
+    local feed=inst("ScrollingFrame",{
+        Name="MessageFeed",Position=UDim2.fromOffset(9,126),
+        Size=UDim2.new(1,-18,1,-187),
+        BackgroundTransparency=1,BorderSizePixel=0,
         CanvasSize=UDim2.fromOffset(0,0),
         AutomaticCanvasSize=Enum.AutomaticSize.Y,
         ScrollingDirection=Enum.ScrollingDirection.Y,
-        ScrollBarThickness=2,ScrollBarImageColor3=PALETTE.burgundy,
+        ScrollBarThickness=2,ScrollBarImageColor3=P.orange,
+        ClipsDescendants=true,
     },root)
-    round(feed,11)
-    new("UIPadding",{
-        PaddingTop=UDim.new(0,10),PaddingBottom=UDim.new(0,10),
-        PaddingLeft=UDim.new(0,9),PaddingRight=UDim.new(0,9),
+    inst("UIPadding",{
+        PaddingTop=UDim.new(0,4),PaddingBottom=UDim.new(0,6),
+        PaddingLeft=UDim.new(0,3),PaddingRight=UDim.new(0,3),
     },feed)
-    local layout=new("UIListLayout",{
-        Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder,
-    },feed)
-
-    -- Scroll-to-latest control for large chat histories.
-    local jump=button(root,"JumpToLatest",UDim2.fromOffset(30,30),{
-        Position=UDim2.new(1,-48,1,-91),
-        BackgroundTransparency=0.07,BackgroundColor3=PALETTE.burgundy,
-        Visible=false,ZIndex=8,
-    })
-    round(jump,15)
-    outline(jump,PALETTE.border,0.25)
-    icon(jump,"down",16,{Position=UDim2.fromOffset(7,7),ZIndex=9})
-
-    local compose=new("Frame",{
-        Name="Composer",Position=UDim2.new(0,10,1,-55),
-        Size=UDim2.new(1,-20,0,45),
-        BackgroundColor3=PALETTE.card,
-        BorderSizePixel=0,
-    },root)
-    round(compose,23)
-    outline(compose,PALETTE.border,0.35)
-    local emojiBtn=button(compose,"EmojiToggle",UDim2.fromOffset(33,37),{
-        Position=UDim2.fromOffset(7,4),
-    })
-    -- The smile icon is not published in SaltyIcons' uploaded Roblox IDs.
-    -- Use the user's real heart icon to open an actual emoji picker.
-    icon(emojiBtn,"heart",20,{Position=UDim2.fromOffset(6,7),ImageColor3=PALETTE.dim})
-    local mentionBtn=button(compose,"MentionToggle",UDim2.fromOffset(29,37),{
-        Position=UDim2.fromOffset(38,4),
-    })
-    icon(mentionBtn,"mention",17,{
-        Position=UDim2.fromOffset(6,9),ImageColor3=PALETTE.dim,
-    })
-    local entry=new("TextBox",{
-        Name="ComposerInput",
-        Position=UDim2.fromOffset(72,1),
-        Size=UDim2.new(1,-121,1,-2),
-        BackgroundTransparency=1,BorderSizePixel=0,
-        Text="",ClearTextOnFocus=false,MultiLine=false,
-        PlaceholderText="Type a local demo message...",
-        TextColor3=PALETTE.pale,
-        PlaceholderColor3=PALETTE.dim,
-        Font=Enum.Font.Gotham,TextSize=12,
-        TextXAlignment=Enum.TextXAlignment.Left,
-    },compose)
-    local send=button(compose,"SendLocalDemo",UDim2.fromOffset(35,35),{
-        Position=UDim2.new(1,-40,0,5),
-        BackgroundTransparency=0,BackgroundColor3=PALETTE.burgundy,
-    })
-    round(send,18)
-    icon(send,"send",20,{
-        Position=UDim2.fromOffset(7,7),
-    })
-
-    -- Local-only name suggestions, inspired by Pulse's Mentions pane.
-    -- The suggestions are NOT a list of global chat participants.
-    local mentions=new("Frame",{
-        Name="Mentions",Visible=false,
-        Position=UDim2.new(0,42,1,-127),
-        Size=UDim2.fromOffset(226,60),ZIndex=24,
-        BackgroundColor3=PALETTE.card,BorderSizePixel=0,
-    },root)
-    round(mentions,10)
-    outline(mentions,PALETTE.border,0.3)
-    label(mentions,"SERVER NAME · LOCAL DEMO",9,PALETTE.rose,true,{
-        Position=UDim2.fromOffset(9,4),
-        Size=UDim2.new(1,-18,0,17),ZIndex=25,
-    })
-    local mentionChoice=button(mentions,"MentionCandidate",UDim2.new(1,-14,0,28),{
-        Position=UDim2.fromOffset(7,27),BackgroundTransparency=.5,
-        BackgroundColor3=PALETTE.bubble,ZIndex=25,
-    })
-    round(mentionChoice,6)
-    icon(mentionChoice,"mention",16,{
-        Position=UDim2.fromOffset(7,6),ZIndex=26,
-    })
-    local mentionName=label(mentionChoice,"",11,PALETTE.pale,false,{
-        Position=UDim2.fromOffset(30,0),Size=UDim2.new(1,-37,1,0),ZIndex=26,
-    })
-    local mentionTarget=nil
-    local function updateMentions()
-        local query=entry.Text:match("@([%w_]*)$")
-        if not query or #query>24 then
-            mentions.Visible=false
-            return
-        end
-        local found=nil
-        for _,user in ipairs(Players:GetPlayers()) do
-            if user.Name:lower():sub(1,#query)==query:lower() then
-                found=user.Name
-                break
-            end
-        end
-        mentionTarget=found
-        mentions.Visible=found~=nil
-        if found then mentionName.Text="@"..found.."  (preview)" end
-    end
-    watch(mentionBtn.MouseButton1Click:Connect(function()
-        entry.Text=entry.Text.."@"
-        entry:CaptureFocus()
-        updateMentions()
-    end))
-    watch(mentionChoice.MouseButton1Click:Connect(function()
-        if not mentionTarget then return end
-        entry.Text=entry.Text:gsub("@[%w_]*$","@"..mentionTarget.." ")
-        mentions.Visible=false
-        entry:CaptureFocus()
-    end))
-    watch(entry:GetPropertyChangedSignal("Text"):Connect(updateMentions))
-
-    local replyBar=new("Frame",{
-        Name="ReplyPreview",Visible=false,
-        Position=UDim2.new(0,10,1,-92),
-        Size=UDim2.new(1,-20,0,31),
-        BackgroundColor3=Color3.fromRGB(47,29,39),
-        BorderSizePixel=0,
-    },root)
-    round(replyBar,8)
-    new("Frame",{
-        Position=UDim2.fromOffset(5,4),Size=UDim2.new(0,3,1,-8),
-        BackgroundColor3=PALETTE.burgundy,BorderSizePixel=0,
-    },replyBar)
-    local replyText=label(replyBar,"",10,PALETTE.pale,false,{
-        Position=UDim2.fromOffset(15,1),Size=UDim2.new(1,-56,1,-2),
-    })
-    local clearReply=button(replyBar,"CancelReply",UDim2.fromOffset(29,29),{
-        Position=UDim2.new(1,-31,0,1),
-    })
-    icon(clearReply,"close",15,{Position=UDim2.fromOffset(7,7)})
-
-    local emojiTray=new("Frame",{
-        Name="EmojiPicker",Visible=false,
-        Position=UDim2.new(0,13,1,-188),
-        Size=UDim2.fromOffset(248,127),
-        ZIndex=25,BackgroundColor3=PALETTE.card,BorderSizePixel=0,
-    },root)
-    round(emojiTray,12)
-    outline(emojiTray,PALETTE.border,0.25)
-    label(emojiTray,"EMOJIS",10,PALETTE.rose,true,{
-        Position=UDim2.fromOffset(10,6),Size=UDim2.fromOffset(120,17),ZIndex=26,
-    })
-    for i,emoji in ipairs(EMOJIS) do
-        local slot=button(emojiTray,"Emoji"..i,UDim2.fromOffset(27,34),{
-            Position=UDim2.fromOffset(12+((i-1)%8)*29,25+math.floor((i-1)/8)*42),
-            Text=emoji,TextSize=21,Font=Enum.Font.SourceSans,ZIndex=26,
-        })
-        watch(slot.MouseButton1Click:Connect(function()
-            if not alive then return end
-            entry.Text=entry.Text..emoji
-            entry:CaptureFocus()
-        end))
-    end
-
-    local actions=new("Frame",{
-        Name="MessageActions",Visible=false,ZIndex=30,
-        Position=UDim2.new(1,-146,0,133),
-        Size=UDim2.fromOffset(139,160),
-        BackgroundColor3=PALETTE.card,
-        BorderSizePixel=0,
-    },root)
-    round(actions,12)
-    outline(actions,PALETTE.border,0.2)
-    new("UIPadding",{
-        PaddingTop=UDim.new(0,5),PaddingBottom=UDim.new(0,5),
-        PaddingLeft=UDim.new(0,5),PaddingRight=UDim.new(0,5),
-    },actions)
-    new("UIListLayout",{
+    local list=inst("UIListLayout",{
         SortOrder=Enum.SortOrder.LayoutOrder,
-        Padding=UDim.new(0,2),
-    },actions)
-    local function action(textValue,key,i)
-        local actionBtn=button(actions,key,UDim2.new(1,0,0,24),{
-            LayoutOrder=i,BackgroundTransparency=0.7,
-            BackgroundColor3=PALETTE.bubble,
-        })
-        round(actionBtn,6)
-        icon(actionBtn,key=="Delete" and "remove" or key=="Reply" and "reply"
-            or key=="Copy" and "copy" or key=="React" and "heart"
-            or key=="Hide" and "close" or "more",14,{
-            Position=UDim2.fromOffset(7,5),
-        })
-        label(actionBtn,textValue,11,PALETTE.pale,false,{
-            Position=UDim2.fromOffset(27,0),
-            Size=UDim2.new(1,-31,1,0),
-        })
-        return actionBtn
-    end
-    local menuItems={
-        action("Reply","Reply",1),
-        action("Copy","Copy",2),
-        action("React ❤️","React",3),
-        action("Hide locally","Hide",4),
-        action("Delete mine","Delete",5),
-    }
+        Padding=UDim.new(0,4),
+    },feed)
 
-    local toast=label(root,"",10,PALETTE.rose,false,{
-        Position=UDim2.new(0,13,1,-12),
-        Size=UDim2.new(1,-26,0,12),Visible=false,
+    local jump=click(root,"JumpToLatest",UDim2.fromOffset(27,27),{
+        Position=UDim2.new(1,-43,1,-91),
+        BackgroundTransparency=0.12,BackgroundColor3=P.orange,
+        Visible=false,ZIndex=11,
     })
-    local function notify(msg)
+    corner(jump,14)
+    image(jump,"down",15,{Position=UDim2.fromOffset(6,6),ZIndex=12})
+
+    -- Input stays docked at bottom of Chat, not in a separate web window.
+    local composer=inst("Frame",{
+        Name="Composer",Position=UDim2.new(0,10,1,-56),
+        Size=UDim2.new(1,-20,0,48),BackgroundColor3=P.panel,
+        BorderSizePixel=0,
+    },root)
+    corner(composer,24)
+    stroke(composer,P.stroke,0.3)
+    local attachment=click(composer,"AttachmentHint",UDim2.fromOffset(31,34),{
+        Position=UDim2.fromOffset(9,7),
+    })
+    image(attachment,"attach",18,{
+        Position=UDim2.fromOffset(6,8),ImageColor3=P.dim,
+    })
+    local emoji=click(composer,"EmojiPickerToggle",UDim2.fromOffset(27,32),{
+        Position=UDim2.fromOffset(39,8),
+    })
+    image(emoji,"heart",17,{
+        Position=UDim2.fromOffset(5,8),ImageColor3=P.dim,
+    })
+    local entry=inst("TextBox",{
+        Name="ComposerInput",Text="",ClearTextOnFocus=false,MultiLine=false,
+        Position=UDim2.fromOffset(73,2),
+        Size=UDim2.new(1,-126,1,-4),
+        PlaceholderText="Message in EN...",
+        TextColor3=P.pale,PlaceholderColor3=P.dim,
+        TextSize=12,Font=Enum.Font.Gotham,
+        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Center,
+        BackgroundTransparency=1,BorderSizePixel=0,
+    },composer)
+    local send=click(composer,"SendLocal",UDim2.fromOffset(37,37),{
+        Position=UDim2.new(1,-42,0,5),
+        BackgroundTransparency=0,BackgroundColor3=P.orangeDeep,
+    })
+    corner(send,20)
+    image(send,"send",21,{
+        Position=UDim2.fromOffset(8,8),ImageColor3=P.pale,
+    })
+
+    local replyBar=inst("Frame",{
+        Name="ReplyBar",Visible=false,
+        Position=UDim2.new(0,12,1,-93),
+        Size=UDim2.new(1,-24,0,30),
+        BackgroundColor3=P.panel2,BorderSizePixel=0,
+    },root)
+    corner(replyBar,8)
+    inst("Frame",{
+        BackgroundColor3=P.orange,BorderSizePixel=0,
+        Position=UDim2.fromOffset(7,4),Size=UDim2.new(0,3,1,-8),
+    },replyBar)
+    local replyLabel=text(replyBar,"",10,P.pale,false,{
+        Position=UDim2.fromOffset(17,2),Size=UDim2.new(1,-54,1,-4),
+    })
+    local replyClose=click(replyBar,"CancelReply",UDim2.fromOffset(26,26),{
+        Position=UDim2.new(1,-29,0,2),
+    })
+    image(replyClose,"x",15,{Position=UDim2.fromOffset(6,6)})
+
+    local emojiTray=inst("Frame",{
+        Name="EmojiPicker",Visible=false,
+        Position=UDim2.new(0,13,1,-170),
+        Size=UDim2.fromOffset(259,106),
+        BackgroundColor3=P.panel2,BorderSizePixel=0,ZIndex=40,
+    },root)
+    corner(emojiTray,11)
+    stroke(emojiTray,P.stroke,0.25)
+    text(emojiTray,"EMOJIS",10,P.gold,true,{
+        Position=UDim2.fromOffset(10,5),Size=UDim2.fromOffset(95,18),ZIndex=41,
+    })
+
+    local mentions=inst("Frame",{
+        Name="Mentions",Visible=false,
+        Position=UDim2.new(0,52,1,-121),
+        Size=UDim2.fromOffset(218,54),
+        BackgroundColor3=P.panel2,BorderSizePixel=0,ZIndex=42,
+    },root)
+    corner(mentions,10)
+    stroke(mentions,P.stroke,0.22)
+    text(mentions,"CURRENT SERVER · LOCAL ONLY",9,P.gold,true,{
+        Position=UDim2.fromOffset(9,4),Size=UDim2.new(1,-12,0,15),ZIndex=43,
+    })
+    local suggest=click(mentions,"MentionSuggestion",UDim2.new(1,-12,0,28),{
+        Position=UDim2.fromOffset(6,23),
+        BackgroundTransparency=0.27,BackgroundColor3=P.bubble,ZIndex=43,
+    })
+    corner(suggest,6)
+    image(suggest,"mention",15,{Position=UDim2.fromOffset(7,6),ZIndex=44})
+    local suggestedName=text(suggest,"",11,P.pale,false,{
+        Position=UDim2.fromOffset(28,0),Size=UDim2.new(1,-34,1,0),ZIndex=44,
+    })
+    local mentionMatch=nil
+
+    local notice=text(root,"",10,P.gold,false,{
+        Position=UDim2.new(0,16,1,-10),Size=UDim2.new(1,-32,0,10),
+        Visible=false,ZIndex=50,
+    })
+    local function notify(value)
         if not alive then return end
-        toast.Text=msg
-        toast.Visible=true
+        notice.Text=value
+        notice.Visible=true
         task.delay(3,function()
-            if alive and toast.Text==msg then toast.Visible=false end
+            if alive and notice.Text==value then notice.Visible=false end
         end)
     end
+    local function hidePopups()
+        emojiTray.Visible=false
+        mentions.Visible=false
+    end
 
-    local function setReply(message)
-        replying=message
-        if message then
-            replyText.Text="↩ "..message.name..": "..message.content
-            replyBar.Visible=true
-            feed.Size=UDim2.new(1,-20,1,-210)
+    -- Pulse's compact action rail: like, reply, copy, more. NOT a tall menu.
+    local actions=inst("Frame",{
+        Name="QuickMessageActions",Visible=false,ZIndex=51,
+        BackgroundColor3=P.panel2,BorderSizePixel=0,
+        Size=UDim2.fromOffset(119,32),
+    },root)
+    corner(actions,10)
+    stroke(actions,P.stroke,0.1)
+    local toolButtons={}
+    local quickKeys={"like","reply","copy","more"}
+    for i,key in ipairs(quickKeys) do
+        local btn=click(actions,"Quick_"..key,UDim2.fromOffset(26,26),{
+            Position=UDim2.fromOffset(3+(i-1)*29,3),
+            ZIndex=52,
+        })
+        image(btn,key,15,{
+            Position=UDim2.fromOffset(5,5),ZIndex=53,
+            ImageColor3=key=="like" and P.gold or P.dim,
+        })
+        toolButtons[key]=btn
+    end
+    local extras=inst("Frame",{
+        Name="MoreMessageActions",Visible=false,ZIndex=54,
+        BackgroundColor3=P.panel2,BorderSizePixel=0,
+        Size=UDim2.fromOffset(126,64),
+    },root)
+    corner(extras,9)
+    stroke(extras,P.stroke,0.2)
+    local function menuRow(i,key,word)
+        local btn=click(extras,key,UDim2.new(1,-8,0,27),{
+            Position=UDim2.fromOffset(4,4+(i-1)*30),
+            BackgroundTransparency=0.75,BackgroundColor3=P.bubble,ZIndex=55,
+        })
+        corner(btn,5)
+        image(btn,key=="Delete" and "remove" or "x",13,{
+            Position=UDim2.fromOffset(6,7),ZIndex=56,
+        })
+        text(btn,word,10,P.pale,false,{
+            Position=UDim2.fromOffset(26,0),Size=UDim2.new(1,-32,1,0),ZIndex=56,
+        })
+        return btn
+    end
+    local hideAction=menuRow(1,"Hide","Hide locally")
+    local deleteAction=menuRow(2,"Delete","Delete mine")
+
+    local function styleLanguages()
+        en.BackgroundColor3=room=="EN" and P.orange or P.panel2
+        ar.BackgroundColor3=room=="AR" and P.orange or P.panel2
+        en.TextColor3=room=="EN" and P.pale or P.dim
+        ar.TextColor3=room=="AR" and P.pale or P.dim
+        entry.PlaceholderText=room=="EN" and "Message in EN..." or "اكتب رسالة في AR..."
+        entry.TextXAlignment=room=="EN" and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
+    end
+
+    local function setReply(item)
+        replying=item
+        replyBar.Visible=item~=nil
+        if item then
+            replyLabel.Text="Reply to "..item.name..": "..item.content
+            feed.Size=UDim2.new(1,-18,1,-219)
         else
-            replyBar.Visible=false
-            feed.Size=UDim2.new(1,-20,1,-177)
+            feed.Size=UDim2.new(1,-18,1,-187)
         end
     end
-
-    local function styleRooms()
-        en.BackgroundColor3=room=="EN" and PALETTE.burgundy or PALETTE.card
-        ar.BackgroundColor3=room=="AR" and PALETTE.burgundy or PALETTE.card
-        en.TextColor3=room=="EN" and PALETTE.pale or PALETTE.dim
-        ar.TextColor3=room=="AR" and PALETTE.pale or PALETTE.dim
-        entry.PlaceholderText=room=="AR" and "اكتب رسالة تجريبية..." or "Type a local demo message..."
-        entry.TextXAlignment=room=="AR" and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left
-    end
-
-    local function addMessage(content,name,language,preview,mine,replyId,emoji)
+    local function addMessage(name,content,lang,preview,mine,replyId)
         serial=serial+1
         local item={
-            id=serial,name=name,content=content,
-            lang=language,preview=preview,mine=mine,
-            time=os.time(),replyId=replyId,reaction=emoji,hidden=false,
+            id=serial,name=name,content=content,lang=lang,preview=preview,
+            mine=mine,time=os.time(),replyId=replyId,reaction=nil,hidden=false,
         }
         messages[#messages+1]=item
         byId[item.id]=item
-        if #messages>MAX_HISTORY then
-            local dropped=table.remove(messages,1)
-            if dropped then byId[dropped.id]=nil end
+        if #messages>LIMIT then
+            local removed=table.remove(messages,1)
+            if removed then byId[removed.id]=nil end
         end
         return item
     end
+    -- These are explicitly labeled sample messages, not fictional online players.
+    addMessage("Vanta Preview","Welcome to the lounge.","EN",true,false)
+    addMessage("Design Demo","Tap a message for reactions and replies.","EN",true,false)
+    addMessage("SaltyIcons Demo","Your icons. A real Pulse-inspired layout. 🖤","EN",true,false)
+    addMessage("تجربة فانتـا","هلا والله! جرب الردود والإيموجي هنا 🤍","AR",true,false)
 
-    addMessage("PULSE UI 0.6 is here. Tap any bubble to Reply, React or Copy.",
-        "Vanta Preview","EN",true,false)
-    addMessage("New: try @mentions in the composer. Your messages remain local until an approved delivery system is configured.",
-        "Design Preview","EN",true,false)
-    addMessage("هلا والله! هنا تقدر تجرب المحادثة بالعربي 🤍",
-        "معاينة فانتـا","AR",true,false)
-
-    local function rowFor(item,order)
-        local width=math.max(170,math.min(348,feed.AbsoluteSize.X-74))
-        local bodyHeight=countSize(item.content,width-24)
-        local reply=byId[item.replyId]
-        local quoted=reply and 28 or 0
-        local rowHeight=math.min(300,40+bodyHeight+quoted)
-        local row=new("Frame",{
+    local function closeActions()
+        selected=nil
+        actions.Visible=false
+        extras.Visible=false
+    end
+    local function makeRow(item,order)
+        local available=feed.AbsoluteSize.X>140 and feed.AbsoluteSize.X or 450
+        local maxWidth=math.max(147,math.min(335,available-52))
+        local displayName=item.name..(item.preview and " · DEMO" or item.mine and " · LOCAL" or "")
+        local nameW=bounds(displayName,11,Enum.Font.GothamBold,1000).X
+        local bodyW=bounds(item.content,12,Enum.Font.Gotham,1000).X
+        local quote=byId[item.replyId]
+        local quoteText=quote and (quote.name..": "..quote.content) or ""
+        local quoteW=quote and bounds(quoteText,10,Enum.Font.Gotham,1000).X or 0
+        local bubbleWidth=math.min(maxWidth,math.max(103,math.ceil(
+            math.max(nameW+25,bodyW+48,quoteW+25))))
+        local bodyHeight=math.max(16,bounds(item.content,12,Enum.Font.Gotham,bubbleWidth-22).Y)
+        local quoted=quote and 26 or 0
+        local bubbleHeight=math.max(49,bodyHeight+34+quoted)
+        local extraReaction=item.reaction and 8 or 0
+        local itemRow=inst("Frame",{
             Name="MessageRow",LayoutOrder=order,
-            BackgroundTransparency=1,Size=UDim2.new(1,0,0,rowHeight),
+            BackgroundTransparency=1,
+            Size=UDim2.new(1,0,0,bubbleHeight+extraReaction+3),
         },feed)
-        local avatar=new("Frame",{
-            Position=item.mine and UDim2.new(1,-28,0,3) or UDim2.fromOffset(0,3),
-            Size=UDim2.fromOffset(28,28),
-            BackgroundColor3=Color3.fromRGB(83,51,66),BorderSizePixel=0,
-        },row)
-        round(avatar,15)
+        local face=inst("Frame",{
+            Name="MessageAvatar",
+            Position=UDim2.fromOffset(2,3),Size=UDim2.fromOffset(29,29),
+            BackgroundColor3=item.mine and P.orangeDeep or P.panel2,
+            BorderSizePixel=0,
+        },itemRow)
+        corner(face,16)
         if item.mine then
-            local playerFace=new("ImageLabel",{
-                BackgroundTransparency=1,Size=UDim2.fromScale(1,1),
-                Image=headshot(LocalPlayer.UserId),
-            },avatar)
-            round(playerFace,15)
+            local avatar=inst("ImageLabel",{
+                BackgroundTransparency=1,
+                Image=avatarURL(LocalPlayer.UserId),Size=UDim2.fromScale(1,1),
+            },face)
+            corner(avatar,16)
         else
-            icon(avatar,"user",16,{
-                AnchorPoint=Vector2.new(.5,.5),
-                Position=UDim2.fromScale(.5,.5),
+            image(face,"user",16,{
+                Position=UDim2.fromOffset(7,7),ImageColor3=P.dim,
             })
         end
-
-        local bubble=button(row,"MessageBubble",UDim2.fromOffset(width,rowHeight-2),{
-            Position=item.mine and UDim2.new(1,-width-34,0,0)
-                or UDim2.fromOffset(34,0),
-            BackgroundTransparency=0.08,
-            BackgroundColor3=item.mine and PALETTE.mine or PALETTE.bubble,
+        local bubble=click(itemRow,"MessageBubble",UDim2.fromOffset(bubbleWidth,bubbleHeight),{
+            Position=UDim2.fromOffset(41,0),
+            BackgroundTransparency=0.03,
+            BackgroundColor3=item.mine and P.own or P.bubble,
         })
-        round(bubble,13)
-        local senderName=item.name
-            ..(item.preview and "  · PREVIEW" or item.mine and "  · LOCAL" or "")
-        label(bubble,senderName,11,
-            item.mine and PALETTE.pale or PALETTE.rose,true,{
-            Position=UDim2.fromOffset(10,5),
-            Size=UDim2.new(1,-61,0,17),
+        corner(bubble,13)
+        local senderColor=item.mine and P.gold or
+            (order%3==0 and P.mint or order%3==1 and P.gold or P.pale)
+        text(bubble,displayName,11,senderColor,true,{
+            Position=UDim2.fromOffset(10,4),Size=UDim2.new(1,-18,0,18),
         })
-        label(bubble,timeString(item.time),9,PALETTE.dim,false,{
-            Position=UDim2.new(1,-48,0,5),Size=UDim2.fromOffset(39,14),
-            TextXAlignment=Enum.TextXAlignment.Right,
-        })
-        if reply then
-            local box=new("Frame",{
-                Position=UDim2.fromOffset(9,23),
-                Size=UDim2.new(1,-18,0,26),
-                BackgroundColor3=PALETTE.mine,
-                BackgroundTransparency=0.32,BorderSizePixel=0,
+        if quote then
+            local q=inst("Frame",{
+                Position=UDim2.fromOffset(9,23),Size=UDim2.new(1,-18,0,24),
+                BackgroundColor3=P.panel2,BorderSizePixel=0,
             },bubble)
-            round(box,6)
-            new("Frame",{
-                BackgroundColor3=PALETTE.burgundy,BorderSizePixel=0,
+            corner(q,5)
+            inst("Frame",{
+                BackgroundColor3=P.orange,BorderSizePixel=0,
                 Size=UDim2.new(0,3,1,0),
-            },box)
-            label(box,reply.name..": "..reply.content,10,PALETTE.pale,false,{
-                Position=UDim2.fromOffset(9,0),Size=UDim2.new(1,-17,1,0),
+            },q)
+            text(q,quoteText,10,P.dim,false,{
+                Position=UDim2.fromOffset(8,0),Size=UDim2.new(1,-13,1,0),
             })
         end
-        label(bubble,item.content,12,PALETTE.pale,false,{
+        text(bubble,item.content,12,P.pale,false,{
             Position=UDim2.fromOffset(10,23+quoted),
-            Size=UDim2.new(1,-20,0,bodyHeight+3),
+            Size=UDim2.new(1,-20,0,bodyHeight+2),
             TextWrapped=true,TextTruncate=Enum.TextTruncate.None,
             TextYAlignment=Enum.TextYAlignment.Top,
-            TextXAlignment=item.lang=="AR"
-                and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left,
+            TextXAlignment=item.lang=="AR" and Enum.TextXAlignment.Right
+                or Enum.TextXAlignment.Left,
+        })
+        text(bubble,timestamp(item.time),9,P.dim,false,{
+            Position=UDim2.new(1,-43,1,-14),
+            Size=UDim2.fromOffset(36,12),
+            TextXAlignment=Enum.TextXAlignment.Right,
         })
         if item.reaction then
-            label(bubble,item.reaction,13,PALETTE.pale,true,{
-                Position=UDim2.new(1,-33,1,-17),
-                Size=UDim2.fromOffset(30,18),
+            local reaction=text(bubble,item.reaction,13,P.pale,true,{
+                Position=UDim2.new(1,-31,1,-2),Size=UDim2.fromOffset(27,19),
+                BackgroundTransparency=0,BackgroundColor3=P.panel2,
+                TextXAlignment=Enum.TextXAlignment.Center,
             })
+            corner(reaction,10)
         end
         bubble.MouseButton1Click:Connect(function()
             if not alive then return end
             selected=item
-            emojiTray.Visible=false
+            hidePopups()
+            extras.Visible=false
+            local x=math.min(math.max(6,
+                bubble.AbsolutePosition.X-root.AbsolutePosition.X+bubble.AbsoluteSize.X+4),
+                math.max(6,root.AbsoluteSize.X-125))
+            local y=math.clamp(bubble.AbsolutePosition.Y-root.AbsolutePosition.Y+4,
+                120,math.max(120,root.AbsoluteSize.Y-98))
+            actions.Position=UDim2.fromOffset(x,y)
             actions.Visible=true
-            menuItems[5].Visible=item.mine
-            actions.Size=UDim2.fromOffset(139,item.mine and 160 or 134)
-            local y=row.AbsolutePosition.Y-root.AbsolutePosition.Y
-            local maxY=root.AbsoluteSize.Y-(item.mine and 168 or 143)
-            actions.Position=UDim2.new(1,-147,0,math.clamp(y,109,math.max(109,maxY)))
         end)
-        return row
     end
 
-    local function bottom()
+    local function jumpBottom()
         task.defer(function()
-            if alive and feed.Parent then
-                feed.CanvasPosition=Vector2.new(0,math.max(0,
-                    layout.AbsoluteContentSize.Y-feed.AbsoluteSize.Y+21))
-                jump.Visible=false
-            end
+            if not alive or not feed.Parent then return end
+            feed.CanvasPosition=Vector2.new(0,math.max(0,
+                list.AbsoluteContentSize.Y-feed.AbsoluteSize.Y+15))
+            jump.Visible=false
         end)
     end
-    watch(jump.MouseButton1Click:Connect(bottom))
-    watch(feed:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+    render=function()
         if not alive then return end
-        local remaining=layout.AbsoluteContentSize.Y-feed.AbsoluteSize.Y-feed.CanvasPosition.Y
-        jump.Visible=remaining>75
-    end))
-
-    local function render()
-        if not alive then return end
-        for _,c in ipairs(feed:GetChildren()) do
-            if c.Name=="MessageRow" then c:Destroy() end
+        closeActions()
+        for _,v in ipairs(feed:GetChildren()) do
+            if v.Name=="MessageRow" then v:Destroy() end
         end
         local count=0
         for _,item in ipairs(messages) do
-            if item.lang==room and not item.hidden then
+            if not item.hidden and item.lang==room then
                 count=count+1
-                rowFor(item,count)
+                makeRow(item,count)
             end
         end
         if count==0 then
-            local phrase=room=="AR" and "ما عندك رسائل تجريبية هنا 🤍"
-                or "No messages in this demo room yet."
-            count=count+1
-            rowFor({
-                name="Vanta Demo",content=phrase,lang=room,
-                time=os.time(),preview=true,
-            },count)
+            local empty=inst("Frame",{
+                Name="MessageRow",LayoutOrder=1,BackgroundTransparency=1,
+                Size=UDim2.new(1,0,0,86),
+            },feed)
+            text(empty,"No messages in this local room yet.",12,P.dim,false,{
+                Position=UDim2.fromOffset(10,12),
+                Size=UDim2.new(1,-20,0,44),
+                TextWrapped=true,
+                TextXAlignment=Enum.TextXAlignment.Center,
+            })
         end
-        bottom()
+        jumpBottom()
     end
 
-    watch(en.MouseButton1Click:Connect(function()
-        room="EN";selected=nil;actions.Visible=false;setReply(nil);styleRooms();render()
+    local function doAction(kind)
+        local item=selected
+        closeActions()
+        if not item then return end
+        if kind=="like" then
+            item.reaction="👍"
+            render()
+        elseif kind=="reply" then
+            setReply(item)
+            entry:CaptureFocus()
+        elseif kind=="copy" then
+            local clipboard=setclipboard or toclipboard
+            if type(clipboard)=="function" then
+                local ok=pcall(clipboard,item.content)
+                notify(ok and "Copied." or "Clipboard unavailable.")
+            else
+                notify("Clipboard unavailable.")
+            end
+        elseif kind=="hide" then
+            item.hidden=true
+            render()
+        elseif kind=="delete" and item.mine then
+            item.hidden=true
+            render()
+        end
+    end
+    watch(toolButtons.like.MouseButton1Click:Connect(function()doAction("like")end))
+    watch(toolButtons.reply.MouseButton1Click:Connect(function()doAction("reply")end))
+    watch(toolButtons.copy.MouseButton1Click:Connect(function()doAction("copy")end))
+    watch(toolButtons.more.MouseButton1Click:Connect(function()
+        if not selected then return end
+        deleteAction.Visible=selected.mine
+        extras.Size=UDim2.fromOffset(126,selected.mine and 64 or 34)
+        extras.Position=UDim2.fromOffset(math.clamp(
+            actions.AbsolutePosition.X-root.AbsolutePosition.X-6,
+            6,root.AbsoluteSize.X-132),
+            math.min(root.AbsoluteSize.Y-79,
+                actions.AbsolutePosition.Y-root.AbsolutePosition.Y+35))
+        extras.Visible=not extras.Visible
     end))
-    watch(ar.MouseButton1Click:Connect(function()
-        room="AR";selected=nil;actions.Visible=false;setReply(nil);styleRooms();render()
+    watch(hideAction.MouseButton1Click:Connect(function()doAction("hide")end))
+    watch(deleteAction.MouseButton1Click:Connect(function()doAction("delete")end))
+
+    local function updateMentions()
+        if not alive then return end
+        local q=entry.Text:match("@([%w_]*)$")
+        if not q or #q>25 then mentions.Visible=false;return end
+        local hit=nil
+        for _,user in ipairs(Players:GetPlayers()) do
+            if user.Name:lower():sub(1,#q)==q:lower() then
+                hit=user.Name
+                break
+            end
+        end
+        mentionMatch=hit
+        mentions.Visible=hit~=nil
+        if hit then suggestedName.Text="@"..hit end
+    end
+    watch(entry:GetPropertyChangedSignal("Text"):Connect(updateMentions))
+    watch(suggest.MouseButton1Click:Connect(function()
+        if not mentionMatch then return end
+        entry.Text=entry.Text:gsub("@[%w_]*$","@"..mentionMatch.." ")
+        mentions.Visible=false
+        entry:CaptureFocus()
     end))
-    watch(clearReply.MouseButton1Click:Connect(function() setReply(nil) end))
-    watch(emojiBtn.MouseButton1Click:Connect(function()
-        actions.Visible=false
+    watch(attachment.MouseButton1Click:Connect(function()
+        notify("Attachments aren't supported in the local preview.")
+    end))
+    watch(emoji.MouseButton1Click:Connect(function()
+        closeActions()
         mentions.Visible=false
         emojiTray.Visible=not emojiTray.Visible
     end))
-
-    local function perform(kind)
-        local item=selected
-        actions.Visible=false
-        selected=nil
-        if not item then return end
-        if kind=="Reply" then
-            setReply(item)
+    for i,value in ipairs(EMOJI) do
+        local pick=click(emojiTray,"Emoji_"..i,UDim2.fromOffset(29,30),{
+            Position=UDim2.fromOffset(12+((i-1)%8)*30,25+math.floor((i-1)/8)*36),
+            Text=value,TextSize=20,Font=Enum.Font.SourceSans,ZIndex=42,
+        })
+        watch(pick.MouseButton1Click:Connect(function()
+            entry.Text=entry.Text..value
             entry:CaptureFocus()
-        elseif kind=="Copy" then
-            local copy=setclipboard or toclipboard
-            if type(copy)=="function" then
-                local ok=pcall(copy,item.content)
-                notify(ok and "Message copied." or "Clipboard is not available.")
-            else
-                notify("Clipboard is not available.")
-            end
-        elseif kind=="React" then
-            item.reaction="❤️"
-            render()
-        elseif kind=="Hide" then
-            item.hidden=true
-            render()
-        elseif kind=="Delete" and item.mine then
-            item.hidden=true
-            render()
-        end
-    end
-    for i,item in ipairs(menuItems) do
-        local key=({"Reply","Copy","React","Hide","Delete"})[i]
-        watch(item.MouseButton1Click:Connect(function()perform(key)end))
+        end))
     end
 
-    local function sendDemo()
+    local function sendLocal()
         if not alive then return end
-        local value=entry.Text:match("^%s*(.-)%s*$") or ""
-        if value=="" then return end
-        local count=0
-        for _ in utf8.codes(value) do
-            count=count+1
-            if count>280 then notify("Demo messages are limited to 280 characters.");return end
-        end
-        addMessage(value,LocalPlayer.DisplayName or LocalPlayer.Name,
-            room,false,true,replying and replying.id or nil)
+        local content=entry.Text:match("^%s*(.-)%s*$") or ""
+        if content=="" then return end
+        local ok,size=pcall(utf8.len,content)
+        if not ok or not size then notify("Invalid message.");return end
+        if size>280 then notify("Maximum 280 characters in this preview.");return end
+        addMessage(LocalPlayer.DisplayName or LocalPlayer.Name,
+            content,room,false,true,replying and replying.id or nil)
         entry.Text=""
         setReply(nil)
-        emojiTray.Visible=false
-        mentions.Visible=false
-        actions.Visible=false
+        hidePopups()
         render()
-        notify("Local demo only. Your message was not transmitted.")
+        notify("Local-only preview. Not delivered to other players.")
     end
-    watch(send.MouseButton1Click:Connect(sendDemo))
-    watch(entry.FocusLost:Connect(function(enter)
-        if enter then sendDemo() end
+    watch(send.MouseButton1Click:Connect(sendLocal))
+    watch(entry.FocusLost:Connect(function(entered)
+        if entered then sendLocal() end
+    end))
+    watch(replyClose.MouseButton1Click:Connect(function()setReply(nil)end))
+    watch(en.MouseButton1Click:Connect(function()
+        room="EN";setReply(nil);hidePopups();styleLanguages();render()
+    end))
+    watch(ar.MouseButton1Click:Connect(function()
+        room="AR";setReply(nil);hidePopups();styleLanguages();render()
+    end))
+    watch(jump.MouseButton1Click:Connect(jumpBottom))
+    watch(feed:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+        if not alive then return end
+        local remaining=list.AbsoluteContentSize.Y-feed.AbsoluteSize.Y-feed.CanvasPosition.Y
+        jump.Visible=remaining>70
+        if actions.Visible then closeActions() end
+    end))
+    watch(feed:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        if alive then render() end
+    end))
+    watch(Players.PlayerAdded:Connect(drawFaces))
+    watch(Players.PlayerRemoving:Connect(function()
+        task.defer(drawFaces)
     end))
     watch(root.Destroying:Connect(function()
         alive=false
-        for _,conn in ipairs(globals) do
-            conn:Disconnect()
-        end
-        table.clear(globals)
+        for _,signal in ipairs(connections) do signal:Disconnect() end
+        table.clear(connections)
     end))
-
-    styleRooms()
+    drawFaces()
+    styleLanguages()
     render()
-    print("[VantaTest Chat] "..UI_BUILD.." mounted in VantaTest. Messaging transport: NOT CONNECTED.")
+    print("[VantaTest Chat] "..BUILD.." loaded: visual UI only; global transport NOT connected.")
     return root
 end
 
