@@ -40,6 +40,9 @@ jobs:
           grep -q 'setReply' chat.lua
           grep -q 'local function sendDemo' chat.lua
           grep -q 'MAX_HISTORY = 150' chat.lua
+          grep -q 'PULSE UI 0.6' chat.lua
+          grep -q 'PulseStudyAccent' chat.lua
+          grep -q 'LOCAL ONLY' chat.lua
           grep -q 'JumpToLatest' chat.lua
           grep -q 'Name="Mentions"' chat.lua
           grep -q 'MentionCandidate' chat.lua

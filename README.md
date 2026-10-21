@@ -31,6 +31,10 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 
 ### Vanta Chat LAB (in-script preview)
 
+**Visible build:** `PULSE UI 0.6` is displayed in the Chat tab header. This is an immediately visible proof that the latest `chat.lua` loaded. The previous UI patch added almost entirely hidden interactions, so the interface looked unchanged. The new header, crimson accent stripe, `VANTA LOUNGE` title, and updated preview bubbles make the new build recognizable.
+
+
+
 The **Chat** tab runs an interactive Roblox GUI directly **inside VantaTest**. It includes English and Arabic room toggles (with right-aligned Arabic), timestamped sender/recipient bubbles, player avatar, real published Roblox asset IDs from [MrRos3/SaltyIcons](https://github.com/MrRos3/SaltyIcons), emoji tray at bottom-left, message selection, Reply, Copy, React ❤️, Hide locally, and deletion of your locally composed demo messages. The latest Pulse-inspired update adds a **150-entry bounded message history**, a **scroll-to-latest** action, and a **local @mention suggestion panel** using usernames from your current server. Mentions are only text insertion, not delivery to users.
 
 It is a **local UI preview**, not a networked chat. Sample messages are labeled `PREVIEW`; messages you type are labeled `LOCAL` and appear only on your current client. They are not delivered to another user, game, server, or to the hosted companion. The message history disappears when the local UI is destroyed. Online counts are intentionally absent. This also does not bypass Roblox chat permissions.

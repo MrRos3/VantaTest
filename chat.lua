@@ -34,7 +34,8 @@ local ICONS = {
     mention = "rbxassetid://125917586170394",
     down = "rbxassetid://93700951703515",
 }
-local MAX_HISTORY = 150 -- cap render load like Pulse's sampled message list
+local MAX_HISTORY = 150 -- UI performance bound; NOT proof of Pulse's server limit
+local UI_BUILD = "PULSE UI 0.6"
 local EMOJIS = {"😀","😂","😍","🥹","😭","❤️","🖤","🌹","🔥","👍","👀","✨","😎","💀","💋","🙏"}
 
 local function new(class, props, parent)
@@ -145,19 +146,25 @@ function Chat.Mount(tab)
         return signal
     end
 
-    label(root,"Chat",18,PALETTE.pale,true,{
-        Position=UDim2.fromOffset(14,4),Size=UDim2.new(1,-90,0,26),
+    label(root,"VANTA CHAT",17,PALETTE.pale,true,{
+        Position=UDim2.fromOffset(14,3),Size=UDim2.new(1,-132,0,26),
     })
-    label(root,"Explore Vanta Chat's in-script design",10,PALETTE.dim,false,{
-        Position=UDim2.fromOffset(14,30),Size=UDim2.new(1,-30,0,15),
+    label(root,UI_BUILD.."  |  Chat layout rebuilt from the Pulse dump",10,PALETTE.rose,true,{
+        Position=UDim2.fromOffset(14,28),Size=UDim2.new(1,-28,0,16),
     })
+    local accent=new("Frame",{
+        Name="PulseStudyAccent",
+        BackgroundColor3=PALETTE.burgundy,BorderSizePixel=0,
+        Position=UDim2.fromOffset(15,48),Size=UDim2.new(1,-30,0,2),
+    },root)
+    round(accent,2)
     local statusDot=new("Frame",{
         Position=UDim2.new(1,-107,0,17),Size=UDim2.fromOffset(6,6),
         BackgroundColor3=PALETTE.rose,BorderSizePixel=0,
     },root)
     round(statusDot,5)
-    label(root,"LOCAL DEMO",9,PALETTE.rose,true,{
-        Position=UDim2.new(1,-96,0,10),Size=UDim2.fromOffset(90,18),
+    label(root,"LOCAL ONLY",10,PALETTE.rose,true,{
+        Position=UDim2.new(1,-101,0,9),Size=UDim2.fromOffset(95,20),
     })
 
     local header=new("Frame",{
@@ -175,10 +182,10 @@ function Chat.Mount(tab)
     icon(square,"chat",22,{
         AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),
     })
-    label(header,"Vanta Chat",13,PALETTE.pale,true,{
+    label(header,"VANTA LOUNGE  •  EN / AR",13,PALETTE.pale,true,{
         Position=UDim2.fromOffset(52,8),Size=UDim2.new(1,-195,0,19),
     })
-    label(header,"Prototype  •  Not connected",10,PALETTE.dim,false,{
+    label(header,"Replies · reactions · @mentions",10,PALETTE.dim,false,{
         Position=UDim2.fromOffset(52,29),Size=UDim2.new(1,-195,0,15),
     })
     local function roomButton(name,x)
@@ -454,9 +461,9 @@ function Chat.Mount(tab)
         return item
     end
 
-    addMessage("Welcome to Vanta Chat. Tap a message to reply, copy or react.",
+    addMessage("PULSE UI 0.6 is here. Tap any bubble to Reply, React or Copy.",
         "Vanta Preview","EN",true,false)
-    addMessage("This demo stays in your script. It doesn't send messages to other players.",
+    addMessage("New: try @mentions in the composer. Your messages remain local until an approved delivery system is configured.",
         "Design Preview","EN",true,false)
     addMessage("هلا والله! هنا تقدر تجرب المحادثة بالعربي 🤍",
         "معاينة فانتـا","AR",true,false)
@@ -670,6 +677,7 @@ function Chat.Mount(tab)
 
     styleRooms()
     render()
+    print("[VantaTest Chat] "..UI_BUILD.." mounted in VantaTest. Messaging transport: NOT CONNECTED.")
     return root
 end
 
