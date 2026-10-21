@@ -507,6 +507,7 @@ TabBackgroundHover="Hover",
 TabBackgroundHoverTransparency=0.97,
 TabBackgroundActive="Hover",
 TabBackgroundActiveTransparency=0.93,
+TabSelectionAccent="Primary",
 TabText="Text",
 TabTextTransparency=0.3,
 TabTextTransparencyActive=0,
@@ -12437,6 +12438,26 @@ PaddingBottom=UDim.new(0,ar.TabPaddingY),
 }),
 },true)
 
+
+
+ar.UIElements.ActiveIndicator=al("Frame",{
+Name="ActiveIndicator",
+Parent=ar.UIElements.Main,
+AnchorPoint=Vector2.new(0,0.5),
+Position=UDim2.new(0,4,0.5,0),
+Size=UDim2.fromOffset(3,18),
+BorderSizePixel=0,
+BackgroundTransparency=1,
+ZIndex=ar.UIElements.Main.ZIndex+2,
+ThemeTag={
+BackgroundColor3="TabSelectionAccent",
+},
+},{
+al("UICorner",{
+CornerRadius=UDim.new(1,0),
+}),
+})
+
 local at=0
 local au
 local av
@@ -12672,11 +12693,11 @@ end)
 end
 
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
-if not ar.Locked then
+if not ar.Locked and not ar.Selected then
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBackgroundHoverTransparency",
 ImageColor3="TabBackgroundHover",
-},0.1)
+},0.12)
 end
 end)
 ak.AddSignal(ar.UIElements.Main.InputEnded,function()
@@ -12696,10 +12717,10 @@ aw=nil
 end
 end
 
-if not ar.Locked then
+if not ar.Locked and not ar.Selected then
 ak.SetThemeTag(ar.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
-},0.1)
+},0.12)
 end
 end)
 
@@ -12867,8 +12888,17 @@ ao.SelectedTab=aq
 for ar,as in next,ao.Tabs do
 if not as.Locked then
 ak.SetThemeTag(as.UIElements.Main,{
+ImageColor3="TabBackground",
 ImageTransparency="TabBorderTransparency",
 },0.15)
+ak.SetThemeTag(as.UIElements.Main.Frame,{
+ImageTransparency="TabBorderTransparency",
+},0.15)
+if as.UIElements.ActiveIndicator then
+ak.Tween(as.UIElements.ActiveIndicator,0.16,{
+BackgroundTransparency=1,
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
+end
 if as.Border then
 ak.SetThemeTag(as.UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparency",
@@ -12888,7 +12918,15 @@ end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main,{
 ImageColor3="TabBackgroundActive",
 ImageTransparency="TabBackgroundActiveTransparency",
+},0.17)
+ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame,{
+ImageTransparency="TabBorderTransparency",
 },0.15)
+if ao.Tabs[aq].UIElements.ActiveIndicator then
+ak.Tween(ao.Tabs[aq].UIElements.ActiveIndicator,0.2,{
+BackgroundTransparency=0,
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
+end
 if ao.Tabs[aq].Border then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparencyActive",
@@ -16405,6 +16443,11 @@ LabelBackground=Color3.fromHex"#0A080A",
 LabelBackgroundTransparency=0.08,
 ElementBackground=Color3.fromHex"#151116",
 ElementBackgroundTransparency=0.16,
+TabBackgroundActive=Color3.fromHex"#2D111B",
+TabBackgroundActiveTransparency=0.10,
+TabBackgroundHover=Color3.fromHex"#271018",
+TabBackgroundHoverTransparency=0.42,
+TabSelectionAccent=Color3.fromHex"#C42C4B",
 }
 
 
