@@ -9936,6 +9936,15 @@ local ai=af.Tween
 local ak=a.load'Q'
 
 function aa.New(al,am,an,ao,ap)
+
+
+if type(al.Height)=="number"then
+al.Height=UDim.new(0,math.max(1,al.Height))
+elseif al.Height~=nil and typeof(al.Height)~="UDim"then
+warn"[VantaTest / Code] Ignoring invalid Height: expected number or UDim"
+al.Height=nil
+end
+
 local aq={
 Radius=am.ElementConfig.UICorner,
 Padding=am.NewElements and am.ElementConfig.UIPadding+4 or am.ElementConfig.UIPadding,
@@ -10111,7 +10120,7 @@ aq.TopbarFrameModule=ax
 
 af.AddSignal(ar:GetPropertyChangedSignal"TextBounds",function()
 if al.Height~=nil then
-as.Size=UDim2.new(1,0,1,al.Title~=nil and-(20+(aq.Padding*2))or nil)
+as.Size=UDim2.new(1,0,1,al.Title~=nil and-(20+(aq.Padding*2))or 0)
 else
 as.Size=
 UDim2.new(1,0,0,(ar.TextBounds.Y/(ap or 1))+((aq.Padding+3)*2))
