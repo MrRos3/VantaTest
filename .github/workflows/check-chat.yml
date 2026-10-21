@@ -29,10 +29,10 @@ jobs:
         run: |
           luac -p chat.lua
           luac -p example.lua
-      - name: Check script-only chat and language feature markers
+      - name: Check safe companion launcher and SaltyIcons
         run: |
-          grep -q 'VCHAT2|' chat.lua
-          grep -q 'SendAsync' chat.lua
-          grep -q 'TextChatService.MessageReceived' chat.lua
-          grep -q 'roomName=="AR"' chat.lua
-          grep -q 'EmojiPicker' chat.lua
+          grep -q 'https://vanta-chat-lab.onrender.com' chat.lua
+          grep -q 'SaltyIcons' chat.lua
+          grep -q 'OpenCompanionLink' chat.lua
+          if grep -q 'TextChatService.MessageReceived' chat.lua; then exit 1; fi
+          if grep -q 'SendAsync(' chat.lua; then exit 1; fi

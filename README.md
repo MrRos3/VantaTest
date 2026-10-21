@@ -19,7 +19,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Tab | Interactive demos |
 | --- | --- |
 | Home | Runtime information, button counter, notification preview and Chat shortcut |
-| Chat | Telegram-inspired Vanta chat: native vector icons, EN/AR rooms, emoji tray, filtered script-only same-server messages, replies, reactions, timestamps, copy and hide |
+| Chat | Hosted invite-only Vanta Chat companion launcher using real SaltyIcons asset IDs; EN/AR messaging occurs in the separate web app |
 | Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
 | Toggles | Switches, checkbox variant, rebindable hotkey |
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
@@ -29,15 +29,15 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat LAB (experimental)
+### Vanta Chat LAB (external companion)
 
-The **Chat** tab loads `chat.lua` and features Telegram-inspired rounded chat bubbles, timestamps, player avatars, reply previews, per-message actions (Reply, Copy, React ❤️ / 👍, Hide locally), and a bottom-left emoji picker. The chat, send, reply, close and emoji icons are rendered with Roblox UI shapes rather than unreliable Unicode icon glyphs.
+The **Chat** tab no longer sends messages through Roblox's `RBXGeneral` or `TextChatService`, because users encountered chat-privacy restrictions. It now launches access to [Vanta Chat](https://vanta-chat-lab.onrender.com) by copying the hosted companion URL. Its GUI icons use your actual, previously uploaded **SaltyIcons** Roblox asset IDs, not handmade glyphs.
 
-**EN and AR (Arabic)** are UI-filtered room selections. Arabic messages align to the right. Sending attaches compact `VCHAT2|` metadata through `TextChannel:SendAsync()`, and only messages bearing this metadata appear in the Vanta Chat feed. Normal Roblox game chat is not copied into the chat tab. All displayed received messages come from Roblox's already-filtered `TextChatService.MessageReceived`. Players who run the chat in the **same Roblox server** can interact if RBXGeneral and chat permissions are enabled. **Messages are delivered through the game's public RBXGeneral channel, so players using the game's normal chat may see them too.** The Vanta Chat feed itself displays only script-tagged messages; it is not a private transport.
+The hosted website provides separate invite-only EN/AR chat rooms, Arabic text alignment, user accounts, messages shared between browsers, timestamps, replies, emoji reactions, reports, blocking, message deletion and lightweight automatic safety filters. The UI uses SVGs sourced from [MrRos3/SaltyIcons](https://github.com/MrRos3/SaltyIcons).
 
-**Important:** This is **not global across different servers or Roblox games**. That requires an external hosted relay with authentication, text moderation/filtering, anti-spam and appropriate Roblox safety protections. None is deployed in this repository. The room counter is the number of players present in the current server, not the number using the script; EN/AR room membership is not a global presence measure.
+**Limitations:** This is an external companion chat, not in-game cross-server messaging. Render free hosting may sleep, and its current local SQLite database is ephemeral: accounts and messages may disappear when the service restarts. The separately provisioned Render Postgres database is not connected, since the current integration does not expose a database credential for the service. For now it is an invitation-only prototype, not a production-ready private messenger; messages are not end-to-end encrypted. No user should share passwords, real-world contact details or sensitive information.
 
-The example bubbles are marked `PREVIEW` and give way to live script-to-script messages. Replies carry Roblox message IDs using chat metadata, so quoted previews appear when their original messages are still available locally. Emoji reactions and Hide locally are local presentation actions; they do **not** edit, unsend or propagate reactions on Roblox chat messages. Custom backgrounds and core VantaUI functionality remain unchanged.
+The chat project lives in [vanta-chat-web](vanta-chat-web). VantaUI is untouched.
 
 All **18 element types currently registered** in the library are represented: Paragraph, Button, Toggle, Slider, ProgressBar, Keybind, Input, Dropdown, Code, Colorpicker, Section, Divider, Space, Image, Group, HStack, VStack, Viewport.
 

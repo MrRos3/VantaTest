@@ -128,7 +128,7 @@ add(Home, "Button", {
 -- Visual experiment. Only filtered RBXGeneral messages from the current game
 -- server are sent/received. EN/RU switches filter the local view; no fake
 -- worldwide rooms, user counts or cross-server transport are implied.
-ChatTab = tab("Chat", "messages-square", "Pulse-inspired chat, connected to this Roblox server")
+ChatTab = tab("Chat", "messages-square", "Hosted Vanta Chat companion, separate from Roblox chat")
 local okChat, chatError = pcall(function()
     local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
     local ChatModule = assert(loadstring(chatSource))()
