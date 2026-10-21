@@ -166,6 +166,26 @@ function TabModule.New(Config, UIScale)
 		}),
 	}, true)
 
+	-- VantaTest: a crisp burgundy selection rail above the wallpaper.
+	-- Its color follows the active theme; only the selected tab fades it in.
+	Tab.UIElements.ActiveIndicator = New("Frame", {
+		Name = "ActiveIndicator",
+		Parent = Tab.UIElements.Main,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 4, 0.5, 0),
+		Size = UDim2.fromOffset(3, 18),
+		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
+		ZIndex = Tab.UIElements.Main.ZIndex + 2,
+		ThemeTag = {
+			BackgroundColor3 = "TabSelectionAccent",
+		},
+	}, {
+		New("UICorner", {
+			CornerRadius = UDim.new(1, 0),
+		}),
+	})
+
 	local TextOffset = 0
 	local Icon
 	local Icon2
@@ -401,11 +421,11 @@ function TabModule.New(Config, UIScale)
 	end
 
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
-		if not Tab.Locked then
+		if not Tab.Locked and not Tab.Selected then
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBackgroundHoverTransparency",
 				ImageColor3 = "TabBackgroundHover",
-			}, 0.1)
+			}, 0.12)
 		end
 	end)
 	Creator.AddSignal(Tab.UIElements.Main.InputEnded, function()
@@ -425,10 +445,10 @@ function TabModule.New(Config, UIScale)
 			end
 		end
 
-		if not Tab.Locked then
+		if not Tab.Locked and not Tab.Selected then
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBorderTransparency",
-			}, 0.1)
+			}, 0.12)
 		end
 	end)
 
@@ -596,8 +616,17 @@ function TabModule:SelectTab(TabIndex)
 		for _, TabObject in next, TabModule.Tabs do
 			if not TabObject.Locked then
 				Creator.SetThemeTag(TabObject.UIElements.Main, {
+					ImageColor3 = "TabBackground",
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
+				Creator.SetThemeTag(TabObject.UIElements.Main.Frame, {
+					ImageTransparency = "TabBorderTransparency",
+				}, 0.15)
+				if TabObject.UIElements.ActiveIndicator then
+					Creator.Tween(TabObject.UIElements.ActiveIndicator, 0.16, {
+						BackgroundTransparency = 1,
+					}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+				end
 				if TabObject.Border then
 					Creator.SetThemeTag(TabObject.UIElements.Main.Outline, {
 						ImageTransparency = "TabBorderTransparency",
@@ -617,7 +646,15 @@ function TabModule:SelectTab(TabIndex)
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main, {
 			ImageColor3 = "TabBackgroundActive",
 			ImageTransparency = "TabBackgroundActiveTransparency",
+		}, 0.17)
+		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame, {
+			ImageTransparency = "TabBorderTransparency",
 		}, 0.15)
+		if TabModule.Tabs[TabIndex].UIElements.ActiveIndicator then
+			Creator.Tween(TabModule.Tabs[TabIndex].UIElements.ActiveIndicator, 0.2, {
+				BackgroundTransparency = 0,
+			}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+		end
 		if TabModule.Tabs[TabIndex].Border then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Outline, {
 				ImageTransparency = "TabBorderTransparencyActive",
