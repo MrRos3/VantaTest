@@ -18,7 +18,8 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 
 | Tab | Interactive demos |
 | --- | --- |
-| Home | Runtime information, button counter, notification preview |
+| Home | Runtime information, button counter, notification preview and Chat shortcut |
+| Chat | Pulse-inspired dark chat UI, real Roblox server messages, player avatars, EN/RU filters, @replies and send bar |
 | Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
 | Toggles | Switches, checkbox variant, rebindable hotkey |
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
@@ -27,6 +28,14 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Themes | All 5 built-in themes, sound switch and stacked notifications |
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
+
+### Vanta Chat LAB (experimental)
+
+The **Chat** tab loads `chat.lua` and displays a rounded dark chat panel inspired by the reference screenshot. The controls are interactive, not just a static mockup. **Only** public Roblox `TextChatService` messages from the current game's `RBXGeneral` channel are sent and received. Message text is provided by Roblox's filtered chat delivery. The online counter and profile avatars reflect actual players in this server.
+
+The **EN / RU** toggles filter messages by script, and are not independent global chat rooms. Initially labeled `DEMO` bubbles illustrate the design when no real messages have arrived; the bubbles are replaced as soon as live chat begins. If an experience does not expose `RBXGeneral`, the send bar indicates that chat is unavailable. This feature has **no cross-server relay or database** and makes no claim to global presence. Click a real message to prefill an `@reply`.
+
+The chat prototype lives exclusively in **VantaTest**; VantaUI was not modified.
 
 All **18 element types currently registered** in the library are represented: Paragraph, Button, Toggle, Slider, ProgressBar, Keybind, Input, Dropdown, Code, Colorpicker, Section, Divider, Space, Image, Group, HStack, VStack, Viewport.
 
