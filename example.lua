@@ -439,7 +439,7 @@ add(Advanced, "Section", { Title = "Code display and copy" })
 add(Advanced, "Code", {
     Title = "Notification example",
     Code = 'VantaTest:Notify({\n    Title = "Example",\n    Content = "Hello from VantaTest!",\n    Icon = "check"\n})',
-    CodeSize = 14, Height = 165,
+    CodeSize = 14, Height = UDim.new(0, 165),
     OnCopy = function() toast("Code copied", "The example was sent to the clipboard, if supported.", "copy", 3) end,
 })
 add(Advanced, "Button", {

@@ -7,6 +7,15 @@ local Tween = Creator.Tween
 local Highlighter = require("../../modules/Highlighter")
 
 function Code.New(Code, Window, Parent, Callback, UIScale)
+	-- Public Code element accepts both a pixel number and UDim for Height.
+	-- Normalize before accessing .Scale/.Offset, avoiding the Advanced LAB crash.
+	if type(Code.Height) == "number" then
+		Code.Height = UDim.new(0, math.max(1, Code.Height))
+	elseif Code.Height ~= nil and typeof(Code.Height) ~= "UDim" then
+		warn("[VantaTest / Code] Ignoring invalid Height: expected number or UDim")
+		Code.Height = nil
+	end
+
 	local CodeModule = {
 		Radius = Window.ElementConfig.UICorner,
 		Padding = Window.NewElements and Window.ElementConfig.UIPadding + 4 or Window.ElementConfig.UIPadding,
@@ -182,7 +191,7 @@ function Code.New(Code, Window, Parent, Callback, UIScale)
 
 	Creator.AddSignal(TextLabel:GetPropertyChangedSignal("TextBounds"), function()
 		if Code.Height ~= nil then
-			ScrollingFrame.Size = UDim2.new(1, 0, 1, Code.Title ~= nil and -(20 + (CodeModule.Padding * 2)) or nil)
+			ScrollingFrame.Size = UDim2.new(1, 0, 1, Code.Title ~= nil and -(20 + (CodeModule.Padding * 2)) or 0)
 		else
 			ScrollingFrame.Size =
 				UDim2.new(1, 0, 0, (TextLabel.TextBounds.Y / (UIScale or 1)) + ((CodeModule.Padding + 3) * 2))
