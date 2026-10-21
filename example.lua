@@ -38,59 +38,12 @@ local Window = VantaTest:CreateWindow({
     Sounds = { Enabled = true, Preset = "Soft", Volume = 0.45 },
 })
 
-
--- Distinct, readable icon accents for the OLED / burgundy UI.
--- These tint only UI glyphs; the original Vanta brand image stays unmodified.
-local Accent = {
-    Rose = Color3.fromHex("#F18CA3"),
-    Amber = Color3.fromHex("#F4BE7A"),
-    Mint = Color3.fromHex("#67DDB7"),
-    Blue = Color3.fromHex("#78BAFF"),
-    Lavender = Color3.fromHex("#B9A0F6"),
-    Peach = Color3.fromHex("#FFA78D"),
-    Orchid = Color3.fromHex("#E59DE8"),
-    Teal = Color3.fromHex("#70D1D4"),
-    Ice = Color3.fromHex("#A5B9F8"),
-}
-local TabAccent = {
-    Home = Accent.Rose,
-    Buttons = Accent.Amber,
-    Toggles = Accent.Mint,
-    Sliders = Accent.Blue,
-    Dropdowns = Accent.Lavender,
-    Inputs = Accent.Peach,
-    Themes = Accent.Orchid,
-    Layouts = Accent.Teal,
-    Advanced = Accent.Ice,
-}
-local IconAccent = {
-    ["check"] = Accent.Mint,
-    ["check-circle"] = Accent.Mint,
-    ["check-square"] = Accent.Mint,
-    ["alert-triangle"] = Accent.Amber,
-    ["x"] = Accent.Rose,
-    ["bell"] = Accent.Rose,
-    ["bell-ring"] = Accent.Rose,
-    ["clock"] = Accent.Blue,
-    ["timer"] = Accent.Blue,
-    ["lock"] = Accent.Lavender,
-    ["unlock"] = Accent.Mint,
-    ["lock-keyhole-open"] = Accent.Lavender,
-    ["palette"] = Accent.Orchid,
-    ["copy"] = Accent.Blue,
-    ["info"] = Accent.Blue,
-    ["refresh-cw"] = Accent.Teal,
-    ["bug"] = Accent.Amber,
-}
-local ContainerAccent = setmetatable({}, { __mode = "k" })
-
 local function toast(title, body, icon, duration, canClose)
     local ok, err = pcall(function()
         VantaTest:Notify({
             Title = tostring(title),
             Content = tostring(body or ""),
             Icon = icon or "check",
-            IconColor = IconAccent[icon or "check"] or Accent.Rose,
             Duration = duration or 5,
             CanClose = canClose ~= false,
         })
@@ -100,10 +53,6 @@ end
 
 local failures = {}
 local function add(parent, kind, config)
-    config = config or {}
-    if (kind == "Button" or kind == "Section") and config.Icon and config.IconColor == nil then
-        config.IconColor = IconAccent[config.Icon] or ContainerAccent[parent] or Accent.Rose
-    end
     local ok, result = pcall(function()
         assert(type(parent[kind]) == "function", kind .. " is not registered")
         return parent[kind](parent, config or {})
@@ -121,14 +70,7 @@ local function add(parent, kind, config)
 end
 
 local function tab(title, icon, desc)
-    local current = Window:Tab({
-        Title = title,
-        Icon = icon,
-        IconColor = TabAccent[title] or Accent.Rose,
-        Desc = desc,
-    })
-    ContainerAccent[current] = TabAccent[title] or Accent.Rose
-    return current
+    return Window:Tab({ Title = title, Icon = icon, Desc = desc })
 end
 
 -- HOME -----------------------------------------------------------------------
