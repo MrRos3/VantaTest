@@ -25,3 +25,26 @@ jobs:
         env:
           SECRET_KEY: "ci-only-test-key"
           INVITE_CODE: "VANTA-CI"
+      - name: Check live Render companion
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request
+          base = "https://vanta-chat-lab.onrender.com"
+          error = None
+          for i in range(12):
+              try:
+                  with urllib.request.urlopen(base + "/api/health", timeout=30) as r:
+                      data = json.loads(r.read().decode())
+                  assert data["ok"] and "EN" in data["rooms"] and "AR" in data["rooms"]
+                  error = None
+                  break
+              except Exception as ex:
+                  error = ex
+                  time.sleep(8)
+          if error:
+              raise RuntimeError("Live Render chat did not pass health check") from error
+          for path in ("/", "/icons/social/send.svg", "/wallpaper"):
+              with urllib.request.urlopen(base + path, timeout=25) as r:
+                  assert r.status == 200, path
+          print("Live Vanta Chat endpoints and SaltyIcons are reachable.")
+          PY
