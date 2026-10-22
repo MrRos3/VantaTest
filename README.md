@@ -28,6 +28,12 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
+### Crimson01 living wallpaper
+
+Crimson01 remains a sharp, static high-resolution painting. A native UI overlay provides **50 lightweight animated particles**: 18 layered falling crimson petals, 17 rising embers, 10 soft halo motes, and 5 gentle twinkling lights. The closer petals have a red gradient, while the smaller sparks and floating halos create depth without obscuring the interface.
+
+The particles are pooled once per window and updated by **one 30 FPS-capped RenderStepped connection**. The effect avoids GIF frame swaps and per-frame instance creation, does not intercept input, clips to the window, and pauses while minimized. Minimize/Close instantly hides the overlay before the shrinking animation; reopen resumes particle motion without jumping ahead, and Destroy disconnects the update connection.
+
 ### Minimize animation
 
 The native Crimson01 petals and embers **hide immediately when the window is minimized**, instead of lingering while the 0.9-second window-collapse tween finishes. They resume when the window opens. This change only affects the animated overlay: the static wallpaper and all other window animations remain intact.
@@ -58,7 +64,7 @@ The public loader and branding image URLs now use **MrRos3/VantaTest**. All chan
 - Full-height burgundy timeout overlay matching the Close Window button (#251016)
 - **High-definition Crimson01 wallpaper** uses the original 1671×941 anime artwork, not an enlarged GIF frame
   - The character, hair and flowers remain completely stable and sharp
-  - Native red petals and embers drift smoothly above the wallpaper without frame swaps
+  - Layered native crimson petals, tiny rising embers, soft motes and twinkles animate above the wallpaper without frame swaps
   - No 224×126 atlas upscaling, cropped duplicate faces or background shaking
   - The official VantaTest loader enables the animation automatically while respecting custom backgrounds
   - Cached full-resolution artwork is downloaded through existing custom-image support

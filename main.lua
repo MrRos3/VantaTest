@@ -239,9 +239,18 @@ if type(VantaUI.SetSoundForEvent) == "function" then
     end)
 end
 
--- Smooth GPU-friendly ambience above the SHARP, motionless Crimson01 painting.
--- Native UI particles avoid GIF frame jitter, pixelation and duplicate anime faces.
+-- Crimson01 ambient scene: a SHARP static wallpaper with lightweight native motion.
+-- 50 layered particles: falling petals, rising embers, drifting glows and soft glints.
+-- One throttled RenderStepped connection per window; never animate the wallpaper.
 local RunService = game:GetService("RunService")
+local CRIMSON_AMBIENT_FPS = 30
+local CRIMSON_PARTICLE_COUNTS = {
+    Petal = 18,
+    Ember = 17,
+    Mote = 10,
+    Glint = 5,
+}
+
 local function attachCrimsonAmbient(window)
     local main = window and window.UIElements and window.UIElements.Main
     local backdrop = main and main:FindFirstChild("Background")
@@ -252,11 +261,12 @@ local function attachCrimsonAmbient(window)
     local overlay = Instance.new("Frame")
     overlay.Name = "Crimson01Ambient"
     overlay.Size = UDim2.fromScale(1, 1)
+    overlay.Position = UDim2.fromScale(0, 0)
     overlay.BackgroundTransparency = 1
+    overlay.BorderSizePixel = 0
     overlay.ClipsDescendants = true
     overlay.Active = false
-    -- An animation can keep Main.Visible=true while shrinking for almost one second.
-    -- Keep particles hidden whenever the window is minimized, including at startup.
+    -- The window shrinks for 0.9s when minimized; all ambience hides instantly.
     overlay.Visible = not window.Closed and main.Visible
     overlay.ZIndex = math.max(backdrop.ZIndex + 1, 2)
     overlay.Parent = backdrop
@@ -265,53 +275,175 @@ local function attachCrimsonAmbient(window)
     corner.CornerRadius = UDim.new(0, 16)
     corner.Parent = overlay
 
-    local flecks = {}
-    for i = 1, 18 do
-        local petal = i <= 12
-        local p = Instance.new("Frame")
-        p.Name = petal and "Petal" or "Ember"
-        p.BorderSizePixel = 0
-        p.Active = false
-        p.Size = UDim2.fromOffset(petal and (5 + i % 4 * 2) or (2 + i % 2), petal and (3 + i % 3) or 3)
-        p.AnchorPoint = Vector2.new(0.5, 0.5)
-        p.BackgroundColor3 = petal and Color3.fromRGB(207, 23, 46) or Color3.fromRGB(255, 75, 65)
-        p.BackgroundTransparency = petal and 0.38 or 0.50
-        p.ZIndex = overlay.ZIndex + 1
-        p.Parent = overlay
-        local round = Instance.new("UICorner")
-        round.CornerRadius = UDim.new(1, 0)
-        round.Parent = p
-        flecks[i] = {
-            item = p, petal = petal,
-            phase = ((i * 29) % 47) / 47,
-            x = ((i * 37) % 107) / 107,
-            speed = 0.045 + i % 5 * 0.011,
-            drift = (i % 2 == 0 and 1 or -1) * (0.075 + i % 4 * 0.021),
-        }
+    local particles = {}
+    local elapsed = 0
+    local frameAccumulator = 0
+
+    -- Repeatable, independent seeds avoid bursts of particles starting together.
+    local function seed(index, salt)
+        return ((index * 83 + salt * 59 + (index * salt * 13)) % 257) / 257
     end
 
-    local startTime = os.clock()
+    local function spawn(kind, index)
+        local salt = kind == "Petal" and 1 or kind == "Ember" and 2
+            or kind == "Mote" and 3 or 4
+        local a, b, c = seed(index, salt), seed(index + 7, salt + 4),
+            seed(index + 23, salt + 9)
+        local particle = Instance.new("Frame")
+        particle.Name = kind
+        particle.BackgroundTransparency = 1
+        particle.BorderSizePixel = 0
+        particle.Active = false
+        particle.AnchorPoint = Vector2.new(0.5, 0.5)
+        particle.ZIndex = overlay.ZIndex + (kind == "Petal" and 2 or 1)
+        particle.Parent = overlay
+
+        local p = {
+            item = particle, kind = kind,
+            phase = b, x = -0.035 + 1.07 * a, y = c,
+            drift = ((index % 2 == 0) and 1 or -1) * (0.07 + b * 0.16),
+            sway = 0.007 + 0.016 * c,
+            rate = 0.02 + 0.024 * b,
+            rotation = 10 + 24 * a,
+            pulse = 1.2 + 2.2 * b,
+        }
+
+        if kind == "Petal" then
+            -- Different depths: near petals are larger, brighter and a little faster.
+            local near = index % 4 == 0
+            local w = near and (8 + index % 4) or (4 + index % 5)
+            local h = near and (5 + index % 3) or (3 + index % 3)
+            particle.Size = UDim2.fromOffset(w, h)
+            particle.BackgroundColor3 = near
+                and Color3.fromRGB(213, 38, 63) or Color3.fromRGB(164, 24, 47)
+            p.alpha = near and 0.27 or 0.49
+            p.rate = near and (0.047 + b * 0.028) or (0.028 + b * 0.020)
+            p.sway = 0.012 + c * 0.027
+            local shape = Instance.new("UICorner")
+            shape.CornerRadius = UDim.new(1, 0)
+            shape.Parent = particle
+            local gradient = Instance.new("UIGradient")
+            gradient.Rotation = 36 + 62 * a
+            gradient.Color = ColorSequence.new(
+                Color3.fromRGB(248, 83, 96),
+                Color3.fromRGB(99, 10, 31)
+            )
+            gradient.Parent = particle
+        elseif kind == "Ember" then
+            local bright = index % 3 == 0
+            particle.Size = UDim2.fromOffset(bright and 3 or 2, bright and 4 or 3)
+            particle.BackgroundColor3 = bright
+                and Color3.fromRGB(255, 112, 75) or Color3.fromRGB(228, 46, 65)
+            p.alpha = bright and 0.22 or 0.44
+            p.rate = 0.065 + b * 0.060
+            p.sway = 0.004 + c * 0.015
+            local shape = Instance.new("UICorner")
+            shape.CornerRadius = UDim.new(1, 0)
+            shape.Parent = particle
+        elseif kind == "Mote" then
+            -- A low-opacity halo surrounding a small glowing center.
+            particle.Size = UDim2.fromOffset(10 + index % 5 * 3, 10 + index % 5 * 3)
+            particle.BackgroundColor3 = Color3.fromRGB(182, 26, 51)
+            p.alpha = 0.87
+            p.rate = 0.10 + b * 0.25
+            p.sway = 0.018 + c * 0.035
+            local outerRound = Instance.new("UICorner")
+            outerRound.CornerRadius = UDim.new(1, 0)
+            outerRound.Parent = particle
+            local core = Instance.new("Frame")
+            core.Name = "GlowCore"
+            core.AnchorPoint = Vector2.new(0.5, 0.5)
+            core.Position = UDim2.fromScale(0.5, 0.5)
+            core.Size = UDim2.fromScale(0.23, 0.23)
+            core.BorderSizePixel = 0
+            core.BackgroundTransparency = 0.42
+            core.BackgroundColor3 = Color3.fromRGB(255, 90, 100)
+            core.Active = false
+            core.ZIndex = particle.ZIndex
+            core.Parent = particle
+            local coreRound = Instance.new("UICorner")
+            coreRound.CornerRadius = UDim.new(1, 0)
+            coreRound.Parent = core
+            p.core = core
+        else
+            -- Tiny glints pulse in place instead of streaking across the painting.
+            particle.Size = UDim2.fromOffset(2 + index % 2, 2 + index % 2)
+            particle.BackgroundColor3 = Color3.fromRGB(255, 129, 122)
+            p.alpha = 0.59
+            p.rate = 0.2 + b * 0.3
+            local shape = Instance.new("UICorner")
+            shape.CornerRadius = UDim.new(1, 0)
+            shape.Parent = particle
+        end
+
+        -- Scatter the initial frame; no stacked particles at the origin.
+        particle.Position = UDim2.fromScale(p.x, p.y)
+        particles[#particles + 1] = p
+    end
+
+    -- Create a fixed pool once. No per-frame instance creation, no UI input capture.
+    for _, kind in ipairs({ "Petal", "Ember", "Mote", "Glint" }) do
+        for index = 1, CRIMSON_PARTICLE_COUNTS[kind] do
+            spawn(kind, index)
+        end
+    end
+
     local connection
-    connection = RunService.RenderStepped:Connect(function()
+    connection = RunService.RenderStepped:Connect(function(dt)
         if window.Destroyed or not overlay.Parent then
             if connection then connection:Disconnect(); connection = nil end
+            if overlay.Parent then overlay:Destroy() end
             return
         end
         if window.Closed or not main.Visible then
             overlay.Visible = false
+            frameAccumulator = 0
             return
         end
-        -- Restore the embers only after the window becomes visible again.
         overlay.Visible = true
-        local t = os.clock() - startTime
-        for _, f in ipairs(flecks) do
-            local progress = (t * f.speed + f.phase) % 1
-            local x = f.x + progress * f.drift + 0.012 * math.sin(t * 0.65 + f.phase * math.pi * 2)
-            local y = -0.07 + progress * 1.14
-            f.item.Position = UDim2.fromScale(x, y)
-            f.item.Rotation = (t * (f.petal and 24 or 9) + f.phase * 360) % 360
-            f.item.BackgroundTransparency = (f.petal and 0.28 or 0.42)
-                + 0.42 * math.abs(2 * progress - 1)
+        -- Hold particles in place during minimize; never jump ahead on reopening.
+        frameAccumulator = frameAccumulator + math.min(tonumber(dt) or 1 / 60, 0.075)
+        if frameAccumulator < (1 / CRIMSON_AMBIENT_FPS) then return end
+        elapsed = elapsed + frameAccumulator
+        frameAccumulator = 0
+
+        for _, p in ipairs(particles) do
+            local t = elapsed
+            local positionX, positionY, alpha
+            if p.kind == "Petal" then
+                local progress = (t * p.rate + p.phase) % 1
+                positionX = p.x + p.drift * progress
+                    + p.sway * math.sin(t * 0.85 + p.phase * 9)
+                positionY = -0.10 + 1.19 * progress
+                -- Fade at the very top and bottom to prevent popping.
+                alpha = math.min(0.94, p.alpha +
+                    0.32 * math.abs(2 * progress - 1) +
+                    0.08 * math.sin(t * p.pulse + p.phase * 11))
+                p.item.Rotation = (t * p.rotation + p.phase * 360) % 360
+            elseif p.kind == "Ember" then
+                local progress = (t * p.rate + p.phase) % 1
+                positionX = p.x + p.drift * progress * 0.55
+                    + p.sway * math.sin(t * 1.8 + p.phase * 8)
+                positionY = 1.08 - 1.18 * progress
+                alpha = math.min(0.94, p.alpha +
+                    0.45 * math.abs(2 * progress - 1) +
+                    0.08 * math.sin(t * p.pulse + p.phase * 7))
+                p.item.Rotation = 12 * math.sin(t * 1.3 + p.phase * 8)
+            elseif p.kind == "Mote" then
+                positionX = p.x + p.sway * math.sin(t * p.rate + p.phase * 6)
+                positionY = p.y + (p.sway * 0.65)
+                    * math.cos(t * p.rate * 0.8 + p.phase * 8)
+                local pulse = 0.5 + 0.5 * math.sin(t * p.pulse + p.phase * 11)
+                alpha = 0.94 - 0.10 * pulse
+                p.core.BackgroundTransparency = 0.73 - 0.37 * pulse
+            else
+                positionX = p.x + 0.009 * math.sin(t * p.rate + p.phase * 13)
+                positionY = p.y + 0.009 * math.cos(t * p.rate + p.phase * 11)
+                local pulse = math.max(0, math.sin(t * p.pulse + p.phase * 16))
+                alpha = 0.96 - 0.43 * pulse * pulse
+            end
+            p.item.Position = UDim2.fromScale(positionX, positionY)
+            p.item.BackgroundTransparency = math.clamp(alpha, 0.05, 0.99)
         end
     end)
     return overlay

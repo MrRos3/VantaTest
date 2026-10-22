@@ -42,6 +42,20 @@ jobs:
           assert 'if window.Closed or not main.Visible then\n            overlay.Visible = false' in main
           assert 'overlay.Visible = true' in main
           assert 'RunService.RenderStepped:Connect' in main
+          assert 'CRIMSON_AMBIENT_FPS = 30' in main
+          assert 'Petal = 18' in main and 'Ember = 17' in main
+          assert 'Mote = 10' in main and 'Glint = 5' in main
+          assert 'local function spawn(kind, index)' in main
+          assert "for _, kind in ipairs({ \"Petal\", \"Ember\", \"Mote\", \"Glint\" }) do" in main
+          assert 'frameAccumulator = 0' in main
+          assert 'elapsed = elapsed + frameAccumulator' in main
+          assert 'if window.Destroyed or not overlay.Parent then' in main
+          assert 'connection:Disconnect()' in main
+          assert "if overlay.Parent then overlay:Destroy() end" in main
+          assert 'overlay.ClipsDescendants = true' in main
+          assert 'overlay.Active = false' in main
+          assert 'p.item.BackgroundTransparency = math.clamp' in main
+
           assert 'ChatTab' not in example
           assert 'Vanta Chat' not in example
           assert 'roblox-chat/' not in example
