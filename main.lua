@@ -245,7 +245,9 @@ local RunService = game:GetService("RunService")
 local function attachCrimsonAmbient(window)
     local main = window and window.UIElements and window.UIElements.Main
     local backdrop = main and main:FindFirstChild("Background")
-    if not backdrop or backdrop:FindFirstChild("Crimson01Ambient") then return end
+    if not backdrop then return nil end
+    local existing = backdrop:FindFirstChild("Crimson01Ambient")
+    if existing then return existing end
 
     local overlay = Instance.new("Frame")
     overlay.Name = "Crimson01Ambient"
@@ -253,6 +255,9 @@ local function attachCrimsonAmbient(window)
     overlay.BackgroundTransparency = 1
     overlay.ClipsDescendants = true
     overlay.Active = false
+    -- An animation can keep Main.Visible=true while shrinking for almost one second.
+    -- Keep particles hidden whenever the window is minimized, including at startup.
+    overlay.Visible = not window.Closed and main.Visible
     overlay.ZIndex = math.max(backdrop.ZIndex + 1, 2)
     overlay.Parent = backdrop
 
@@ -292,7 +297,12 @@ local function attachCrimsonAmbient(window)
             if connection then connection:Disconnect(); connection = nil end
             return
         end
-        if window.Closed or not main.Visible then return end
+        if window.Closed or not main.Visible then
+            overlay.Visible = false
+            return
+        end
+        -- Restore the embers only after the window becomes visible again.
+        overlay.Visible = true
         local t = os.clock() - startTime
         for _, f in ipairs(flecks) do
             local progress = (t * f.speed + f.phase) % 1
@@ -304,6 +314,7 @@ local function attachCrimsonAmbient(window)
                 + 0.42 * math.abs(2 * progress - 1)
         end
     end)
+    return overlay
 end
 
 local ActiveWindows = setmetatable({}, { __mode = "k" })
@@ -486,7 +497,18 @@ function VantaUI:CreateWindow(config)
     window._UsesVantaThemeWallpaper = usesThemeWallpaper
     ActiveWindows[window] = true
     applyThemeWallpaper(window, config.Theme)
-    if usesThemeWallpaper then attachCrimsonAmbient(window) end
+    if usesThemeWallpaper then
+        local ambient = attachCrimsonAmbient(window)
+        local closeOriginal = window.Close
+        if ambient and type(closeOriginal) == "function" then
+            -- Hide immediately on Minimize, Toggle, Close and Destroy.
+            -- The library's 0.9s shrink tween must never leave detached-looking petals.
+            function window:Close(...)
+                ambient.Visible = false
+                return closeOriginal(self, ...)
+            end
+        end
+    end
 
     local BaseTab = window.Tab
     local startupTabSelected = false

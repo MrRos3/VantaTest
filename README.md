@@ -18,8 +18,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 
 | Tab | Interactive demos |
 | --- | --- |
-| Home | Runtime information, button counter, notification preview and Chat shortcut |
-| Chat | Native in-window Telegram-inspired Chat LAB demo: EN/AR tabs, message bubbles, replies, emoji picker, reactions, SaltyIcons, timestamps and local send |
+| Home | Runtime information, button counter and notification preview |
 | Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
 | Toggles | Switches, checkbox variant, rebindable hotkey |
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
@@ -29,15 +28,9 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Chat 3.1 — dedicated Vanta participants
+### Minimize animation
 
-The Chat tab now uses **dedicated VantaEN / VantaAR channels**, with explicit server admission. It never falls back to public Roblox server chat or default whispers. Its GUI and transport are separate modules. An owned-experience server is required; loading client code in an unrelated game does not create a Vanta network there.
-
-Supported source includes authenticated Roblox identities, filtered send/receive, friend DMs between opted-in eligible members, timestamped replies, server-synchronized reaction counts, 150-item received session history, admission/message/reaction limits and cleanup leases. No fake conversations, online counts or delivery receipts are shown.
-
-The warm charcoal/orange Pulse-inspired UI uses original **SaltyIcons PNGs**, including send, through the optional original-image resolver. `assets/salty-chat/` includes those exact files, hashes and licenses for native uploads. Platform-integrated mode uses Roblox's native channel window inside the Vanta shell.
-
-**[Setup, architecture audit, blockers and test instructions](docs/roblox-chat-setup.md)**. The requested arbitrary cross-game network and persistent pre-join history remain outside this supported implementation; the report explains the exact boundary. The Render companion is tested and hardened separately, not used as an in-game relay.
+The native Crimson01 petals and embers **hide immediately when the window is minimized**, instead of lingering while the 0.9-second window-collapse tween finishes. They resume when the window opens. This change only affects the animated overlay: the static wallpaper and all other window animations remain intact.
 
 **VantaUI production remains unchanged.**
 

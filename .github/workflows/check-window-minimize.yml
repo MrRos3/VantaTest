@@ -1,0 +1,54 @@
+name: Check VantaTest window minimize
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "main.lua"
+      - "example.lua"
+      - ".github/workflows/check-window-minimize.yml"
+  pull_request:
+    paths:
+      - "main.lua"
+      - "example.lua"
+      - ".github/workflows/check-window-minimize.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  minimize-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.1"
+      - name: Verify loader and demo Lua syntax
+        run: |
+          luac -p main.lua
+          luac -p example.lua
+      - name: Verify instant particle cleanup and removed chat
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          main = Path('main.lua').read_text()
+          example = Path('example.lua').read_text()
+          assert 'function window:Close(...)' in main
+          close_body = main.split('function window:Close(...)',1)[1].split('end',1)[0]
+          assert close_body.index('ambient.Visible = false') < close_body.index('closeOriginal(self, ...)')
+          assert 'overlay.Visible = not window.Closed and main.Visible' in main
+          assert 'if window.Closed or not main.Visible then\n            overlay.Visible = false' in main
+          assert 'overlay.Visible = true' in main
+          assert 'RunService.RenderStepped:Connect' in main
+          assert 'ChatTab' not in example
+          assert 'Vanta Chat' not in example
+          assert 'roblox-chat/' not in example
+          for item in ('chat.lua','chat.project.json','roblox-chat','vanta-chat-web',
+                       'assets/salty-chat','docs/roblox-chat-setup.md',
+                       'docs/pulse-chat-ui-findings.md','tests/test_chat.py',
+                       'tests/chat_mock.lua'):
+              assert not Path(item).exists(), f'Unexpected chat code: {item}'
+          print('No chat features remain in VantaTest; ambient hides on minimize.')
+          PY

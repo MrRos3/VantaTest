@@ -74,7 +74,6 @@ local function tab(title, icon, desc)
 end
 
 -- HOME -----------------------------------------------------------------------
-local ChatTab -- forward declaration for the Home quick-launch button
 local Home = tab("Home", "house", "VantaTest component playground")
 add(Home, "Section", {
     Title = "VantaTest UI Laboratory",
@@ -110,44 +109,7 @@ add(Home, "Paragraph", {
     Desc = "VantaTest v" .. tostring(VantaTest.Version) .. " | Theme: Salty Special | All examples stay in this test repository.",
 })
 add(Home, "Divider", {})
-add(Home, "Section", { Title = "What's inside", Desc = "Live Chat LAB, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
-add(Home, "Button", {
-    Title = "Open Vanta Chat",
-    Desc = "Vanta Chat 3.0: dedicated EN/AR rooms, Vanta members, shared reactions.",
-    Icon = "messages-square",
-    Callback = function()
-        if ChatTab and ChatTab.Index then
-            Window:SelectTab(ChatTab.Index)
-        else
-            toast("Vanta Chat", "Open the Chat tab in the left sidebar.", "message-circle", 4)
-        end
-    end,
-})
-
--- VANTA CHAT -----------------------------------------------------------------
--- Native Chat UI using Roblox TextChatService; see docs/roblox-chat-setup.md.
--- No external web launch, bypass of Roblox chat privacy, or unfiltered relay.
-ChatTab = tab("Chat", "messages-square", "Vanta-only channels · owned-experience transport")
-local okChat, chatError = pcall(function()
-    local chatSource = game:HttpGet(BASE .. "chat.lua?v=" .. versionToken)
-    local ChatModule = assert(loadstring(chatSource))()
-    assert(type(ChatModule.Mount) == "function", "Chat UI module is not ready")
-    local Transport = assert(loadstring(game:HttpGet(BASE .. "roblox-chat/Transport.lua?v=" .. versionToken)))()
-    local IconAssets = assert(loadstring(game:HttpGet(BASE .. "roblox-chat/IconAssets.lua?v=" .. versionToken)))()
-    IconAssets.Configure({
-        LoadRemoteImage=VantaTest.Creator and VantaTest.Creator.LoadRemoteImage,
-        Request=VantaTest.Creator and VantaTest.Creator.Request,
-    })
-    ChatModule.Mount(ChatTab,{Transport=Transport.new(),IconResolver=IconAssets.Resolve})
-end)
-if not okChat then
-    warn("[VantaTest LAB / Chat] " .. tostring(chatError))
-    add(ChatTab, "Paragraph", {
-        Title = "Chat unavailable",
-        Desc = "The chat module could not load: " .. tostring(chatError),
-    })
-end
-
+add(Home, "Section", { Title = "What's inside", Desc = "Buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 -- BUTTONS --------------------------------------------------------------------
 local Buttons = tab("Buttons", "mouse-pointer-2", "Clickable elements, locking and notifications")
 add(Buttons, "Section", { Title = "Button variations", Icon = "square-mouse-pointer" })
