@@ -66,6 +66,7 @@ end
 Instance={new=function(class) return newObject(class) end}
 local function value(...) return {...} end
 Color3={fromRGB=value}
+Rect={new=value}
 Vector3={new=value}
 Vector2={new=value}
 UDim={new=value}
@@ -74,8 +75,9 @@ ColorSequence={new=value}
 ColorSequenceKeypoint={new=value}
 Enum={
     Font={Gotham="Gotham",GothamBold="GothamBold"},
-    TextXAlignment={Left="Left"},
+    TextXAlignment={Left="Left",Center="Center"},
     TextYAlignment={Center="Center"},
+    ScaleType={Slice="Slice",Stretch="Stretch"},
     TextTruncate={AtEnd="AtEnd"},
     HumanoidDisplayDistanceType={None="None",Viewer="Viewer"},
 }
@@ -87,6 +89,7 @@ math.clamp=function(v, minimum, maximum)
     return math.max(minimum, math.min(maximum, v))
 end
 task={spawn=function(fn) fn() end}
+local renderStep=signal()
 local localPlayer=newObject("Player","MockPlayer")
 localPlayer.Name="SaltyExample"
 localPlayer.DisplayName="Velora"
@@ -98,36 +101,65 @@ local char=newObject("Model","Character")
 local head=newObject("Part","Head",char)
 local humanoid=newObject("Humanoid","Humanoid",char)
 humanoid.DisplayDistanceType=Enum.HumanoidDisplayDistanceType.Viewer
+humanoid.Health=100
+humanoid.MaxHealth=100
+humanoid.HealthChanged=signal()
 localPlayer.Character=char
 game={GetService=function(_,name)
     if name=="Players" then return {LocalPlayer=localPlayer} end
+    if name=="RunService" then return {RenderStepped=renderStep} end
     error("Unexpected service "..name)
 end}
 local mod=dofile("nameplate.lua")
 assert(type(mod.new)=="function")
-local instance=mod.new({Tag="VANTA",Style="Crimson"})
+local instance=mod.new({Tag="VANTA",Style="Crimson",Subtitle="VANTA // MEMBER"})
 local billboard=assert(instance:GetBillboard(),"head billboard not created")
 assert(billboard.ClassName=="BillboardGui")
 assert(billboard.Parent==playerGui)
 assert(billboard.Adornee==head)
 assert(billboard.Enabled==true)
 assert(billboard.MaxDistance==100)
-assert(billboard.Plate.DisplayName.Text=="Velora")
-assert(billboard.Plate.Username.Text=="@SaltyExample")
-assert(billboard.Plate.TagChip.TagText.Text=="VANTA")
+
+local group=billboard.PlateGroup
+local plate=group.Plate
+assert(group.GroupTransparency==0)
+assert(plate.ChamferShell.Image=="") -- client image-loader optional
+assert(plate.Fallback.Visible==true)
+assert(plate.TagChip.TagText.Text=="VANTA")
+assert(plate.TagChip.TagText.TextColor3)
+assert(plate.DisplayName.Text=="Velora")
+assert(plate.StatusLine.Text=="@SaltyExample")
+assert(plate.HealthBar.HealthFill.Size[1]==1)
+assert(plate.AvatarRing.StatusDot.BackgroundColor3)
 assert(humanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
+
 instance:SetTag("BOLT")
-assert(billboard.Plate.TagChip.TagText.Text=="BOLT")
+assert(plate.TagChip.TagText.Text=="BOLT")
 instance:SetStyle("Steel")
-assert(billboard.Plate.TagChip.TagText.TextColor3)
+assert(plate.Fallback.BackgroundColor3)
+assert(plate.ChamferShell.Visible==false)
 instance:SetShowUsername(false)
-assert(billboard.Plate.Username.Visible==false)
+assert(plate.StatusLine.Text=="VANTA // MEMBER")
+instance:SetSubtitle("VANTA // LVL 42")
+assert(plate.StatusLine.Text=="VANTA // LVL 42")
 instance:SetScale(130)
-assert(billboard.Size[1]==338)
+assert(billboard.Size[1]==374)
 instance:SetHeight(3.4)
 assert(billboard.StudsOffsetWorldSpace[2]==3.4)
 instance:SetDistance(65)
 assert(billboard.MaxDistance==65)
+
+-- Damage reduces actual health and turns the status dot red for a short period.
+humanoid.Health=75
+humanoid.HealthChanged:Fire(75)
+assert(plate.HealthBar.HealthFill.Size[1]==0.75)
+renderStep:Fire(1/15)
+local damagedColor=plate.AvatarRing.StatusDot.BackgroundColor3
+assert(damagedColor[1]==255)
+for i=1,100 do renderStep:Fire(1/20) end
+local idleColor=plate.AvatarRing.StatusDot.BackgroundColor3
+assert(idleColor[1]==73)
+
 instance:SetEnabled(false)
 assert(billboard.Enabled==false)
 assert(humanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.Viewer)
@@ -140,20 +172,32 @@ local second=newObject("Model","NewCharacter")
 local secondHead=newObject("Part","Head",second)
 local secondHumanoid=newObject("Humanoid","Humanoid",second)
 secondHumanoid.DisplayDistanceType=Enum.HumanoidDisplayDistanceType.Viewer
+secondHumanoid.Health=100
+secondHumanoid.MaxHealth=100
+secondHumanoid.HealthChanged=signal()
 localPlayer.Character=second
 localPlayer.CharacterAdded:Fire(second)
 local newBillboard=assert(instance:GetBillboard())
 assert(newBillboard.Adornee==secondHead)
 assert(newBillboard~=billboard)
-assert(newBillboard.Plate.TagChip.TagText.Text=="BOLT")
+assert(newBillboard.PlateGroup.Plate.TagChip.TagText.Text=="BOLT")
 assert(secondHumanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 
--- Re-running VantaTest must clean up the previous controller and not stack billboards.
-local newer=mod.new({Tag="FRESH",Enabled=false})
+-- Test opt-in custom images: shell turns on and rounded fallback is hidden.
+local newer=mod.new({
+    Tag="FRESH",Enabled=false,
+    LoadRemoteImage=function(url)
+        assert(url:find("assets/nameplate",1,true))
+        return "local-png-asset"
+    end,
+})
 assert(instance:GetBillboard()==nil)
 assert(newer:GetBillboard().Enabled==false)
-assert(newer:GetBillboard().Plate.TagChip.TagText.Text=="FRESH")
+assert(newer:GetBillboard().PlateGroup.Plate.TagChip.TagText.Text=="FRESH")
+assert(newer:GetBillboard().PlateGroup.Plate.ChamferShell.Visible)
+assert(not newer:GetBillboard().PlateGroup.Plate.Fallback.Visible)
+assert(not newer:GetBillboard().PlateGroup.GlowFallback.Visible)
 assert(secondHumanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.Viewer)
 newer:Destroy()
 assert(newer:GetBillboard()==nil)
-print("Nameplate lifecycle, settings, respawn, client-only mount and re-execution checks passed.")
+print("Vanta Edge: lifecycle, health, animation, styles, respawn, PNG fallback and cleanup passed.")

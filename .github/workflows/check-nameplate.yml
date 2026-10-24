@@ -46,7 +46,17 @@ jobs:
           assert 'BillboardGui' in n
           assert 'CharacterAdded' in n and 'CharacterRemoving' in n
           assert 'Enum.HumanoidDisplayDistanceType.None' in n
-          for method in ('SetEnabled','SetStyle','SetTag','SetScale',
+          assert 'ChamferShell' in n and 'CrimsonOuterGlow' in n
+          assert 'ScaleType=Enum.ScaleType.Slice' in n
+          assert 'Rect.new(24,24,72,72)' in n
+          assert 'HealthChanged:Connect' in n
+          assert 'ui.BorderGradient.Offset' in n
+          assert 'ui.PlateGroup.GroupTransparency' in n
+          assert 'combatLeft=4' in n
+          assert 'ShowUsername' in n and 'SetSubtitle' in n
+          assert Path('assets/nameplate/vanta-edge-shell.png').exists()
+          assert Path('assets/nameplate/vanta-edge-glow-9slice.png').exists()
+          for method in ('SetEnabled','SetStyle','SetTag','SetSubtitle','SetScale',
                          'SetHeight','SetDistance','SetShowUsername','Destroy'):
               assert 'function controller:' + method in n
           assert 'FireServer' not in n and 'HttpGet' not in n

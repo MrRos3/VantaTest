@@ -1,349 +1,480 @@
--- VantaTest Nameplate · native BillboardGui above the local player's character.
--- Client-only visual: other clients do not see it unless implemented on the server
--- of a Roblox experience you control. No remotes, HTTP requests or game changes.
+-- Vanta Edge | VantaTest client-only overhead nameplate.
+-- Visual design: two chamfered corners, gradient crimson contour, 9-slice red glow,
+-- solid tag, honest identity/subtitle, live Humanoid health, distance LOD and damage flicker.
+-- Does NOT replicate to other players in arbitrary Roblox games.
 local Players = game:GetService("Players")
-
-local player = assert(Players.LocalPlayer, "Nameplate requires a Roblox client")
+local RunService = game:GetService("RunService")
+local player = assert(Players.LocalPlayer, "Vanta Edge requires a Roblox client")
 local Nameplate = {}
 
 local ROOT_NAME = "VantaTestNameplateLifecycle"
-local GUI_NAME = "VantaTestNameplate"
+local GUI_NAME = "VantaEdgeNameplate"
+local SHELL_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/nameplate/vanta-edge-shell.png?v=edge-1"
+local GLOW_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/nameplate/vanta-edge-glow-9slice.png?v=edge-1"
+local WHITE = Color3.fromRGB(250, 248, 251)
+local BLACK = Color3.fromRGB(8, 8, 10)
+local GREEN = Color3.fromRGB(73, 221, 149)
 
 local STYLES = {
     Crimson = {
-        accent = Color3.fromRGB(196, 36, 66),
-        edge = Color3.fromRGB(103, 36, 57),
-        fillA = Color3.fromRGB(25, 16, 23),
-        fillB = Color3.fromRGB(9, 9, 13),
-        badge = Color3.fromRGB(244, 159, 181),
+        bright = Color3.fromRGB(224, 23, 61), -- #E0173D
+        dark = Color3.fromRGB(74, 10, 24), -- #4A0A18
+        background = Color3.fromRGB(8, 8, 10),
+        tagText = BLACK,
+        status = Color3.fromRGB(233, 93, 123),
     },
     OLED = {
-        accent = Color3.fromRGB(157, 68, 85),
-        edge = Color3.fromRGB(75, 52, 64),
-        fillA = Color3.fromRGB(12, 11, 15),
-        fillB = Color3.fromRGB(3, 3, 6),
-        badge = Color3.fromRGB(220, 197, 207),
+        bright = Color3.fromRGB(192, 44, 76),
+        dark = Color3.fromRGB(67, 18, 35),
+        background = Color3.fromRGB(4, 4, 6),
+        tagText = BLACK,
+        status = Color3.fromRGB(233, 168, 186),
     },
     Steel = {
-        accent = Color3.fromRGB(135, 151, 166),
-        edge = Color3.fromRGB(67, 76, 90),
-        fillA = Color3.fromRGB(22, 26, 33),
-        fillB = Color3.fromRGB(8, 10, 15),
-        badge = Color3.fromRGB(200, 212, 226),
+        bright = Color3.fromRGB(167, 191, 209),
+        dark = Color3.fromRGB(46, 64, 83),
+        background = Color3.fromRGB(10, 12, 15),
+        tagText = BLACK,
+        status = Color3.fromRGB(169, 194, 213),
     },
 }
 
 local function make(class, props, parent)
     local obj = Instance.new(class)
-    for key, value in pairs(props or {}) do
-        obj[key] = value
-    end
-    if parent then obj.Parent = parent end
+    for k,v in pairs(props or {}) do obj[k]=v end
+    if parent then obj.Parent=parent end
     return obj
 end
-
-local function rounded(parent, radius)
-    return make("UICorner", {CornerRadius = UDim.new(0, radius)}, parent)
+local function round(parent, radius)
+    return make("UICorner", {CornerRadius=UDim.new(0, radius)}, parent)
 end
-
-local function stroke(parent, color, transparency)
+local function outline(parent, color, thickness, transparency)
     return make("UIStroke", {
-        Color = color, Transparency = transparency or 0, Thickness = 1
+        Color=color,Thickness=thickness or 1,Transparency=transparency or 0
     }, parent)
 end
-
-local function label(parent, name, value, fontSize, color, bold, props)
-    local args = {
-        Name = name, Text = tostring(value or ""),
-        TextColor3 = color, TextSize = fontSize,
-        Font = bold and Enum.Font.GothamBold or Enum.Font.Gotham,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Center,
-        TextTruncate = Enum.TextTruncate.AtEnd,
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
+local function label(parent, name, value, size, color, heavy, extra)
+    local props={
+        Name=name,Text=tostring(value or ""),Font=heavy and Enum.Font.GothamBold or Enum.Font.Gotham,
+        TextSize=size,TextColor3=color,TextTruncate=Enum.TextTruncate.AtEnd,
+        TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Center,
+        BackgroundTransparency=1,BorderSizePixel=0,
     }
-    for k,v in pairs(props or {}) do args[k] = v end
-    return make("TextLabel", args, parent)
+    for k,v in pairs(extra or {}) do props[k]=v end
+    return make("TextLabel",props,parent)
 end
-
-local function cleanTag(value)
-    local s = tostring(value or ""):gsub("[%c]", " "):match("^%s*(.-)%s*$") or ""
-    -- Truncate at Unicode code-point boundaries; preserve Arabic and emoji.
-    local valid, cutoff = pcall(utf8.offset, s, 19)
-    if valid and cutoff then return s:sub(1, cutoff - 1) end
-    if not valid then return "VANTA" end
+local function cleanText(v,maxChars)
+    local s=tostring(v or ""):gsub("[%c]"," "):match("^%s*(.-)%s*$") or ""
+    local ok,stop=pcall(utf8.offset,s,maxChars+1)
+    if not ok then return "" end
+    if stop then return s:sub(1,stop-1) end
     return s
+end
+local function sequence(left,right)
+    return ColorSequence.new({
+        ColorSequenceKeypoint.new(0,left),
+        ColorSequenceKeypoint.new(1,right),
+    })
 end
 
 function Nameplate.new(options)
-    local config = options or {}
-    local playerGui = player:WaitForChild("PlayerGui")
-    local old = playerGui:FindFirstChild(ROOT_NAME)
+    local config=options or {}
+    local rootFolder=player:WaitForChild("PlayerGui")
+    local old=rootFolder:FindFirstChild(ROOT_NAME)
     if old then old:Destroy() end
 
-    local lifecycle = make("Folder", {Name = ROOT_NAME}, playerGui)
-    local active = nil
-    local humanoid = nil
-    local previousDisplayType = nil
-    local disposed = false
-    local connections = {}
+    local lifecycle=make("Folder",{Name=ROOT_NAME},rootFolder)
+    local active,humanoid,healthConnection
+    local oldDisplayType
+    local disposed=false
+    local connections={}
+    local ui={}
+    local combatLeft=0
+    local damageFlash=0
+    local lastHealth=nil
+    local clock=0
+    local accumulator=0
+    local fade=0
+    local lastDistance=0
 
-    local current = {
-        enabled = config.Enabled ~= false,
-        tag = cleanTag(config.Tag or "VANTA"),
-        style = STYLES[config.Style] and config.Style or "Crimson",
-        scale = math.clamp(tonumber(config.Scale) or 100, 70, 140) / 100,
-        maxDistance = math.clamp(tonumber(config.MaxDistance) or 100, 30, 150),
-        height = math.clamp(tonumber(config.Height) or 2.65, 1.5, 4.5),
-        showUsername = config.ShowUsername ~= false,
+    local state={
+        enabled=config.Enabled~=false,
+        tag=cleanText(config.Tag or "VANTA",18),
+        subtitle=cleanText(config.Subtitle or "VANTA // MEMBER",30),
+        style=STYLES[config.Style] and config.Style or "Crimson",
+        showUsername=config.ShowUsername~=false,
+        size=math.clamp(tonumber(config.Scale) or 100,70,140)/100,
+        height=math.clamp(tonumber(config.Height) or 2.65,1.5,4.5),
+        maxDistance=math.clamp(tonumber(config.MaxDistance) or 100,30,150),
     }
-
-    local controller = {}
+    local controller={}
 
     local function track(conn)
-        connections[#connections + 1] = conn
+        if conn then connections[#connections+1]=conn end
         return conn
     end
 
-    local function restoreDefaultName()
-        if humanoid and humanoid.Parent and previousDisplayType then
-            pcall(function() humanoid.DisplayDistanceType = previousDisplayType end)
+    local function restoreName()
+        if humanoid and humanoid.Parent and oldDisplayType then
+            pcall(function() humanoid.DisplayDistanceType=oldDisplayType end)
         end
-        humanoid = nil
-        previousDisplayType = nil
+        humanoid=nil
+        oldDisplayType=nil
+    end
+    local function stopHealth()
+        if healthConnection then healthConnection:Disconnect();healthConnection=nil end
+        restoreName()
+        lastHealth=nil
+        damageFlash=0
+        combatLeft=0
     end
 
-    local function hideDefaultName(char)
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if not hum then return end
-        if hum ~= humanoid then
-            restoreDefaultName()
-            humanoid = hum
-            previousDisplayType = hum.DisplayDistanceType
+    local function hideDefault(char)
+        local h=char:FindFirstChildOfClass("Humanoid")
+        if not h then return end
+        if humanoid~=h then
+            restoreName()
+            humanoid=h
+            oldDisplayType=h.DisplayDistanceType
         end
-        if current.enabled then
-            pcall(function()
-                hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-            end)
+        if state.enabled then
+            pcall(function() h.DisplayDistanceType=Enum.HumanoidDisplayDistanceType.None end)
         else
-            restoreDefaultName()
+            restoreName()
         end
     end
 
-    local function updateStyle()
+    local function applyStyle()
         if not active or not active.Parent then return end
-        local style = STYLES[current.style]
-        local plate = active:FindFirstChild("Plate")
-        if not plate then return end
-
-        plate.BackgroundColor3 = style.fillA
-        plate.UIStroke.Color = style.edge
-        plate.UIGradient.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, style.fillA),
-            ColorSequenceKeypoint.new(1, style.fillB),
-        })
-        plate.Accent.BackgroundColor3 = style.accent
-        plate.AvatarRing.UIStroke.Color = style.edge
-        plate.AvatarRing.BackgroundColor3 = style.edge
-        plate.TagChip.BackgroundColor3 = style.fillA
-        plate.TagChip.UIStroke.Color = style.edge
-        plate.TagChip.TagText.TextColor3 = style.badge
-        plate.TagChip.StatusDot.BackgroundColor3 = style.accent
+        local theme=STYLES[state.style]
+        ui.TagChip.BackgroundColor3=theme.bright
+        ui.TagText.TextColor3=theme.tagText
+        ui.AvatarRing.BackgroundColor3=theme.bright
+        ui.AvatarRing.UIStroke.Color=theme.bright
+        ui.NameStroke.Color=theme.dark
+        ui.HealthFill.BackgroundColor3=theme.bright
+        ui.BorderStroke.Color=theme.bright
+        ui.BorderGradient.Color=sequence(theme.bright,theme.dark)
+        ui.Fallback.BackgroundColor3=theme.background
+        ui.Fallback.UIStroke.Color=theme.bright
+        ui.Fallback.UIGradient.Color=sequence(
+            Color3.fromRGB(13,13,17),theme.background)
+        ui.Shell.Visible=state.style=="Crimson" and ui.Shell.Image~=""
+        ui.Fallback.Visible=not ui.Shell.Visible
+        ui.StatusLine.TextColor3=theme.status
+        ui.NameOnly.TextColor3=WHITE
     end
 
-    local function updateContents()
+    local function applyText()
         if not active or not active.Parent then return end
-        local plate = active.Plate
-        plate.DisplayName.Text = player.DisplayName
-        plate.Username.Text = "@" .. player.Name
-        plate.Username.Visible = current.showUsername
-        plate.TagChip.TagText.Text = current.tag ~= "" and current.tag or "VANTA"
+        ui.DisplayName.Text=player.DisplayName
+        local differs=string.lower(player.DisplayName)~=string.lower(player.Name)
+        local showRealUsername=differs and state.showUsername
+        ui.StatusLine.Text=showRealUsername and ("@"..player.Name) or
+            (state.subtitle~="" and state.subtitle or "VANTA // MEMBER")
+        ui.TagText.Text=state.tag~="" and state.tag or "VANTA"
+        ui.NameOnly.Text=player.DisplayName
     end
 
-    local function updateGeometry()
+    local function updateScale()
         if not active or not active.Parent then return end
-        local s = current.scale
-        active.Size = UDim2.fromOffset(math.floor(260 * s), math.floor(82 * s))
-        active.MaxDistance = current.maxDistance
-        active.StudsOffsetWorldSpace = Vector3.new(0, current.height, 0)
-        -- Text and avatar scale as one composition, not stretched independently.
-        active.Plate.UIScale.Scale = s
+        active.Size=UDim2.fromOffset(math.floor(288*state.size),math.floor(108*state.size))
+        active.MaxDistance=state.maxDistance
+        active.StudsOffsetWorldSpace=Vector3.new(0,state.height,0)
+        ui.PlateScale.Scale=state.size*(1-0.16*fade)
+        ui.NameOnly.Size=UDim2.fromOffset(245*state.size,28*state.size)
+    end
+
+    local function updateHealth(value)
+        if not active or not active.Parent or not humanoid then return end
+        local max=math.max(1,tonumber(humanoid.MaxHealth) or 100)
+        local v=math.clamp(tonumber(value) or 0,0,max)
+        local percent=v/max
+        ui.HealthFill.Size=UDim2.fromScale(percent,1)
+        if lastHealth and v<lastHealth-0.01 then
+            combatLeft=4
+            damageFlash=0.32
+        end
+        lastHealth=v
     end
 
     local function destroyPlate()
-        if active then
-            active:Destroy()
-            active = nil
-        end
-        restoreDefaultName()
+        if healthConnection then healthConnection:Disconnect();healthConnection=nil end
+        if active then active:Destroy();active=nil end
+        ui={}
+        restoreName()
+        lastHealth=nil
+        damageFlash=0
+        combatLeft=0
+    end
+
+    local function loadArt(target, url, onLoad)
+        if type(config.LoadRemoteImage)~="function" then return end
+        task.spawn(function()
+            local ok,asset=pcall(config.LoadRemoteImage,url,"VantaTest")
+            if not ok or type(asset)~="string" or asset=="" then return end
+            if disposed or not target.Parent then return end
+            target.Image=asset
+            if onLoad then onLoad() end
+        end)
     end
 
     local function createForCharacter(char)
-        local head = char:FindFirstChild("Head") or char:WaitForChild("Head", 8)
-        if disposed or not head or char ~= player.Character then return end
-
+        local head=char:FindFirstChild("Head") or char:WaitForChild("Head",8)
+        if disposed or char~=player.Character or not head then return end
         destroyPlate()
-        active = make("BillboardGui", {
-            Name = GUI_NAME,
-            Adornee = head,
-            AlwaysOnTop = true,
-            Active = false,
-            Enabled = current.enabled,
-            LightInfluence = 0,
-            MaxDistance = current.maxDistance,
-            Size = UDim2.fromOffset(260, 82),
-            StudsOffsetWorldSpace = Vector3.new(0, current.height, 0),
-            ResetOnSpawn = false,
-        }, playerGui)
+        active=make("BillboardGui",{
+            Name=GUI_NAME,Adornee=head,AlwaysOnTop=true,Active=false,
+            Enabled=state.enabled,LightInfluence=0,MaxDistance=state.maxDistance,
+            Size=UDim2.fromOffset(288,108),
+            StudsOffsetWorldSpace=Vector3.new(0,state.height,0),
+            ResetOnSpawn=false,
+        },rootFolder)
+        local plateGroup=make("CanvasGroup",{
+            Name="PlateGroup",Size=UDim2.fromOffset(288,108),
+            AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
+            BackgroundTransparency=1,BorderSizePixel=0,GroupTransparency=0,
+            Active=false,
+        },active)
+        local scale=make("UIScale",{Scale=state.size},plateGroup)
+        local glow=make("ImageLabel",{
+            Name="CrimsonOuterGlow",BackgroundTransparency=1,Image="",
+            Position=UDim2.fromOffset(0,4),Size=UDim2.fromOffset(288,100),
+            ScaleType=Enum.ScaleType.Slice,
+            SliceCenter=Rect.new(24,24,72,72),SliceScale=1,
+            ImageTransparency=0.7,ImageColor3=Color3.fromRGB(255,255,255),
+            ZIndex=1,
+        },plateGroup)
+        local glowFallback=make("Frame",{
+            Name="GlowFallback",Position=UDim2.fromOffset(22,19),
+            Size=UDim2.fromOffset(248,72),
+            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,
+        },plateGroup)
+        round(glowFallback,6)
+        outline(glowFallback,STYLES[state.style].bright,4,0.83)
 
-        local plate = make("Frame", {
-            Name = "Plate",
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            Position = UDim2.fromScale(0.5, 0.5),
-            Size = UDim2.fromOffset(248, 68),
-            BackgroundColor3 = STYLES[current.style].fillA,
-            BorderSizePixel = 0,
-            ClipsDescendants = false,
-            Active = false,
-        }, active)
-        rounded(plate, 13)
-        stroke(plate, STYLES[current.style].edge, 0.18)
-        make("UIGradient", {
-            Rotation = 12,
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, STYLES[current.style].fillA),
-                ColorSequenceKeypoint.new(1, STYLES[current.style].fillB),
+        local plate=make("Frame",{
+            Name="Plate",Size=UDim2.fromOffset(248,72),
+            Position=UDim2.fromOffset(20,18),
+            BackgroundTransparency=1,BorderSizePixel=0,Active=false,
+            ZIndex=2,
+        },plateGroup)
+        local fallback=make("Frame",{
+            Name="Fallback",Size=UDim2.fromScale(1,1),
+            BackgroundTransparency=0.15,BorderSizePixel=0,
+            BackgroundColor3=BLACK,ZIndex=2,
+        },plate)
+        round(fallback,6)
+        local fallbackStroke=outline(fallback,STYLES[state.style].bright,1,0.15)
+        local fallbackGrad=make("UIGradient",{
+            Rotation=90,Color=sequence(Color3.fromRGB(15,15,20),BLACK),
+        },fallback)
+        local shell=make("ImageLabel",{
+            Name="ChamferShell",Size=UDim2.fromScale(1,1),
+            BackgroundTransparency=1,Image="",ImageTransparency=0,
+            ScaleType=Enum.ScaleType.Stretch,ZIndex=3,Visible=false,
+        },plate)
+        local contour=make("Frame",{
+            Name="EdgeStrokeHost",Size=UDim2.new(1,-8,1,-8),
+            Position=UDim2.fromOffset(4,4),BorderSizePixel=0,
+            BackgroundTransparency=1,ZIndex=4,
+        },plate)
+        round(contour,4)
+        local borderStroke=outline(contour,STYLES[state.style].bright,1,0.78)
+        local borderGradient=make("UIGradient",{
+            Color=sequence(STYLES[state.style].bright,STYLES[state.style].dark),
+            Rotation=0,Offset=Vector2.new(0,0),
+        },borderStroke)
+
+        local tagChip=make("Frame",{
+            Name="TagChip",Position=UDim2.fromOffset(9,6),
+            Size=UDim2.fromOffset(94,18),
+            BackgroundColor3=STYLES[state.style].bright,
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=6,
+        },plate)
+        round(tagChip,2)
+        local tagText=label(tagChip,"TagText",state.tag,10,BLACK,true,{
+            Position=UDim2.fromOffset(6,0),
+            Size=UDim2.new(1,-12,1,0),TextXAlignment=Enum.TextXAlignment.Center,
+            ZIndex=7,
+        })
+        local ring=make("Frame",{
+            Name="AvatarRing",Position=UDim2.fromOffset(13,27),
+            Size=UDim2.fromOffset(35,35),BackgroundColor3=STYLES[state.style].bright,
+            BorderSizePixel=0,ZIndex=6,
+        },plate)
+        round(ring,18)
+        outline(ring,STYLES[state.style].bright,2,0)
+        local portrait=make("ImageLabel",{
+            Name="Avatar",
+            Image=("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100"):format(player.UserId),
+            Position=UDim2.fromOffset(2,2),
+            Size=UDim2.new(1,-4,1,-4),
+            BackgroundTransparency=1,ZIndex=7,
+        },ring)
+        round(portrait,18)
+        local statusDot=make("Frame",{
+            Name="StatusDot",Position=UDim2.new(1,-6,1,-9),
+            Size=UDim2.fromOffset(9,9),
+            BorderSizePixel=0,BackgroundColor3=GREEN,ZIndex=9,
+        },ring)
+        round(statusDot,6)
+        outline(statusDot,Color3.fromRGB(8,8,10),1.5,0)
+        local title=label(plate,"DisplayName",player.DisplayName,16,WHITE,true,{
+            Position=UDim2.fromOffset(60,26),
+            Size=UDim2.fromOffset(177,20),ZIndex=8,
+        })
+        local nameStroke=outline(title,STYLES[state.style].dark,0.6,0.54)
+        local subtitle=label(plate,"StatusLine","VANTA // MEMBER",10,
+            STYLES[state.style].status,true,{
+                Position=UDim2.fromOffset(60,47),
+                Size=UDim2.fromOffset(177,15),ZIndex=8,
             })
-        }, plate)
-        make("UIScale", {Scale = current.scale}, plate)
-        make("Frame", {
-            Name = "Accent",
-            Position = UDim2.fromOffset(0, 12),
-            Size = UDim2.new(0, 3, 1, -24),
-            BackgroundColor3 = STYLES[current.style].accent,
-            BorderSizePixel = 0,
-        }, plate)
-
-        local ring = make("Frame", {
-            Name = "AvatarRing",
-            Position = UDim2.fromOffset(10, 11),
-            Size = UDim2.fromOffset(45, 45),
-            BackgroundColor3 = STYLES[current.style].edge,
-            BorderSizePixel = 0,
-        }, plate)
-        rounded(ring, 24)
-        stroke(ring, STYLES[current.style].edge, 0.08)
-        local photo = make("ImageLabel", {
-            Name = "Avatar",
-            Image = ("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100"):format(player.UserId),
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(3, 3),
-            Size = UDim2.new(1, -6, 1, -6),
-        }, ring)
-        rounded(photo, 22)
-
-        label(plate, "DisplayName", player.DisplayName, 16,
-            Color3.fromRGB(246, 242, 247), true, {
-            Position = UDim2.fromOffset(66, 24),
-            Size = UDim2.fromOffset(164, 19),
+        local healthBar=make("Frame",{
+            Name="HealthBar",Position=UDim2.fromOffset(12,67),
+            Size=UDim2.fromOffset(224,2),BackgroundColor3=Color3.fromRGB(55,30,36),
+            BackgroundTransparency=0.12,BorderSizePixel=0,ZIndex=7,
+        },plate)
+        local healthFill=make("Frame",{
+            Name="HealthFill",Size=UDim2.fromScale(1,1),
+            BorderSizePixel=0,BackgroundColor3=STYLES[state.style].bright,
+            BackgroundTransparency=0,ZIndex=8,
+        },healthBar)
+        local onlyName=label(active,"NameOnly",player.DisplayName,17,WHITE,true,{
+            AnchorPoint=Vector2.new(0.5,0.5),
+            Position=UDim2.fromScale(0.5,0.50),
+            Size=UDim2.fromOffset(245,28),Visible=false,
+            TextXAlignment=Enum.TextXAlignment.Center,ZIndex=12,
         })
-        label(plate, "Username", "@" .. player.Name, 10,
-            Color3.fromRGB(175, 159, 172), false, {
-            Position = UDim2.fromOffset(66, 43),
-            Size = UDim2.fromOffset(163, 15),
-        })
+        outline(onlyName,STYLES[state.style].dark,0.65,0.27)
 
-        local chip = make("Frame", {
-            Name = "TagChip",
-            Position = UDim2.fromOffset(66, 5),
-            Size = UDim2.fromOffset(126, 18),
-            BackgroundColor3 = STYLES[current.style].fillA,
-            BackgroundTransparency = 0.1,
-            BorderSizePixel = 0,
-        }, plate)
-        rounded(chip, 8)
-        stroke(chip, STYLES[current.style].edge, 0.3)
-        local dot = make("Frame", {
-            Name = "StatusDot",
-            Position = UDim2.fromOffset(8, 7),
-            Size = UDim2.fromOffset(4, 4),
-            BackgroundColor3 = STYLES[current.style].accent,
-            BorderSizePixel = 0,
-        }, chip)
-        rounded(dot, 3)
-        label(chip, "TagText", current.tag, 10, STYLES[current.style].badge, true, {
-            Position = UDim2.fromOffset(19, 0),
-            Size = UDim2.new(1, -25, 1, 0),
-        })
-
-        updateStyle()
-        updateContents()
-        updateGeometry()
-        hideDefaultName(char)
+        ui={
+            PlateGroup=plateGroup,PlateScale=scale,Shell=shell,Fallback=fallback,
+            Glow=glow,GlowFallback=glowFallback,Plate=plate,
+            TagChip=tagChip,TagText=tagText,AvatarRing=ring,
+            DisplayName=title,NameStroke=nameStroke,StatusLine=subtitle,
+            HealthFill=healthFill,StatusDot=statusDot,BorderStroke=borderStroke,
+            BorderGradient=borderGradient,NameOnly=onlyName,
+        }
+        applyStyle()
+        applyText()
+        updateScale()
+        hideDefault(char)
+        local hum=char:FindFirstChildOfClass("Humanoid")
+        if hum and hum==humanoid then
+            lastHealth=tonumber(hum.Health) or 100
+            updateHealth(lastHealth)
+            if hum.HealthChanged then
+                healthConnection=hum.HealthChanged:Connect(updateHealth)
+            end
+        end
+        loadArt(shell,SHELL_URL,function()
+            if active and ui.Shell==shell then applyStyle() end
+        end)
+        loadArt(glow,GLOW_URL,function()
+            if active and ui.Glow==glow then glowFallback.Visible=false end
+        end)
     end
 
     local function mountCharacter(char)
         if disposed then return end
-        task.spawn(function()
-            createForCharacter(char)
-        end)
+        task.spawn(function()createForCharacter(char)end)
     end
 
-    function controller:SetEnabled(flag)
+    -- One throttled render listener for distance transition, sweep, idle pulse and damage.
+    track(RunService.RenderStepped:Connect(function(dt)
+        if disposed or not active or not active.Parent or not state.enabled then return end
+        accumulator=accumulator+math.min(tonumber(dt) or 1/60,0.08)
+        if accumulator<1/24 then return end
+        local step=accumulator
+        accumulator=0
+        clock=clock+step
+        combatLeft=math.max(0,combatLeft-step)
+        damageFlash=math.max(0,damageFlash-step)
+
+        local distance=0
+        local ok,result=pcall(function()
+            local cam=workspace.CurrentCamera
+            return (cam.CFrame.Position-active.Adornee.Position).Magnitude
+        end)
+        if ok and type(result)=="number" then distance=result end
+        lastDistance=distance
+        -- Shrink and fade the plate from 40 to 65 studs, leaving the white name.
+        local nextFade=math.clamp((distance-40)/25,0,1)
+        if math.abs(nextFade-fade)>0.002 then
+            fade=nextFade
+            ui.PlateGroup.GroupTransparency=fade
+            ui.PlateScale.Scale=state.size*(1-0.16*fade)
+        end
+        ui.NameOnly.Visible=fade>0.42
+        ui.NameOnly.TextTransparency=math.clamp((1-fade)*1.7,0,1)
+        ui.StatusDot.BackgroundColor3=combatLeft>0
+            and Color3.fromRGB(255,62,87) or GREEN
+
+        -- The bright pass takes one slow trip along the contour every 4s.
+        local sweep=(clock%4)/4
+        ui.BorderGradient.Offset=Vector2.new(-1+2*sweep,0)
+        local wave=0.5+0.5*math.sin(clock*2.0)
+        local flicker=damageFlash>0 and ((math.floor(clock*45)%2==0) and 0.18 or 0) or 0
+        ui.Glow.ImageTransparency=math.clamp(0.73-0.09*wave-flicker,0.37,0.85)
+        ui.GlowFallback.UIStroke.Transparency=math.clamp(0.91-0.07*wave-flicker,0.42,0.96)
+        ui.BorderStroke.Transparency=math.clamp(0.74-0.16*wave-flicker,0.26,0.87)
+        if state.style=="Crimson" and ui.Shell.Image~="" then
+            ui.Shell.ImageTransparency=flicker
+        end
+    end))
+
+    function controller:SetEnabled(v)
         if disposed then return end
-        current.enabled = not not flag
-        if active then active.Enabled = current.enabled end
-        if current.enabled and player.Character then
-            hideDefaultName(player.Character)
+        state.enabled=not not v
+        if active then active.Enabled=state.enabled end
+        if state.enabled and player.Character then
+            hideDefault(player.Character)
         else
-            restoreDefaultName()
+            restoreName()
         end
     end
-
     function controller:SetStyle(value)
         if disposed or not STYLES[value] then return end
-        current.style = value
-        updateStyle()
+        state.style=value
+        applyStyle()
     end
-
     function controller:SetTag(value)
         if disposed then return end
-        current.tag = cleanTag(value)
-        updateContents()
+        state.tag=cleanText(value,18)
+        applyText()
     end
-
+    function controller:SetSubtitle(value)
+        if disposed then return end
+        state.subtitle=cleanText(value,30)
+        applyText()
+    end
+    function controller:SetShowUsername(v)
+        if disposed then return end
+        state.showUsername=not not v
+        applyText()
+    end
     function controller:SetScale(value)
         if disposed then return end
-        current.scale = math.clamp(tonumber(value) or 100, 70, 140) / 100
-        updateGeometry()
+        state.size=math.clamp(tonumber(value) or 100,70,140)/100
+        updateScale()
     end
-
     function controller:SetDistance(value)
         if disposed then return end
-        current.maxDistance = math.clamp(tonumber(value) or 100, 30, 150)
-        updateGeometry()
+        state.maxDistance=math.clamp(tonumber(value) or 100,30,150)
+        updateScale()
     end
-
     function controller:SetHeight(value)
         if disposed then return end
-        current.height = math.clamp(tonumber(value) or 2.65, 1.5, 4.5)
-        updateGeometry()
+        state.height=math.clamp(tonumber(value) or 2.65,1.5,4.5)
+        updateScale()
     end
-
-    function controller:SetShowUsername(flag)
-        if disposed then return end
-        current.showUsername = not not flag
-        updateContents()
-    end
-
     function controller:GetBillboard()
         return active
     end
-
     function controller:Destroy()
         if disposed then return end
-        disposed = true
+        disposed=true
         for _,conn in ipairs(connections) do conn:Disconnect() end
         destroyPlate()
         if lifecycle.Parent then lifecycle:Destroy() end
@@ -358,11 +489,7 @@ function Nameplate.new(options)
             destroyPlate()
         end
     end))
-
-    if player.Character then
-        mountCharacter(player.Character)
-    end
-
+    if player.Character then mountCharacter(player.Character) end
     return controller
 end
 

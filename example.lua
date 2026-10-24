@@ -117,7 +117,7 @@ add(Home, "Section", { Title = "What's inside", Desc = "Nameplate, buttons, togg
 local NameplateTab = tab("Nameplate", "user-round", "Floating customizable nameplate over your character")
 add(NameplateTab, "Section", {
     Title = "Your floating nameplate",
-    Desc = "Premium overhead tag using your real Roblox identity. Local preview only.",
+    Desc = "Vanta Edge: cut corners, crimson glow, real health, and a distant name-only mode.",
     Icon = "user-round",
 })
 local NameplateModule
@@ -134,6 +134,8 @@ local okNameplate, nameplateError = pcall(function()
         Scale = 100,
         MaxDistance = 100,
         Height = 2.65,
+        Subtitle = "VANTA // MEMBER",
+        LoadRemoteImage = VantaTest.Creator and VantaTest.Creator.LoadRemoteImage,
     })
 end)
 if not okNameplate then
@@ -171,14 +173,21 @@ add(NameplateTab, "Dropdown", {
 })
 add(NameplateTab, "Input", {
     Title = "Small tag",
-    Desc = "Custom text above your display name (maximum 18 characters)",
+    Desc = "Solid crimson corner badge, up to 18 characters",
     Value = "VANTA",
     Placeholder = "VANTA",
     Callback = function(value) updateNameplate("SetTag", value) end,
 })
+add(NameplateTab, "Input", {
+    Title = "Status or rank",
+    Desc = "Second line when display name and username match; enter your own rank or level",
+    Value = "VANTA // MEMBER",
+    Placeholder = "VANTA // MEMBER",
+    Callback = function(value) updateNameplate("SetSubtitle", value) end,
+})
 add(NameplateTab, "Toggle", {
     Title = "Show @username",
-    Desc = "Keep your genuine Roblox username below your display name",
+    Desc = "Show the real @username only if it differs from your display name",
     Value = true,
     Callback = function(value) updateNameplate("SetShowUsername", value) end,
 })
@@ -198,14 +207,14 @@ add(NameplateTab, "Slider", {
 })
 add(NameplateTab, "Slider", {
     Title = "Visibility distance",
-    Desc = "Maximum distance in studs (30 to 150)",
+    Desc = "Full nameplate up close; shrinks past 40 studs and becomes name-only past 65",
     Value = { Min = 30, Max = 150, Default = 100 },
     Step = 10,
     Callback = function(value) updateNameplate("SetDistance", value) end,
 })
 add(NameplateTab, "Paragraph", {
     Title = "Local-only display",
-    Desc = "This nameplate is rendered on your client. Friends won't see it unless a server script in an experience you own creates it for them.",
+    Desc = "This nameplate renders only for you. Health comes from your Humanoid, and the status dot turns red briefly after damage. Other players don't see this client-only GUI.",
 })
 
 -- BUTTONS --------------------------------------------------------------------
