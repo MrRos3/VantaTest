@@ -61,21 +61,32 @@ jobs:
           assert '🦉' in script
           assert 'NAME_FONT = Enum.Font.Michroma' in script
           assert 'NAME_SIZE = 14' in script
-          assert 'FILL = Color3.fromRGB(9,9,11)' in script
-          assert 'FILL_TRANSPARENCY = 0.1' in script
-          assert 'rounded(plate,4)' in script
-          assert 'Color3.fromRGB(255,255,255),2,0' in script
-          assert 'ColorSequenceKeypoint.new(0.00,CONFIG.BORDER_BRIGHT)' in script
-          assert 'ColorSequenceKeypoint.new(0.50,CONFIG.BORDER_DARK)' in script
-          assert 'ColorSequenceKeypoint.new(1.00,CONFIG.BORDER_BRIGHT)' in script
-          assert 'ColorSequenceKeypoint.new(0.25,CONFIG.BORDER_SHINE)' in script
+          assert 'MIN_WIDTH = 150' in script
+          assert 'NAME_EXTRA_PADDING = 56' in script
+          assert 'POINT_DIVISOR = 1.4142' in script
+          assert 'Name="OutlineLayer"' in script and 'Name="FillLayer"' in script
+          for component in ('OutlineCenter','OutlineLeftPoint','OutlineRightPoint',
+                            'CenterFill','LeftFillPoint','RightFillPoint'):
+              assert 'Name="'+component+'"' in script
+          assert 'Position=UDim2.fromOffset(half,half)' in script
+          assert 'CONFIG.HEIGHT/2+contentWidth' in script
+          assert 'contentWidth+CONFIG.HEIGHT' in script
+          assert 'getWidth(name,bounds and bounds.X)' in script
+          assert 'TextBounds' in script
+          assert 'Color3.fromRGB(255,26,61)' in script
           assert 'Color3.fromRGB(255,106,131)' in script
-          assert 'Name="RotatingCrimsonBorder",Rotation=0' in script
-          assert '{Rotation=360}' in script
-          assert 'borderTween:Cancel()' in script
-          assert 'borderTween:Play()' in script
-          for obsolete_plate in ('SoftGlow','InnerGlow','glowStroke','innerGlowStroke',
-                                  'damageDuration','healthEvent','flicker=','rounded(plate,5)'):
+          assert 'Color3.fromRGB(20,8,12)' in script
+          assert 'Color3.fromRGB(5,5,6)' in script
+          assert 'Color3.fromRGB(11,7,9)' in script
+          assert 'Rotation=45' in script
+          assert 'Rotation=90' in script
+          assert 'borderTweens[#borderTweens+1]=pulse' in script
+          assert 'for _,pulse in ipairs(borderTweens) do pulse:Cancel() end' in script
+          assert 'TweenInfo.new(1.6,Enum.EasingStyle.Sine' in script
+          for obsolete_plate in ('CrimsonBorderStroke', 'RotatingCrimsonBorder', 
+                                  'BORDER_DARK','BORDER_PULSE_SECONDS = 4',
+                                  'SoftGlow','InnerGlow','glowStroke','rounded(plate',
+                                  'damageDuration','healthEvent','flicker='):
               assert obsolete_plate not in script, obsolete_plate
           assert 'NAME_SHINE_SECONDS = 1.4' in script
           assert 'NAME_SHINE_PAUSE = 2.5' in script
