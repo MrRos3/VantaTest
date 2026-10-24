@@ -41,12 +41,28 @@ jobs:
           n = Path('nameplate.lua').read_text()
           assert 'tab("Nameplate"' in source
           assert 'game:HttpGet(BASE .. "nameplate.lua?v="' in source
+          assert 'NameplateVisibilitySlot' in source
+          assert 'NameplateVisibilityButton' in source
+          assert 'slot.LayoutOrder = 996' in source
+          assert 'rbxassetid://75816651251769' in source
+          assert 'rbxassetid://94392100296471' in source
+          assert 'syncNameplateVisibility(not nameplateVisible, true)' in source
+          assert 'nameplateToggle:Set(nameplateVisible, false, true)' in source
+          assert 'Callback = function(value) syncNameplateVisibility(value, false) end' in source
+          assert 'Value = "MEMBER"' in source
           assert 'ChatTab' not in source
           assert 'Vanta Chat' not in source
           assert 'BillboardGui' in n
           assert 'CharacterAdded' in n and 'CharacterRemoving' in n
           assert 'Enum.HumanoidDisplayDistanceType.None' in n
           assert 'ChamferShell' in n and 'CrimsonOuterGlow' in n
+          assert 'RING_CRIMSON = Color3.fromRGB(255, 42, 77)' in n
+          assert 'Name="BlackInset"' in n
+          assert 'ui.TagChip.Size=UDim2.fromOffset' in n
+          assert 'Enum.ApplyStrokeMode.Contextual' in n
+          assert 'function controller:IsEnabled()' in n
+          assert 'config.Subtitle or "MEMBER"' in n
+          assert '0.80-0.06*wave-flicker' in n
           assert 'ScaleType=Enum.ScaleType.Slice' in n
           assert 'Rect.new(24,24,72,72)' in n
           assert 'HealthChanged:Connect' in n

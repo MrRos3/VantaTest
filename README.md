@@ -31,6 +31,10 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 
 ### Vanta Edge nameplate
 
+The latest refinement makes the tag a compact 64px badge for `VANTA` (custom tags expand to fit), defaults the second line to **MEMBER** rather than repeating the brand, brightens the avatar ring to `#FF2A4D` with a black inset, softens the glow, sharpens the name with a dark 1px text stroke, and moves the status dot away from the ring.
+
+A small **eye / eye-off button** now sits immediately to the **left of VantaTest's Mac traffic dots** in the window topbar. It uses genuine published SaltyIcons Roblox image IDs and directly toggles the overhead nameplate. The button updates its icon and stays synchronized with the **Show nameplate** toggle in the Nameplate tab. This is a VantaTest showcase-only control; the production VantaUI library and its topbar are not modified.
+
 Open the **Nameplate** tab in VantaTest. The nameplate now uses a distinctive **chamfered top-right and bottom-left silhouette**, a gradient crimson border (`#E0173D` to `#4A0A18`), solid upper-left VANTA badge, subtle 9-slice red glow, and a near-black `#08080A` translucent fill. True-cut silhouette/glow PNG assets are under `assets/nameplate/` and loaded using the existing VantaTest custom-image loader; the module falls back to native Roblox shapes if image loading is unavailable.
 
 - Circular Roblox avatar with a 2px crimson border; status dot is **green normally** and **red for four seconds after damage**.

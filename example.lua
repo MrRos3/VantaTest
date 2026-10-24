@@ -134,7 +134,7 @@ local okNameplate, nameplateError = pcall(function()
         Scale = 100,
         MaxDistance = 100,
         Height = 2.65,
-        Subtitle = "VANTA // MEMBER",
+        Subtitle = "MEMBER",
         LoadRemoteImage = VantaTest.Creator and VantaTest.Creator.LoadRemoteImage,
     })
 end)
@@ -158,12 +158,97 @@ local function updateNameplate(method, value)
         toast("Nameplate error", tostring(err), "alert-triangle", 4)
     end
 end
-add(NameplateTab, "Toggle", {
+local nameplateVisible = true
+local nameplateToggle
+local topbarEyeButton
+local topbarEyeImage
+local EYE_VISIBLE = "rbxassetid://75816651251769" -- SaltyIcons eye.png
+local EYE_HIDDEN  = "rbxassetid://94392100296471" -- SaltyIcons eye-off.png
+
+local function syncNameplateVisibility(show, fromTopbar)
+    if not NameplateController then
+        toast("Nameplate", "Nameplate isn't available.", "alert-triangle", 3)
+        return
+    end
+    nameplateVisible = not not show
+    updateNameplate("SetEnabled", nameplateVisible)
+    if fromTopbar and nameplateToggle and type(nameplateToggle.Set) == "function" then
+        -- Synchronize the visual toggle without calling its callback a second time.
+        nameplateToggle:Set(nameplateVisible, false, true)
+    end
+    if topbarEyeImage then
+        topbarEyeImage.Image = nameplateVisible and EYE_VISIBLE or EYE_HIDDEN
+        topbarEyeImage.ImageColor3 = nameplateVisible
+            and Color3.fromRGB(255, 77, 112) or Color3.fromRGB(154, 146, 153)
+    end
+    if topbarEyeButton then
+        topbarEyeButton:SetAttribute("NameplateVisible", nameplateVisible)
+        topbarEyeButton:SetAttribute("Tooltip", nameplateVisible
+            and "Hide nameplate" or "Show nameplate")
+    end
+end
+
+nameplateToggle = add(NameplateTab, "Toggle", {
     Title = "Show nameplate",
-    Desc = "Displays the nameplate above your head; survives respawn",
+    Desc = "Synced with the eye button beside the window traffic lights",
     Value = true,
-    Callback = function(value) updateNameplate("SetEnabled", value) end,
+    Callback = function(value) syncNameplateVisibility(value, false) end,
 })
+
+-- Small Vanta-only topbar utility directly LEFT of Mac traffic dots.
+-- Its published SaltyIcons assets never depend on handmade icon drawings.
+local rightOk, rightError = pcall(function()
+    local right = Window.UIElements.Main.Main.Topbar.Right
+    assert(right and right:FindFirstChildOfClass("UIListLayout"), "Topbar right-side layout unavailable")
+    local slot = Instance.new("Frame")
+    slot.Name = "NameplateVisibilitySlot"
+    slot.Size = UDim2.fromOffset(27, 24)
+    slot.BackgroundTransparency = 1
+    slot.LayoutOrder = 996 -- existing Mac dots start at 997; eye sits adjacent
+    slot.Parent = right
+
+    local button = Instance.new("TextButton")
+    button.Name = "NameplateVisibilityButton"
+    button.Size = UDim2.fromOffset(23, 23)
+    button.Position = UDim2.fromOffset(2, 0)
+    button.BackgroundColor3 = Color3.fromRGB(18, 15, 20)
+    button.BackgroundTransparency = 0.08
+    button.AutoButtonColor = true
+    button.Text = ""
+    button.BorderSizePixel = 0
+    button.ZIndex = 10000
+    button.Parent = slot
+    local radius = Instance.new("UICorner")
+    radius.CornerRadius = UDim.new(0, 8)
+    radius.Parent = button
+    local border = Instance.new("UIStroke")
+    border.Color = Color3.fromRGB(122, 49, 68)
+    border.Transparency = 0.22
+    border.Thickness = 1
+    border.Parent = button
+
+    local icon = Instance.new("ImageLabel")
+    icon.Name = "SaltyIconsEye"
+    icon.BackgroundTransparency = 1
+    icon.Size = UDim2.fromOffset(15, 15)
+    icon.AnchorPoint = Vector2.new(0.5, 0.5)
+    icon.Position = UDim2.fromScale(0.5, 0.5)
+    icon.Image = EYE_VISIBLE
+    icon.ImageColor3 = Color3.fromRGB(255, 77, 112)
+    icon.ZIndex = 10001
+    icon.Parent = button
+
+    topbarEyeButton = button
+    topbarEyeImage = icon
+    button:SetAttribute("Tooltip", "Hide nameplate")
+    button:SetAttribute("NameplateVisible", true)
+    button.MouseButton1Click:Connect(function()
+        syncNameplateVisibility(not nameplateVisible, true)
+    end)
+end)
+if not rightOk then
+    warn("[VantaTest LAB / Nameplate topbar] " .. tostring(rightError))
+end
 add(NameplateTab, "Dropdown", {
     Title = "Nameplate theme",
     Desc = "Three clean styles inspired by Vanta",
@@ -181,8 +266,8 @@ add(NameplateTab, "Input", {
 add(NameplateTab, "Input", {
     Title = "Status or rank",
     Desc = "Second line when display name and username match; enter your own rank or level",
-    Value = "VANTA // MEMBER",
-    Placeholder = "VANTA // MEMBER",
+    Value = "MEMBER",
+    Placeholder = "MEMBER",
     Callback = function(value) updateNameplate("SetSubtitle", value) end,
 })
 add(NameplateTab, "Toggle", {

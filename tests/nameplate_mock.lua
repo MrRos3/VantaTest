@@ -78,6 +78,7 @@ Enum={
     TextXAlignment={Left="Left",Center="Center"},
     TextYAlignment={Center="Center"},
     ScaleType={Slice="Slice",Stretch="Stretch"},
+    ApplyStrokeMode={Contextual="Contextual"},
     TextTruncate={AtEnd="AtEnd"},
     HumanoidDisplayDistanceType={None="None",Viewer="Viewer"},
 }
@@ -119,7 +120,7 @@ game={GetService=function(_,name)
 end}
 local mod=dofile("nameplate.lua")
 assert(type(mod.new)=="function")
-local instance=mod.new({Tag="VANTA",Style="Crimson",Subtitle="VANTA // MEMBER"})
+local instance=mod.new({Tag="VANTA",Style="Crimson"})
 local billboard=assert(instance:GetBillboard(),"head billboard not created")
 assert(billboard.ClassName=="BillboardGui")
 assert(billboard.Parent==playerGui)
@@ -133,7 +134,19 @@ assert(group.GroupTransparency==0)
 assert(plate.ChamferShell.Image=="") -- client image-loader optional
 assert(plate.Fallback.Visible==true)
 assert(plate.TagChip.TagText.Text=="VANTA")
+assert(plate.TagChip.Size[1]==64)
+assert(plate.TagChip.TagText.TextXAlignment==Enum.TextXAlignment.Left)
 assert(plate.TagChip.TagText.TextColor3)
+assert(plate.AvatarRing.UIStroke.Thickness==2)
+assert(plate.AvatarRing.UIStroke.Color[1]==255)
+assert(plate.AvatarRing.BlackInset.BackgroundColor3[1]==8)
+assert(plate.AvatarRing.Avatar.Position[2]==4)
+assert(plate.AvatarRing.StatusDot.Position[2]==-4)
+assert(plate.AvatarRing.StatusDot.Position[4]==-7)
+assert(plate.DisplayName.UIStroke.Thickness==1)
+assert(plate.DisplayName.UIStroke.ApplyStrokeMode==Enum.ApplyStrokeMode.Contextual)
+assert(group.CrimsonOuterGlow.ImageTransparency==0.80)
+assert(group.GlowFallback.UIStroke.Transparency==0.88)
 assert(plate.DisplayName.Text=="Velora")
 assert(plate.StatusLine.Text=="@SaltyExample")
 assert(plate.HealthBar.HealthFill.Size[1]==1)
@@ -153,11 +166,15 @@ assert(not billboard.NameOnly.Visible)
 
 instance:SetTag("BOLT")
 assert(plate.TagChip.TagText.Text=="BOLT")
+assert(plate.TagChip.Size[1]==64)
+instance:SetTag("ELITE RANK GOLD")
+assert(plate.TagChip.Size[1]>64)
+instance:SetTag("BOLT")
 instance:SetStyle("Steel")
 assert(plate.Fallback.BackgroundColor3)
 assert(plate.ChamferShell.Visible==false)
 instance:SetShowUsername(false)
-assert(plate.StatusLine.Text=="VANTA // MEMBER")
+assert(plate.StatusLine.Text=="MEMBER")
 instance:SetSubtitle("VANTA // LVL 42")
 assert(plate.StatusLine.Text=="VANTA // LVL 42")
 -- Matching real and display names must not waste the subtitle line.
@@ -185,10 +202,13 @@ for i=1,100 do renderStep:Fire(1/20) end
 local idleColor=plate.AvatarRing.StatusDot.BackgroundColor3
 assert(idleColor[1]==73)
 
+assert(instance:IsEnabled()==true)
 instance:SetEnabled(false)
+assert(instance:IsEnabled()==false)
 assert(billboard.Enabled==false)
 assert(humanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.Viewer)
 instance:SetEnabled(true)
+assert(instance:IsEnabled()==true)
 assert(humanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 
 localPlayer.CharacterRemoving:Fire(char)
@@ -218,6 +238,7 @@ local newer=mod.new({
 })
 assert(instance:GetBillboard()==nil)
 assert(newer:GetBillboard().Enabled==false)
+assert(newer:IsEnabled()==false)
 assert(newer:GetBillboard().PlateGroup.Plate.TagChip.TagText.Text=="FRESH")
 assert(newer:GetBillboard().PlateGroup.Plate.ChamferShell.Visible)
 assert(not newer:GetBillboard().PlateGroup.Plate.Fallback.Visible)

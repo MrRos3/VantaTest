@@ -14,6 +14,7 @@ local GLOW_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets
 local WHITE = Color3.fromRGB(250, 248, 251)
 local BLACK = Color3.fromRGB(8, 8, 10)
 local GREEN = Color3.fromRGB(73, 221, 149)
+local RING_CRIMSON = Color3.fromRGB(255, 42, 77) -- #FF2A4D
 
 local STYLES = {
     Crimson = {
@@ -100,7 +101,7 @@ function Nameplate.new(options)
     local state={
         enabled=config.Enabled~=false,
         tag=cleanText(config.Tag or "VANTA",18),
-        subtitle=cleanText(config.Subtitle or "VANTA // MEMBER",30),
+        subtitle=cleanText(config.Subtitle or "MEMBER",30),
         style=STYLES[config.Style] and config.Style or "Crimson",
         showUsername=config.ShowUsername~=false,
         size=math.clamp(tonumber(config.Scale) or 100,70,140)/100,
@@ -149,9 +150,9 @@ function Nameplate.new(options)
         local theme=STYLES[state.style]
         ui.TagChip.BackgroundColor3=theme.bright
         ui.TagText.TextColor3=theme.tagText
-        ui.AvatarRing.BackgroundColor3=theme.bright
-        ui.AvatarRing.UIStroke.Color=theme.bright
-        ui.NameStroke.Color=theme.dark
+        ui.AvatarRing.BackgroundColor3=RING_CRIMSON
+        ui.AvatarRing.UIStroke.Color=RING_CRIMSON
+        ui.NameStroke.Color=BLACK
         ui.HealthFill.BackgroundColor3=theme.bright
         ui.BorderStroke.Color=theme.bright
         ui.BorderGradient.Color=sequence(theme.bright,theme.dark)
@@ -171,8 +172,13 @@ function Nameplate.new(options)
         local differs=string.lower(player.DisplayName)~=string.lower(player.Name)
         local showRealUsername=differs and state.showUsername
         ui.StatusLine.Text=showRealUsername and ("@"..player.Name) or
-            (state.subtitle~="" and state.subtitle or "VANTA // MEMBER")
+            (state.subtitle~="" and state.subtitle or "MEMBER")
         ui.TagText.Text=state.tag~="" and state.tag or "VANTA"
+        -- The VANTA badge stays compact; longer custom tags grow only as needed.
+        local visible=ui.TagText.Text
+        local ok,count=pcall(utf8.len,visible)
+        local chars=ok and count or #visible
+        ui.TagChip.Size=UDim2.fromOffset(math.clamp(math.ceil(chars*7+18),64,168),18)
         ui.NameOnly.Text=player.DisplayName
     end
 
@@ -242,7 +248,7 @@ function Nameplate.new(options)
             Position=UDim2.fromOffset(0,4),Size=UDim2.fromOffset(288,100),
             ScaleType=Enum.ScaleType.Slice,
             SliceCenter=Rect.new(24,24,72,72),SliceScale=1,
-            ImageTransparency=0.7,ImageColor3=Color3.fromRGB(255,255,255),
+            ImageTransparency=0.80,ImageColor3=Color3.fromRGB(255,255,255),
             ZIndex=1,
         },plateGroup)
         local glowFallback=make("Frame",{
@@ -251,7 +257,7 @@ function Nameplate.new(options)
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,
         },plateGroup)
         round(glowFallback,6)
-        outline(glowFallback,STYLES[state.style].bright,4,0.83)
+        outline(glowFallback,STYLES[state.style].bright,4,0.88)
 
         local plate=make("Frame",{
             Name="Plate",Size=UDim2.fromOffset(248,72),
@@ -288,33 +294,39 @@ function Nameplate.new(options)
 
         local tagChip=make("Frame",{
             Name="TagChip",Position=UDim2.fromOffset(9,6),
-            Size=UDim2.fromOffset(94,18),
+            Size=UDim2.fromOffset(64,18),
             BackgroundColor3=STYLES[state.style].bright,
             BackgroundTransparency=0,BorderSizePixel=0,ZIndex=6,
         },plate)
         round(tagChip,2)
         local tagText=label(tagChip,"TagText",state.tag,10,BLACK,true,{
-            Position=UDim2.fromOffset(6,0),
-            Size=UDim2.new(1,-12,1,0),TextXAlignment=Enum.TextXAlignment.Center,
+            Position=UDim2.fromOffset(8,0),
+            Size=UDim2.new(1,-16,1,0),TextXAlignment=Enum.TextXAlignment.Left,
             ZIndex=7,
         })
         local ring=make("Frame",{
             Name="AvatarRing",Position=UDim2.fromOffset(13,27),
-            Size=UDim2.fromOffset(35,35),BackgroundColor3=STYLES[state.style].bright,
+            Size=UDim2.fromOffset(35,35),BackgroundColor3=RING_CRIMSON,
             BorderSizePixel=0,ZIndex=6,
         },plate)
         round(ring,18)
-        outline(ring,STYLES[state.style].bright,2,0)
+        outline(ring,RING_CRIMSON,2,0)
+        local gap=make("Frame",{
+            Name="BlackInset",Position=UDim2.fromOffset(2,2),
+            Size=UDim2.new(1,-4,1,-4),
+            BackgroundColor3=BLACK,BorderSizePixel=0,ZIndex=7,
+        },ring)
+        round(gap,18)
         local portrait=make("ImageLabel",{
             Name="Avatar",
             Image=("rbxthumb://type=AvatarHeadShot&id=%d&w=100&h=100"):format(player.UserId),
-            Position=UDim2.fromOffset(2,2),
-            Size=UDim2.new(1,-4,1,-4),
-            BackgroundTransparency=1,ZIndex=7,
+            Position=UDim2.fromOffset(4,4),
+            Size=UDim2.new(1,-8,1,-8),
+            BackgroundTransparency=1,ZIndex=8,
         },ring)
         round(portrait,18)
         local statusDot=make("Frame",{
-            Name="StatusDot",Position=UDim2.new(1,-6,1,-9),
+            Name="StatusDot",Position=UDim2.new(1,-4,1,-7),
             Size=UDim2.fromOffset(9,9),
             BorderSizePixel=0,BackgroundColor3=GREEN,ZIndex=9,
         },ring)
@@ -324,7 +336,10 @@ function Nameplate.new(options)
             Position=UDim2.fromOffset(60,26),
             Size=UDim2.fromOffset(177,20),ZIndex=8,
         })
-        local nameStroke=outline(title,STYLES[state.style].dark,0.6,0.54)
+        local nameStroke=outline(title,BLACK,1,0.18)
+        nameStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual
+        title.TextStrokeColor3=BLACK
+        title.TextStrokeTransparency=0.65
         local subtitle=label(plate,"StatusLine","VANTA // MEMBER",10,
             STYLES[state.style].status,true,{
                 Position=UDim2.fromOffset(60,47),
@@ -346,7 +361,8 @@ function Nameplate.new(options)
             Size=UDim2.fromOffset(245,28),Visible=false,
             TextXAlignment=Enum.TextXAlignment.Center,ZIndex=12,
         })
-        outline(onlyName,STYLES[state.style].dark,0.65,0.27)
+        local onlyNameStroke=outline(onlyName,BLACK,1,0.25)
+        onlyNameStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual
 
         ui={
             PlateGroup=plateGroup,PlateScale=scale,Shell=shell,Fallback=fallback,
@@ -416,8 +432,8 @@ function Nameplate.new(options)
         ui.BorderGradient.Offset=Vector2.new(-1+2*sweep,0)
         local wave=0.5+0.5*math.sin(clock*2.0)
         local flicker=damageFlash>0 and ((math.floor(clock*45)%2==0) and 0.18 or 0) or 0
-        ui.Glow.ImageTransparency=math.clamp(0.73-0.09*wave-flicker,0.37,0.85)
-        ui.GlowFallback.UIStroke.Transparency=math.clamp(0.91-0.07*wave-flicker,0.42,0.96)
+        ui.Glow.ImageTransparency=math.clamp(0.80-0.06*wave-flicker,0.45,0.91)
+        ui.GlowFallback.UIStroke.Transparency=math.clamp(0.93-0.04*wave-flicker,0.50,0.97)
         ui.BorderStroke.Transparency=math.clamp(0.74-0.16*wave-flicker,0.26,0.87)
         if state.style=="Crimson" and ui.Shell.Image~="" then
             ui.Shell.ImageTransparency=flicker
@@ -433,6 +449,9 @@ function Nameplate.new(options)
         else
             restoreName()
         end
+    end
+    function controller:IsEnabled()
+        return not disposed and state.enabled
     end
     function controller:SetStyle(value)
         if disposed or not STYLES[value] then return end
