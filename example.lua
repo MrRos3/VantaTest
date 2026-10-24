@@ -109,7 +109,105 @@ add(Home, "Paragraph", {
     Desc = "VantaTest v" .. tostring(VantaTest.Version) .. " | Theme: Salty Special | All examples stay in this test repository.",
 })
 add(Home, "Divider", {})
-add(Home, "Section", { Title = "What's inside", Desc = "Buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
+add(Home, "Section", { Title = "What's inside", Desc = "Nameplate, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
+
+-- NAMEPLATE ------------------------------------------------------------------
+-- Client-only BillboardGui above the local player's head, recreated on respawn.
+-- This does NOT replicate to friends in arbitrary Roblox games.
+local NameplateTab = tab("Nameplate", "user-round", "Floating customizable nameplate over your character")
+add(NameplateTab, "Section", {
+    Title = "Your floating nameplate",
+    Desc = "Premium overhead tag using your real Roblox identity. Local preview only.",
+    Icon = "user-round",
+})
+local NameplateModule
+local NameplateController
+local okNameplate, nameplateError = pcall(function()
+    local moduleSource = game:HttpGet(BASE .. "nameplate.lua?v=" .. versionToken)
+    NameplateModule = assert(loadstring(moduleSource))()
+    assert(type(NameplateModule.new) == "function", "Nameplate module is not ready")
+    NameplateController = NameplateModule.new({
+        Enabled = true,
+        Tag = "VANTA",
+        Style = "Crimson",
+        ShowUsername = true,
+        Scale = 100,
+        MaxDistance = 100,
+        Height = 2.65,
+    })
+end)
+if not okNameplate then
+    warn("[VantaTest LAB / Nameplate] " .. tostring(nameplateError))
+    add(NameplateTab, "Paragraph", {
+        Title = "Nameplate couldn't load",
+        Desc = tostring(nameplateError),
+    })
+end
+local function updateNameplate(method, value)
+    if not NameplateController then
+        toast("Nameplate", "Nameplate module is unavailable.", "alert-triangle", 3)
+        return
+    end
+    local ok, err = pcall(function()
+        NameplateController[method](NameplateController, value)
+    end)
+    if not ok then
+        warn("[VantaTest LAB / Nameplate] " .. tostring(err))
+        toast("Nameplate error", tostring(err), "alert-triangle", 4)
+    end
+end
+add(NameplateTab, "Toggle", {
+    Title = "Show nameplate",
+    Desc = "Displays the nameplate above your head; survives respawn",
+    Value = true,
+    Callback = function(value) updateNameplate("SetEnabled", value) end,
+})
+add(NameplateTab, "Dropdown", {
+    Title = "Nameplate theme",
+    Desc = "Three clean styles inspired by Vanta",
+    Values = { "Crimson", "OLED", "Steel" },
+    Value = "Crimson",
+    Callback = function(value) updateNameplate("SetStyle", value) end,
+})
+add(NameplateTab, "Input", {
+    Title = "Small tag",
+    Desc = "Custom text above your display name (maximum 18 characters)",
+    Value = "VANTA",
+    Placeholder = "VANTA",
+    Callback = function(value) updateNameplate("SetTag", value) end,
+})
+add(NameplateTab, "Toggle", {
+    Title = "Show @username",
+    Desc = "Keep your genuine Roblox username below your display name",
+    Value = true,
+    Callback = function(value) updateNameplate("SetShowUsername", value) end,
+})
+add(NameplateTab, "Slider", {
+    Title = "Nameplate size",
+    Desc = "Scale the complete card without changing your character",
+    Value = { Min = 70, Max = 140, Default = 100 },
+    Step = 5,
+    Callback = function(value) updateNameplate("SetScale", value) end,
+})
+add(NameplateTab, "Slider", {
+    Title = "Height above head",
+    Desc = "Adjust upward offset in tenths of a stud",
+    Value = { Min = 15, Max = 45, Default = 27 },
+    Step = 1,
+    Callback = function(value) updateNameplate("SetHeight", value / 10) end,
+})
+add(NameplateTab, "Slider", {
+    Title = "Visibility distance",
+    Desc = "Maximum distance in studs (30 to 150)",
+    Value = { Min = 30, Max = 150, Default = 100 },
+    Step = 10,
+    Callback = function(value) updateNameplate("SetDistance", value) end,
+})
+add(NameplateTab, "Paragraph", {
+    Title = "Local-only display",
+    Desc = "This nameplate is rendered on your client. Friends won't see it unless a server script in an experience you own creates it for them.",
+})
+
 -- BUTTONS --------------------------------------------------------------------
 local Buttons = tab("Buttons", "mouse-pointer-2", "Clickable elements, locking and notifications")
 add(Buttons, "Section", { Title = "Button variations", Icon = "square-mouse-pointer" })

@@ -19,6 +19,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Tab | Interactive demos |
 | --- | --- |
 | Home | Runtime information, button counter and notification preview |
+| Nameplate | Premium overhead nameplate above your character with live theme, tag, size, height, distance and visibility controls |
 | Buttons | Basic buttons, notification variants, locking, paragraph action buttons |
 | Toggles | Switches, checkbox variant, rebindable hotkey |
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
@@ -27,6 +28,28 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Themes | All 5 built-in themes, sound switch and stacked notifications |
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
+
+### Nameplate above your head
+
+Open the new **Nameplate** tab in the VantaTest showcase. It immediately creates a native `BillboardGui` above your own character's head, with a floating OLED/crimson card, genuine Roblox display name, @username, profile thumbnail, and customizable 18-character tag.
+
+- Show/hide the overhead nameplate.
+- Switch between **Crimson**, **OLED** and **Steel** palettes.
+- Edit the upper tag without changing or impersonating your Roblox identity.
+- Show/hide @username, change nameplate size (70–140%), height (1.5–4.5 studs) and max visible distance (30–150 studs).
+- Reattach automatically when your character respawns. Running the loader again destroys the previous nameplate controller instead of stacking duplicates; the default Roblox overhead name is restored when disabled or removed.
+
+Only **your Roblox client** can see this version of the nameplate. For other players to see it in a game you own, its creation must be performed in the game's server-authorized scripts. It does not replicate into unrelated Roblox games.
+
+The nameplate can also be used without the full VantaTest showcase:
+
+```lua
+local module = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/nameplate.lua?v=" .. os.time()
+))()
+local nameplate = module.new({Tag="VANTA",Style="Crimson"})
+-- Later: nameplate:SetEnabled(false) or nameplate:Destroy()
+```
 
 ### Crimson01 living wallpaper
 

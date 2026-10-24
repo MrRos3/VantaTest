@@ -1,0 +1,54 @@
+name: Check VantaTest Nameplate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "nameplate.lua"
+      - "example.lua"
+      - "tests/nameplate_mock.lua"
+      - ".github/workflows/check-nameplate.yml"
+  pull_request:
+    paths:
+      - "nameplate.lua"
+      - "example.lua"
+      - "tests/nameplate_mock.lua"
+      - ".github/workflows/check-nameplate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  nameplate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.1"
+      - name: Validate Lua syntax
+        run: |
+          luac -p nameplate.lua
+          luac -p example.lua
+          luac -p tests/nameplate_mock.lua
+      - name: Exercise head attachment, settings and respawn
+        run: lua tests/nameplate_mock.lua
+      - name: Ensure script-only feature and clean chat removal
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('example.lua').read_text()
+          n = Path('nameplate.lua').read_text()
+          assert 'tab("Nameplate"' in source
+          assert 'game:HttpGet(BASE .. "nameplate.lua?v="' in source
+          assert 'ChatTab' not in source
+          assert 'Vanta Chat' not in source
+          assert 'BillboardGui' in n
+          assert 'CharacterAdded' in n and 'CharacterRemoving' in n
+          assert 'Enum.HumanoidDisplayDistanceType.None' in n
+          for method in ('SetEnabled','SetStyle','SetTag','SetScale',
+                         'SetHeight','SetDistance','SetShowUsername','Destroy'):
+              assert 'function controller:' + method in n
+          assert 'FireServer' not in n and 'HttpGet' not in n
+          print('Nameplate integrates only with VantaTest; no chat or untrusted relay restored.')
+          PY
