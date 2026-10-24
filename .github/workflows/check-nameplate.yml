@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - "nameplate.lua"
+      - "nameplate_standalone.lua"
       - "example.lua"
       - "tests/nameplate_mock.lua"
       - ".github/workflows/check-nameplate.yml"
   pull_request:
     paths:
       - "nameplate.lua"
+      - "nameplate_standalone.lua"
       - "example.lua"
       - "tests/nameplate_mock.lua"
       - ".github/workflows/check-nameplate.yml"
@@ -29,6 +31,7 @@ jobs:
       - name: Validate Lua syntax
         run: |
           luac -p nameplate.lua
+          luac -p nameplate_standalone.lua
           luac -p example.lua
           luac -p tests/nameplate_mock.lua
       - name: Exercise all-player nameplate lifecycle
@@ -38,6 +41,9 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           n=Path("nameplate.lua").read_text()
+          standalone=Path("nameplate_standalone.lua").read_text()
+          assert standalone.endswith("return module.new()\n")
+          assert "rbxassetid://" not in standalone
           source=Path("example.lua").read_text()
           assert 'GetUserThumbnailAsync' in n
           assert 'game:GetService("TweenService")' in n

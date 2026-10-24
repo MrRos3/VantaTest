@@ -39,6 +39,8 @@ The border-light sweep is a looping **four-second TweenService animation**; the 
 
 **Visibility caveat:** This is a client-side visual overlay for players you see. Other Roblox clients will not see your customization without server-side code in an experience you control. VantaUI is never modified by these changes; the old chat feature remains removed.
 
+For a **single self-contained LocalScript**, use [nameplate_standalone.lua](nameplate_standalone.lua). It automatically starts when placed in StarterPlayerScripts in a Roblox experience you control, or when executed directly. It has no external code or image dependencies beyond player headshots provided by Roblox.
+
 Stand-alone use of the no-assets module:
 
 ```lua
