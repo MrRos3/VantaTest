@@ -82,6 +82,9 @@ utf8={offset=function(s,n)
     if #s<n then return nil end
     return n
 end}
+math.clamp=function(v, minimum, maximum)
+    return math.max(minimum, math.min(maximum, v))
+end
 task={spawn=function(fn) fn() end}
 local localPlayer=newObject("Player","MockPlayer")
 localPlayer.Name="SaltyExample"
