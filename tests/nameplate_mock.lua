@@ -233,7 +233,8 @@ for i=1,55 do
     if name.Position[2]==2 and crimson.Color~=regularGradient then
         sawGlitch=true
     end
-    if sawGlitch and name.Position[2]==0 and crimson.Color==regularGradient then
+    if sawGlitch and name.Position[1]==0.5 and name.Position[2]==0.5
+        and crimson.Color==regularGradient then
         restored=true
     end
 end
