@@ -1,4 +1,4 @@
--- Standalone Vanta Owl overhead nameplate. Run as LocalScript or executor Lua.
+-- Standalone Vanta Owl overhead nameplate; uses the bundled owl PNG.
 -- Vanta Owl | self-only overhead nameplate for VantaTest
 -- Assets: your actual monochrome owl PNG in this repo. No Roblox upload ID required
 -- on executors providing writefile + getcustomasset/getsynasset.
@@ -20,7 +20,15 @@ local CONFIG = {
     HEIGHT = 44,
     MIN_WIDTH = 200,
     MAX_WIDTH = 420,
-    NAME_SIZE = 16,
+    NAME_SIZE = 14,
+    NAME_FONT = Enum.Font.Michroma,
+    NAME_WIDE_SPACING = false, -- Michroma is already spacious; optional thin spaces.
+    NAME_SHINE_SECONDS = 2.5,
+    NAME_SHINE_PAUSE = 1.5,
+    NAME_PULSE_SECONDS = 1.2,
+    NAME_GLITCH_SECONDS = 0.12,
+    NAME_GLITCH_MIN = 6,
+    NAME_GLITCH_MAX = 10,
     FILL = Color3.fromRGB(14, 14, 16),
     FILL_TRANSPARENCY = 0.15,
     BORDER_BRIGHT = Color3.fromRGB(224, 23, 61),
@@ -59,7 +67,7 @@ end
 local function getWidth(displayName,scale)
     local ok,sz=pcall(function()
         return TextService:GetTextSize(displayName,CONFIG.NAME_SIZE,
-            Enum.Font.GothamBold,Vector2.new(2000,CONFIG.HEIGHT))
+            CONFIG.NAME_FONT,Vector2.new(2000,CONFIG.HEIGHT))
     end)
     local textWidth=ok and sz.X or (#displayName * CONFIG.NAME_SIZE * 0.65)
     local occupied=2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING)+CONFIG.NAME_PADDING
@@ -126,6 +134,7 @@ function module.new(options)
     local events={}
     local ended=false
     local gui,humanoid,tween,healthEvent,nameEvent
+    local nameShineTween,namePulseTween,nameGradient,nameStroke
     local oldDistance
     local plateGroup,plate,glowStroke,innerGlowStroke,plateScale
     local owls,emojiLabels={},{}
@@ -137,6 +146,28 @@ function module.new(options)
     local elapsed=0
     local healthLast=0
     local damageDuration=0
+    local shineClock=0
+    local glitchClock=0
+    local nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
+        (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
+    local glitchRemaining=0
+    local NAME_COLORS=ColorSequence.new({
+        ColorSequenceKeypoint.new(0.0,Color3.fromRGB(179,17,47)),   -- #B3112F
+        ColorSequenceKeypoint.new(0.4,Color3.fromRGB(255,42,77)),   -- #FF2A4D
+        ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,138,158)), -- #FF8A9E
+        ColorSequenceKeypoint.new(0.6,Color3.fromRGB(255,42,77)),
+        ColorSequenceKeypoint.new(1.0,Color3.fromRGB(179,17,47)),
+    })
+    local WHITE_FLASH=ColorSequence.new(Color3.fromRGB(255,255,255))
+    local function showName(value)
+        if not CONFIG.NAME_WIDE_SPACING then return value end
+        -- Unicode thin spaces are optional, never inserted by default.
+        local letters={}
+        for _,codepoint in utf8.codes(value) do
+            letters[#letters+1]=utf8.char(codepoint)
+        end
+        return table.concat(letters," ")
+    end
     local visible=options.Enabled~=false
     local scale=math.clamp(tonumber(options.Scale) or 100,70,140)/100
     local height=math.clamp(tonumber(options.Height) or CONFIG.HEIGHT_STUDS,1.5,4.5)
@@ -151,6 +182,13 @@ function module.new(options)
         if healthEvent then healthEvent:Disconnect();healthEvent=nil end
         if nameEvent then nameEvent:Disconnect();nameEvent=nil end
         if tween then tween:Cancel();tween=nil end
+        if nameShineTween then nameShineTween:Cancel();nameShineTween=nil end
+        if namePulseTween then namePulseTween:Cancel();namePulseTween=nil end
+        nameGradient=nil
+        nameStroke=nil
+        shineClock=0
+        glitchClock=0
+        glitchRemaining=0
         if gui then gui:Destroy();gui=nil end
         if humanoid and humanoid.Parent and oldDistance then
             pcall(function()humanoid.DisplayDistanceType=oldDistance end)
@@ -172,7 +210,7 @@ function module.new(options)
 
     local function updateDimensions()
         if not gui or not gui.Parent or not plate or not displayLabel then return end
-        local width=getWidth(LocalPlayer.DisplayName)
+        local width=getWidth(showName(LocalPlayer.DisplayName))
         local outerWidth=width+24
         gui.Size=UDim2.fromOffset(math.floor(outerWidth*scale),math.floor(68*scale))
         gui.MaxDistance=maxDistance
@@ -184,7 +222,7 @@ function module.new(options)
         innerGlowStroke.Parent.Size=UDim2.fromOffset(width,CONFIG.HEIGHT)
         displayLabel.Size=UDim2.fromOffset(
             width-2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING),CONFIG.HEIGHT)
-        displayLabel.Text=LocalPlayer.DisplayName
+        displayLabel.Text=showName(LocalPlayer.DisplayName)
     end
 
     local function createOwl(parent,name,x,isRight)
@@ -271,10 +309,10 @@ function module.new(options)
         createOwl(plate,"LeftOwl",CONFIG.ICON_PADDING,false)
         createOwl(plate,"RightOwl",0,true)
         displayLabel=new("TextLabel",{
-            Name="DisplayName",Text=LocalPlayer.DisplayName,
-            Font=Enum.Font.GothamBold,TextSize=CONFIG.NAME_SIZE,
+            Name="DisplayName",Text=showName(LocalPlayer.DisplayName),
+            Font=CONFIG.NAME_FONT,TextSize=CONFIG.NAME_SIZE,
             TextColor3=Color3.fromRGB(255,255,255),
-            TextStrokeColor3=Color3.fromRGB(0,0,0),TextStrokeTransparency=0.24,
+            TextStrokeTransparency=1,
             TextXAlignment=Enum.TextXAlignment.Center,
             TextYAlignment=Enum.TextYAlignment.Center,
             TextTruncate=Enum.TextTruncate.AtEnd,
@@ -283,6 +321,30 @@ function module.new(options)
             Size=UDim2.fromOffset(w-2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING),CONFIG.HEIGHT),
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=6,
         },plate)
+        -- Five-stop crimson text gradient. White TextColor3 prevents tinting it.
+        nameGradient=new("UIGradient",{
+            Name="CrimsonNameGradient",Color=NAME_COLORS,
+            Offset=Vector2.new(-1,0),Rotation=0,
+        },displayLabel)
+        -- UIStroke owns the breathing shadow instead of TextStrokeTransparency.
+        nameStroke=stroke(displayLabel,Color3.fromRGB(26,0,8),1,0.2)
+        nameStroke.Name="NamePulseStroke"
+        nameStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual
+        nameShineTween=TweenService:Create(nameGradient,
+            TweenInfo.new(CONFIG.NAME_SHINE_SECONDS,Enum.EasingStyle.Linear,
+                Enum.EasingDirection.Out),
+            {Offset=Vector2.new(1,0)})
+        namePulseTween=TweenService:Create(nameStroke,
+            TweenInfo.new(CONFIG.NAME_PULSE_SECONDS,Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut,-1,true),
+            {Transparency=0.6})
+        nameShineTween:Play()
+        namePulseTween:Play()
+        shineClock=0
+        glitchClock=0
+        nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
+            (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
+        glitchRemaining=0
         updateDimensions()
         nameEvent=LocalPlayer:GetPropertyChangedSignal("DisplayName"):Connect(updateDimensions)
         healthLast=hum.Health
@@ -305,6 +367,9 @@ function module.new(options)
         serial=serial+1
         clearGui()
     end)
+    listen(Players.PlayerRemoving,function(p)
+        if p==LocalPlayer then controller:Destroy() end
+    end)
     listen(RunService.RenderStepped,function(dt)
         if ended or not visible or not gui or not gui.Parent or not plateGroup then return end
         updateTime=updateTime+math.min(dt or 1/60,0.075)
@@ -313,6 +378,38 @@ function module.new(options)
         updateTime=0
         elapsed=elapsed+step
         damageDuration=math.max(0,damageDuration-step)
+        -- Each shine lasts 2.5 seconds; a quiet 1.5-second pause follows.
+        shineClock=shineClock+step
+        if shineClock>=CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE then
+            shineClock=shineClock-(CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE)
+            if nameShineTween and nameGradient then
+                nameShineTween:Cancel()
+                nameGradient.Offset=Vector2.new(-1,0)
+                nameShineTween:Play()
+            end
+        end
+        -- Brief randomized glitch: translate name 2px, flash white for 0.12s.
+        -- The entire NameplateGroup still fades out as a single unit.
+        if nameGradient and displayLabel then
+            if glitchRemaining>0 then
+                glitchRemaining=glitchRemaining-step
+                if glitchRemaining<=0 then
+                    glitchRemaining=0
+                    displayLabel.Position=UDim2.fromScale(0.5,0.5)
+                    nameGradient.Color=NAME_COLORS
+                end
+            else
+                glitchClock=glitchClock+step
+                if glitchClock>=nextGlitch then
+                    glitchClock=0
+                    nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
+                        (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
+                    glitchRemaining=CONFIG.NAME_GLITCH_SECONDS
+                    displayLabel.Position=UDim2.new(0.5,2,0.5,0)
+                    nameGradient.Color=WHITE_FLASH
+                end
+            end
+        end
         local dist=0
         local cam=workspace.CurrentCamera
         if cam and gui.Adornee then

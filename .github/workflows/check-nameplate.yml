@@ -59,6 +59,23 @@ jobs:
           assert 'if p and p~=LocalPlayer then return nil end' in script
           assert 'LeftOwl' in script and 'RightOwl' in script
           assert '🦉' in script
+          assert 'NAME_FONT = Enum.Font.Michroma' in script
+          assert 'NAME_SIZE = 14' in script
+          assert 'NAME_SHINE_SECONDS = 2.5' in script
+          assert 'NAME_SHINE_PAUSE = 1.5' in script
+          assert 'NAME_PULSE_SECONDS = 1.2' in script
+          assert 'NAME_GLITCH_SECONDS = 0.12' in script
+          assert 'NAME_GLITCH_MIN = 6' in script and 'NAME_GLITCH_MAX = 10' in script
+          assert 'ColorSequenceKeypoint.new(0.4,Color3.fromRGB(255,42,77))' in script
+          assert 'ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,138,158))' in script
+          assert 'ColorSequenceKeypoint.new(0.6,Color3.fromRGB(255,42,77))' in script
+          assert 'Color3.fromRGB(26,0,8),1,0.2' in script
+          assert 'nameShineTween:Cancel()' in script
+          assert 'namePulseTween:Cancel()' in script
+          assert 'listen(Players.PlayerRemoving,function(p)' in script
+          assert 'if p==LocalPlayer then controller:Destroy() end' in script
+          assert 'nameGradient.Color=WHITE_FLASH' in script
+          assert 'nameGradient.Color=NAME_COLORS' in script
           assert 'TagChip' not in script and 'HealthFill' not in script
           assert standalone.endswith("return module.new()\n")
           assert 'NameplateVisibilityButton' in showcase

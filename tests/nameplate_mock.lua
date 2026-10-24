@@ -72,22 +72,31 @@ ColorSequence={new=values}
 ColorSequenceKeypoint={new=values}
 TweenInfo={new=values}
 Enum={
-    Font={GothamBold="GothamBold"},
+    Font={GothamBold="GothamBold",Michroma="Michroma"},
     TextXAlignment={Center="Center"},TextYAlignment={Center="Center"},
     TextTruncate={AtEnd="AtEnd"},ScaleType={Fit="Fit"},
-    EasingStyle={Linear="Linear"},EasingDirection={Out="Out"},
+    EasingStyle={Linear="Linear",Sine="Sine"},
+    EasingDirection={Out="Out",InOut="InOut"},
+    ApplyStrokeMode={Contextual="Contextual"},
     HumanoidDisplayDistanceType={None="None",Viewer="Viewer"},
 }
 math.clamp=function(x,lo,hi)return math.max(lo,math.min(x,hi)) end
+-- Deterministic first glitch at 6 seconds, later glitches also at 6 seconds.
+math.random=function()return 0 end
 task={spawn=function(f)f()end}
 local textService={GetTextSize=function(_,name,size,font,bound)
     return {X=#name*8,Y=size}
 end}
 local tweenCancelled=0
-local tweenService={Create=function()
-    local t={}
-    function t:Play()end
-    function t:Cancel()tweenCancelled=tweenCancelled+1 end
+local tweenCreated={}
+local tweenService={Create=function(_,target,info,goal)
+    local t={target=target,info=info,goal=goal,plays=0,cancels=0}
+    function t:Play()self.plays=self.plays+1 end
+    function t:Cancel()
+        self.cancels=self.cancels+1
+        tweenCancelled=tweenCancelled+1
+    end
+    tweenCreated[#tweenCreated+1]=t
     return t
 end}
 local frame=signal()
@@ -175,7 +184,32 @@ assert(plate.RightOwl.Image==plate.LeftOwl.Image)
 assert(not plate.LeftOwlFallback.Visible and not plate.RightOwlFallback.Visible)
 assert(plate.LeftOwl.Size[1]==30 and plate.RightOwl.Size[1]==30)
 assert(plate.DisplayName.Text=="Owler")
+assert(plate.DisplayName.Font==Enum.Font.Michroma)
+assert(plate.DisplayName.TextSize==14)
+assert(plate.DisplayName.TextColor3[1]==255)
 assert(plate.DisplayName.TextXAlignment==Enum.TextXAlignment.Center)
+local name=plate.DisplayName
+local crimson=name.CrimsonNameGradient
+local outline=name.NamePulseStroke
+assert(crimson and outline and outline.Thickness==1)
+assert(outline.Color[1]==26 and outline.Color[2]==0 and outline.Color[3]==8)
+assert(outline.Transparency==0.2)
+assert(outline.ApplyStrokeMode==Enum.ApplyStrokeMode.Contextual)
+-- Five stops in the exact requested positions; middle is the brightest.
+local stops=crimson.Color[1]
+assert(#stops==5)
+assert(stops[1][1]==0 and stops[2][1]==0.4)
+assert(stops[3][1]==0.5 and stops[4][1]==0.6 and stops[5][1]==1)
+assert(stops[1][2][1]==179 and stops[3][2][1]==255)
+assert(stops[3][2][2]==138)
+assert(#tweenCreated==3)
+local shineTween=tweenCreated[2]
+local pulseTween=tweenCreated[3]
+assert(shineTween.target==crimson and shineTween.info[1]==2.5)
+assert(pulseTween.target==outline and pulseTween.info[1]==1.2)
+assert(pulseTween.info[4]==-1 and pulseTween.info[5]==true)
+assert(pulseTween.goal.Transparency==0.6)
+assert(shineTween.plays==1 and pulseTween.plays==1)
 assert(plate.DisplayName.TextTruncate==Enum.TextTruncate.AtEnd)
 assert(plate:FindFirstChild("TagChip")==nil)
 assert(plate:FindFirstChild("HealthBar")==nil)
@@ -188,6 +222,29 @@ localPlayer:GetPropertyChangedSignal("DisplayName"):Fire()
 assert(plate.Size[1]>200)
 assert(plate.DisplayName.Text=="SuperLongOwlDisplayName")
 assert(plate.DisplayName.Size[1]==plate.Size[1]-84)
+-- The gradient sweeps for 2.5s, rests 1.5s, then plays again.
+for i=1,68 do frame:Fire(0.06) end
+assert(shineTween.plays==2 and shineTween.cancels>=1)
+local regularGradient=crimson.Color
+-- Randomized glitch at 6.0s: 2px shift and white gradient for 0.12s.
+local sawGlitch,restored=false,false
+for i=1,55 do
+    frame:Fire(0.06)
+    if name.Position[2]==2 and crimson.Color~=regularGradient then
+        sawGlitch=true
+    end
+    if sawGlitch and name.Position[2]==0 and crimson.Color==regularGradient then
+        restored=true
+    end
+end
+assert(sawGlitch and restored, "Random glitch must flash then restore")
+-- All animation belongs to the parent CanvasGroup and fades at distance.
+workspace.CurrentCamera.CFrame.Position.X=50
+frame:Fire(0.06)
+assert(ui.NameplateGroup.GroupTransparency>0)
+assert(name.Parent==ui.NameplateGroup.Plate)
+workspace.CurrentCamera.CFrame.Position.X=0
+frame:Fire(0.06)
 
 m:SetEnabled(false)
 assert(not ui.Enabled and not m:IsEnabled())
@@ -203,6 +260,7 @@ assert(ui.MaxDistance==80)
 
 localPlayer.CharacterRemoving:Fire(ch)
 assert(m:GetBillboard()==nil)
+assert(pulseTween.cancels>=1 and shineTween.cancels>=2)
 local newchar,newhead,newhum=character(localPlayer,2)
 localPlayer.CharacterAdded:Fire(newchar)
 local nextGui=assert(m:GetBillboard())
@@ -227,5 +285,6 @@ assert(tweenCancelled>0)
 local standalone=dofile("nameplate_standalone.lua")
 assert(standalone:GetBillboard()~=nil)
 assert(standalone:GetBillboard(friend)==nil)
-standalone:Destroy()
-print("Vanta Owl: exact PNG customasset, local-only, legacy cleanup, centered icons/name, respawn and teardown PASS")
+playerLeaving:Fire(localPlayer)
+assert(standalone:GetBillboard()==nil)
+print("Vanta Owl: Michroma gradient, timed shine/pulse/glitch, local-only, distance fade, respawn and PlayerRemoving cleanup PASS")
