@@ -67,6 +67,7 @@ Instance={new=function(class) return newObject(class) end}
 local function value(...) return {...} end
 Color3={fromRGB=value}
 Vector3={new=value}
+Vector2={new=value}
 UDim={new=value}
 UDim2={new=value,fromOffset=value,fromScale=value}
 ColorSequence={new=value}
