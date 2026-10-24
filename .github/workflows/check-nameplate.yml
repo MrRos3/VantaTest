@@ -61,35 +61,35 @@ jobs:
           assert '🦉' in script
           assert 'NAME_FONT = Enum.Font.Michroma' in script
           assert 'NAME_SIZE = 14' in script
-          assert 'MIN_WIDTH = 150' in script
-          assert 'NAME_EXTRA_PADDING = 56' in script
-          assert 'POINT_DIVISOR = 1.4142' in script
-          assert 'BORDER_THICKNESS = 2' in script
+          assert 'ICON_PADDING = 18' in script
+          assert 'MIN_WIDTH = 190' in script
+          assert 'NAME_EXTRA_PADDING = 76' in script
           assert 'FILL = Color3.fromRGB(5,5,6)' in script
-          assert 'OUTLINE_RED = Color3.fromRGB(255,26,61)' in script
-          assert 'OUTLINE_PINK = Color3.fromRGB(255,77,106)' in script
-          assert 'BORDER_PULSE_SECONDS = 1.8' in script
-          for component in ('OutlineLayer','FillLayer','OutlineCenter',
-                            'OutlineLeftPoint','OutlineRightPoint',
-                            'CenterFill','LeftFillPoint','RightFillPoint','Content'):
-              assert 'Name="'+component+'"' in script
-          assert 'outlinePointSide=pointSide+2*b*CONFIG.POINT_DIVISOR' in script
-          assert 'Size=UDim2.fromOffset(w,h+2*b)' in script
-          assert 'Size=UDim2.fromOffset(w,h)' in script
-          assert 'AnchorPoint=centered' in script
-          assert 'BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2' in script
+          assert 'BORDER_DARK = Color3.fromRGB(90,10,28)' in script
+          assert 'BORDER_BRIGHT = Color3.fromRGB(255,51,85)' in script
+          assert 'BORDER_THICKNESS = 2' in script
+          assert 'BORDER_ROTATE_SECONDS = 3' in script
+          assert 'new("UICorner",{CornerRadius=UDim.new(0.5,0)},plate)' in script
+          assert 'borderStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border' in script
+          for point in ('0.00,CONFIG.BORDER_DARK','0.40,CONFIG.BORDER_DARK',
+                        '0.50,CONFIG.BORDER_BRIGHT','0.60,CONFIG.BORDER_DARK',
+                        '1.00,CONFIG.BORDER_DARK'):
+              assert 'ColorSequenceKeypoint.new('+point+')' in script
+          assert 'Name="RotatingCrimsonBorder",Rotation=0' in script
+          assert '{Rotation=360}' in script
+          assert 'TweenInfo.new(CONFIG.BORDER_ROTATE_SECONDS,Enum.EasingStyle.Linear' in script
+          assert 'Enum.EasingDirection.Out,-1,false' in script
+          assert 'if borderTween then borderTween:Cancel();borderTween=nil end' in script
+          assert 'contentLayer=new("Frame"' in script
+          assert 'BackgroundTransparency=1,BorderSizePixel=0,ZIndex=2' in script
           assert 'createOwl(contentLayer,"LeftOwl"' in script
           assert 'getWidth(name,bounds and bounds.X)' in script
           assert 'TextBounds' in script
-          assert 'TweenInfo.new(CONFIG.BORDER_PULSE_SECONDS,Enum.EasingStyle.Sine' in script
-          assert 'for _,segment in ipairs(shapeFrames)' in script
-          assert 'segment.BackgroundTransparency=fade' in script
-          assert 'for _,pulse in ipairs(borderTweens) do pulse:Cancel() end' in script
-          for obsolete_plate in ('VerticalFill','FILL_TOP','FILL_BOTTOM','FILL_POINTS',
-                                  'FILL_TRANSPARENCY','CrimsonBorderStroke',
-                                  'RotatingCrimsonBorder','SoftGlow','InnerGlow',
-                                  'glowStroke','rounded(plate','damageDuration',
-                                  'healthEvent','flicker='):
+          assert 'plate.BackgroundTransparency=fade' in script
+          assert 'borderStroke.Transparency=fade' in script
+          for obsolete_plate in ('OutlineLayer','FillLayer','OutlineLeftPoint',
+                                  'POINT_DIVISOR','shapeFrames','BORDER_PULSE',
+                                  'VerticalFill','SoftGlow','InnerGlow','Rotation=45'):
               assert obsolete_plate not in script, obsolete_plate
           assert 'NAME_SHINE_SECONDS = 1.4' in script
           assert 'NAME_SHINE_PAUSE = 2.5' in script

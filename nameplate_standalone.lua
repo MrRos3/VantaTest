@@ -15,24 +15,23 @@ local CONFIG = {
     OWL_FILE = "VantaTest_Owl_96.png",
     OWL_TINT = Color3.fromRGB(255, 255, 255),
     ICON_SIZE = 30,
-    ICON_PADDING = 14,
+    ICON_PADDING = 18,
     HEIGHT = 44,
-    MIN_WIDTH = 150,
-    POINT_DIVISOR = 1.4142,
-    NAME_EXTRA_PADDING = 56,
+    MIN_WIDTH = 190,
+    NAME_EXTRA_PADDING = 76,
     NAME_SIZE = 14,
     NAME_FONT = Enum.Font.Michroma,
     NAME_WIDE_SPACING = false, -- Michroma is already spacious; optional thin spaces.
     NAME_SHINE_SECONDS = 1.4,
     NAME_SHINE_PAUSE = 2.5,
-    OUTLINE_RED = Color3.fromRGB(255,26,61),     -- #FF1A3D
-    OUTLINE_PINK = Color3.fromRGB(255,77,106),   -- #FF4D6A
-    FILL = Color3.fromRGB(5,5,6),               -- #050506
+    FILL = Color3.fromRGB(5,5,6),                -- #050506
+    BORDER_DARK = Color3.fromRGB(90,10,28),      -- #5A0A1C
+    BORDER_BRIGHT = Color3.fromRGB(255,51,85),   -- #FF3355
     BORDER_THICKNESS = 2,
     HEIGHT_STUDS = 2.5,
     MAX_DISTANCE = 60,
     FADE_START = 40,
-    BORDER_PULSE_SECONDS = 1.8,
+    BORDER_ROTATE_SECONDS = 3,
     UPDATE_FPS = 30,
 }
 local ROOT = "VantaTestNameplateLifecycle"
@@ -124,12 +123,10 @@ function module.new(options)
     local events={}
     local ended=false
     local gui,humanoid,nameEvent,boundsEvent
-    local borderTweens={}
+    local borderTween,borderStroke
     local nameShineTween,nameGradient,nameStroke
     local oldDistance
-    local plateGroup,plate,plateScale
-    local outlineLayer,fillLayer,contentLayer,outlineCenter,outlineRight,fillCenter,fillRight
-    local shapeFrames={}
+    local plateGroup,plate,plateScale,contentLayer
     local owls,emojiLabels={},{}
     local displayLabel
     local owlAsset=nil
@@ -183,8 +180,8 @@ function module.new(options)
     local function clearGui()
         if nameEvent then nameEvent:Disconnect();nameEvent=nil end
         if boundsEvent then boundsEvent:Disconnect();boundsEvent=nil end
-        for _,pulse in ipairs(borderTweens) do pulse:Cancel() end
-        borderTweens={}
+        if borderTween then borderTween:Cancel();borderTween=nil end
+        borderStroke=nil
         stopNameShine()
         nameShineTween=nil
         nameGradient=nil
@@ -199,8 +196,7 @@ function module.new(options)
         plateGroup=nil
         plate=nil
         plateScale=nil
-        outlineLayer,fillLayer,contentLayer,outlineCenter,outlineRight,fillCenter,fillRight=nil,nil,nil,nil,nil,nil,nil
-        shapeFrames={}
+        contentLayer=nil
         displayLabel=nil
         owls,emojiLabels={},{}
     end
@@ -218,28 +214,17 @@ function module.new(options)
         if textChanged then displayLabel.Text=name end
         -- The previous TextBounds may belong to another DisplayName.
         local bounds=not textChanged and displayLabel.TextBounds
-        local contentWidth=getWidth(name,bounds and bounds.X)
-        local totalWidth=contentWidth+CONFIG.HEIGHT
-        local canvasWidth=totalWidth+24
+        local width=getWidth(name,bounds and bounds.X)
+        local canvasWidth=width+24
         gui.Size=UDim2.fromOffset(math.floor(canvasWidth*scale),math.floor(68*scale))
         gui.MaxDistance=maxDistance
         gui.StudsOffsetWorldSpace=Vector3.new(0,height,0)
         plateGroup.Size=UDim2.fromOffset(canvasWidth,68)
         plateScale.Scale=scale
-        plate.Size=UDim2.fromOffset(totalWidth,CONFIG.HEIGHT)
-        plate.Position=UDim2.fromOffset(12+totalWidth/2,12+CONFIG.HEIGHT/2)
-        outlineLayer.Size=plate.Size
-        fillLayer.Size=plate.Size
-        outlineCenter.Position=UDim2.fromOffset(CONFIG.HEIGHT/2+contentWidth/2,CONFIG.HEIGHT/2)
-        outlineCenter.Size=UDim2.fromOffset(contentWidth,CONFIG.HEIGHT+2*CONFIG.BORDER_THICKNESS)
-        outlineRight.Position=UDim2.fromOffset(CONFIG.HEIGHT/2+contentWidth,CONFIG.HEIGHT/2)
-        fillCenter.Position=outlineCenter.Position
-        fillCenter.Size=UDim2.fromOffset(contentWidth,CONFIG.HEIGHT)
-        fillRight.Position=outlineRight.Position
-        contentLayer.Position=outlineCenter.Position
-        contentLayer.Size=fillCenter.Size
+        plate.Size=UDim2.fromOffset(width,CONFIG.HEIGHT)
+        contentLayer.Size=plate.Size
         displayLabel.Size=UDim2.fromOffset(
-            contentWidth-2*CONFIG.ICON_SIZE-CONFIG.NAME_EXTRA_PADDING,CONFIG.HEIGHT)
+            width-2*CONFIG.ICON_SIZE-CONFIG.NAME_EXTRA_PADDING,CONFIG.HEIGHT)
     end
 
     local function createOwl(parent,name,x,isRight)
@@ -280,95 +265,45 @@ function module.new(options)
         },head)
         local w=getWidth(showName(LocalPlayer.DisplayName))
         plateGroup=new("CanvasGroup",{
-            Name="NameplateGroup",Size=UDim2.fromOffset(w+CONFIG.HEIGHT+24,68),
+            Name="NameplateGroup",Size=UDim2.fromOffset(w+24,68),
             BackgroundTransparency=1,GroupTransparency=0,BorderSizePixel=0,
             AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
             Active=false,
         },gui)
         plateScale=new("UIScale",{Scale=scale},plateGroup)
-        -- Opaque, sharp-edged two-layer hexagon, with every piece centered.
-        local h=CONFIG.HEIGHT
-        local half=h/2
-        local b=CONFIG.BORDER_THICKNESS
-        local leftX=half
-        local centerX=half+w/2
-        local rightX=half+w
-        local pointSide=h/CONFIG.POINT_DIVISOR
-        local outlinePointSide=pointSide+2*b*CONFIG.POINT_DIVISOR
-        local centered=Vector2.new(0.5,0.5)
+        -- A single fully rounded, flat black plate. Only its stroke rotates.
         plate=new("Frame",{
-            Name="Plate",AnchorPoint=centered,
-            Position=UDim2.fromOffset(12+(w+h)/2,12+half),
-            Size=UDim2.fromOffset(w+h,h),
-            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,
-        },plateGroup)
-        outlineLayer=new("Frame",{
-            Name="OutlineLayer",AnchorPoint=centered,
-            Position=UDim2.fromScale(0.5,0.5),Size=plate.Size,
-            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,
-        },plate)
-        fillLayer=new("Frame",{
-            Name="FillLayer",AnchorPoint=centered,
-            Position=UDim2.fromScale(0.5,0.5),Size=plate.Size,
-            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=2,
-        },plate)
-        outlineCenter=new("Frame",{
-            Name="OutlineCenter",AnchorPoint=centered,
-            Position=UDim2.fromOffset(centerX,half),
-            Size=UDim2.fromOffset(w,h+2*b),
-            BackgroundColor3=CONFIG.OUTLINE_RED,
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
-        },outlineLayer)
-        local outlineLeft=new("Frame",{
-            Name="OutlineLeftPoint",AnchorPoint=centered,
-            Position=UDim2.fromOffset(leftX,half),
-            Size=UDim2.fromOffset(outlinePointSide,outlinePointSide),
-            Rotation=45,BackgroundColor3=CONFIG.OUTLINE_RED,
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
-        },outlineLayer)
-        outlineRight=new("Frame",{
-            Name="OutlineRightPoint",AnchorPoint=centered,
-            Position=UDim2.fromOffset(rightX,half),
-            Size=UDim2.fromOffset(outlinePointSide,outlinePointSide),
-            Rotation=45,BackgroundColor3=CONFIG.OUTLINE_RED,
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
-        },outlineLayer)
-        fillCenter=new("Frame",{
-            Name="CenterFill",AnchorPoint=centered,
-            Position=UDim2.fromOffset(centerX,half),
-            Size=UDim2.fromOffset(w,h),
+            Name="Plate",Position=UDim2.fromOffset(12,12),
+            Size=UDim2.fromOffset(w,CONFIG.HEIGHT),
             BackgroundColor3=CONFIG.FILL,
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2,
-        },fillLayer)
-        local fillLeft=new("Frame",{
-            Name="LeftFillPoint",AnchorPoint=centered,
-            Position=UDim2.fromOffset(leftX,half),
-            Size=UDim2.fromOffset(pointSide,pointSide),
-            Rotation=45,BackgroundColor3=CONFIG.FILL,
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2,
-        },fillLayer)
-        fillRight=new("Frame",{
-            Name="RightFillPoint",AnchorPoint=centered,
-            Position=UDim2.fromOffset(rightX,half),
-            Size=UDim2.fromOffset(pointSide,pointSide),
-            Rotation=45,BackgroundColor3=CONFIG.FILL,
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2,
-        },fillLayer)
-        shapeFrames={outlineCenter,outlineLeft,outlineRight,fillCenter,fillLeft,fillRight}
-        for _,segment in ipairs({outlineCenter,outlineLeft,outlineRight}) do
-            local pulse=TweenService:Create(segment,
-                TweenInfo.new(CONFIG.BORDER_PULSE_SECONDS,Enum.EasingStyle.Sine,
-                    Enum.EasingDirection.InOut,-1,true),
-                {BackgroundColor3=CONFIG.OUTLINE_PINK})
-            borderTweens[#borderTweens+1]=pulse
-            pulse:Play()
-        end
-        -- Content is a separate transparent center rectangle at ZIndex 3.
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
+        },plateGroup)
+        new("UICorner",{CornerRadius=UDim.new(0.5,0)},plate)
+        borderStroke=stroke(plate,Color3.fromRGB(255,255,255),
+            CONFIG.BORDER_THICKNESS,0)
+        borderStroke.Name="CrimsonBorderStroke"
+        borderStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+        local borderGradient=new("UIGradient",{
+            Name="RotatingCrimsonBorder",Rotation=0,
+            Color=ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00,CONFIG.BORDER_DARK),
+                ColorSequenceKeypoint.new(0.40,CONFIG.BORDER_DARK),
+                ColorSequenceKeypoint.new(0.50,CONFIG.BORDER_BRIGHT),
+                ColorSequenceKeypoint.new(0.60,CONFIG.BORDER_DARK),
+                ColorSequenceKeypoint.new(1.00,CONFIG.BORDER_DARK),
+            }),
+        },borderStroke)
+        borderTween=TweenService:Create(borderGradient,
+            TweenInfo.new(CONFIG.BORDER_ROTATE_SECONDS,Enum.EasingStyle.Linear,
+                Enum.EasingDirection.Out,-1,false),
+            {Rotation=360})
+        borderTween:Play()
+        -- No backing frame for the owls; the transparent content is the
+        -- sole layout child over the capsule, keeping 18px end padding.
         contentLayer=new("Frame",{
-            Name="Content",AnchorPoint=centered,
-            Position=UDim2.fromOffset(centerX,half),
-            Size=UDim2.fromOffset(w,h),
-            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=3,
+            Name="Content",Position=UDim2.fromOffset(0,0),
+            Size=UDim2.fromOffset(w,CONFIG.HEIGHT),
+            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=2,
         },plate)
         createOwl(contentLayer,"LeftOwl",CONFIG.ICON_PADDING,false)
         createOwl(contentLayer,"RightOwl",0,true)
@@ -444,11 +379,10 @@ function module.new(options)
         end
         local fade=math.clamp((dist-CONFIG.FADE_START)/
             math.max(1,maxDistance-CONFIG.FADE_START),0,1)
-        -- Explicitly fade all six opaque shapes and the content equally.
-        -- Avoid extra CanvasGroup fading, which would double-fade the fill.
-        for _,segment in ipairs(shapeFrames) do
-            segment.BackgroundTransparency=fade
-        end
+        -- Fade the capsule fill and its stroke together, including the
+        -- animated bright band, without duplicating transparency effects.
+        plate.BackgroundTransparency=fade
+        borderStroke.Transparency=fade
         for _,icon in ipairs(owls) do icon.ImageTransparency=fade end
         for _,fallback in ipairs(emojiLabels) do fallback.TextTransparency=fade end
         displayLabel.TextTransparency=fade

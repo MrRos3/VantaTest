@@ -79,7 +79,7 @@ Enum={
     TextTruncate={AtEnd="AtEnd"},ScaleType={Fit="Fit"},
     EasingStyle={Linear="Linear",Sine="Sine"},
     EasingDirection={Out="Out",InOut="InOut"},
-    ApplyStrokeMode={Contextual="Contextual"},
+    ApplyStrokeMode={Contextual="Contextual",Border="Border"},
     HumanoidDisplayDistanceType={None="None",Viewer="Viewer"},
 }
 math.clamp=function(x,lo,hi)return math.max(lo,math.min(x,hi)) end
@@ -179,69 +179,56 @@ assert(friend.CharacterAdded.listeners[1]==nil,"Do not subscribe to other player
 assert(hum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 
 local plate=ui.NameplateGroup.Plate
-local outlineLayer=assert(plate.OutlineLayer)
-local fillLayer=assert(plate.FillLayer)
 local content=assert(plate.Content)
-local oRect=assert(outlineLayer.OutlineCenter)
-local oLeft=assert(outlineLayer.OutlineLeftPoint)
-local oRight=assert(outlineLayer.OutlineRightPoint)
-local fRect=assert(fillLayer.CenterFill)
-local fLeft=assert(fillLayer.LeftFillPoint)
-local fRight=assert(fillLayer.RightFillPoint)
-local shapes={oRect,oLeft,oRight,fRect,fLeft,fRight}
-local function within(n,target)return math.abs(n-target)<0.02 end
-assert(outlineLayer.ZIndex==1 and fillLayer.ZIndex==2 and content.ZIndex==3)
-assert(plate.BackgroundTransparency==1 and content.BackgroundTransparency==1)
-for _,layer in ipairs({plate,outlineLayer,fillLayer,content}) do
-    assert(layer.AnchorPoint[1]==0.5 and layer.AnchorPoint[2]==0.5)
+local corner=assert(plate:FindFirstChildOfClass("UICorner"))
+assert(corner.CornerRadius[1]==0.5 and corner.CornerRadius[2]==0)
+assert(plate.BackgroundColor3[1]==5 and plate.BackgroundColor3[2]==5
+    and plate.BackgroundColor3[3]==6)
+assert(plate.BackgroundTransparency==0 and plate.BorderSizePixel==0)
+assert(plate.Size[2]==44)
+assert(plate:FindFirstChildOfClass("UIGradient")==nil,
+    "Capsule fill must have no gradient")
+assert(plate.OutlineLayer==nil and plate.FillLayer==nil)
+assert(plate:FindFirstChild("OutlineLeftPoint")==nil)
+assert(plate:FindFirstChild("SoftGlow")==nil)
+local plateBorder=assert(plate.CrimsonBorderStroke)
+assert(plateBorder.Thickness==2 and plateBorder.Transparency==0)
+assert(plateBorder.ApplyStrokeMode==Enum.ApplyStrokeMode.Border)
+assert(plateBorder.Color[1]==255 and plateBorder.Color[2]==255
+    and plateBorder.Color[3]==255)
+local borderGradient=assert(plateBorder.RotatingCrimsonBorder)
+local borderStops=borderGradient.Color[1]
+assert(#borderStops==5)
+local positions={0,0.4,0.5,0.6,1}
+for i=1,5 do
+    assert(borderStops[i][1]==positions[i],"Border keypoint position")
+    local rgb=borderStops[i][2]
+    local r,g,b=90,10,28
+    if i==3 then r,g,b=255,51,85 end
+    assert(rgb[1]==r and rgb[2]==g and rgb[3]==b,"Border RGB")
 end
-for _,shape in ipairs(shapes) do
-    assert(shape.AnchorPoint[1]==0.5 and shape.AnchorPoint[2]==0.5)
-    assert(shape.BackgroundTransparency==0 and shape.BorderSizePixel==0)
-    assert(shape:FindFirstChildOfClass("UICorner")==nil,"Sharp corners")
-    assert(shape:FindFirstChildOfClass("UIStroke")==nil,"No seam-producing stroke")
-    assert(shape:FindFirstChildOfClass("UIGradient")==nil,"Solid fill, no plate gradient")
-end
-for _,shape in ipairs({oRect,oLeft,oRight}) do
-    assert(shape.BackgroundColor3[1]==255 and shape.BackgroundColor3[2]==26
-        and shape.BackgroundColor3[3]==61)
-end
-for _,shape in ipairs({fRect,fLeft,fRight}) do
-    assert(shape.BackgroundColor3[1]==5 and shape.BackgroundColor3[2]==5
-        and shape.BackgroundColor3[3]==6)
-end
-assert(oRect.Size[2]==48 and oRect.Size[1]==fRect.Size[1])
-assert(fRect.Size[2]==44)
-assert(within(fLeft.Size[1],44/1.4142) and within(fRight.Size[1],44/1.4142))
-assert(within(oLeft.Size[1],44/1.4142+4*1.4142))
-assert(within(oRight.Size[1],44/1.4142+4*1.4142))
-assert(oLeft.Rotation==45 and oRight.Rotation==45)
-assert(fLeft.Rotation==45 and fRight.Rotation==45)
-assert(oRect.Position[1]==fRect.Position[1] and oRect.Position[2]==fRect.Position[2])
-assert(oLeft.Position[1]==fLeft.Position[1] and oRight.Position[1]==fRight.Position[1])
-assert(plate:FindFirstChildOfClass("UIStroke")==nil)
-assert(#tweenCreated==4)
-for i,shape in ipairs({oRect,oLeft,oRight}) do
-    local t=tweenCreated[i]
-    assert(t.target==shape and t.info[1]==1.8)
-    assert(t.info[2]==Enum.EasingStyle.Sine and t.info[3]==Enum.EasingDirection.InOut)
-    assert(t.info[4]==-1 and t.info[5]==true)
-    assert(t.goal.BackgroundColor3[1]==255 and t.goal.BackgroundColor3[2]==77
-        and t.goal.BackgroundColor3[3]==106)
-    assert(t.plays==1)
-end
+assert(borderGradient.Rotation==0)
+assert(#tweenCreated==2,"One stroke rotation and one name shine only")
+local borderTween=tweenCreated[1]
+assert(borderTween.target==borderGradient and borderTween.info[1]==3)
+assert(borderTween.info[2]==Enum.EasingStyle.Linear)
+assert(borderTween.info[4]==-1 and borderTween.info[5]==false)
+assert(borderTween.goal.Rotation==360 and borderTween.plays==1)
 for _,child in ipairs(all) do
-    if child.Parent==ui.NameplateGroup then
-        assert(child==plate or child.ClassName=="UIScale")
+    if child.Parent==plate then
+        assert(child==corner or child==plateBorder or child==content,
+            "Plate must contain only border, corner and content")
     end
 end
+assert(content.ZIndex==2 and content.BackgroundTransparency==1)
+assert(content.Parent==plate)
 local owlLeft=assert(content.LeftOwl)
 local owlRight=assert(content.RightOwl)
 assert(owlLeft.Image=="customasset://vanta_owl_96")
 assert(owlRight.Image==owlLeft.Image)
 assert(not content.LeftOwlFallback.Visible and not content.RightOwlFallback.Visible)
 assert(owlLeft.Size[1]==30 and owlRight.Size[1]==30)
-assert(owlLeft.Position[1]==14 and owlRight.Position[2]==-44)
+assert(owlLeft.Position[1]==18 and owlRight.Position[2]==-48)
 assert(content.DisplayName.Text=="Owler")
 assert(content.DisplayName.Font==Enum.Font.Michroma)
 assert(content.DisplayName.TextSize==14)
@@ -270,8 +257,8 @@ for i=1,5 do
 end
 assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0)
 assert(crimson.Rotation==0)
-assert(#tweenCreated==4, "Three outline pulses plus name shine only")
-local shineTween=tweenCreated[4]
+assert(#tweenCreated==2, "Only rotating border and name shine")
+local shineTween=tweenCreated[2]
 assert(shineTween.target==crimson and shineTween.info[1]==1.4)
 assert(shineTween.info[2]==Enum.EasingStyle.Sine)
 assert(shineTween.info[3]==Enum.EasingDirection.InOut)
@@ -280,23 +267,17 @@ assert(shineTween.plays==1)
 assert(plate:FindFirstChild("TagChip")==nil)
 assert(plate:FindFirstChild("HealthBar")==nil)
 assert(plate:FindFirstChild("Avatar")==nil)
-assert(fRect.Size[1]==156 and fRect.Size[2]==44)
-assert(plate.Size[1]==fRect.Size[1]+44 and plate.Size[2]==44)
-assert(content.Size[1]==fRect.Size[1] and content.Size[2]==44)
-assert(name.Size[1]==fRect.Size[1]-116)
+assert(plate.Size[1]==190 and plate.Size[2]==44)
+assert(content.Size[1]==plate.Size[1] and content.Size[2]==44)
+assert(name.Size[1]==190-2*30-76)
 -- Name remains centered and correctly resizes without a second text layer.
 localPlayer.DisplayName="SuperLongOwlDisplayName"
 localPlayer:GetPropertyChangedSignal("DisplayName"):Fire()
-assert(fRect.Size[1]>156)
-assert(oRect.Size[1]==fRect.Size[1])
-assert(content.Size[1]==fRect.Size[1])
-assert(plate.Size[1]==fRect.Size[1]+44)
-assert(plate.Position[1]==12+plate.Size[1]/2)
-assert(oRect.Position[1]==44/2+fRect.Size[1]/2)
-assert(oRight.Position[1]==44/2+fRect.Size[1])
-assert(fRight.Position[1]==44/2+fRect.Size[1])
+assert(plate.Size[1]>190)
+assert(content.Size[1]==plate.Size[1])
+assert(plate.Position[1]==12)
 assert(name.Text=="SuperLongOwlDisplayName")
-assert(name.Size[1]==fRect.Size[1]-116)
+assert(name.Size[1]==plate.Size[1]-2*30-76)
 local fixedPosition=name.Position
 local fixedColors=crimson.Color
 -- 1.4s sweep finishes and resets immediately to (-1,0) for idle.
@@ -326,17 +307,14 @@ workspace.CurrentCamera.CFrame.Position.X=50
 frame:Fire(0.06)
 assert(ui.NameplateGroup.GroupTransparency==0)
 assert(name.Parent==content and content.Parent==plate)
-assert(oRect.Parent==outlineLayer and fRect.Parent==fillLayer)
-local opacity=oRect.BackgroundTransparency
-assert(opacity>0)
-for _,shape in ipairs(shapes) do
-    assert(shape.BackgroundTransparency==opacity,"Six frames fade equally")
-end
+local opacity=plate.BackgroundTransparency
+assert(opacity>0 and plateBorder.Transparency==opacity,
+    "Fill and animated border must fade together")
 assert(name.TextTransparency==opacity and owlLeft.ImageTransparency==opacity)
 assert(outline.Transparency>0.3)
 workspace.CurrentCamera.CFrame.Position.X=0
 frame:Fire(0.06)
-for _,shape in ipairs(shapes) do assert(shape.BackgroundTransparency==0) end
+assert(plate.BackgroundTransparency==0 and plateBorder.Transparency==0)
 assert(name.TextTransparency==0 and outline.Transparency==0.3)
 assert(ui.NameplateGroup.UIScale.Scale==1,"No distance-driven scale animation")
 workspace.CurrentCamera.CFrame.Position.X=0
@@ -357,9 +335,7 @@ assert(ui.MaxDistance==80)
 localPlayer.CharacterRemoving:Fire(ch)
 assert(m:GetBillboard()==nil)
 assert(shineTween.cancels>=5)
-for i=1,3 do
-    assert(tweenCreated[i].cancels>=1,"All outline pulses stop on character removal")
-end
+assert(borderTween.cancels>=1,"Rotating border tween stops on removal")
 assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0,
     "Character removal must cancel and reset the name shine")
 local newchar,newhead,newhum=character(localPlayer,2)
@@ -368,7 +344,7 @@ local nextGui=assert(m:GetBillboard())
 assert(nextGui.Adornee==newhead and nextGui.Parent==newhead)
 assert(nextGui.Plate~=plate)
 assert(nextGui.NameplateGroup.Plate.Content.LeftOwl.Image=="customasset://vanta_owl_96")
-assert(nextGui.NameplateGroup.Plate.OutlineLayer.OutlineLeftPoint.Rotation==45)
+assert(nextGui.NameplateGroup.Plate.CrimsonBorderStroke.RotatingCrimsonBorder)
 assert(nextGui.NameplateGroup.Plate.Content.DisplayName.CrimsonNameGradient.Offset[1]==-1)
 assert(nextGui.NameplateGroup.Plate.Content.NameShineOverlay==nil)
 assert(newhum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
@@ -391,4 +367,4 @@ assert(standalone:GetBillboard()~=nil)
 assert(standalone:GetBillboard(friend)==nil)
 playerLeaving:Fire(localPlayer)
 assert(standalone:GetBillboard()==nil)
-print("Vanta Owl: opaque six-piece hex, 1.8s outline pulse, separate center content, six-frame distance fade and cleanup PASS")
+print("Vanta Owl: single black capsule, animated dark red border, 18px padded owls, centered red-white name shine and cleanup PASS")
