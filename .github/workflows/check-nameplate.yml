@@ -64,29 +64,32 @@ jobs:
           assert 'MIN_WIDTH = 150' in script
           assert 'NAME_EXTRA_PADDING = 56' in script
           assert 'POINT_DIVISOR = 1.4142' in script
-          assert 'Name="OutlineLayer"' in script and 'Name="FillLayer"' in script
-          for component in ('OutlineCenter','OutlineLeftPoint','OutlineRightPoint',
-                            'CenterFill','LeftFillPoint','RightFillPoint'):
+          assert 'BORDER_THICKNESS = 2' in script
+          assert 'FILL = Color3.fromRGB(5,5,6)' in script
+          assert 'OUTLINE_RED = Color3.fromRGB(255,26,61)' in script
+          assert 'OUTLINE_PINK = Color3.fromRGB(255,77,106)' in script
+          assert 'BORDER_PULSE_SECONDS = 1.8' in script
+          for component in ('OutlineLayer','FillLayer','OutlineCenter',
+                            'OutlineLeftPoint','OutlineRightPoint',
+                            'CenterFill','LeftFillPoint','RightFillPoint','Content'):
               assert 'Name="'+component+'"' in script
-          assert 'Position=UDim2.fromOffset(half,half)' in script
-          assert 'CONFIG.HEIGHT/2+contentWidth' in script
-          assert 'contentWidth+CONFIG.HEIGHT' in script
+          assert 'outlinePointSide=pointSide+2*b*CONFIG.POINT_DIVISOR' in script
+          assert 'Size=UDim2.fromOffset(w,h+2*b)' in script
+          assert 'Size=UDim2.fromOffset(w,h)' in script
+          assert 'AnchorPoint=centered' in script
+          assert 'BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2' in script
+          assert 'createOwl(contentLayer,"LeftOwl"' in script
           assert 'getWidth(name,bounds and bounds.X)' in script
           assert 'TextBounds' in script
-          assert 'Color3.fromRGB(255,26,61)' in script
-          assert 'Color3.fromRGB(255,106,131)' in script
-          assert 'Color3.fromRGB(20,8,12)' in script
-          assert 'Color3.fromRGB(5,5,6)' in script
-          assert 'Color3.fromRGB(11,7,9)' in script
-          assert 'Rotation=45' in script
-          assert 'Rotation=90' in script
-          assert 'borderTweens[#borderTweens+1]=pulse' in script
+          assert 'TweenInfo.new(CONFIG.BORDER_PULSE_SECONDS,Enum.EasingStyle.Sine' in script
+          assert 'for _,segment in ipairs(shapeFrames)' in script
+          assert 'segment.BackgroundTransparency=fade' in script
           assert 'for _,pulse in ipairs(borderTweens) do pulse:Cancel() end' in script
-          assert 'TweenInfo.new(1.6,Enum.EasingStyle.Sine' in script
-          for obsolete_plate in ('CrimsonBorderStroke', 'RotatingCrimsonBorder', 
-                                  'BORDER_DARK','BORDER_PULSE_SECONDS = 4',
-                                  'SoftGlow','InnerGlow','glowStroke','rounded(plate',
-                                  'damageDuration','healthEvent','flicker='):
+          for obsolete_plate in ('VerticalFill','FILL_TOP','FILL_BOTTOM','FILL_POINTS',
+                                  'FILL_TRANSPARENCY','CrimsonBorderStroke',
+                                  'RotatingCrimsonBorder','SoftGlow','InnerGlow',
+                                  'glowStroke','rounded(plate','damageDuration',
+                                  'healthEvent','flicker='):
               assert obsolete_plate not in script, obsolete_plate
           assert 'NAME_SHINE_SECONDS = 1.4' in script
           assert 'NAME_SHINE_PAUSE = 2.5' in script

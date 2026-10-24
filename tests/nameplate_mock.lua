@@ -181,6 +181,7 @@ assert(hum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 local plate=ui.NameplateGroup.Plate
 local outlineLayer=assert(plate.OutlineLayer)
 local fillLayer=assert(plate.FillLayer)
+local content=assert(plate.Content)
 local oRect=assert(outlineLayer.OutlineCenter)
 local oLeft=assert(outlineLayer.OutlineLeftPoint)
 local oRight=assert(outlineLayer.OutlineRightPoint)
@@ -189,62 +190,64 @@ local fLeft=assert(fillLayer.LeftFillPoint)
 local fRight=assert(fillLayer.RightFillPoint)
 local shapes={oRect,oLeft,oRight,fRect,fLeft,fRight}
 local function within(n,target)return math.abs(n-target)<0.02 end
-assert(outlineLayer.ZIndex==1 and fillLayer.ZIndex==2)
-assert(plate.BackgroundTransparency==1)
-assert(plate:FindFirstChildOfClass("UICorner")==nil)
-assert(plate.CrimsonBorderStroke==nil and plate.RotatingCrimsonBorder==nil)
-assert(plate:FindFirstChildOfClass("UIStroke")==nil)
-for _,shape in ipairs(shapes) do
-    assert(shape:FindFirstChildOfClass("UICorner")==nil,"Sharp-edged hex only")
-    assert(shape:FindFirstChildOfClass("UIStroke")==nil,"No diamond overlap strokes")
+assert(outlineLayer.ZIndex==1 and fillLayer.ZIndex==2 and content.ZIndex==3)
+assert(plate.BackgroundTransparency==1 and content.BackgroundTransparency==1)
+for _,layer in ipairs({plate,outlineLayer,fillLayer,content}) do
+    assert(layer.AnchorPoint[1]==0.5 and layer.AnchorPoint[2]==0.5)
 end
-assert(ui.NameplateGroup.SoftGlow==nil and ui.NameplateGroup.InnerGlow==nil)
-assert(oRect.BackgroundColor3[1]==255 and oRect.BackgroundColor3[2]==26 and oRect.BackgroundColor3[3]==61)
-assert(oRect.BackgroundTransparency==0)
-assert(oRect.Size[2]==48)
-assert(within(oLeft.Size[1],48/1.4142) and within(oRight.Size[1],48/1.4142))
-assert(oLeft.Rotation==45 and oRight.Rotation==45)
-assert(fRect.Size[2]==44 and oRect.Size[1]==fRect.Size[1]+4)
-assert(fRect.BackgroundTransparency==0.1)
+for _,shape in ipairs(shapes) do
+    assert(shape.AnchorPoint[1]==0.5 and shape.AnchorPoint[2]==0.5)
+    assert(shape.BackgroundTransparency==0 and shape.BorderSizePixel==0)
+    assert(shape:FindFirstChildOfClass("UICorner")==nil,"Sharp corners")
+    assert(shape:FindFirstChildOfClass("UIStroke")==nil,"No seam-producing stroke")
+    assert(shape:FindFirstChildOfClass("UIGradient")==nil,"Solid fill, no plate gradient")
+end
+for _,shape in ipairs({oRect,oLeft,oRight}) do
+    assert(shape.BackgroundColor3[1]==255 and shape.BackgroundColor3[2]==26
+        and shape.BackgroundColor3[3]==61)
+end
+for _,shape in ipairs({fRect,fLeft,fRight}) do
+    assert(shape.BackgroundColor3[1]==5 and shape.BackgroundColor3[2]==5
+        and shape.BackgroundColor3[3]==6)
+end
+assert(oRect.Size[2]==48 and oRect.Size[1]==fRect.Size[1])
+assert(fRect.Size[2]==44)
 assert(within(fLeft.Size[1],44/1.4142) and within(fRight.Size[1],44/1.4142))
+assert(within(oLeft.Size[1],44/1.4142+4*1.4142))
+assert(within(oRight.Size[1],44/1.4142+4*1.4142))
+assert(oLeft.Rotation==45 and oRight.Rotation==45)
 assert(fLeft.Rotation==45 and fRight.Rotation==45)
-assert(fLeft.BackgroundColor3[1]==11 and fLeft.BackgroundColor3[2]==7 and fLeft.BackgroundColor3[3]==9)
-assert(fRight.BackgroundColor3[1]==11 and fRight.BackgroundColor3[2]==7 and fRight.BackgroundColor3[3]==9)
-local gradient=assert(fRect.VerticalFill)
-assert(gradient.Rotation==90)
-local stopsFill=gradient.Color[1]
-assert(#stopsFill==2 and stopsFill[1][1]==0 and stopsFill[2][1]==1)
-assert(stopsFill[1][2][1]==20 and stopsFill[1][2][2]==8 and stopsFill[1][2][3]==12)
-assert(stopsFill[2][2][1]==5 and stopsFill[2][2][2]==5 and stopsFill[2][2][3]==6)
-assert(#tweenCreated==4,"Only 3 outline pulse tweens and name shine")
+assert(oRect.Position[1]==fRect.Position[1] and oRect.Position[2]==fRect.Position[2])
+assert(oLeft.Position[1]==fLeft.Position[1] and oRight.Position[1]==fRight.Position[1])
+assert(plate:FindFirstChildOfClass("UIStroke")==nil)
+assert(#tweenCreated==4)
 for i,shape in ipairs({oRect,oLeft,oRight}) do
     local t=tweenCreated[i]
-    assert(t.target==shape and t.info[1]==1.6)
+    assert(t.target==shape and t.info[1]==1.8)
     assert(t.info[2]==Enum.EasingStyle.Sine and t.info[3]==Enum.EasingDirection.InOut)
     assert(t.info[4]==-1 and t.info[5]==true)
-    assert(t.goal.BackgroundColor3[1]==255 and t.goal.BackgroundColor3[2]==106
-        and t.goal.BackgroundColor3[3]==131)
+    assert(t.goal.BackgroundColor3[1]==255 and t.goal.BackgroundColor3[2]==77
+        and t.goal.BackgroundColor3[3]==106)
     assert(t.plays==1)
 end
 for _,child in ipairs(all) do
     if child.Parent==ui.NameplateGroup then
-        assert(child==plate or child.ClassName=="UIScale",
-            "Unexpected decorations in CanvasGroup")
+        assert(child==plate or child.ClassName=="UIScale")
     end
 end
-local owlLeft=assert(fRect.LeftOwl)
-local owlRight=assert(fRect.RightOwl)
+local owlLeft=assert(content.LeftOwl)
+local owlRight=assert(content.RightOwl)
 assert(owlLeft.Image=="customasset://vanta_owl_96")
 assert(owlRight.Image==owlLeft.Image)
-assert(not fRect.LeftOwlFallback.Visible and not fRect.RightOwlFallback.Visible)
+assert(not content.LeftOwlFallback.Visible and not content.RightOwlFallback.Visible)
 assert(owlLeft.Size[1]==30 and owlRight.Size[1]==30)
 assert(owlLeft.Position[1]==14 and owlRight.Position[2]==-44)
-assert(fRect.DisplayName.Text=="Owler")
-assert(fRect.DisplayName.Font==Enum.Font.Michroma)
-assert(fRect.DisplayName.TextSize==14)
-assert(fRect.DisplayName.TextColor3[1]==255)
-assert(fRect.DisplayName.TextXAlignment==Enum.TextXAlignment.Center)
-local name=fRect.DisplayName
+assert(content.DisplayName.Text=="Owler")
+assert(content.DisplayName.Font==Enum.Font.Michroma)
+assert(content.DisplayName.TextSize==14)
+assert(content.DisplayName.TextColor3[1]==255)
+assert(content.DisplayName.TextXAlignment==Enum.TextXAlignment.Center)
+local name=content.DisplayName
 local crimson=assert(name.CrimsonNameGradient)
 local outline=assert(name.NameOutlineStroke)
 assert(plate:FindFirstChild("NameShineOverlay")==nil, "No redundant white overlay")
@@ -279,13 +282,17 @@ assert(plate:FindFirstChild("HealthBar")==nil)
 assert(plate:FindFirstChild("Avatar")==nil)
 assert(fRect.Size[1]==156 and fRect.Size[2]==44)
 assert(plate.Size[1]==fRect.Size[1]+44 and plate.Size[2]==44)
+assert(content.Size[1]==fRect.Size[1] and content.Size[2]==44)
 assert(name.Size[1]==fRect.Size[1]-116)
 -- Name remains centered and correctly resizes without a second text layer.
 localPlayer.DisplayName="SuperLongOwlDisplayName"
 localPlayer:GetPropertyChangedSignal("DisplayName"):Fire()
 assert(fRect.Size[1]>156)
-assert(oRect.Size[1]==fRect.Size[1]+4)
+assert(oRect.Size[1]==fRect.Size[1])
+assert(content.Size[1]==fRect.Size[1])
 assert(plate.Size[1]==fRect.Size[1]+44)
+assert(plate.Position[1]==12+plate.Size[1]/2)
+assert(oRect.Position[1]==44/2+fRect.Size[1]/2)
 assert(oRight.Position[1]==44/2+fRect.Size[1])
 assert(fRight.Position[1]==44/2+fRect.Size[1])
 assert(name.Text=="SuperLongOwlDisplayName")
@@ -317,11 +324,20 @@ assert(plate:FindFirstChild("NameShineOverlay")==nil)
 -- All animation belongs to the parent CanvasGroup and fades at distance.
 workspace.CurrentCamera.CFrame.Position.X=50
 frame:Fire(0.06)
-assert(ui.NameplateGroup.GroupTransparency>0)
-assert(name.Parent==fRect)
-assert(oRect.Parent==outlineLayer and fRect.Parent==fillLayer,
-    "Outline and fill must fade together in the CanvasGroup")
-assert(fRect.BackgroundTransparency==0.1,"Fill opacity remains constant")
+assert(ui.NameplateGroup.GroupTransparency==0)
+assert(name.Parent==content and content.Parent==plate)
+assert(oRect.Parent==outlineLayer and fRect.Parent==fillLayer)
+local opacity=oRect.BackgroundTransparency
+assert(opacity>0)
+for _,shape in ipairs(shapes) do
+    assert(shape.BackgroundTransparency==opacity,"Six frames fade equally")
+end
+assert(name.TextTransparency==opacity and owlLeft.ImageTransparency==opacity)
+assert(outline.Transparency>0.3)
+workspace.CurrentCamera.CFrame.Position.X=0
+frame:Fire(0.06)
+for _,shape in ipairs(shapes) do assert(shape.BackgroundTransparency==0) end
+assert(name.TextTransparency==0 and outline.Transparency==0.3)
 assert(ui.NameplateGroup.UIScale.Scale==1,"No distance-driven scale animation")
 workspace.CurrentCamera.CFrame.Position.X=0
 frame:Fire(0.06)
@@ -351,10 +367,10 @@ localPlayer.CharacterAdded:Fire(newchar)
 local nextGui=assert(m:GetBillboard())
 assert(nextGui.Adornee==newhead and nextGui.Parent==newhead)
 assert(nextGui.Plate~=plate)
-assert(nextGui.NameplateGroup.Plate.FillLayer.CenterFill.LeftOwl.Image=="customasset://vanta_owl_96")
+assert(nextGui.NameplateGroup.Plate.Content.LeftOwl.Image=="customasset://vanta_owl_96")
 assert(nextGui.NameplateGroup.Plate.OutlineLayer.OutlineLeftPoint.Rotation==45)
-assert(nextGui.NameplateGroup.Plate.FillLayer.CenterFill.DisplayName.CrimsonNameGradient.Offset[1]==-1)
-assert(nextGui.NameplateGroup.Plate.FillLayer.CenterFill.NameShineOverlay==nil)
+assert(nextGui.NameplateGroup.Plate.Content.DisplayName.CrimsonNameGradient.Offset[1]==-1)
+assert(nextGui.NameplateGroup.Plate.Content.NameShineOverlay==nil)
 assert(newhum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 friend.CharacterRemoving:Fire(fchar)
 local f2=character(friend,2)
@@ -375,4 +391,4 @@ assert(standalone:GetBillboard()~=nil)
 assert(standalone:GetBillboard(friend)==nil)
 playerLeaving:Fire(localPlayer)
 assert(standalone:GetBillboard()==nil)
-print("Vanta Owl: 6-piece hex plate, 3 synchronized outline pulses, center-only owls/name, 1.4s shine, fading and cleanup PASS")
+print("Vanta Owl: opaque six-piece hex, 1.8s outline pulse, separate center content, six-frame distance fade and cleanup PASS")

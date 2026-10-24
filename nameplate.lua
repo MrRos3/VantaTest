@@ -25,15 +25,13 @@ local CONFIG = {
     NAME_SHINE_SECONDS = 1.4,
     NAME_SHINE_PAUSE = 2.5,
     OUTLINE_RED = Color3.fromRGB(255,26,61),     -- #FF1A3D
-    OUTLINE_PINK = Color3.fromRGB(255,106,131),   -- #FF6A83
-    FILL_TOP = Color3.fromRGB(20,8,12),          -- #14080C
-    FILL_BOTTOM = Color3.fromRGB(5,5,6),         -- #050506
-    FILL_POINTS = Color3.fromRGB(11,7,9),        -- #0B0709
-    FILL_TRANSPARENCY = 0.1,
+    OUTLINE_PINK = Color3.fromRGB(255,77,106),   -- #FF4D6A
+    FILL = Color3.fromRGB(5,5,6),               -- #050506
+    BORDER_THICKNESS = 2,
     HEIGHT_STUDS = 2.5,
     MAX_DISTANCE = 60,
     FADE_START = 40,
-    BORDER_PULSE_SECONDS = 1.6,
+    BORDER_PULSE_SECONDS = 1.8,
     UPDATE_FPS = 30,
 }
 local ROOT = "VantaTestNameplateLifecycle"
@@ -129,7 +127,8 @@ function module.new(options)
     local nameShineTween,nameGradient,nameStroke
     local oldDistance
     local plateGroup,plate,plateScale
-    local outlineLayer,fillLayer,outlineCenter,outlineRight,fillCenter,fillRight
+    local outlineLayer,fillLayer,contentLayer,outlineCenter,outlineRight,fillCenter,fillRight
+    local shapeFrames={}
     local owls,emojiLabels={},{}
     local displayLabel
     local owlAsset=nil
@@ -199,7 +198,8 @@ function module.new(options)
         plateGroup=nil
         plate=nil
         plateScale=nil
-        outlineLayer,fillLayer,outlineCenter,outlineRight,fillCenter,fillRight=nil,nil,nil,nil,nil,nil
+        outlineLayer,fillLayer,contentLayer,outlineCenter,outlineRight,fillCenter,fillRight=nil,nil,nil,nil,nil,nil,nil
+        shapeFrames={}
         displayLabel=nil
         owls,emojiLabels={},{}
     end
@@ -226,12 +226,17 @@ function module.new(options)
         plateGroup.Size=UDim2.fromOffset(canvasWidth,68)
         plateScale.Scale=scale
         plate.Size=UDim2.fromOffset(totalWidth,CONFIG.HEIGHT)
+        plate.Position=UDim2.fromOffset(12+totalWidth/2,12+CONFIG.HEIGHT/2)
         outlineLayer.Size=plate.Size
         fillLayer.Size=plate.Size
-        outlineCenter.Size=UDim2.fromOffset(contentWidth+4,CONFIG.HEIGHT+4)
+        outlineCenter.Position=UDim2.fromOffset(CONFIG.HEIGHT/2+contentWidth/2,CONFIG.HEIGHT/2)
+        outlineCenter.Size=UDim2.fromOffset(contentWidth,CONFIG.HEIGHT+2*CONFIG.BORDER_THICKNESS)
         outlineRight.Position=UDim2.fromOffset(CONFIG.HEIGHT/2+contentWidth,CONFIG.HEIGHT/2)
+        fillCenter.Position=outlineCenter.Position
         fillCenter.Size=UDim2.fromOffset(contentWidth,CONFIG.HEIGHT)
-        fillRight.Position=UDim2.fromOffset(CONFIG.HEIGHT/2+contentWidth,CONFIG.HEIGHT/2)
+        fillRight.Position=outlineRight.Position
+        contentLayer.Position=outlineCenter.Position
+        contentLayer.Size=fillCenter.Size
         displayLabel.Size=UDim2.fromOffset(
             contentWidth-2*CONFIG.ICON_SIZE-CONFIG.NAME_EXTRA_PADDING,CONFIG.HEIGHT)
     end
@@ -280,88 +285,92 @@ function module.new(options)
             Active=false,
         },gui)
         plateScale=new("UIScale",{Scale=scale},plateGroup)
-        -- Pointed hexagonal plate made from TWO overlapping three-part layers.
-        -- Point squares have no UIStroke: their edges must not create seams.
+        -- Opaque, sharp-edged two-layer hexagon, with every piece centered.
         local h=CONFIG.HEIGHT
         local half=h/2
+        local b=CONFIG.BORDER_THICKNESS
+        local leftX=half
+        local centerX=half+w/2
+        local rightX=half+w
         local pointSide=h/CONFIG.POINT_DIVISOR
-        local outlinePointSide=(h+4)/CONFIG.POINT_DIVISOR
+        local outlinePointSide=pointSide+2*b*CONFIG.POINT_DIVISOR
+        local centered=Vector2.new(0.5,0.5)
         plate=new("Frame",{
-            Name="Plate",Position=UDim2.fromOffset(12,12),
+            Name="Plate",AnchorPoint=centered,
+            Position=UDim2.fromOffset(12+(w+h)/2,12+half),
             Size=UDim2.fromOffset(w+h,h),
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,
         },plateGroup)
         outlineLayer=new("Frame",{
-            Name="OutlineLayer",Size=plate.Size,
+            Name="OutlineLayer",AnchorPoint=centered,
+            Position=UDim2.fromScale(0.5,0.5),Size=plate.Size,
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,
         },plate)
         fillLayer=new("Frame",{
-            Name="FillLayer",Size=plate.Size,
+            Name="FillLayer",AnchorPoint=centered,
+            Position=UDim2.fromScale(0.5,0.5),Size=plate.Size,
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=2,
         },plate)
         outlineCenter=new("Frame",{
-            Name="OutlineCenter",Position=UDim2.fromOffset(half-2,-2),
-            Size=UDim2.fromOffset(w+4,h+4),
+            Name="OutlineCenter",AnchorPoint=centered,
+            Position=UDim2.fromOffset(centerX,half),
+            Size=UDim2.fromOffset(w,h+2*b),
             BackgroundColor3=CONFIG.OUTLINE_RED,
             BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
         },outlineLayer)
         local outlineLeft=new("Frame",{
-            Name="OutlineLeftPoint",AnchorPoint=Vector2.new(0.5,0.5),
-            Position=UDim2.fromOffset(half,half),
+            Name="OutlineLeftPoint",AnchorPoint=centered,
+            Position=UDim2.fromOffset(leftX,half),
             Size=UDim2.fromOffset(outlinePointSide,outlinePointSide),
             Rotation=45,BackgroundColor3=CONFIG.OUTLINE_RED,
             BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
         },outlineLayer)
         outlineRight=new("Frame",{
-            Name="OutlineRightPoint",AnchorPoint=Vector2.new(0.5,0.5),
-            Position=UDim2.fromOffset(half+w,half),
+            Name="OutlineRightPoint",AnchorPoint=centered,
+            Position=UDim2.fromOffset(rightX,half),
             Size=UDim2.fromOffset(outlinePointSide,outlinePointSide),
             Rotation=45,BackgroundColor3=CONFIG.OUTLINE_RED,
             BackgroundTransparency=0,BorderSizePixel=0,ZIndex=1,
         },outlineLayer)
         fillCenter=new("Frame",{
-            Name="CenterFill",Position=UDim2.fromOffset(half,0),
+            Name="CenterFill",AnchorPoint=centered,
+            Position=UDim2.fromOffset(centerX,half),
             Size=UDim2.fromOffset(w,h),
-            BackgroundColor3=Color3.fromRGB(255,255,255),
-            BackgroundTransparency=CONFIG.FILL_TRANSPARENCY,
-            BorderSizePixel=0,ZIndex=2,
+            BackgroundColor3=CONFIG.FILL,
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2,
         },fillLayer)
-        new("UIGradient",{
-            Name="VerticalFill",Rotation=90,
-            Color=ColorSequence.new({
-                ColorSequenceKeypoint.new(0,CONFIG.FILL_TOP),
-                ColorSequenceKeypoint.new(1,CONFIG.FILL_BOTTOM),
-            }),
-        },fillCenter)
-        new("Frame",{
-            Name="LeftFillPoint",AnchorPoint=Vector2.new(0.5,0.5),
-            Position=UDim2.fromOffset(half,half),
-            Size=UDim2.fromOffset(pointSide,pointSide),Rotation=45,
-            BackgroundColor3=CONFIG.FILL_POINTS,
-            BackgroundTransparency=CONFIG.FILL_TRANSPARENCY,
-            BorderSizePixel=0,ZIndex=2,
+        local fillLeft=new("Frame",{
+            Name="LeftFillPoint",AnchorPoint=centered,
+            Position=UDim2.fromOffset(leftX,half),
+            Size=UDim2.fromOffset(pointSide,pointSide),
+            Rotation=45,BackgroundColor3=CONFIG.FILL,
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2,
         },fillLayer)
         fillRight=new("Frame",{
-            Name="RightFillPoint",AnchorPoint=Vector2.new(0.5,0.5),
-            Position=UDim2.fromOffset(half+w,half),
-            Size=UDim2.fromOffset(pointSide,pointSide),Rotation=45,
-            BackgroundColor3=CONFIG.FILL_POINTS,
-            BackgroundTransparency=CONFIG.FILL_TRANSPARENCY,
-            BorderSizePixel=0,ZIndex=2,
+            Name="RightFillPoint",AnchorPoint=centered,
+            Position=UDim2.fromOffset(rightX,half),
+            Size=UDim2.fromOffset(pointSide,pointSide),
+            Rotation=45,BackgroundColor3=CONFIG.FILL,
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=2,
         },fillLayer)
-        -- One pulse per outline piece, all created together with identical
-        -- timing so the entire connected edge breathes in unison.
+        shapeFrames={outlineCenter,outlineLeft,outlineRight,fillCenter,fillLeft,fillRight}
         for _,segment in ipairs({outlineCenter,outlineLeft,outlineRight}) do
             local pulse=TweenService:Create(segment,
-                TweenInfo.new(1.6,Enum.EasingStyle.Sine,
+                TweenInfo.new(CONFIG.BORDER_PULSE_SECONDS,Enum.EasingStyle.Sine,
                     Enum.EasingDirection.InOut,-1,true),
                 {BackgroundColor3=CONFIG.OUTLINE_PINK})
             borderTweens[#borderTweens+1]=pulse
             pulse:Play()
         end
-
-        createOwl(fillCenter,"LeftOwl",CONFIG.ICON_PADDING,false)
-        createOwl(fillCenter,"RightOwl",0,true)
+        -- Content is a separate transparent center rectangle at ZIndex 3.
+        contentLayer=new("Frame",{
+            Name="Content",AnchorPoint=centered,
+            Position=UDim2.fromOffset(centerX,half),
+            Size=UDim2.fromOffset(w,h),
+            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=3,
+        },plate)
+        createOwl(contentLayer,"LeftOwl",CONFIG.ICON_PADDING,false)
+        createOwl(contentLayer,"RightOwl",0,true)
         displayLabel=new("TextLabel",{
             Name="DisplayName",Text=showName(LocalPlayer.DisplayName),
             Font=CONFIG.NAME_FONT,TextSize=CONFIG.NAME_SIZE,
@@ -374,7 +383,7 @@ function module.new(options)
             Position=UDim2.fromScale(0.5,0.5),
             Size=UDim2.fromOffset(w-2*CONFIG.ICON_SIZE-CONFIG.NAME_EXTRA_PADDING,CONFIG.HEIGHT),
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=6,
-        },fillCenter)
+        },contentLayer)
         -- Exactly one UIGradient on the name. White glyphs keep the colors true.
         -- -1 and +1 both park the white band completely outside the glyphs.
         nameGradient=new("UIGradient",{
@@ -434,9 +443,15 @@ function module.new(options)
         end
         local fade=math.clamp((dist-CONFIG.FADE_START)/
             math.max(1,maxDistance-CONFIG.FADE_START),0,1)
-        plateGroup.GroupTransparency=fade*0.84
-        -- CanvasGroup fades the frame, owls, name and border together.
-        -- Plate fill and scale remain unchanged by time or damage.
+        -- Explicitly fade all six opaque shapes and the content equally.
+        -- Avoid extra CanvasGroup fading, which would double-fade the fill.
+        for _,segment in ipairs(shapeFrames) do
+            segment.BackgroundTransparency=fade
+        end
+        for _,icon in ipairs(owls) do icon.ImageTransparency=fade end
+        for _,fallback in ipairs(emojiLabels) do fallback.TextTransparency=fade end
+        displayLabel.TextTransparency=fade
+        nameStroke.Transparency=0.3+0.7*fade
     end)
     listen(lifecycle.Destroying,function()controller:Destroy()end)
 
