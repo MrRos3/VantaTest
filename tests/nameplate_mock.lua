@@ -19,7 +19,7 @@ local mt={
     __index=function(self,key)
         if methods[key] then return methods[key] end
         for _,v in ipairs(all) do
-            if not v.destroyed and v.Parent==self and v.Name==key then return v end
+            if not rawget(v, 'destroyed') and rawget(v, 'Parent')==self and rawget(v, 'Name')==key then return v end
         end
         return nil
     end
@@ -34,7 +34,7 @@ local function newObject(class,name,parent)
 end
 function methods:FindFirstChild(name)
     for _,v in ipairs(all) do
-        if not v.destroyed and v.Parent==self and v.Name==name then return v end
+        if not rawget(v, 'destroyed') and rawget(v, 'Parent')==self and rawget(v, 'Name')==name then return v end
     end
     return nil
 end
@@ -43,14 +43,14 @@ function methods:WaitForChild(name)
 end
 function methods:FindFirstChildOfClass(class)
     for _,v in ipairs(all) do
-        if not v.destroyed and v.Parent==self and v.ClassName==class then return v end
+        if not rawget(v, 'destroyed') and rawget(v, 'Parent')==self and rawget(v, 'ClassName')==class then return v end
     end
 end
 function methods:IsDescendantOf(parent)
-    local p=self.Parent
+    local p=rawget(self,'Parent')
     while p do
         if p==parent then return true end
-        p=p.Parent
+        p=rawget(p,'Parent')
     end
     return false
 end
@@ -59,7 +59,7 @@ function methods:Destroy()
     self.destroyed=true
     self.Destroying:Fire()
     for _,v in ipairs(all) do
-        if not v.destroyed and v.Parent==self then v:Destroy() end
+        if not rawget(v,'destroyed') and rawget(v,'Parent')==self then v:Destroy() end
     end
     self.Parent=nil
 end
