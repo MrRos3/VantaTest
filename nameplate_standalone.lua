@@ -147,6 +147,7 @@ function module.new(options)
     local healthLast=0
     local damageDuration=0
     local shineClock=0
+    local shineActive=false
     local glitchClock=0
     local nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
         (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
@@ -178,11 +179,36 @@ function module.new(options)
         events[#events+1]=event
         return event
     end
+    -- Never allow the white overlay to persist outside its active sweep.
+    -- Visible=false and TextTransparency=1 are independent safety gates.
+    local function stopNameShine()
+        shineActive=false
+        if nameShineTween then nameShineTween:Cancel() end
+        if shineLabel then
+            shineLabel.Visible=false
+            shineLabel.TextTransparency=1
+        end
+        if nameShineGradient then
+            nameShineGradient.Offset=Vector2.new(-1,0)
+        end
+    end
+
+    local function startNameShine()
+        if not nameShineTween or not nameShineGradient or not shineLabel then return end
+        nameShineTween:Cancel()
+        nameShineGradient.Offset=Vector2.new(-1,0)
+        shineLabel.TextTransparency=0
+        shineLabel.Visible=true
+        shineActive=true
+        nameShineTween:Play()
+    end
+
     local function clearGui()
         if healthEvent then healthEvent:Disconnect();healthEvent=nil end
         if nameEvent then nameEvent:Disconnect();nameEvent=nil end
         if tween then tween:Cancel();tween=nil end
-        if nameShineTween then nameShineTween:Cancel();nameShineTween=nil end
+        stopNameShine()
+        nameShineTween=nil
         if namePulseTween then namePulseTween:Cancel();namePulseTween=nil end
         nameGradient=nil
         nameShineGradient=nil
@@ -341,13 +367,13 @@ function module.new(options)
             Name="NameShineOverlay",Text=displayLabel.Text,
             Font=CONFIG.NAME_FONT,TextSize=CONFIG.NAME_SIZE,
             TextColor3=Color3.fromRGB(255,228,236),
-            TextStrokeTransparency=1,
+            TextTransparency=1,TextStrokeTransparency=1,
             TextXAlignment=Enum.TextXAlignment.Center,
             TextYAlignment=Enum.TextYAlignment.Center,
             TextTruncate=Enum.TextTruncate.AtEnd,
             AnchorPoint=Vector2.new(0.5,0.5),
             Position=displayLabel.Position,Size=displayLabel.Size,
-            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=7,
+            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=7,Visible=false,
         },plate)
         nameShineGradient=new("UIGradient",{
             Name="ShineMask",Offset=Vector2.new(-1,0),Rotation=0,
@@ -373,9 +399,9 @@ function module.new(options)
             TweenInfo.new(CONFIG.NAME_PULSE_SECONDS,Enum.EasingStyle.Sine,
                 Enum.EasingDirection.InOut,-1,true),
             {Transparency=0.6})
-        nameShineTween:Play()
-        namePulseTween:Play()
         shineClock=0
+        startNameShine()
+        namePulseTween:Play()
         glitchClock=0
         nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
             (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
@@ -413,15 +439,16 @@ function module.new(options)
         updateTime=0
         elapsed=elapsed+step
         damageDuration=math.max(0,damageDuration-step)
-        -- Each shine lasts 2.5 seconds; a quiet 1.5-second pause follows.
+        -- Explicitly hide the white overlay for the 1.5-second rest period.
+        -- Reset only while fully hidden so a delayed tween cannot strand
+        -- a bright vertical stripe in the center of the name.
         shineClock=shineClock+step
-        if shineClock>=CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE then
-            shineClock=shineClock-(CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE)
-            if nameShineTween and nameShineGradient then
-                nameShineTween:Cancel()
-                nameShineGradient.Offset=Vector2.new(-1,0)
-                nameShineTween:Play()
-            end
+        local cycle=CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE
+        if shineClock>=cycle then
+            shineClock=shineClock-cycle
+            startNameShine()
+        elseif shineActive and shineClock>=CONFIG.NAME_SHINE_SECONDS then
+            stopNameShine()
         end
         -- Brief randomized glitch: translate name 2px, flash white for 0.12s.
         -- The entire NameplateGroup still fades out as a single unit.

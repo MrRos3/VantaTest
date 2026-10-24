@@ -198,6 +198,8 @@ local outline=name.NamePulseStroke
 assert(crimson and outline and outline.Thickness==1)
 assert(shineLabel and shineMask and shineLabel.Text==name.Text)
 assert(shineLabel.Size==name.Size and shineLabel.Position==name.Position)
+assert(shineLabel.Visible and shineLabel.TextTransparency==0,
+    "Shine overlay should appear only during an active sweep")
 assert(shineLabel.Font==Enum.Font.Michroma and shineLabel.TextSize==14)
 assert(crimson.Offset[1]==0 and crimson.Offset[2]==0)
 local maskStops=shineMask.Transparency[1]
@@ -235,9 +237,19 @@ assert(plate.Size[1]>200)
 assert(plate.DisplayName.Text=="SuperLongOwlDisplayName")
 assert(plate.DisplayName.Size[1]==plate.Size[1]-84)
 assert(shineLabel.Text==plate.DisplayName.Text and shineLabel.Size==plate.DisplayName.Size)
--- The gradient sweeps for 2.5s, rests 1.5s, then plays again.
-for i=1,68 do frame:Fire(0.06) end
-assert(shineTween.plays==2 and shineTween.cancels>=1)
+-- The overlay must fully disappear at 2.5s and remain invisible
+-- throughout the quiet 1.5s pause, then restart once without a ghost streak.
+for i=1,42 do frame:Fire(0.06) end -- 2.52s, sweep ended
+assert(not shineLabel.Visible and shineLabel.TextTransparency==1,
+    "Shine must not remain as a white stripe during the pause")
+assert(shineTween.plays==1 and shineTween.cancels>=2)
+for i=1,23 do frame:Fire(0.06) end -- 3.90s, still in pause
+assert(not shineLabel.Visible and shineLabel.TextTransparency==1,
+    "Shine must stay hidden for the full rest period")
+for i=1,3 do frame:Fire(0.06) end -- 4.08s, new sweep
+assert(shineLabel.Visible and shineLabel.TextTransparency==0,
+    "Shine should reappear only when the next sweep begins")
+assert(shineTween.plays==2)
 assert(crimson.Offset[1]==0 and crimson.Offset[2]==0)
 assert(shineMask.Offset[1]==-1 and shineMask.Offset[2]==0)
 assert(maskStops[1][2]==1 and maskStops[7][2]==1)
@@ -279,13 +291,16 @@ assert(ui.MaxDistance==80)
 
 localPlayer.CharacterRemoving:Fire(ch)
 assert(m:GetBillboard()==nil)
-assert(pulseTween.cancels>=1 and shineTween.cancels>=2)
+assert(pulseTween.cancels>=1 and shineTween.cancels>=3)
+assert(shineLabel.Visible==false and shineLabel.TextTransparency==1,
+    "Character removal must immediately hide the white overlay")
 local newchar,newhead,newhum=character(localPlayer,2)
 localPlayer.CharacterAdded:Fire(newchar)
 local nextGui=assert(m:GetBillboard())
 assert(nextGui.Adornee==newhead and nextGui.Parent==newhead)
 assert(nextGui.Plate~=plate)
 assert(nextGui.NameplateGroup.Plate.LeftOwl.Image=="customasset://vanta_owl_96")
+assert(nextGui.NameplateGroup.Plate.NameShineOverlay.Visible==true)
 assert(newhum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 friend.CharacterRemoving:Fire(fchar)
 local f2=character(friend,2)
