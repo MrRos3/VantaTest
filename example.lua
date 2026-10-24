@@ -112,12 +112,12 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Nameplate, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 
 -- NAMEPLATE ------------------------------------------------------------------
--- Client-only BillboardGui above the local player's head, recreated on respawn.
--- This does NOT replicate to friends in arbitrary Roblox games.
+-- Native BillboardGui above every player, recreated on each respawn.
+-- Client-side only; not replicated across Roblox clients.
 local NameplateTab = tab("Nameplate", "user-round", "Floating customizable nameplate over your character")
 add(NameplateTab, "Section", {
     Title = "Your floating nameplate",
-    Desc = "Vanta Edge: cut corners, crimson glow, real health, and a distant name-only mode.",
+    Desc = "Native Vanta Edge overhead tags for every player, surviving all respawns.",
     Icon = "user-round",
 })
 local NameplateModule
@@ -130,12 +130,11 @@ local okNameplate, nameplateError = pcall(function()
         Enabled = true,
         Tag = "VANTA",
         Style = "Crimson",
-        ShowUsername = true,
+        ShowUsername = false,
         Scale = 100,
-        MaxDistance = 100,
-        Height = 2.65,
+        MaxDistance = 60,
+        Height = 2.5,
         Subtitle = "MEMBER",
-        LoadRemoteImage = VantaTest.Creator and VantaTest.Creator.LoadRemoteImage,
     })
 end)
 if not okNameplate then
@@ -161,9 +160,7 @@ end
 local nameplateVisible = true
 local nameplateToggle
 local topbarEyeButton
-local topbarEyeImage
-local EYE_VISIBLE = "rbxassetid://75816651251769" -- SaltyIcons eye.png
-local EYE_HIDDEN  = "rbxassetid://94392100296471" -- SaltyIcons eye-off.png
+local topbarEyeParts
 
 local function syncNameplateVisibility(show, fromTopbar)
     if not NameplateController then
@@ -176,10 +173,12 @@ local function syncNameplateVisibility(show, fromTopbar)
         -- Synchronize the visual toggle without calling its callback a second time.
         nameplateToggle:Set(nameplateVisible, false, true)
     end
-    if topbarEyeImage then
-        topbarEyeImage.Image = nameplateVisible and EYE_VISIBLE or EYE_HIDDEN
-        topbarEyeImage.ImageColor3 = nameplateVisible
-            and Color3.fromRGB(255, 77, 112) or Color3.fromRGB(154, 146, 153)
+    if topbarEyeParts then
+        local eyeColor = nameplateVisible
+            and Color3.fromRGB(255, 77, 112) or Color3.fromRGB(155, 149, 155)
+        topbarEyeParts.Stroke.Color = eyeColor
+        topbarEyeParts.Iris.BackgroundColor3 = eyeColor
+        topbarEyeParts.Slash.Visible = not nameplateVisible
     end
     if topbarEyeButton then
         topbarEyeButton:SetAttribute("NameplateVisible", nameplateVisible)
@@ -195,8 +194,8 @@ nameplateToggle = add(NameplateTab, "Toggle", {
     Callback = function(value) syncNameplateVisibility(value, false) end,
 })
 
--- Small Vanta-only topbar utility directly LEFT of Mac traffic dots.
--- Its published SaltyIcons assets never depend on handmade icon drawings.
+-- The button uses native UI shapes; it can't become blank from private image IDs.
+-- This is a small eye control immediately LEFT of the Mac traffic dots.
 local rightOk, rightError = pcall(function()
     local right = Window.UIElements.Main.Main.Topbar.Right
     assert(right and right:FindFirstChildOfClass("UIListLayout"), "Topbar right-side layout unavailable")
@@ -227,19 +226,53 @@ local rightOk, rightError = pcall(function()
     border.Thickness = 1
     border.Parent = button
 
-    local icon = Instance.new("ImageLabel")
-    icon.Name = "SaltyIconsEye"
-    icon.BackgroundTransparency = 1
-    icon.Size = UDim2.fromOffset(15, 15)
-    icon.AnchorPoint = Vector2.new(0.5, 0.5)
-    icon.Position = UDim2.fromScale(0.5, 0.5)
-    icon.Image = EYE_VISIBLE
-    icon.ImageColor3 = Color3.fromRGB(255, 77, 112)
-    icon.ZIndex = 10001
-    icon.Parent = button
-
+    -- Pure Roblox eye icon: outlined almond/oval, pupil, optional strike-through.
+    local eye = Instance.new("Frame")
+    eye.Name = "NativeEye"
+    eye.BackgroundTransparency = 1
+    eye.BorderSizePixel = 0
+    eye.Size = UDim2.fromOffset(16, 10)
+    eye.AnchorPoint = Vector2.new(0.5, 0.5)
+    eye.Position = UDim2.fromScale(0.5, 0.5)
+    eye.ZIndex = 10001
+    eye.Parent = button
+    local curve = Instance.new("UICorner")
+    curve.CornerRadius = UDim.new(1, 0)
+    curve.Parent = eye
+    local edge = Instance.new("UIStroke")
+    edge.Name = "EyeOutline"
+    edge.Color = Color3.fromRGB(255, 77, 112)
+    edge.Thickness = 1.7
+    edge.Transparency = 0
+    edge.Parent = eye
+    local pupil = Instance.new("Frame")
+    pupil.Name = "EyePupil"
+    pupil.BackgroundColor3 = edge.Color
+    pupil.BorderSizePixel = 0
+    pupil.AnchorPoint = Vector2.new(0.5, 0.5)
+    pupil.Position = UDim2.fromScale(0.5, 0.5)
+    pupil.Size = UDim2.fromOffset(5, 5)
+    pupil.ZIndex = 10002
+    pupil.Parent = eye
+    local pupilCurve = Instance.new("UICorner")
+    pupilCurve.CornerRadius = UDim.new(1, 0)
+    pupilCurve.Parent = pupil
+    local slash = Instance.new("Frame")
+    slash.Name = "HiddenSlash"
+    slash.Visible = false
+    slash.BorderSizePixel = 0
+    slash.BackgroundColor3 = Color3.fromRGB(220, 210, 218)
+    slash.AnchorPoint = Vector2.new(0.5, 0.5)
+    slash.Position = UDim2.fromScale(0.5, 0.5)
+    slash.Size = UDim2.fromOffset(19, 2)
+    slash.Rotation = -40
+    slash.ZIndex = 10003
+    slash.Parent = button
+    local slashCurve = Instance.new("UICorner")
+    slashCurve.CornerRadius = UDim.new(1, 0)
+    slashCurve.Parent = slash
     topbarEyeButton = button
-    topbarEyeImage = icon
+    topbarEyeParts = { Stroke = edge, Iris = pupil, Slash = slash }
     button:SetAttribute("Tooltip", "Hide nameplate")
     button:SetAttribute("NameplateVisible", true)
     button.MouseButton1Click:Connect(function()
@@ -273,7 +306,7 @@ add(NameplateTab, "Input", {
 add(NameplateTab, "Toggle", {
     Title = "Show @username",
     Desc = "Show the real @username only if it differs from your display name",
-    Value = true,
+    Value = false,
     Callback = function(value) updateNameplate("SetShowUsername", value) end,
 })
 add(NameplateTab, "Slider", {
@@ -286,20 +319,20 @@ add(NameplateTab, "Slider", {
 add(NameplateTab, "Slider", {
     Title = "Height above head",
     Desc = "Adjust upward offset in tenths of a stud",
-    Value = { Min = 15, Max = 45, Default = 27 },
+    Value = { Min = 15, Max = 45, Default = 25 },
     Step = 1,
     Callback = function(value) updateNameplate("SetHeight", value / 10) end,
 })
 add(NameplateTab, "Slider", {
     Title = "Visibility distance",
-    Desc = "Full nameplate up close; shrinks past 40 studs and becomes name-only past 65",
-    Value = { Min = 30, Max = 150, Default = 100 },
+    Desc = "Begins fading at 40 studs; name-only near 60 studs",
+    Value = { Min = 30, Max = 150, Default = 60 },
     Step = 10,
     Callback = function(value) updateNameplate("SetDistance", value) end,
 })
 add(NameplateTab, "Paragraph", {
     Title = "Local-only display",
-    Desc = "This nameplate renders only for you. Health comes from your Humanoid, and the status dot turns red briefly after damage. Other players don't see this client-only GUI.",
+    Desc = "Your client draws this tag for every player and restores it when they respawn. Other Roblox clients cannot see it unless the game server implements it.",
 })
 
 -- BUTTONS --------------------------------------------------------------------

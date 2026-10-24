@@ -29,31 +29,24 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Edge nameplate
+### Vanta Edge nameplates for every player (client-side)
 
-The latest refinement makes the tag a compact 64px badge for `VANTA` (custom tags expand to fit), defaults the second line to **MEMBER** rather than repeating the brand, brightens the avatar ring to `#FF2A4D` with a black inset, softens the glow, sharpens the name with a dark 1px text stroke, and moves the status dot away from the ring.
+Run the VantaTest showcase and open **Nameplate**. The current build creates one native Roblox `BillboardGui` on every player's character, visible **only to your client**. It reattaches when you or another player respawns, removes departed players, and keeps the controller alive under **PlayerScripts**, not the resettable **PlayerGui**. The existing topbar eye button now uses a **native eye icon** with an eye-off slash (no missing/private image assets), and stays synchronized with the Nameplate tab's Show switch.
 
-A small **eye / eye-off button** now sits immediately to the **left of VantaTest's Mac traffic dots** in the window topbar. It uses genuine published SaltyIcons Roblox image IDs and directly toggles the overhead nameplate. The button updates its icon and stays synchronized with the **Show nameplate** toggle in the Nameplate tab. This is a VantaTest showcase-only control; the production VantaUI library and its topbar are not modified.
+Default appearance: approx. 230 × 64px near-black translucent plate with a subtle top-down fill gradient, thin crimson gradient stroke (`#E0173D` → `#4A0A18`), low-opacity native glow, 40px circular avatar, bright `#FF2A4D` ring, damage-sensitive status dot, crisp white GothamBold display name, **MEMBER** subtitle, compact solid VANTA badge, and a thin health indicator. The native frame uses a small rounded-corner approximation of the angled silhouette; there are **no external PNGs or other image assets**. Avatar portraits are requested via Roblox `Players:GetUserThumbnailAsync`.
 
-Open the **Nameplate** tab in VantaTest. The nameplate now uses a distinctive **chamfered top-right and bottom-left silhouette**, a gradient crimson border (`#E0173D` to `#4A0A18`), solid upper-left VANTA badge, subtle 9-slice red glow, and a near-black `#08080A` translucent fill. True-cut silhouette/glow PNG assets are under `assets/nameplate/` and loaded using the existing VantaTest custom-image loader; the module falls back to native Roblox shapes if image loading is unavailable.
+The border-light sweep is a looping **four-second TweenService animation**; the glow pulses softly and the plate briefly flickers after actual Humanoid damage. At 40–60 studs the plate fades to a small name-only view. The initial maximum distance is 60 studs, adjustable in the Nameplate tab. Nameplate display, theme, text, height, scale, distance, and optional real @username are controllable live. The default Roblox name is restored when you hide the custom nameplate or unload it.
 
-- Circular Roblox avatar with a 2px crimson border; status dot is **green normally** and **red for four seconds after damage**.
-- Bold 16px white display name with a subtle red stroke. The second line shows the real `@username` **only when it differs** from the display name; otherwise it shows a customizable subtitle, initially `VANTA // MEMBER`. Level or rank text is **never fabricated**.
-- 2px health bar showing your Humanoid's **real health / MaxHealth**. Damage briefly flickers the plate and glow.
-- A low-intensity idle glow pulse and a 4-second crimson border-light sweep.
-- Past **40 studs**, the full plate gently shrinks and fades; by **65 studs**, only the name remains, until your configured maximum visibility distance.
-- Show/hide, text, style (Crimson/OLED/Steel), username, height, size, subtitle, and maximum visibility distance are controlled through the Nameplate tab.
+**Visibility caveat:** This is a client-side visual overlay for players you see. Other Roblox clients will not see your customization without server-side code in an experience you control. VantaUI is never modified by these changes; the old chat feature remains removed.
 
-The client-side BillboardGui automatically attaches to your character's head and is restored on respawn. Running the module again cleans up the previous instance. Other players **cannot see this local-only nameplate** unless a developer implements server-authorized overhead UI in an experience they own. The original name display is restored when you disable or destroy it.
-
-To use Vanta Edge without the full VantaTest showcase:
+Stand-alone use of the no-assets module:
 
 ```lua
-local mod = loadstring(game:HttpGet(
+local nameplate = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/MrRos3/VantaTest/main/nameplate.lua?v=" .. os.time()
-))()
-local nameplate = mod.new({Tag="VANTA", Subtitle="VANTA // MEMBER", Style="Crimson"})
--- A supported custom-image loader can be passed as LoadRemoteImage.
+))().new({Enabled=true, Tag="VANTA", Subtitle="MEMBER", MaxDistance=60})
+-- nameplate:SetEnabled(false)
+-- nameplate:Destroy()
 ```
 
 ### Crimson01 living wallpaper

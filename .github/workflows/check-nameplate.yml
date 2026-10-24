@@ -31,59 +31,36 @@ jobs:
           luac -p nameplate.lua
           luac -p example.lua
           luac -p tests/nameplate_mock.lua
-      - name: Exercise head attachment, settings and respawn
+      - name: Exercise all-player nameplate lifecycle
         run: lua tests/nameplate_mock.lua
-      - name: Ensure script-only feature and clean chat removal
+      - name: Verify native icon, respawn-safe lifecycle, and no external art
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          source = Path('example.lua').read_text()
-          n = Path('nameplate.lua').read_text()
-          assert 'tab("Nameplate"' in source
-          assert 'game:HttpGet(BASE .. "nameplate.lua?v="' in source
+          n=Path("nameplate.lua").read_text()
+          source=Path("example.lua").read_text()
+          assert 'GetUserThumbnailAsync' in n
+          assert 'game:GetService("TweenService")' in n
+          assert 'TweenInfo.new(4,' in n
+          assert 'Players.PlayerAdded:Connect(bind)' in n
+          assert 'Players.PlayerRemoving:Connect(unbind)' in n
+          assert 'p.CharacterAdded:Connect' in n
+          assert 'p.CharacterRemoving:Connect' in n
+          assert 'local scripts=LocalPlayer:WaitForChild("PlayerScripts")' in n
+          assert 'local lifecycle=make("Folder",{Name=ROOT},scripts)' in n
+          assert 'record.player.Character~=character' in n
+          assert 'record.serial~=version' in n
+          assert 'config.LoadRemoteImage' not in n
+          assert 'HttpGet' not in n and 'FireServer' not in n
+          assert 'rbxassetid://' not in n
           assert 'NameplateVisibilitySlot' in source
           assert 'NameplateVisibilityButton' in source
-          assert 'slot.LayoutOrder = 996' in source
-          assert 'rbxassetid://75816651251769' in source
-          assert 'rbxassetid://94392100296471' in source
-          assert 'syncNameplateVisibility(not nameplateVisible, true)' in source
+          assert 'Name = "NativeEye"' in source
+          assert 'Name = "EyePupil"' in source
+          assert 'Name = "HiddenSlash"' in source
+          assert 'ImageLabel' not in source.split('local rightOk, rightError = pcall(function()',1)[1].split('end)',1)[0]
           assert 'nameplateToggle:Set(nameplateVisible, false, true)' in source
-          assert 'Callback = function(value) syncNameplateVisibility(value, false) end' in source
-          assert 'Value = "MEMBER"' in source
-          assert 'ChatTab' not in source
-          assert 'Vanta Chat' not in source
-          assert 'BillboardGui' in n
-          assert 'CharacterAdded' in n and 'CharacterRemoving' in n
-          assert 'Enum.HumanoidDisplayDistanceType.None' in n
-          assert 'ChamferShell' in n and 'CrimsonOuterGlow' in n
-          assert 'RING_CRIMSON = Color3.fromRGB(255, 42, 77)' in n
-          assert 'Name="BlackInset"' in n
-          assert 'ui.TagChip.Size=UDim2.fromOffset' in n
-          assert 'Enum.ApplyStrokeMode.Contextual' in n
-          assert 'function controller:IsEnabled()' in n
-          assert 'config.Subtitle or "MEMBER"' in n
-          assert '0.80-0.06*wave-flicker' in n
-          assert 'ScaleType=Enum.ScaleType.Slice' in n
-          assert 'Rect.new(24,24,72,72)' in n
-          assert 'HealthChanged:Connect' in n
-          assert 'ui.BorderGradient.Offset' in n
-          assert 'ui.PlateGroup.GroupTransparency' in n
-          assert 'combatLeft=4' in n
-          assert 'ShowUsername' in n and 'SetSubtitle' in n
-          import struct
-          assets = {
-              'assets/nameplate/vanta-edge-shell.png': (496,144),
-              'assets/nameplate/vanta-edge-glow-9slice.png': (96,96),
-          }
-          for file, expected in assets.items():
-              content = Path(file).read_bytes()
-              assert content[:8] == b'\x89PNG\r\n\x1a\n'
-              assert struct.unpack('>II', content[16:24]) == expected
-              assert content[25] == 6 # RGBA with transparency
-          assert 'if distance' not in n or 'nextFade' in n
-          for method in ('SetEnabled','SetStyle','SetTag','SetSubtitle','SetScale',
-                         'SetHeight','SetDistance','SetShowUsername','Destroy'):
-              assert 'function controller:' + method in n
-          assert 'FireServer' not in n and 'HttpGet' not in n
-          print('Nameplate integrates only with VantaTest; no chat or untrusted relay restored.')
+          assert 'slot.LayoutOrder = 996' in source
+          assert 'ChatTab' not in source and 'Vanta Chat' not in source
+          print("No external imagery; eye control and respawn-safe nameplate structure verified.")
           PY
