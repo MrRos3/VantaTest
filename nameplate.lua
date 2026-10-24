@@ -22,12 +22,8 @@ local CONFIG = {
     NAME_SIZE = 14,
     NAME_FONT = Enum.Font.Michroma,
     NAME_WIDE_SPACING = false, -- Michroma is already spacious; optional thin spaces.
-    NAME_SHINE_SECONDS = 2.5,
-    NAME_SHINE_PAUSE = 1.5,
-    NAME_PULSE_SECONDS = 1.2,
-    NAME_GLITCH_SECONDS = 0.12,
-    NAME_GLITCH_MIN = 6,
-    NAME_GLITCH_MAX = 10,
+    NAME_SHINE_SECONDS = 1.4,
+    NAME_SHINE_PAUSE = 2.5,
     FILL = Color3.fromRGB(14, 14, 16),
     FILL_TRANSPARENCY = 0.15,
     BORDER_BRIGHT = Color3.fromRGB(224, 23, 61),
@@ -133,7 +129,7 @@ function module.new(options)
     local events={}
     local ended=false
     local gui,humanoid,tween,healthEvent,nameEvent
-    local nameShineTween,namePulseTween,nameGradient,nameShineGradient,nameStroke,shineLabel
+    local nameShineTween,nameGradient,nameStroke
     local oldDistance
     local plateGroup,plate,glowStroke,innerGlowStroke,plateScale
     local owls,emojiLabels={},{}
@@ -147,18 +143,14 @@ function module.new(options)
     local damageDuration=0
     local shineClock=0
     local shineActive=false
-    local glitchClock=0
-    local nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
-        (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
-    local glitchRemaining=0
+    -- Only a single gradient on the actual name: all red at idle offsets.
     local NAME_COLORS=ColorSequence.new({
-        ColorSequenceKeypoint.new(0.0,Color3.fromRGB(179,17,47)),   -- #B3112F
-        ColorSequenceKeypoint.new(0.4,Color3.fromRGB(255,42,77)),   -- #FF2A4D
-        ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,138,158)), -- #FF8A9E
-        ColorSequenceKeypoint.new(0.6,Color3.fromRGB(255,42,77)),
-        ColorSequenceKeypoint.new(1.0,Color3.fromRGB(179,17,47)),
+        ColorSequenceKeypoint.new(0.00,Color3.fromRGB(255,26,61)),
+        ColorSequenceKeypoint.new(0.35,Color3.fromRGB(255,26,61)),
+        ColorSequenceKeypoint.new(0.50,Color3.fromRGB(255,255,255)),
+        ColorSequenceKeypoint.new(0.65,Color3.fromRGB(255,26,61)),
+        ColorSequenceKeypoint.new(1.00,Color3.fromRGB(255,26,61)),
     })
-    local WHITE_FLASH=ColorSequence.new(Color3.fromRGB(255,255,255))
     local function showName(value)
         if not CONFIG.NAME_WIDE_SPACING then return value end
         -- Unicode thin spaces are optional, never inserted by default.
@@ -178,26 +170,17 @@ function module.new(options)
         events[#events+1]=event
         return event
     end
-    -- Never allow the white overlay to persist outside its active sweep.
-    -- Visible=false and TextTransparency=1 are independent safety gates.
+    -- Reset only after the white band has exited, leaving solid red while idle.
     local function stopNameShine()
         shineActive=false
         if nameShineTween then nameShineTween:Cancel() end
-        if shineLabel then
-            shineLabel.Visible=false
-            shineLabel.TextTransparency=1
-        end
-        if nameShineGradient then
-            nameShineGradient.Offset=Vector2.new(-1,0)
-        end
+        if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
     end
 
     local function startNameShine()
-        if not nameShineTween or not nameShineGradient or not shineLabel then return end
+        if not nameShineTween or not nameGradient then return end
         nameShineTween:Cancel()
-        nameShineGradient.Offset=Vector2.new(-1,0)
-        shineLabel.TextTransparency=0
-        shineLabel.Visible=true
+        nameGradient.Offset=Vector2.new(-1,0)
         shineActive=true
         nameShineTween:Play()
     end
@@ -208,14 +191,9 @@ function module.new(options)
         if tween then tween:Cancel();tween=nil end
         stopNameShine()
         nameShineTween=nil
-        if namePulseTween then namePulseTween:Cancel();namePulseTween=nil end
         nameGradient=nil
-        nameShineGradient=nil
         nameStroke=nil
-        shineLabel=nil
         shineClock=0
-        glitchClock=0
-        glitchRemaining=0
         if gui then gui:Destroy();gui=nil end
         if humanoid and humanoid.Parent and oldDistance then
             pcall(function()humanoid.DisplayDistanceType=oldDistance end)
@@ -250,11 +228,6 @@ function module.new(options)
         displayLabel.Size=UDim2.fromOffset(
             width-2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING),CONFIG.HEIGHT)
         displayLabel.Text=showName(LocalPlayer.DisplayName)
-        if shineLabel then
-            shineLabel.Size=displayLabel.Size
-            shineLabel.Position=displayLabel.Position
-            shineLabel.Text=displayLabel.Text
-        end
     end
 
     local function createOwl(parent,name,x,isRight)
@@ -353,58 +326,21 @@ function module.new(options)
             Size=UDim2.fromOffset(w-2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING),CONFIG.HEIGHT),
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=6,
         },plate)
-        -- Keep the five-stop crimson base static; moving this gradient made
-        -- the whole name flash on every 4-second tween restart.
+        -- Exactly one UIGradient on the name. White glyphs keep the colors true.
+        -- -1 and +1 both park the white band completely outside the glyphs.
         nameGradient=new("UIGradient",{
             Name="CrimsonNameGradient",Color=NAME_COLORS,
-            Offset=Vector2.new(0,0),Rotation=0,
+            Offset=Vector2.new(-1,0),Rotation=0,
         },displayLabel)
-        -- Independent overlay: only a slim, soft highlight becomes visible
-        -- during its sweep. Both ends are fully transparent, so rewinding
-        -- Offset after the 1.5s pause cannot flash or alter the base name.
-        shineLabel=new("TextLabel",{
-            Name="NameShineOverlay",Text=displayLabel.Text,
-            Font=CONFIG.NAME_FONT,TextSize=CONFIG.NAME_SIZE,
-            TextColor3=Color3.fromRGB(255,228,236),
-            TextTransparency=1,TextStrokeTransparency=1,
-            TextXAlignment=Enum.TextXAlignment.Center,
-            TextYAlignment=Enum.TextYAlignment.Center,
-            TextTruncate=Enum.TextTruncate.AtEnd,
-            AnchorPoint=Vector2.new(0.5,0.5),
-            Position=displayLabel.Position,Size=displayLabel.Size,
-            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=7,Visible=false,
-        },plate)
-        nameShineGradient=new("UIGradient",{
-            Name="ShineMask",Offset=Vector2.new(-1,0),Rotation=0,
-            Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0,1),
-                NumberSequenceKeypoint.new(0.45,1),
-                NumberSequenceKeypoint.new(0.49,0.72),
-                NumberSequenceKeypoint.new(0.5,0.2),
-                NumberSequenceKeypoint.new(0.51,0.72),
-                NumberSequenceKeypoint.new(0.55,1),
-                NumberSequenceKeypoint.new(1,1),
-            }),
-        },shineLabel)
-        -- UIStroke owns the breathing shadow instead of TextStrokeTransparency.
-        nameStroke=stroke(displayLabel,Color3.fromRGB(26,0,8),1,0.2)
-        nameStroke.Name="NamePulseStroke"
+        nameStroke=stroke(displayLabel,Color3.fromRGB(26,0,8),1,0.3)
+        nameStroke.Name="NameOutlineStroke"
         nameStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual
-        nameShineTween=TweenService:Create(nameShineGradient,
-            TweenInfo.new(CONFIG.NAME_SHINE_SECONDS,Enum.EasingStyle.Linear,
-                Enum.EasingDirection.Out),
+        nameShineTween=TweenService:Create(nameGradient,
+            TweenInfo.new(CONFIG.NAME_SHINE_SECONDS,Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut),
             {Offset=Vector2.new(1,0)})
-        namePulseTween=TweenService:Create(nameStroke,
-            TweenInfo.new(CONFIG.NAME_PULSE_SECONDS,Enum.EasingStyle.Sine,
-                Enum.EasingDirection.InOut,-1,true),
-            {Transparency=0.6})
         shineClock=0
-        startNameShine()
-        namePulseTween:Play()
-        glitchClock=0
-        nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
-            (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
-        glitchRemaining=0
+        if visible then startNameShine() end
         updateDimensions()
         nameEvent=LocalPlayer:GetPropertyChangedSignal("DisplayName"):Connect(updateDimensions)
         healthLast=hum.Health
@@ -438,40 +374,16 @@ function module.new(options)
         updateTime=0
         elapsed=elapsed+step
         damageDuration=math.max(0,damageDuration-step)
-        -- Explicitly hide the white overlay for the 1.5-second rest period.
-        -- Reset only while fully hidden so a delayed tween cannot strand
-        -- a bright vertical stripe in the center of the name.
+        -- 1.4s Sine sweep, then 2.5s with the band parked entirely offscreen.
+        -- No other code changes the name's color or horizontal position.
         shineClock=shineClock+step
-        local cycle=CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE
-        if shineClock>=cycle then
-            shineClock=shineClock-cycle
-            startNameShine()
-        elseif shineActive and shineClock>=CONFIG.NAME_SHINE_SECONDS then
+        if shineActive and shineClock>=CONFIG.NAME_SHINE_SECONDS then
             stopNameShine()
         end
-        -- Brief randomized glitch: translate name 2px, flash white for 0.12s.
-        -- The entire NameplateGroup still fades out as a single unit.
-        if nameGradient and displayLabel then
-            if glitchRemaining>0 then
-                glitchRemaining=glitchRemaining-step
-                if glitchRemaining<=0 then
-                    glitchRemaining=0
-                    displayLabel.Position=UDim2.fromScale(0.5,0.5)
-                    if shineLabel then shineLabel.Position=displayLabel.Position end
-                    nameGradient.Color=NAME_COLORS
-                end
-            else
-                glitchClock=glitchClock+step
-                if glitchClock>=nextGlitch then
-                    glitchClock=0
-                    nextGlitch=CONFIG.NAME_GLITCH_MIN+math.random()*
-                        (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
-                    glitchRemaining=CONFIG.NAME_GLITCH_SECONDS
-                    displayLabel.Position=UDim2.new(0.5,2,0.5,0)
-                    if shineLabel then shineLabel.Position=displayLabel.Position end
-                    nameGradient.Color=WHITE_FLASH
-                end
-            end
+        local cycle=CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE
+        if shineClock>=cycle then
+            shineClock=shineClock%cycle
+            startNameShine()
         end
         local dist=0
         local cam=workspace.CurrentCamera
@@ -494,6 +406,8 @@ function module.new(options)
         if ended then return end
         visible=not not on
         if gui then gui.Enabled=visible end
+        shineClock=0
+        if visible then startNameShine() else stopNameShine() end
         if humanoid and humanoid.Parent then
             pcall(function()
                 humanoid.DisplayDistanceType=visible and

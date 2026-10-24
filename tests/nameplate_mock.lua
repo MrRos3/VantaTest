@@ -83,8 +83,6 @@ Enum={
     HumanoidDisplayDistanceType={None="None",Viewer="Viewer"},
 }
 math.clamp=function(x,lo,hi)return math.max(lo,math.min(x,hi)) end
--- Deterministic first glitch at 6 seconds, later glitches also at 6 seconds.
-math.random=function()return 0 end
 task={spawn=function(f)f()end}
 local textService={GetTextSize=function(_,name,size,font,bound)
     return {X=#name*8,Y=size}
@@ -191,84 +189,70 @@ assert(plate.DisplayName.TextSize==14)
 assert(plate.DisplayName.TextColor3[1]==255)
 assert(plate.DisplayName.TextXAlignment==Enum.TextXAlignment.Center)
 local name=plate.DisplayName
-local crimson=name.CrimsonNameGradient
-local shineLabel=plate.NameShineOverlay
-local shineMask=shineLabel and shineLabel.ShineMask
-local outline=name.NamePulseStroke
-assert(crimson and outline and outline.Thickness==1)
-assert(shineLabel and shineMask and shineLabel.Text==name.Text)
-assert(shineLabel.Size==name.Size and shineLabel.Position==name.Position)
-assert(shineLabel.Visible and shineLabel.TextTransparency==0,
-    "Shine overlay should appear only during an active sweep")
-assert(shineLabel.Font==Enum.Font.Michroma and shineLabel.TextSize==14)
-assert(crimson.Offset[1]==0 and crimson.Offset[2]==0)
-local maskStops=shineMask.Transparency[1]
-assert(#maskStops==7 and maskStops[1][2]==1 and maskStops[7][2]==1)
-assert(maskStops[4][1]==0.5 and maskStops[4][2]==0.2)
-assert(maskStops[2][2]==1 and maskStops[6][2]==1)
+local crimson=assert(name.CrimsonNameGradient)
+local outline=assert(name.NameOutlineStroke)
+assert(plate:FindFirstChild("NameShineOverlay")==nil, "No redundant white overlay")
+assert(name:FindFirstChild("ShineMask")==nil, "No secondary shine layer")
+assert(outline.Thickness==1 and outline.Transparency==0.3)
 assert(outline.Color[1]==26 and outline.Color[2]==0 and outline.Color[3]==8)
-assert(outline.Transparency==0.2)
 assert(outline.ApplyStrokeMode==Enum.ApplyStrokeMode.Contextual)
--- Five stops in the exact requested positions; middle is the brightest.
+assert(name.TextYAlignment==Enum.TextYAlignment.Center)
+assert(name.TextTruncate==Enum.TextTruncate.AtEnd)
+assert(name.TextColor3[1]==255 and name.TextColor3[2]==255 and name.TextColor3[3]==255)
 local stops=crimson.Color[1]
 assert(#stops==5)
-assert(stops[1][1]==0 and stops[2][1]==0.4)
-assert(stops[3][1]==0.5 and stops[4][1]==0.6 and stops[5][1]==1)
-assert(stops[1][2][1]==179 and stops[3][2][1]==255)
-assert(stops[3][2][2]==138)
-assert(#tweenCreated==3)
+local positions={0,0.35,0.5,0.65,1}
+for i=1,5 do
+    assert(stops[i][1]==positions[i], "Exact red-white-red gradient keypoint")
+    local rgb=stops[i][2]
+    local r,g,b=255,26,61
+    if i==3 then g,b=255,255 end
+    assert(rgb[1]==r and rgb[2]==g and rgb[3]==b, "Exact keypoint RGB")
+end
+assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0)
+assert(crimson.Rotation==0)
+assert(#tweenCreated==2, "Border and name shine only; no pulsing name stroke")
 local shineTween=tweenCreated[2]
-local pulseTween=tweenCreated[3]
-assert(shineTween.target==shineMask and shineTween.info[1]==2.5)
-assert(pulseTween.target==outline and pulseTween.info[1]==1.2)
-assert(pulseTween.info[4]==-1 and pulseTween.info[5]==true)
-assert(pulseTween.goal.Transparency==0.6)
-assert(shineTween.plays==1 and pulseTween.plays==1)
-assert(plate.DisplayName.TextTruncate==Enum.TextTruncate.AtEnd)
+assert(shineTween.target==crimson and shineTween.info[1]==1.4)
+assert(shineTween.info[2]==Enum.EasingStyle.Sine)
+assert(shineTween.info[3]==Enum.EasingDirection.InOut)
+assert(shineTween.goal.Offset[1]==1 and shineTween.goal.Offset[2]==0)
+assert(shineTween.plays==1)
 assert(plate:FindFirstChild("TagChip")==nil)
 assert(plate:FindFirstChild("HealthBar")==nil)
 assert(plate:FindFirstChild("Avatar")==nil)
 assert(plate.Size[1]==200 and plate.Size[2]==44)
-assert(plate.DisplayName.Size[1]==200-84)
--- Larger names must widen both plate and label without obscuring either owl.
+assert(name.Size[1]==200-84)
+-- Name remains centered and correctly resizes without a second text layer.
 localPlayer.DisplayName="SuperLongOwlDisplayName"
 localPlayer:GetPropertyChangedSignal("DisplayName"):Fire()
 assert(plate.Size[1]>200)
-assert(plate.DisplayName.Text=="SuperLongOwlDisplayName")
-assert(plate.DisplayName.Size[1]==plate.Size[1]-84)
-assert(shineLabel.Text==plate.DisplayName.Text and shineLabel.Size==plate.DisplayName.Size)
--- The overlay must fully disappear at 2.5s and remain invisible
--- throughout the quiet 1.5s pause, then restart once without a ghost streak.
-for i=1,42 do frame:Fire(0.06) end -- 2.52s, sweep ended
-assert(not shineLabel.Visible and shineLabel.TextTransparency==1,
-    "Shine must not remain as a white stripe during the pause")
+assert(name.Text=="SuperLongOwlDisplayName")
+assert(name.Size[1]==plate.Size[1]-84)
+local fixedPosition=name.Position
+local fixedColors=crimson.Color
+-- 1.4s sweep finishes and resets immediately to (-1,0) for idle.
+for i=1,24 do frame:Fire(0.06) end -- 1.44s
 assert(shineTween.plays==1 and shineTween.cancels>=2)
-for i=1,23 do frame:Fire(0.06) end -- 3.90s, still in pause
-assert(not shineLabel.Visible and shineLabel.TextTransparency==1,
-    "Shine must stay hidden for the full rest period")
-for i=1,3 do frame:Fire(0.06) end -- 4.08s, new sweep
-assert(shineLabel.Visible and shineLabel.TextTransparency==0,
-    "Shine should reappear only when the next sweep begins")
+assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0,
+    "White shine must be off-text immediately after sweep finishes")
+-- No extra shine or white band for the 2.5s pause.
+for i=1,40 do frame:Fire(0.06) end -- 3.84s
+assert(shineTween.plays==1)
+assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0)
+-- At 3.9s a new 1.4s sweep starts with the same single gradient.
+for i=1,2 do frame:Fire(0.06) end -- 3.96s
 assert(shineTween.plays==2)
-assert(crimson.Offset[1]==0 and crimson.Offset[2]==0)
-assert(shineMask.Offset[1]==-1 and shineMask.Offset[2]==0)
-assert(maskStops[1][2]==1 and maskStops[7][2]==1)
-local regularGradient=crimson.Color
--- Randomized glitch at 6.0s: 2px shift and white gradient for 0.12s.
-local sawGlitch,restored=false,false
-for i=1,55 do
-    frame:Fire(0.06)
-    if name.Position[2]==2 and shineLabel.Position[2]==2
-        and crimson.Color~=regularGradient then
-        sawGlitch=true
-    end
-    if sawGlitch and name.Position[1]==0.5 and name.Position[2]==0.5
-        and shineLabel.Position[1]==0.5 and shineLabel.Position[2]==0.5
-        and crimson.Color==regularGradient then
-        restored=true
-    end
-end
-assert(sawGlitch and restored, "Random glitch must flash then restore")
+assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0)
+assert(crimson.Color==fixedColors)
+-- Across multiple cycles, never flash another color, change text position,
+-- or create a leftover overlay.
+for i=1,160 do frame:Fire(0.06) end
+assert(shineTween.plays>=4)
+assert(crimson.Color==fixedColors)
+assert(name.Position==fixedPosition)
+assert(outline.Transparency==0.3)
+assert(plate:FindFirstChild("NameShineOverlay")==nil)
 -- All animation belongs to the parent CanvasGroup and fades at distance.
 workspace.CurrentCamera.CFrame.Position.X=50
 frame:Fire(0.06)
@@ -291,16 +275,17 @@ assert(ui.MaxDistance==80)
 
 localPlayer.CharacterRemoving:Fire(ch)
 assert(m:GetBillboard()==nil)
-assert(pulseTween.cancels>=1 and shineTween.cancels>=3)
-assert(shineLabel.Visible==false and shineLabel.TextTransparency==1,
-    "Character removal must immediately hide the white overlay")
+assert(shineTween.cancels>=5)
+assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0,
+    "Character removal must cancel and reset the name shine")
 local newchar,newhead,newhum=character(localPlayer,2)
 localPlayer.CharacterAdded:Fire(newchar)
 local nextGui=assert(m:GetBillboard())
 assert(nextGui.Adornee==newhead and nextGui.Parent==newhead)
 assert(nextGui.Plate~=plate)
 assert(nextGui.NameplateGroup.Plate.LeftOwl.Image=="customasset://vanta_owl_96")
-assert(nextGui.NameplateGroup.Plate.NameShineOverlay.Visible==true)
+assert(nextGui.NameplateGroup.Plate.DisplayName.CrimsonNameGradient.Offset[1]==-1)
+assert(nextGui.NameplateGroup.Plate.NameShineOverlay==nil)
 assert(newhum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 friend.CharacterRemoving:Fire(fchar)
 local f2=character(friend,2)
@@ -321,4 +306,4 @@ assert(standalone:GetBillboard()~=nil)
 assert(standalone:GetBillboard(friend)==nil)
 playerLeaving:Fire(localPlayer)
 assert(standalone:GetBillboard()==nil)
-print("Vanta Owl: Michroma gradient, timed shine/pulse/glitch, local-only, distance fade, respawn and PlayerRemoving cleanup PASS")
+print("Vanta Owl: single red-white Michroma gradient, 1.4s Sine shine, 2.5s offscreen pause, fixed stroke, local-only fade and lifecycle cleanup PASS")
