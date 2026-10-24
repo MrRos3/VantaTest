@@ -70,6 +70,8 @@ UDim2={new=values,fromOffset=values,fromScale=values}
 UDim={new=values}
 ColorSequence={new=values}
 ColorSequenceKeypoint={new=values}
+NumberSequence={new=values}
+NumberSequenceKeypoint={new=values}
 TweenInfo={new=values}
 Enum={
     Font={GothamBold="GothamBold",Michroma="Michroma"},
@@ -190,8 +192,18 @@ assert(plate.DisplayName.TextColor3[1]==255)
 assert(plate.DisplayName.TextXAlignment==Enum.TextXAlignment.Center)
 local name=plate.DisplayName
 local crimson=name.CrimsonNameGradient
+local shineLabel=plate.NameShineOverlay
+local shineMask=shineLabel and shineLabel.ShineMask
 local outline=name.NamePulseStroke
 assert(crimson and outline and outline.Thickness==1)
+assert(shineLabel and shineMask and shineLabel.Text==name.Text)
+assert(shineLabel.Size==name.Size and shineLabel.Position==name.Position)
+assert(shineLabel.Font==Enum.Font.Michroma and shineLabel.TextSize==14)
+assert(crimson.Offset[1]==0 and crimson.Offset[2]==0)
+local maskStops=shineMask.Transparency[1]
+assert(#maskStops==7 and maskStops[1][2]==1 and maskStops[7][2]==1)
+assert(maskStops[4][1]==0.5 and maskStops[4][2]==0.2)
+assert(maskStops[2][2]==1 and maskStops[6][2]==1)
 assert(outline.Color[1]==26 and outline.Color[2]==0 and outline.Color[3]==8)
 assert(outline.Transparency==0.2)
 assert(outline.ApplyStrokeMode==Enum.ApplyStrokeMode.Contextual)
@@ -205,7 +217,7 @@ assert(stops[3][2][2]==138)
 assert(#tweenCreated==3)
 local shineTween=tweenCreated[2]
 local pulseTween=tweenCreated[3]
-assert(shineTween.target==crimson and shineTween.info[1]==2.5)
+assert(shineTween.target==shineMask and shineTween.info[1]==2.5)
 assert(pulseTween.target==outline and pulseTween.info[1]==1.2)
 assert(pulseTween.info[4]==-1 and pulseTween.info[5]==true)
 assert(pulseTween.goal.Transparency==0.6)
@@ -222,18 +234,24 @@ localPlayer:GetPropertyChangedSignal("DisplayName"):Fire()
 assert(plate.Size[1]>200)
 assert(plate.DisplayName.Text=="SuperLongOwlDisplayName")
 assert(plate.DisplayName.Size[1]==plate.Size[1]-84)
+assert(shineLabel.Text==plate.DisplayName.Text and shineLabel.Size==plate.DisplayName.Size)
 -- The gradient sweeps for 2.5s, rests 1.5s, then plays again.
 for i=1,68 do frame:Fire(0.06) end
 assert(shineTween.plays==2 and shineTween.cancels>=1)
+assert(crimson.Offset[1]==0 and crimson.Offset[2]==0)
+assert(shineMask.Offset[1]==-1 and shineMask.Offset[2]==0)
+assert(maskStops[1][2]==1 and maskStops[7][2]==1)
 local regularGradient=crimson.Color
 -- Randomized glitch at 6.0s: 2px shift and white gradient for 0.12s.
 local sawGlitch,restored=false,false
 for i=1,55 do
     frame:Fire(0.06)
-    if name.Position[2]==2 and crimson.Color~=regularGradient then
+    if name.Position[2]==2 and shineLabel.Position[2]==2
+        and crimson.Color~=regularGradient then
         sawGlitch=true
     end
     if sawGlitch and name.Position[1]==0.5 and name.Position[2]==0.5
+        and shineLabel.Position[1]==0.5 and shineLabel.Position[2]==0.5
         and crimson.Color==regularGradient then
         restored=true
     end

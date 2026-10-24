@@ -133,7 +133,7 @@ function module.new(options)
     local events={}
     local ended=false
     local gui,humanoid,tween,healthEvent,nameEvent
-    local nameShineTween,namePulseTween,nameGradient,nameStroke
+    local nameShineTween,namePulseTween,nameGradient,nameShineGradient,nameStroke,shineLabel
     local oldDistance
     local plateGroup,plate,glowStroke,innerGlowStroke,plateScale
     local owls,emojiLabels={},{}
@@ -184,7 +184,9 @@ function module.new(options)
         if nameShineTween then nameShineTween:Cancel();nameShineTween=nil end
         if namePulseTween then namePulseTween:Cancel();namePulseTween=nil end
         nameGradient=nil
+        nameShineGradient=nil
         nameStroke=nil
+        shineLabel=nil
         shineClock=0
         glitchClock=0
         glitchRemaining=0
@@ -222,6 +224,11 @@ function module.new(options)
         displayLabel.Size=UDim2.fromOffset(
             width-2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING),CONFIG.HEIGHT)
         displayLabel.Text=showName(LocalPlayer.DisplayName)
+        if shineLabel then
+            shineLabel.Size=displayLabel.Size
+            shineLabel.Position=displayLabel.Position
+            shineLabel.Text=displayLabel.Text
+        end
     end
 
     local function createOwl(parent,name,x,isRight)
@@ -320,16 +327,44 @@ function module.new(options)
             Size=UDim2.fromOffset(w-2*(CONFIG.ICON_SIZE+CONFIG.ICON_PADDING),CONFIG.HEIGHT),
             BackgroundTransparency=1,BorderSizePixel=0,ZIndex=6,
         },plate)
-        -- Five-stop crimson text gradient. White TextColor3 prevents tinting it.
+        -- Keep the five-stop crimson base static; moving this gradient made
+        -- the whole name flash on every 4-second tween restart.
         nameGradient=new("UIGradient",{
             Name="CrimsonNameGradient",Color=NAME_COLORS,
-            Offset=Vector2.new(-1,0),Rotation=0,
+            Offset=Vector2.new(0,0),Rotation=0,
         },displayLabel)
+        -- Independent overlay: only a slim, soft highlight becomes visible
+        -- during its sweep. Both ends are fully transparent, so rewinding
+        -- Offset after the 1.5s pause cannot flash or alter the base name.
+        shineLabel=new("TextLabel",{
+            Name="NameShineOverlay",Text=displayLabel.Text,
+            Font=CONFIG.NAME_FONT,TextSize=CONFIG.NAME_SIZE,
+            TextColor3=Color3.fromRGB(255,228,236),
+            TextStrokeTransparency=1,
+            TextXAlignment=Enum.TextXAlignment.Center,
+            TextYAlignment=Enum.TextYAlignment.Center,
+            TextTruncate=Enum.TextTruncate.AtEnd,
+            AnchorPoint=Vector2.new(0.5,0.5),
+            Position=displayLabel.Position,Size=displayLabel.Size,
+            BackgroundTransparency=1,BorderSizePixel=0,ZIndex=7,
+        },plate)
+        nameShineGradient=new("UIGradient",{
+            Name="ShineMask",Offset=Vector2.new(-1,0),Rotation=0,
+            Transparency=NumberSequence.new({
+                NumberSequenceKeypoint.new(0,1),
+                NumberSequenceKeypoint.new(0.45,1),
+                NumberSequenceKeypoint.new(0.49,0.72),
+                NumberSequenceKeypoint.new(0.5,0.2),
+                NumberSequenceKeypoint.new(0.51,0.72),
+                NumberSequenceKeypoint.new(0.55,1),
+                NumberSequenceKeypoint.new(1,1),
+            }),
+        },shineLabel)
         -- UIStroke owns the breathing shadow instead of TextStrokeTransparency.
         nameStroke=stroke(displayLabel,Color3.fromRGB(26,0,8),1,0.2)
         nameStroke.Name="NamePulseStroke"
         nameStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual
-        nameShineTween=TweenService:Create(nameGradient,
+        nameShineTween=TweenService:Create(nameShineGradient,
             TweenInfo.new(CONFIG.NAME_SHINE_SECONDS,Enum.EasingStyle.Linear,
                 Enum.EasingDirection.Out),
             {Offset=Vector2.new(1,0)})
@@ -381,9 +416,9 @@ function module.new(options)
         shineClock=shineClock+step
         if shineClock>=CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE then
             shineClock=shineClock-(CONFIG.NAME_SHINE_SECONDS+CONFIG.NAME_SHINE_PAUSE)
-            if nameShineTween and nameGradient then
+            if nameShineTween and nameShineGradient then
                 nameShineTween:Cancel()
-                nameGradient.Offset=Vector2.new(-1,0)
+                nameShineGradient.Offset=Vector2.new(-1,0)
                 nameShineTween:Play()
             end
         end
@@ -395,6 +430,7 @@ function module.new(options)
                 if glitchRemaining<=0 then
                     glitchRemaining=0
                     displayLabel.Position=UDim2.fromScale(0.5,0.5)
+                    if shineLabel then shineLabel.Position=displayLabel.Position end
                     nameGradient.Color=NAME_COLORS
                 end
             else
@@ -405,6 +441,7 @@ function module.new(options)
                         (CONFIG.NAME_GLITCH_MAX-CONFIG.NAME_GLITCH_MIN)
                     glitchRemaining=CONFIG.NAME_GLITCH_SECONDS
                     displayLabel.Position=UDim2.new(0.5,2,0.5,0)
+                    if shineLabel then shineLabel.Position=displayLabel.Position end
                     nameGradient.Color=WHITE_FLASH
                 end
             end

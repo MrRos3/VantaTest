@@ -70,6 +70,11 @@ jobs:
           assert 'ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,138,158))' in script
           assert 'ColorSequenceKeypoint.new(0.6,Color3.fromRGB(255,42,77))' in script
           assert 'Color3.fromRGB(26,0,8),1,0.2' in script
+          assert 'NameShineOverlay' in script and 'ShineMask' in script
+          assert 'NumberSequenceKeypoint.new(0,1)' in script
+          assert 'NumberSequenceKeypoint.new(1,1)' in script
+          assert 'nameShineGradient.Offset=Vector2.new(-1,0)' in script
+          assert 'Offset=Vector2.new(0,0),Rotation=0' in script
           assert 'nameShineTween:Cancel()' in script
           assert 'namePulseTween:Cancel()' in script
           assert 'listen(Players.PlayerRemoving,function(p)' in script
