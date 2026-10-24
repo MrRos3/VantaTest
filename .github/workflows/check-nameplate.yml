@@ -83,7 +83,7 @@ jobs:
                           'NAME_PULSE', 'NAME_GLITCH', 'glitchClock', 'WHITE_FLASH',
                           'namePulseTween', 'nameGradient.Color='):
               assert removed not in script, 'Obsolete name effect: ' + removed
-          assert standalone.endswith("return module.new()\\n")
+          assert standalone.endswith("return module.new()\n")
           assert 'TagChip' not in script and 'HealthFill' not in script
           assert 'NameplateVisibilityButton' in showcase
           assert 'nameplateToggle:Set(nameplateVisible, false, true)' in showcase
