@@ -112,12 +112,12 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Nameplate, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 
 -- NAMEPLATE ------------------------------------------------------------------
--- Native BillboardGui above YOUR head only, recreated on respawn.
--- Client-side; it does not create plates for other players or replicate.
-local NameplateTab = tab("Nameplate", "user-round", "Floating customizable nameplate over your character")
+-- Use the exact owl PNG uploaded to VantaTest GitHub (with a native fallback).
+-- Older all-player Vanta owl overlays are cleaned up by the new module.
+local NameplateTab = tab("Nameplate", "user-round", "Owl | Your own overhead nameplate")
 add(NameplateTab, "Section", {
-    Title = "Your floating nameplate",
-    Desc = "Your personal Vanta Edge plate, with polished health bar and respawn handling.",
+    Title = "Vanta Owl",
+    Desc = "Two monochrome owls, one display name, only above your character.",
     Icon = "user-round",
 })
 local NameplateModule
@@ -128,13 +128,9 @@ local okNameplate, nameplateError = pcall(function()
     assert(type(NameplateModule.new) == "function", "Nameplate module is not ready")
     NameplateController = NameplateModule.new({
         Enabled = true,
-        Tag = "VANTA",
-        Style = "Crimson",
-        ShowUsername = false,
         Scale = 100,
         MaxDistance = 60,
         Height = 2.5,
-        Subtitle = "MEMBER",
     })
 end)
 if not okNameplate then
@@ -282,32 +278,9 @@ end)
 if not rightOk then
     warn("[VantaTest LAB / Nameplate topbar] " .. tostring(rightError))
 end
-add(NameplateTab, "Dropdown", {
-    Title = "Nameplate theme",
-    Desc = "Three clean styles inspired by Vanta",
-    Values = { "Crimson", "OLED", "Steel" },
-    Value = "Crimson",
-    Callback = function(value) updateNameplate("SetStyle", value) end,
-})
-add(NameplateTab, "Input", {
-    Title = "Small tag",
-    Desc = "Solid crimson corner badge, up to 18 characters",
-    Value = "VANTA",
-    Placeholder = "VANTA",
-    Callback = function(value) updateNameplate("SetTag", value) end,
-})
-add(NameplateTab, "Input", {
-    Title = "Status or rank",
-    Desc = "Second line when display name and username match; enter your own rank or level",
-    Value = "MEMBER",
-    Placeholder = "MEMBER",
-    Callback = function(value) updateNameplate("SetSubtitle", value) end,
-})
-add(NameplateTab, "Toggle", {
-    Title = "Show @username",
-    Desc = "Show the real @username only if it differs from your display name",
-    Value = false,
-    Callback = function(value) updateNameplate("SetShowUsername", value) end,
+add(NameplateTab, "Paragraph", {
+    Title = "Your owl image",
+    Desc = "Uses your PNG stored in VantaTest GitHub. Executors with getcustomasset show the actual white owl on both sides; otherwise an owl emoji appears so nothing is blank.",
 })
 add(NameplateTab, "Slider", {
     Title = "Nameplate size",
@@ -325,14 +298,14 @@ add(NameplateTab, "Slider", {
 })
 add(NameplateTab, "Slider", {
     Title = "Visibility distance",
-    Desc = "Begins fading at 40 studs; name-only near 60 studs",
+    Desc = "Owls and name fade together beyond 40 studs",
     Value = { Min = 30, Max = 150, Default = 60 },
     Step = 10,
     Callback = function(value) updateNameplate("SetDistance", value) end,
 })
 add(NameplateTab, "Paragraph", {
     Title = "Local-only display",
-    Desc = "Only your own character receives this local nameplate. It survives your respawns and does not add plates to other players.",
+    Desc = "Only YOUR character gets the owl plate. Previous all-player Vanta Owl nameplates are cleaned up. Exact PNG rendering needs getcustomasset/getsynasset or a Roblox image ID.",
 })
 
 -- BUTTONS --------------------------------------------------------------------

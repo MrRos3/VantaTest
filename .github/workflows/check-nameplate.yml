@@ -1,4 +1,4 @@
-name: Check VantaTest Nameplate
+name: Check Vanta Owl nameplate
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - "nameplate.lua"
       - "nameplate_standalone.lua"
       - "example.lua"
+      - "assets/owl/vanta_owl_96.png"
       - "tests/nameplate_mock.lua"
       - ".github/workflows/check-nameplate.yml"
   pull_request:
@@ -14,6 +15,7 @@ on:
       - "nameplate.lua"
       - "nameplate_standalone.lua"
       - "example.lua"
+      - "assets/owl/vanta_owl_96.png"
       - "tests/nameplate_mock.lua"
       - ".github/workflows/check-nameplate.yml"
 
@@ -21,63 +23,47 @@ permissions:
   contents: read
 
 jobs:
-  nameplate:
+  owl:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: leafo/gh-actions-lua@v11
         with:
           luaVersion: "5.1"
-      - name: Validate Lua syntax
+      - name: Check Lua syntax
         run: |
           luac -p nameplate.lua
           luac -p nameplate_standalone.lua
           luac -p example.lua
           luac -p tests/nameplate_mock.lua
-      - name: Exercise local-only nameplate lifecycle
+      - name: Test local-only Owl GUI and respawn
         run: lua tests/nameplate_mock.lua
-      - name: Verify native icon, respawn-safe lifecycle, and no external art
+      - name: Verify owl art and loader wiring
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          n=Path("nameplate.lua").read_text()
-          standalone=Path("nameplate_standalone.lua").read_text()
+          import struct
+          owl = Path("assets/owl/vanta_owl_96.png").read_bytes()
+          assert owl[:8] == b"\x89PNG\r\n\x1a\n"
+          assert struct.unpack(">II", owl[16:24]) == (96,96)
+          script = Path("nameplate.lua").read_text()
+          standalone = Path("nameplate_standalone.lua").read_text()
+          showcase = Path("example.lua").read_text()
+          assert 'OWL_SOURCE = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/owl/vanta_owl_96.png"' in script
+          assert 'getcustomasset' in script and 'getsynasset' in script
+          assert 'writefile' in script and 'game:HttpGet' in script
+          assert 'Players:GetPlayers()' in script # old overlay removal only
+          assert 'listen(LocalPlayer.CharacterAdded,startCharacter)' in script
+          assert 'listen(LocalPlayer.CharacterRemoving' in script
+          assert 'listen(Players.PlayerAdded' not in script
+          assert 'if p and p~=LocalPlayer then return nil end' in script
+          assert 'LeftOwl' in script and 'RightOwl' in script
+          assert '🦉' in script
+          assert 'TagChip' not in script and 'HealthFill' not in script
           assert standalone.endswith("return module.new()\n")
-          assert "rbxassetid://" not in standalone
-          source=Path("example.lua").read_text()
-          assert 'GetUserThumbnailAsync' in n
-          assert 'game:GetService("TweenService")' in n
-          assert 'TweenInfo.new(4,' in n
-          assert 'bind(LocalPlayer)' in n
-          assert 'Players.PlayerAdded:Connect(bind)' not in n
-          assert 'Players.PlayerRemoving:Connect(unbind)' not in n
-          assert 'for _,p in ipairs(Players:GetPlayers())' not in n
-          assert 'p.CharacterAdded:Connect' in n
-          assert 'p.CharacterRemoving:Connect' in n
-          assert 'if p ~= nil and p ~= LocalPlayer then return nil end' in n
-          assert 'Width = 230, Height = 72' in n
-          assert 'BarInset = 10, BarHeight = 3, BarBottomInset = 3' in n
-          assert 'BarTrack = Color3.fromRGB(42,10,18)' in n
-          assert 'round(hpBackground,2)' in n
-          assert 'round(hpFill,2)' in n
-          assert 'Position=UDim2.new(1,0,1,-10)' in n
-          assert 'round(tag,3)' in n
-          assert 'TextTruncate=Enum.TextTruncate.AtEnd' in n
-          assert 'local scripts=LocalPlayer:WaitForChild("PlayerScripts")' in n
-          assert 'local lifecycle=make("Folder",{Name=ROOT},scripts)' in n
-          assert 'record.player.Character~=character' in n
-          assert 'record.serial~=version' in n
-          assert 'config.LoadRemoteImage' not in n
-          assert 'HttpGet' not in n and 'FireServer' not in n
-          assert 'rbxassetid://' not in n
-          assert 'NameplateVisibilitySlot' in source
-          assert 'NameplateVisibilityButton' in source
-          assert 'Name = "NativeEye"' in source
-          assert 'Name = "EyePupil"' in source
-          assert 'Name = "HiddenSlash"' in source
-          assert 'ImageLabel' not in source.split('local rightOk, rightError = pcall(function()',1)[1].split('end)',1)[0]
-          assert 'nameplateToggle:Set(nameplateVisible, false, true)' in source
-          assert 'slot.LayoutOrder = 996' in source
-          assert 'ChatTab' not in source and 'Vanta Chat' not in source
-          print("Local-only nameplate geometry, eye control and respawn-safe lifecycle verified.")
+          assert 'NameplateVisibilityButton' in showcase
+          assert 'nameplateToggle:Set(nameplateVisible, false, true)' in showcase
+          assert '"SetSubtitle"' not in showcase and '"SetTag"' not in showcase
+          assert 'Vanta Chat' not in showcase
+          print("Vanta Owl repo image, centered self-only GUI, native fallback and respawn behavior verified.")
           PY

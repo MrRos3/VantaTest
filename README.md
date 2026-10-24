@@ -29,25 +29,22 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Edge: YOUR nameplate only
+### Vanta Owl: your own overhead nameplate 🦉
 
-The **Nameplate** tab in VantaTest shows a client-side overhead `BillboardGui` above **your own Roblox character only**. No extra nameplates are created for friends, strangers, or other players. The nameplate is not replicated to other clients.
+The **Nameplate** tab now renders **[owl] [your DisplayName] [owl]** above **your character only**. No other players get a Vanta plate, even if they join or respawn. The script also shuts down the earlier all-player `__VANTA_OWL_CLEANUP` executor script when available and clears stale `VantaOwlNameplate` Billboards from other heads on launch. It **never** deletes Roblox's or other games' unrelated nameplates.
 
-**Latest polish:** A dark `#2A0A12` health track sits **10px in from both sides**, fills crimson, measures **3px high**, and has rounded ends. The subtitle ends 4px above the bar. The status dot is offset 3px upward and rightward; the VANTA badge has a **3px radius** and 6px inset. The display name uses **GothamBold**, `TextTruncate.AtEnd`, and a width limited to the space beside the avatar. The plate is now about **230 × 72px**, slightly taller than the earlier 64px version so the 40px avatar, badge, subtitle, and full-width health bar don't collide.
+**Your own owl artwork is included in the GitHub repo:** [assets/owl/vanta_owl_96.png](assets/owl/vanta_owl_96.png), a transparent 96px optimized copy of the provided black-and-white owl. No unknown Roblox asset ID or `PASTE_ID_HERE` remains. The Lua module downloads the PNG, writes `VantaTest_Owl_96.png` locally and registers it with executor `getcustomasset` or `getsynasset`. If those executor file/image APIs are unavailable, **owl emojis are displayed as fallbacks**, rather than blank icon slots. Because Roblox doesn't accept raw HTTP image URLs as `ImageLabel.Image`, showing the exact PNG in an ordinary Studio LocalScript would instead require uploading it to Roblox and putting the resulting public ID in `CONFIG.OWL_IMAGE`.
 
-The other design details remain: near-black translucent plate, native rounded-edge approximation, a gradient crimson 1px outline, restrained red halo, circular Roblox headshot (`GetUserThumbnailAsync`), bright red avatar ring, green/red damage status dot, and a **MEMBER** subtitle. The border sweeps every four seconds, the glow pulses softly, the plate flickers on real damage, and distance fading starts beyond 40 studs. There are **no custom external PNG/image dependencies**.
+The plate has a subtle dark-crimson glow and a 1px animated border, auto sizes to the width of your current display name (minimum 200px), shows exactly two unmirrored 30px owls and a centered white name, and fades/shrinks after 40 studs. There is **no avatar, VANTA tag, rank, subtitle, status dot, or health bar**.
 
-The controller resides under `PlayerScripts` and reconnects to **your** `CharacterAdded`/`CharacterRemoving` events to survive respawns and PlayerGui resets. It safely cleans itself up upon re-execution. The topbar eye/eye-off control is made from native UI shapes, and it stays synced with the Nameplate tab switch. Crimson01 stays unchanged. The removed chat feature stays removed. VantaUI production is not modified.
+**Controls:** eye/eye-off in the VantaTest window topbar, the matching Show nameplate switch, and size/height/distance sliders. The controller lives in PlayerScripts, follows only your CharacterAdded and CharacterRemoving, and re-creates the plate after respawn without stacking duplicates. The Crimson01 background and all unrelated UI remain unchanged. VantaUI is untouched.
 
-Standalone no-assets LocalScript: <https://github.com/MrRos3/VantaTest/blob/main/nameplate_standalone.lua>. Running it creates the nameplate for your character immediately, without needing the VantaTest window.
+Standalone script: [nameplate_standalone.lua](nameplate_standalone.lua). It uses the same owl PNG loading logic and self-only behavior as the main module.
 
 ```lua
-local module = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/nameplate.lua?v=" .. os.time()
+loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/MrRos3/VantaTest/main/nameplate_standalone.lua?v=" .. os.time()
 ))()
-local nameplate = module.new({Tag="VANTA", Subtitle="MEMBER", MaxDistance=60})
--- nameplate:SetEnabled(false)
--- nameplate:Destroy()
 ```
 
 ### Crimson01 living wallpaper
