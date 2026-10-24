@@ -179,6 +179,49 @@ assert(friend.CharacterAdded.listeners[1]==nil,"Do not subscribe to other player
 assert(hum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
 
 local plate=ui.NameplateGroup.Plate
+local plateCorner=assert(plate:FindFirstChildOfClass("UICorner"))
+assert(plateCorner.CornerRadius[1]==0 and plateCorner.CornerRadius[2]==4)
+assert(plate.BackgroundColor3[1]==9 and plate.BackgroundColor3[2]==9
+    and plate.BackgroundColor3[3]==11)
+assert(plate.BackgroundTransparency==0.1)
+assert(plate.BorderSizePixel==0)
+assert(ui.NameplateGroup.SoftGlow==nil and ui.NameplateGroup.InnerGlow==nil)
+assert(plate:FindFirstChildOfClass("UIGradient")==nil,
+    "Plate fill must be flat black, never an inner gradient")
+local plateBorder=assert(plate.CrimsonBorderStroke)
+assert(plateBorder.Thickness==2 and plateBorder.Transparency==0)
+assert(plateBorder.Color[1]==255 and plateBorder.Color[2]==255 and plateBorder.Color[3]==255)
+local borderGradient=assert(plateBorder.RotatingCrimsonBorder)
+local borderStops=borderGradient.Color[1]
+assert(#borderStops==8)
+local function hasBorderPoint(p,r,g,b)
+    for _,point in ipairs(borderStops) do
+        if point[1]==p and point[2][1]==r and point[2][2]==g and point[2][3]==b then
+            return true
+        end
+    end
+    return false
+end
+assert(hasBorderPoint(0,255,26,61))
+assert(hasBorderPoint(0.5,90,10,28))
+assert(hasBorderPoint(1,255,26,61))
+assert(hasBorderPoint(0.25,255,106,131))
+assert(borderGradient.Rotation==0)
+local borderTween=tweenCreated[1]
+assert(borderTween.target==borderGradient)
+assert(borderTween.info[1]==4)
+assert(borderTween.info[2]==Enum.EasingStyle.Linear)
+assert(borderTween.info[4]==-1)
+assert(borderTween.goal.Rotation==360)
+assert(borderTween.plays==1)
+assert(#tweenCreated==2,"Only border rotation and name shine may tween")
+-- Only one plate frame underneath CanvasGroup; no glow frames or effects.
+for _,child in ipairs(all) do
+    if child.Parent==ui.NameplateGroup then
+        assert(child==plate or child.ClassName=="UIScale",
+            "Unexpected extra decoration in nameplate CanvasGroup")
+    end
+end
 assert(plate.LeftOwl.Image=="customasset://vanta_owl_96")
 assert(plate.RightOwl.Image==plate.LeftOwl.Image)
 assert(not plate.LeftOwlFallback.Visible and not plate.RightOwlFallback.Visible)
@@ -227,6 +270,7 @@ assert(name.Size[1]==200-84)
 localPlayer.DisplayName="SuperLongOwlDisplayName"
 localPlayer:GetPropertyChangedSignal("DisplayName"):Fire()
 assert(plate.Size[1]>200)
+assert(plateBorder.Parent==plate and borderTween.plays==1)
 assert(name.Text=="SuperLongOwlDisplayName")
 assert(name.Size[1]==plate.Size[1]-84)
 local fixedPosition=name.Position
@@ -258,6 +302,9 @@ workspace.CurrentCamera.CFrame.Position.X=50
 frame:Fire(0.06)
 assert(ui.NameplateGroup.GroupTransparency>0)
 assert(name.Parent==ui.NameplateGroup.Plate)
+assert(plateBorder.Parent==plate,"Border must inherit CanvasGroup distance fade")
+assert(plate.BackgroundTransparency==0.1,"Plate opacity must remain constant")
+assert(ui.NameplateGroup.UIScale.Scale==1,"No distance-driven scale animation")
 workspace.CurrentCamera.CFrame.Position.X=0
 frame:Fire(0.06)
 
@@ -276,6 +323,7 @@ assert(ui.MaxDistance==80)
 localPlayer.CharacterRemoving:Fire(ch)
 assert(m:GetBillboard()==nil)
 assert(shineTween.cancels>=5)
+assert(borderTween.cancels>=1,"Border rotation must stop on character removal")
 assert(crimson.Offset[1]==-1 and crimson.Offset[2]==0,
     "Character removal must cancel and reset the name shine")
 local newchar,newhead,newhum=character(localPlayer,2)
@@ -284,6 +332,7 @@ local nextGui=assert(m:GetBillboard())
 assert(nextGui.Adornee==newhead and nextGui.Parent==newhead)
 assert(nextGui.Plate~=plate)
 assert(nextGui.NameplateGroup.Plate.LeftOwl.Image=="customasset://vanta_owl_96")
+assert(nextGui.NameplateGroup.Plate.CrimsonBorderStroke.RotatingCrimsonBorder)
 assert(nextGui.NameplateGroup.Plate.DisplayName.CrimsonNameGradient.Offset[1]==-1)
 assert(nextGui.NameplateGroup.Plate.NameShineOverlay==nil)
 assert(newhum.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
@@ -306,4 +355,4 @@ assert(standalone:GetBillboard()~=nil)
 assert(standalone:GetBillboard(friend)==nil)
 playerLeaving:Fire(localPlayer)
 assert(standalone:GetBillboard()==nil)
-print("Vanta Owl: single red-white Michroma gradient, 1.4s Sine shine, 2.5s offscreen pause, fixed stroke, local-only fade and lifecycle cleanup PASS")
+print("Vanta Owl: flat black 4px plate, rotating crimson 2px border, single name shine, no glow/flicker, distance fade and cleanup PASS")
