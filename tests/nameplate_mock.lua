@@ -99,6 +99,13 @@ localPlayer.CharacterRemoving=signal()
 local playerGui=newObject("PlayerGui","PlayerGui",localPlayer)
 local char=newObject("Model","Character")
 local head=newObject("Part","Head",char)
+local coordinateMeta = {
+    __sub = function(a,b)
+        return {Magnitude=math.abs((a.X or 0)-(b.X or 0))}
+    end
+}
+head.Position={X=0}
+workspace={CurrentCamera={CFrame={Position=setmetatable({X=0},coordinateMeta)}}}
 local humanoid=newObject("Humanoid","Humanoid",char)
 humanoid.DisplayDistanceType=Enum.HumanoidDisplayDistanceType.Viewer
 humanoid.Health=100
@@ -132,6 +139,17 @@ assert(plate.StatusLine.Text=="@SaltyExample")
 assert(plate.HealthBar.HealthFill.Size[1]==1)
 assert(plate.AvatarRing.StatusDot.BackgroundColor3)
 assert(humanoid.DisplayDistanceType==Enum.HumanoidDisplayDistanceType.None)
+workspace.CurrentCamera.CFrame.Position.X=52
+renderStep:Fire(1/15)
+assert(group.GroupTransparency>0.4 and group.GroupTransparency<0.6)
+assert(billboard.NameOnly.Visible==true)
+workspace.CurrentCamera.CFrame.Position.X=70
+renderStep:Fire(1/15)
+assert(group.GroupTransparency==1)
+workspace.CurrentCamera.CFrame.Position.X=0
+renderStep:Fire(1/15)
+assert(group.GroupTransparency==0)
+assert(not billboard.NameOnly.Visible)
 
 instance:SetTag("BOLT")
 assert(plate.TagChip.TagText.Text=="BOLT")
@@ -142,6 +160,13 @@ instance:SetShowUsername(false)
 assert(plate.StatusLine.Text=="VANTA // MEMBER")
 instance:SetSubtitle("VANTA // LVL 42")
 assert(plate.StatusLine.Text=="VANTA // LVL 42")
+-- Matching real and display names must not waste the subtitle line.
+local oldDisplayName=localPlayer.DisplayName
+localPlayer.DisplayName=localPlayer.Name
+instance:SetSubtitle("VANTA // TESTER")
+assert(plate.StatusLine.Text=="VANTA // TESTER")
+localPlayer.DisplayName=oldDisplayName
+instance:SetSubtitle("VANTA // LVL 42")
 instance:SetScale(130)
 assert(billboard.Size[1]==374)
 instance:SetHeight(3.4)

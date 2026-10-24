@@ -54,8 +54,17 @@ jobs:
           assert 'ui.PlateGroup.GroupTransparency' in n
           assert 'combatLeft=4' in n
           assert 'ShowUsername' in n and 'SetSubtitle' in n
-          assert Path('assets/nameplate/vanta-edge-shell.png').exists()
-          assert Path('assets/nameplate/vanta-edge-glow-9slice.png').exists()
+          import struct
+          assets = {
+              'assets/nameplate/vanta-edge-shell.png': (496,144),
+              'assets/nameplate/vanta-edge-glow-9slice.png': (96,96),
+          }
+          for file, expected in assets.items():
+              content = Path(file).read_bytes()
+              assert content[:8] == b'\x89PNG\r\n\x1a\n'
+              assert struct.unpack('>II', content[16:24]) == expected
+              assert content[25] == 6 # RGBA with transparency
+          assert 'if distance' not in n or 'nextFade' in n
           for method in ('SetEnabled','SetStyle','SetTag','SetSubtitle','SetScale',
                          'SetHeight','SetDistance','SetShowUsername','Destroy'):
               assert 'function controller:' + method in n
