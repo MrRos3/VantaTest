@@ -29,24 +29,23 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
-### Vanta Edge nameplates for every player (client-side)
+### Vanta Edge: YOUR nameplate only
 
-Run the VantaTest showcase and open **Nameplate**. The current build creates one native Roblox `BillboardGui` on every player's character, visible **only to your client**. It reattaches when you or another player respawns, removes departed players, and keeps the controller alive under **PlayerScripts**, not the resettable **PlayerGui**. The existing topbar eye button now uses a **native eye icon** with an eye-off slash (no missing/private image assets), and stays synchronized with the Nameplate tab's Show switch.
+The **Nameplate** tab in VantaTest shows a client-side overhead `BillboardGui` above **your own Roblox character only**. No extra nameplates are created for friends, strangers, or other players. The nameplate is not replicated to other clients.
 
-Default appearance: approx. 230 × 64px near-black translucent plate with a subtle top-down fill gradient, thin crimson gradient stroke (`#E0173D` → `#4A0A18`), low-opacity native glow, 40px circular avatar, bright `#FF2A4D` ring, damage-sensitive status dot, crisp white GothamBold display name, **MEMBER** subtitle, compact solid VANTA badge, and a thin health indicator. The native frame uses a small rounded-corner approximation of the angled silhouette; there are **no external PNGs or other image assets**. Avatar portraits are requested via Roblox `Players:GetUserThumbnailAsync`.
+**Latest polish:** A dark `#2A0A12` health track sits **10px in from both sides**, fills crimson, measures **3px high**, and has rounded ends. The subtitle ends 4px above the bar. The status dot is offset 3px upward and rightward; the VANTA badge has a **3px radius** and 6px inset. The display name uses **GothamBold**, `TextTruncate.AtEnd`, and a width limited to the space beside the avatar. The plate is now about **230 × 72px**, slightly taller than the earlier 64px version so the 40px avatar, badge, subtitle, and full-width health bar don't collide.
 
-The border-light sweep is a looping **four-second TweenService animation**; the glow pulses softly and the plate briefly flickers after actual Humanoid damage. At 40–60 studs the plate fades to a small name-only view. The initial maximum distance is 60 studs, adjustable in the Nameplate tab. Nameplate display, theme, text, height, scale, distance, and optional real @username are controllable live. The default Roblox name is restored when you hide the custom nameplate or unload it.
+The other design details remain: near-black translucent plate, native rounded-edge approximation, a gradient crimson 1px outline, restrained red halo, circular Roblox headshot (`GetUserThumbnailAsync`), bright red avatar ring, green/red damage status dot, and a **MEMBER** subtitle. The border sweeps every four seconds, the glow pulses softly, the plate flickers on real damage, and distance fading starts beyond 40 studs. There are **no custom external PNG/image dependencies**.
 
-**Visibility caveat:** This is a client-side visual overlay for players you see. Other Roblox clients will not see your customization without server-side code in an experience you control. VantaUI is never modified by these changes; the old chat feature remains removed.
+The controller resides under `PlayerScripts` and reconnects to **your** `CharacterAdded`/`CharacterRemoving` events to survive respawns and PlayerGui resets. It safely cleans itself up upon re-execution. The topbar eye/eye-off control is made from native UI shapes, and it stays synced with the Nameplate tab switch. Crimson01 stays unchanged. The removed chat feature stays removed. VantaUI production is not modified.
 
-For a **single self-contained LocalScript**, use [nameplate_standalone.lua](nameplate_standalone.lua). It automatically starts when placed in StarterPlayerScripts in a Roblox experience you control, or when executed directly. It has no external code or image dependencies beyond player headshots provided by Roblox.
-
-Stand-alone use of the no-assets module:
+Standalone no-assets LocalScript: <https://github.com/MrRos3/VantaTest/blob/main/nameplate_standalone.lua>. Running it creates the nameplate for your character immediately, without needing the VantaTest window.
 
 ```lua
-local nameplate = loadstring(game:HttpGet(
+local module = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/MrRos3/VantaTest/main/nameplate.lua?v=" .. os.time()
-))().new({Enabled=true, Tag="VANTA", Subtitle="MEMBER", MaxDistance=60})
+))()
+local nameplate = module.new({Tag="VANTA", Subtitle="MEMBER", MaxDistance=60})
 -- nameplate:SetEnabled(false)
 -- nameplate:Destroy()
 ```

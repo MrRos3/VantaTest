@@ -1,6 +1,6 @@
 -- Vanta Edge overhead nameplates. Self-contained Roblox LocalScript module.
 -- All art uses native Roblox UI; ONLY headshots use GetUserThumbnailAsync.
--- Client-only: visible to THIS client for every player, not replicated.
+-- Client-only: visible for LocalPlayer only, never other players.
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -8,7 +8,11 @@ local LocalPlayer = assert(Players.LocalPlayer, "Vanta Edge requires a client")
 
 local CONFIG = {
     Tag = "VANTA", Subtitle = "MEMBER",
-    Width = 230, Height = 64, Scale = 100,
+    -- Extra height keeps the 40px avatar clear of the full-width bottom bar.
+    Width = 230, Height = 72, Scale = 100,
+    NameLeft = 60, NameRightPadding = 10,
+    BarInset = 10, BarHeight = 3, BarBottomInset = 3,
+    BarTrack = Color3.fromRGB(42,10,18), -- #2A0A12
     Fill = Color3.fromRGB(14,14,16), FillTransparency = 0.15,
     Crimson = Color3.fromRGB(224,23,61),
     CrimsonDark = Color3.fromRGB(74,10,24),
@@ -144,7 +148,7 @@ function module.new(opts)
     local function setGeometry(record)
         local ui=record.ui
         if not ui then return end
-        record.billboard.Size=UDim2.fromOffset(math.floor(246*state.scale),math.floor(80*state.scale))
+        record.billboard.Size=UDim2.fromOffset(math.floor(246*state.scale),math.floor(88*state.scale))
         record.billboard.StudsOffsetWorldSpace=Vector3.new(0,state.height,0)
         record.billboard.MaxDistance=state.maxDistance
         ui.Scale.Scale=state.scale
@@ -173,7 +177,7 @@ function module.new(opts)
         end
         local gui=make("BillboardGui",{
             Name=BILLBOARD,Adornee=head,AlwaysOnTop=true,Active=false,Enabled=state.enabled,
-            ResetOnSpawn=false,LightInfluence=0,Size=UDim2.fromOffset(246,80),
+            ResetOnSpawn=false,LightInfluence=0,Size=UDim2.fromOffset(246,88),
             MaxDistance=state.maxDistance,
             StudsOffsetWorldSpace=Vector3.new(0,state.height,0),
         },LocalPlayer:WaitForChild("PlayerGui"))
@@ -187,7 +191,7 @@ function module.new(opts)
         })
 
         local group=make("CanvasGroup",{
-            Name="PlateGroup",Size=UDim2.fromOffset(246,80),
+            Name="PlateGroup",Size=UDim2.fromOffset(246,88),
             AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),
             BackgroundTransparency=1,BorderSizePixel=0,GroupTransparency=0,
             Active=false,
@@ -197,7 +201,7 @@ function module.new(opts)
         -- A soft native 2-layer red halo. No external image asset required.
         local halo=make("Frame",{
             Name="SoftGlow",Position=UDim2.fromOffset(10,8),
-            Size=UDim2.fromOffset(226,68),BackgroundTransparency=1,BorderSizePixel=0,
+            Size=UDim2.fromOffset(226,76),BackgroundTransparency=1,BorderSizePixel=0,
             ZIndex=1,
         },group)
         round(halo,8)
@@ -231,17 +235,17 @@ function module.new(opts)
 
         local tag=make("Frame",{
             Name="TagChip",Size=UDim2.fromOffset(64,15),
-            Position=UDim2.fromOffset(4,4),BackgroundColor3=CONFIG.Crimson,
+            Position=UDim2.fromOffset(6,6),BackgroundColor3=CONFIG.Crimson,
             BorderSizePixel=0,ZIndex=5,
         },plate)
-        round(tag,2)
+        round(tag,3)
         local tagLabel=text(tag,"TagText",state.tag,CONFIG.TagSize,CONFIG.Fill,true,{
             Position=UDim2.fromOffset(7,0),
             Size=UDim2.new(1,-12,1,0),ZIndex=6,
         })
         local avatarRing=make("Frame",{
             Name="AvatarRing",Size=UDim2.fromOffset(40,40),
-            Position=UDim2.fromOffset(8,19),
+            Position=UDim2.fromOffset(8,23),
             BackgroundColor3=CONFIG.BrightRing,BorderSizePixel=0,ZIndex=5,
         },plate)
         round(avatarRing,21)
@@ -265,7 +269,7 @@ function module.new(opts)
         })
         local dot=make("Frame",{
             Name="StatusDot",Size=UDim2.fromOffset(10,10),
-            Position=UDim2.new(1,-3,1,-7),
+            Position=UDim2.new(1,0,1,-10),
             BackgroundColor3=CONFIG.IdleDot,BorderSizePixel=0,ZIndex=9,
         },avatarRing)
         round(dot,6)
@@ -273,24 +277,30 @@ function module.new(opts)
 
         local name=text(plate,"DisplayName",record.player.DisplayName,CONFIG.NameSize,
             Color3.fromRGB(255,255,255),true,{
-            Position=UDim2.fromOffset(56,23),Size=UDim2.fromOffset(167,20),
+            Position=UDim2.fromOffset(CONFIG.NameLeft,28),
+            Size=UDim2.new(1,-(CONFIG.NameLeft+CONFIG.NameRightPadding),0,19),
+            TextTruncate=Enum.TextTruncate.AtEnd,
             TextStrokeColor3=CONFIG.Fill,TextStrokeTransparency=0.24,ZIndex=7,
         })
         local subtitle=text(plate,"StatusLine",state.subtitle,CONFIG.SubtitleSize,
             CONFIG.Crimson,true,{
-            Position=UDim2.fromOffset(56,42),Size=UDim2.fromOffset(166,17),
+            Position=UDim2.fromOffset(CONFIG.NameLeft,48),
+            Size=UDim2.new(1,-(CONFIG.NameLeft+CONFIG.NameRightPadding),0,14),
             TextTransparency=0.3,ZIndex=7,
         })
         local hpBackground=make("Frame",{
-            Name="HealthBar",Position=UDim2.fromOffset(56,60),
-            Size=UDim2.fromOffset(167,2),
-            BackgroundColor3=Color3.fromRGB(58,32,40),
-            BackgroundTransparency=0.25,BorderSizePixel=0,ZIndex=7,
+            Name="HealthBar",
+            Position=UDim2.fromOffset(CONFIG.BarInset,CONFIG.Height-CONFIG.BarHeight-CONFIG.BarBottomInset),
+            Size=UDim2.new(1,-2*CONFIG.BarInset,0,CONFIG.BarHeight),
+            BackgroundColor3=CONFIG.BarTrack,
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=7,
         },plate)
+        round(hpBackground,2)
         local hpFill=make("Frame",{
             Name="HealthFill",Size=UDim2.fromScale(1,1),
             BackgroundColor3=CONFIG.Crimson,BorderSizePixel=0,ZIndex=8,
         },hpBackground)
+        round(hpFill,2)
         record.ui={
             PlateGroup=group,Scale=groupScale,Plate=plate,Name=name,
             DistanceName=far,Tag=tag,TagText=tagLabel,
@@ -360,10 +370,8 @@ function module.new(opts)
         if p.Character then attach(record,p.Character) end
     end
 
-    track(Players.PlayerAdded:Connect(bind))
-    track(Players.PlayerRemoving:Connect(unbind))
-    -- Bind newly joined players too, even during initial enumeration.
-    for _,p in ipairs(Players:GetPlayers()) do bind(p) end
+    -- Only the local player's head gets a nameplate; CharacterAdded handles respawn.
+    bind(LocalPlayer)
 
     track(RunService.RenderStepped:Connect(function(dt)
         if stopped or not state.enabled then return end
@@ -455,7 +463,8 @@ function module.new(opts)
         for _,record in pairs(records) do applyLook(record) end
     end
     function api:GetBillboard(p)
-        local record=records[p or LocalPlayer]
+        if p ~= nil and p ~= LocalPlayer then return nil end
+        local record=records[LocalPlayer]
         return record and record.billboard or nil
     end
     function api:Destroy()

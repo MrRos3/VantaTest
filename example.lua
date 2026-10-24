@@ -112,12 +112,12 @@ add(Home, "Divider", {})
 add(Home, "Section", { Title = "What's inside", Desc = "Nameplate, buttons, toggles, keybinds, sliders, progress bars, dropdowns, inputs, themes, layouts, images and more." })
 
 -- NAMEPLATE ------------------------------------------------------------------
--- Native BillboardGui above every player, recreated on each respawn.
--- Client-side only; not replicated across Roblox clients.
+-- Native BillboardGui above YOUR head only, recreated on respawn.
+-- Client-side; it does not create plates for other players or replicate.
 local NameplateTab = tab("Nameplate", "user-round", "Floating customizable nameplate over your character")
 add(NameplateTab, "Section", {
     Title = "Your floating nameplate",
-    Desc = "Native Vanta Edge overhead tags for every player, surviving all respawns.",
+    Desc = "Your personal Vanta Edge plate, with polished health bar and respawn handling.",
     Icon = "user-round",
 })
 local NameplateModule
@@ -332,7 +332,7 @@ add(NameplateTab, "Slider", {
 })
 add(NameplateTab, "Paragraph", {
     Title = "Local-only display",
-    Desc = "Your client draws this tag for every player and restores it when they respawn. Other Roblox clients cannot see it unless the game server implements it.",
+    Desc = "Only your own character receives this local nameplate. It survives your respawns and does not add plates to other players.",
 })
 
 -- BUTTONS --------------------------------------------------------------------

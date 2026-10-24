@@ -34,7 +34,7 @@ jobs:
           luac -p nameplate_standalone.lua
           luac -p example.lua
           luac -p tests/nameplate_mock.lua
-      - name: Exercise all-player nameplate lifecycle
+      - name: Exercise local-only nameplate lifecycle
         run: lua tests/nameplate_mock.lua
       - name: Verify native icon, respawn-safe lifecycle, and no external art
         run: |
@@ -48,10 +48,21 @@ jobs:
           assert 'GetUserThumbnailAsync' in n
           assert 'game:GetService("TweenService")' in n
           assert 'TweenInfo.new(4,' in n
-          assert 'Players.PlayerAdded:Connect(bind)' in n
-          assert 'Players.PlayerRemoving:Connect(unbind)' in n
+          assert 'bind(LocalPlayer)' in n
+          assert 'Players.PlayerAdded:Connect(bind)' not in n
+          assert 'Players.PlayerRemoving:Connect(unbind)' not in n
+          assert 'for _,p in ipairs(Players:GetPlayers())' not in n
           assert 'p.CharacterAdded:Connect' in n
           assert 'p.CharacterRemoving:Connect' in n
+          assert 'if p ~= nil and p ~= LocalPlayer then return nil end' in n
+          assert 'Width = 230, Height = 72' in n
+          assert 'BarInset = 10, BarHeight = 3, BarBottomInset = 3' in n
+          assert 'BarTrack = Color3.fromRGB(42,10,18)' in n
+          assert 'round(hpBackground,2)' in n
+          assert 'round(hpFill,2)' in n
+          assert 'Position=UDim2.new(1,0,1,-10)' in n
+          assert 'round(tag,3)' in n
+          assert 'TextTruncate=Enum.TextTruncate.AtEnd' in n
           assert 'local scripts=LocalPlayer:WaitForChild("PlayerScripts")' in n
           assert 'local lifecycle=make("Folder",{Name=ROOT},scripts)' in n
           assert 'record.player.Character~=character' in n
@@ -68,5 +79,5 @@ jobs:
           assert 'nameplateToggle:Set(nameplateVisible, false, true)' in source
           assert 'slot.LayoutOrder = 996' in source
           assert 'ChatTab' not in source and 'Vanta Chat' not in source
-          print("No external imagery; eye control and respawn-safe nameplate structure verified.")
+          print("Local-only nameplate geometry, eye control and respawn-safe lifecycle verified.")
           PY
