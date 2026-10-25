@@ -801,6 +801,16 @@ return function(Config)
 		},
 	})
 
+	-- Static highlight on the real Michroma TextLabel, never a shine tween.
+	New("UIGradient", {
+		Name = "StaticMichromaTitleTint",
+		Parent = WindowTitle,
+		Color = ColorSequence.new(
+			Color3.fromRGB(255, 255, 255),
+			Color3.fromRGB(233, 236, 244)
+		),
+	})
+
 	Window.UIElements.Main = New("Frame", {
 		Size = UDim2.new(Window.Size.X.Scale, Window.Size.X.Offset, 0, 0),
 		Position = Window.Position,
