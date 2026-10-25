@@ -280,8 +280,56 @@ if not rightOk then
 end
 add(NameplateTab, "Paragraph", {
     Title = "Your owl image",
-    Desc = "Uses your PNG stored in VantaTest GitHub. Executors with getcustomasset show the actual white owl on both sides; otherwise an owl emoji appears so nothing is blank.",
+    Desc = "Loads your black-and-white owl PNG, or paste a Roblox image ID below. Missing executor APIs show a native white V in a circle.",
 })
+local owlStatusLabel = add(NameplateTab, "Paragraph", {
+    Title = "Owl asset status",
+    Desc = NameplateController and NameplateController:GetOwlStatus()
+        or ("module unavailable: " .. tostring(nameplateError)),
+})
+local function setOwlStatus(status)
+    if owlStatusLabel and owlStatusLabel.ParagraphFrame
+        and type(owlStatusLabel.ParagraphFrame.SetDesc) == "function" then
+        owlStatusLabel.ParagraphFrame:SetDesc(tostring(status))
+    end
+end
+if NameplateController and type(NameplateController.OnOwlStatus) == "function" then
+    NameplateController:OnOwlStatus(setOwlStatus)
+end
+local owlImageConfig
+local initializingOwlInput = true
+local owlInput = add(NameplateTab, "Input", {
+    Title = "Roblox owl image ID",
+    Desc = "Digits or rbxassetid://digits, applies live; saved by the config manager",
+    Placeholder = "rbxassetid://1234567890",
+    Value = "",
+    Callback = function(value)
+        if initializingOwlInput then return end
+        local input = tostring(value or ""):match("^%s*(.-)%s*$")
+        if input ~= "" and not input:match("^%d+$")
+            and not input:match("^rbxassetid://%d+$") then
+            setOwlStatus("invalid Roblox owl image ID")
+            return
+        end
+        updateNameplate("SetOwlImage", input)
+        if owlImageConfig then
+            local ok, err = pcall(function() owlImageConfig:Save() end)
+            if not ok then setOwlStatus("config save failed: " .. tostring(err)) end
+        end
+    end,
+})
+initializingOwlInput = false
+if owlInput and Window.ConfigManager then
+    local ok, config = pcall(function()
+        return Window.ConfigManager:CreateConfig("owl_image", true)
+    end)
+    if ok and config then
+        owlImageConfig = config
+        config:Register("RobloxOwlImage", owlInput)
+        -- Restores saved ID immediately when executor file APIs support config.
+        pcall(function() config:Load() end)
+    end
+end
 add(NameplateTab, "Slider", {
     Title = "Nameplate size",
     Desc = "Scale the complete card without changing your character",
