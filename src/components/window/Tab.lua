@@ -193,6 +193,14 @@ function TabModule.New(Config, UIScale)
 			}),
 		}),
 	})
+	Tab.UIElements.PremiumAccent = New("Frame",{
+		Name="PremiumAccent",Parent=Tab.UIElements.Main,
+		Size=UDim2.new(0,3,0.63,0),
+		Position=UDim2.new(0,2,0.5,0),
+		AnchorPoint=Vector2.new(0,0.5),BackgroundTransparency=1,
+		BorderSizePixel=0,Active=false,ZIndex=Tab.UIElements.Main.ZIndex+2,
+		ThemeTag={BackgroundColor3="Primary"},
+	},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
 	Tab.UIElements.Main.Frame.ZIndex = Tab.UIElements.Main.ZIndex + 1
 
 	local TextOffset = 0
@@ -384,10 +392,21 @@ function TabModule.New(Config, UIScale)
 			TabModule:SelectTab(TabIndex)
 		end
 	end)
-	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
+	local tabHome=Tab.UIElements.Main.Frame.Position
+	Creator.AddSignal(Tab.UIElements.Main.MouseEnter,function()
 		if not Tab.Locked then
 			Creator.PlaySound("Hover")
+			if not Creator.PremiumReduceMotion then
+				local x=tabHome.X
+				Creator.Tween(Tab.UIElements.Main.Frame,0.13,{
+					Position=UDim2.new(x.Scale,x.Offset+3,tabHome.Y.Scale,tabHome.Y.Offset),
+				},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
+			end
 		end
+	end)
+	Creator.AddSignal(Tab.UIElements.Main.MouseLeave,function()
+		Creator.Tween(Tab.UIElements.Main.Frame,0.14,{Position=tabHome},
+			Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 	end)
 
 	if Window.ScrollBarEnabled then
@@ -628,6 +647,9 @@ function TabModule:SelectTab(TabIndex)
 					ImageColor3 = "TabBackground",
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
+				Creator.Tween(TabObject.UIElements.PremiumAccent,0.15,{
+					BackgroundTransparency=1,
+				},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 				Creator.Tween(TabObject.UIElements.SelectionFade, 0.16, {
 					BackgroundTransparency = 1,
 				}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
@@ -654,6 +676,9 @@ function TabModule:SelectTab(TabIndex)
 			ImageColor3 = "TabBackgroundActive",
 			ImageTransparency = "TabBackgroundActiveTransparency",
 		}, 0.16)
+		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.PremiumAccent,0.18,{
+			BackgroundTransparency=0.02,
+		},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.SelectionFade, 0.18, {
 			BackgroundTransparency = 0,
 		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
