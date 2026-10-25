@@ -384,10 +384,27 @@ function TabModule.New(Config, UIScale)
 			TabModule:SelectTab(TabIndex)
 		end
 	end)
+	local tabHome = Tab.UIElements.Main.Frame.Position
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
 		if not Tab.Locked then
 			Creator.PlaySound("Hover")
+			if not Tab.Selected then
+				Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
+					{ TextColor3 = "Text" }, 0.12)
+				local pos = tabHome
+				Creator.Tween(Tab.UIElements.Main.Frame, 0.13, {
+					Position = UDim2.new(pos.X.Scale, pos.X.Offset + 2, pos.Y.Scale, pos.Y.Offset),
+				}, Enum.EasingStyle.Sine, Enum.EasingDirection.Out):Play()
+			end
 		end
+	end)
+	Creator.AddSignal(Tab.UIElements.Main.MouseLeave, function()
+		if not Tab.Selected then
+			Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
+				{ TextColor3 = "TabTitle" }, 0.13)
+		end
+		Creator.Tween(Tab.UIElements.Main.Frame, 0.13, { Position = tabHome },
+			Enum.EasingStyle.Sine, Enum.EasingDirection.Out):Play()
 	end)
 
 	if Window.ScrollBarEnabled then
