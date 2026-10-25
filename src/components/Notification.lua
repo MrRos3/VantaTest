@@ -154,11 +154,13 @@ function NotificationModule.New(Config)
 	New("UIGradient",{
 		Name="PremiumCountdownGradient",Parent=Duration,
 		Color=ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.fromRGB(90,10,28)),
-			ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,51,85)),
-			ColorSequenceKeypoint.new(1,Color3.fromRGB(90,10,28)),
+			ColorSequenceKeypoint.new(0,Color3.fromRGB(56,56,56)),
+			ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
+			ColorSequenceKeypoint.new(1,Color3.fromRGB(56,56,56)),
 		}),
 	})
+	-- The muted accent still multiplies the native gradient on the countdown.
+	Creator.AddThemeObject(Duration,{ImageColor3="Primary"})
 	local TextContainer = New("Frame", {
 		Size = UDim2.new(1, Notification.Icon and -28 - NotificationModule.UIPadding or 0, 1, 0),
 		Position = UDim2.new(1, 0, 0, 0),
