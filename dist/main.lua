@@ -7421,7 +7421,14 @@ ColorSequenceKeypoint.new(1,Color3.fromRGB(210,210,210)),
 },
 })
 
-local ay=ac("Frame",{
+
+local ay=ab.NewRoundFrame(99,"Squircle",{
+Name="PremiumTrackAura",Parent=aw,
+Size=UDim2.new(1,10,1,10),Position=UDim2.fromScale(0.5,0.5),
+AnchorPoint=Vector2.new(0.5,0.5),ImageTransparency=1,
+Active=false,ZIndex=2,ThemeTag={ImageColor3="Toggle"},
+})
+local az=ac("Frame",{
 Name="Thumb",
 Size=UDim2.fromOffset(ap,ap),
 Position=UDim2.new(0,aq,0.5,0),
@@ -7432,32 +7439,38 @@ BorderSizePixel=0,
 ZIndex=5,
 Parent=aw,
 })
-addCorner(ay,ap/2)
-local az=addStroke(ay,getOnColor(),0.48,1)
-ab.AddThemeObject(az,{Color="Toggle"})
+addCorner(az,ap/2)
+local aA=ab.NewRoundFrame(999,"Squircle",{
+Name="PremiumKnobAura",Parent=az,
+Size=UDim2.new(1,12,1,12),AnchorPoint=Vector2.new(0.5,0.5),
+Position=UDim2.fromScale(0.5,0.5),ImageTransparency=1,
+Active=false,ZIndex=4,ThemeTag={ImageColor3="Toggle"},
+})
+local aB=addStroke(az,getOnColor(),0.48,1)
+ab.AddThemeObject(aB,{Color="Toggle"})
 
-local aA=ac("UIScale",{
+local b=ac("UIScale",{
 Name="UIScale",
 Scale=1,
-Parent=ay,
+Parent=az,
 })
 
 if ag and ag~=""then
-local aB=ab.Icon(ag)
-if aB then
+local d=ab.Icon(ag)
+if d then
 ac("ImageLabel",{
 Name="Icon",
 Size=UDim2.fromOffset(math.min(10,ah or 10),math.min(10,ah or 10)),
 BackgroundTransparency=1,
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.fromScale(0.5,0.5),
-Image=aB[1],
-ImageRectOffset=aB[2].ImageRectPosition,
-ImageRectSize=aB[2].ImageRectSize,
+Image=d[1],
+ImageRectOffset=d[2].ImageRectPosition,
+ImageRectSize=d[2].ImageRectSize,
 ImageTransparency=0.35,
 ImageColor3=Color3.fromRGB(72,72,76),
 ZIndex=6,
-Parent=ay,
+Parent=az,
 })
 end
 end
@@ -7473,161 +7486,165 @@ ZIndex=10,
 Parent=aw,
 })
 
-local aB
-local b
+local d
+local f
 
-local function getThumbX(d)
-return aq+(d and ar or 0)
+local function getThumbX(g)
+return aq+(g and ar or 0)
 end
 
-local function updateThemeBindings(d)
+local function updateThemeBindings(g)
 ab.AddThemeObject(aw,{
-BackgroundColor3=d and"Toggle"or"Button",
+BackgroundColor3=g and"Toggle"or"Button",
 },true)
 ab.AddThemeObject(av,{
-TextColor3=d and"Toggle"or"Placeholder",
+TextColor3=g and"Toggle"or"Placeholder",
 },true)
 end
 
-local function updateStateLabel(d)
-av.Text=d and"ON"or"OFF"
+local function updateStateLabel(g)
+av.Text=g and"ON"or"OFF"
 end
 
-local function applyVisual(d,f)
-local g=UDim2.new(0,getThumbX(d),0.5,0)
-local h=d and getOnColor()or getOffColor()
-local i=d and getOnColor()or getOffTextColor()
+local function applyVisual(g,h)
+local i=UDim2.new(0,getThumbX(g),0.5,0)
+local l=g and getOnColor()or getOffColor()
+local m=g and getOnColor()or getOffTextColor()
 
-updateThemeBindings(d)
-updateStateLabel(d)
-if f and not ab.PremiumReduceMotion then
-ad(ax,0.25,{Rotation=d and 150 or 0}):Play()
-ad(az,0.22,{Transparency=d and 0.12 or 0.70}):Play()
+updateThemeBindings(g)
+updateStateLabel(g)
+if h and not ab.PremiumReduceMotion then
+ad(ax,0.25,{Rotation=g and 150 or 0}):Play()
+ad(ay,0.20,{ImageTransparency=g and 0.53 or 1}):Play()
+ad(aA,0.22,{ImageTransparency=g and 0.36 or 1}):Play()
+ad(aB,0.22,{Transparency=g and 0.12 or 0.70}):Play()
 else
-ax.Rotation=d and 150 or 0
-az.Transparency=d and 0.12 or 0.70
+ax.Rotation=g and 150 or 0
+ay.ImageTransparency=g and 0.53 or 1
+aA.ImageTransparency=g and 0.36 or 1
+aB.Transparency=g and 0.12 or 0.70
 end
 
-if f then
-ad(ay,0.22,{Position=g},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
-ad(aw,0.16,{BackgroundColor3=h},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
-ad(av,0.16,{TextColor3=i},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
+if h and not ab.PremiumReduceMotion then
+ad(az,0.22,{Position=i},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+ad(aw,0.16,{BackgroundColor3=l},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
+ad(av,0.16,{TextColor3=m},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
 else
-ay.Position=g
-aw.BackgroundColor3=h
-av.TextColor3=i
+az.Position=i
+aw.BackgroundColor3=l
+av.TextColor3=m
 end
 end
 
-function am.Set(d,f,g,h)
-applyVisual(f,not h)
+function am.Set(g,h,i,l)
+applyVisual(h,not l)
 
-g=g~=false
+i=i~=false
 task.spawn(function()
-if aj and g then
-ab.SafeCallback(aj,f)
+if aj and i then
+ab.SafeCallback(aj,h)
 end
 end)
 end
 
-function am.Animate(d,f,g)
+function am.Animate(g,h,i)
 if al.Window.IsToggleDragging then
 return
 end
 
 al.Window.IsToggleDragging=true
 
-local h=f.Position.X
-local i=f.Position.Y
-local l=ay.Position.X.Offset
-local m=false
-local p=false
+local l=h.Position.X
+local m=h.Position.Y
+local p=az.Position.X.Offset
+local r=false
+local u=false
 
-ad(aA,0.10,{Scale=1.04},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ad(b,0.10,{Scale=1.04},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-if aB then
-aB:Disconnect()
+if d then
+d:Disconnect()
 end
 
-aB=ae.InputChanged:Connect(function(r)
+d=ae.InputChanged:Connect(function(v)
 if not al.Window.IsToggleDragging then
 return
 end
-if r.UserInputType~=Enum.UserInputType.MouseMovement and r.UserInputType~=Enum.UserInputType.Touch then
+if v.UserInputType~=Enum.UserInputType.MouseMovement and v.UserInputType~=Enum.UserInputType.Touch then
 return
 end
 
-local u=math.abs(r.Position.X-h)
-local v=math.abs(r.Position.Y-i)
+local x=math.abs(v.Position.X-l)
+local z=math.abs(v.Position.Y-m)
 
-if not m and v>10 and v>u then
-p=true
+if not r and z>10 and z>x then
+u=true
 return
 end
-if p then
+if u then
 return
 end
 
-if u>5 then
-m=true
+if x>5 then
+r=true
 end
 
-local x=r.Position.X-h
-local z=math.clamp(l+x,aq,aq+ar)
-local A=ar>0 and math.clamp((z-aq)/ar,0,1)or 0
-local B=getOffColor()
-local C=getOnColor()
-local F=getOffTextColor()
+local A=v.Position.X-l
+local B=math.clamp(p+A,aq,aq+ar)
+local C=ar>0 and math.clamp((B-aq)/ar,0,1)or 0
+local F=getOffColor()
+local G=getOnColor()
+local H=getOffTextColor()
 
-ay.Position=UDim2.new(0,z,0.5,0)
-aw.BackgroundColor3=B:Lerp(C,A)
+az.Position=UDim2.new(0,B,0.5,0)
+aw.BackgroundColor3=F:Lerp(G,C)
 
-if A>=0.5 then
+if C>=0.5 then
 av.Text="ON"
-av.TextColor3=C
+av.TextColor3=G
 else
 av.Text="OFF"
-av.TextColor3=F
+av.TextColor3=H
 end
 end)
 
-if b then
-b:Disconnect()
+if f then
+f:Disconnect()
 end
 
-b=ae.InputEnded:Connect(function(r)
+f=ae.InputEnded:Connect(function(v)
 if not al.Window.IsToggleDragging then
 return
 end
-if r.UserInputType~=Enum.UserInputType.MouseButton1 and r.UserInputType~=Enum.UserInputType.Touch then
+if v.UserInputType~=Enum.UserInputType.MouseButton1 and v.UserInputType~=Enum.UserInputType.Touch then
 return
 end
 
 al.Window.IsToggleDragging=false
 al.WindUI.CurrentInput=nil
 
-if aB then
-aB:Disconnect()
-aB=nil
+if d then
+d:Disconnect()
+d=nil
 end
-if b then
-b:Disconnect()
-b=nil
+if f then
+f:Disconnect()
+f=nil
 end
 
-ad(aA,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ad(b,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-if p then
-applyVisual(g.Value,true)
+if u then
+applyVisual(i.Value,true)
 return
 end
 
-if not m then
-g:Set(not g.Value,true,false)
+if not r then
+i:Set(not i.Value,true,false)
 else
-local u=ay.Position.X.Offset
-local v=u>(aq+ar/2)
-g:Set(v,true,false)
+local x=az.Position.X.Offset
+local z=x>(aq+ar/2)
+i:Set(z,true,false)
 end
 end)
 end
