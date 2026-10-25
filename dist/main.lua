@@ -6771,7 +6771,7 @@ ImageTransparency=1,
 Visible=false,
 Active=false,
 ThemeTag={
-ImageColor3="Text",
+ImageColor3="Primary",
 },
 Parent=au,
 },{
@@ -6803,7 +6803,7 @@ Size=UDim2.new(1,0,1,0),
 ImageTransparency=1,
 Active=false,
 ThemeTag={
-ImageColor3="Text",
+ImageColor3="Primary",
 },
 Parent=au,
 },{
@@ -6860,19 +6860,36 @@ PaddingBottom=UDim.new(0,ah.UIPadding),
 
 ah.UIElements.Main=d
 ah.UIElements.Locked=av
+
+if not ah.Color then
+ab("UIGradient",{
+Name="PremiumCardGlass",Parent=d,Rotation=9,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(0.54,Color3.fromRGB(214,171,185)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(118,90,102)),
+},
+})
+end
 if ah.Hover then
+
+aa.AddSignal(d.MouseMoved,function(g,h)
+if am and d.AbsoluteSize.X>0 then
+local i=Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
+aB.HoverGradient.Offset=i
+aA.HoverGradient.Offset=i
+end
+end)
 aa.AddSignal(d.MouseEnter,function()
 if am then
 
-ad(aB,0.12,{ImageTransparency=0.9}):Play()
-ad(aA,0.12,{ImageTransparency=0.8}):Play()
-aa.AddSignal(d.MouseMoved,function(g,h)
-aB.HoverGradient.Offset=
-Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
-aA.HoverGradient.Offset=
-Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
-end)
+ad(aB,0.12,{ImageTransparency=0.78}):Play()
+ad(aA,0.12,{ImageTransparency=0.55}):Play()
 end
+end)
+aa.AddSignal(d.MouseLeave,function()
+ad(aB,0.14,{ImageTransparency=1}):Play()
+ad(aA,0.14,{ImageTransparency=1}):Play()
 end)
 aa.AddSignal(d.InputEnded,function()
 if am then
