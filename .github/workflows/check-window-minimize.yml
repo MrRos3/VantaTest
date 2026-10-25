@@ -36,7 +36,10 @@ jobs:
           main = Path('main.lua').read_text()
           example = Path('example.lua').read_text()
           assert 'function window:Close(...)' in main
-          close_body = main.split('function window:Close(...)',1)[1].split('end',1)[0]
+          # The premium scale wrapper also has a Close method. Inspect the
+          # original particle-hiding wrapper specifically, not the first Close.
+          assert 'local closeOriginal = window.Close' in main
+          close_body = main.split('local closeOriginal = window.Close',1)[1].split('function window:Close(...)',1)[1].split('end',1)[0]
           assert close_body.index('ambient.Visible = false') < close_body.index('closeOriginal(self, ...)')
           assert 'overlay.Visible = not window.Closed and main.Visible' in main
           assert 'if window.Closed or not main.Visible or settings.ReduceMotion or window._VantaLowFPS or settings.Density<=0 then' in main
