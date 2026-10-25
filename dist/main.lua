@@ -8045,6 +8045,21 @@ ColorSequenceKeypoint.new(0.7,Color3.new(1,1,1)),
 ColorSequenceKeypoint.new(1,Color3.fromRGB(220,220,220)),
 },
 })
+local ax=al.UIElements.SliderIcon.Frame.Thumb
+local ay=af("UIStroke",{
+Name="PremiumThumbAura",Parent=ax,
+Thickness=2,Transparency=0.54,
+ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+ThemeTag={Color="Primary"},
+})
+ae.AddSignal(ax.MouseEnter,function()
+if not ae.PremiumReduceMotion then
+ag(ay,0.12,{Transparency=0.17}):Play()
+end
+end)
+ae.AddSignal(ax.MouseLeave,function()
+ag(ay,0.16,{Transparency=0.54}):Play()
+end)
 al.UIElements.SliderContainer=af("Frame",{
 Size=UDim2.new(al.Title==nil and 1 or 0,al.Title==nil and 0 or al.Width,0,0),
 AutomaticSize="Y",
@@ -8081,9 +8096,9 @@ Visible=al.IsTextbox,
 }),
 })
 
-local ax
+local az
 if al.IsTooltip then
-ax=a.load'C'.New(
+az=a.load'C'.New(
 ap,
 al.UIElements.SliderIcon.Frame.Thumb,
 true,
@@ -8091,16 +8106,16 @@ true,
 "Small",
 false
 )
-ax.Container.AnchorPoint=Vector2.new(0.5,1)
-ax.Container.Position=UDim2.new(0.5,0,0,-8)
+az.Container.AnchorPoint=Vector2.new(0.5,1)
+az.Container.Position=UDim2.new(0.5,0,0,-8)
 end
 
-function al.Lock(ay)
+function al.Lock(aA)
 al.Locked=true
 as=false
 return al.SliderFrame:Lock(al.LockedTitle)
 end
-function al.Unlock(ay)
+function al.Unlock(aA)
 al.Locked=false
 as=true
 return al.SliderFrame:Unlock()
@@ -8111,87 +8126,87 @@ al:Lock()
 end
 
 
-local ay=ak.Tab.UIElements.ContainerFrame
+local aA=ak.Tab.UIElements.ContainerFrame
 
-function al.Set(az,aA,aB)
+function al.Set(aB,b,d)
 if as then
 if
 not al.IsFocusing
 and not ai
 and(
-not aB
+not d
 or(
-aB.UserInputType==Enum.UserInputType.MouseButton1
-or aB.UserInputType==Enum.UserInputType.Touch
+d.UserInputType==Enum.UserInputType.MouseButton1
+or d.UserInputType==Enum.UserInputType.Touch
 )
 )
 then
-if aB then
-am=(aB.UserInputType==Enum.UserInputType.Touch)
-ay.ScrollingEnabled=false
+if d then
+am=(d.UserInputType==Enum.UserInputType.Touch)
+aA.ScrollingEnabled=false
 ai=true
 
-local b=am and aB.Position.X or ac:GetMouseLocation().X
-local d=math.clamp(
-(b-al.UIElements.SliderIcon.AbsolutePosition.X)
-/al.UIElements.SliderIcon.AbsoluteSize.X,
-0,
-1
-)
-aA=CalculateValue(al.Value.Min+d*(al.Value.Max-al.Value.Min))
-aA=math.clamp(aA,al.Value.Min or 0,al.Value.Max or 100)
-
-if aA~=aq then
-ae.PlaySound("SliderTick",{
-Pitch=0.82+d*0.36,
-})
-ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(d,0,1,0)}):Play()
-al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
-if ax then
-ax.TitleFrame.Text=FormatValue(aA)
-end
-al.Value.Default=FormatValue(aA)
-aq=aA
-ae.SafeCallback(al.Callback,FormatValue(aA))
-end
-
-an=ad.RenderStepped:Connect(function()
-local f=am and aB.Position.X or ac:GetMouseLocation().X
+local f=am and d.Position.X or ac:GetMouseLocation().X
 local g=math.clamp(
 (f-al.UIElements.SliderIcon.AbsolutePosition.X)
 /al.UIElements.SliderIcon.AbsoluteSize.X,
 0,
 1
 )
-aA=CalculateValue(al.Value.Min+g*(al.Value.Max-al.Value.Min))
+b=CalculateValue(al.Value.Min+g*(al.Value.Max-al.Value.Min))
+b=math.clamp(b,al.Value.Min or 0,al.Value.Max or 100)
 
-if aA~=aq then
+if b~=aq then
 ae.PlaySound("SliderTick",{
 Pitch=0.82+g*0.36,
 })
 ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(g,0,1,0)}):Play()
-al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
-if ax then
-ax.TitleFrame.Text=FormatValue(aA)
+al.UIElements.SliderContainer.TextBox.Text=FormatValue(b)
+if az then
+az.TitleFrame.Text=FormatValue(b)
 end
-al.Value.Default=FormatValue(aA)
-aq=aA
-ae.SafeCallback(al.Callback,FormatValue(aA))
+al.Value.Default=FormatValue(b)
+aq=b
+ae.SafeCallback(al.Callback,FormatValue(b))
+end
+
+an=ad.RenderStepped:Connect(function()
+local h=am and d.Position.X or ac:GetMouseLocation().X
+local i=math.clamp(
+(h-al.UIElements.SliderIcon.AbsolutePosition.X)
+/al.UIElements.SliderIcon.AbsoluteSize.X,
+0,
+1
+)
+b=CalculateValue(al.Value.Min+i*(al.Value.Max-al.Value.Min))
+
+if b~=aq then
+ae.PlaySound("SliderTick",{
+Pitch=0.82+i*0.36,
+})
+ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(i,0,1,0)}):Play()
+al.UIElements.SliderContainer.TextBox.Text=FormatValue(b)
+if az then
+az.TitleFrame.Text=FormatValue(b)
+end
+al.Value.Default=FormatValue(b)
+aq=b
+ae.SafeCallback(al.Callback,FormatValue(b))
 end
 end)
 
 
-ao=ac.InputEnded:Connect(function(f)
+ao=ac.InputEnded:Connect(function(h)
 if
 (
-f.UserInputType==Enum.UserInputType.MouseButton1
-or f.UserInputType==Enum.UserInputType.Touch
-)and aB==f
+h.UserInputType==Enum.UserInputType.MouseButton1
+or h.UserInputType==Enum.UserInputType.Touch
+)and d==h
 then
 an:Disconnect()
 ao:Disconnect()
 ai=false
-ay.ScrollingEnabled=true
+aA.ScrollingEnabled=true
 
 ak.WindUI.CurrentInput=nil
 
@@ -8201,89 +8216,89 @@ ImageTransparency=0,
 Size=UDim2.fromOffset(al.ThumbSize,al.ThumbSize),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.InOut):Play()
 end
-if ax then
-ax:Close(false)
+if az then
+az:Close(false)
 end
 end
 end)
 else
-aA=math.clamp(aA,al.Value.Min or 0,al.Value.Max or 100)
+b=math.clamp(b,al.Value.Min or 0,al.Value.Max or 100)
 
-local b=math.clamp(
-(aA-(al.Value.Min or 0))/((al.Value.Max or 100)-(al.Value.Min or 0)),
+local f=math.clamp(
+(b-(al.Value.Min or 0))/((al.Value.Max or 100)-(al.Value.Min or 0)),
 0,
 1
 )
-aA=CalculateValue(al.Value.Min+b*(al.Value.Max-al.Value.Min))
+b=CalculateValue(al.Value.Min+f*(al.Value.Max-al.Value.Min))
 
-if aA~=aq then
-ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(b,0,1,0)}):Play()
-al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
-if ax then
-ax.TitleFrame.Text=FormatValue(aA)
+if b~=aq then
+ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(f,0,1,0)}):Play()
+al.UIElements.SliderContainer.TextBox.Text=FormatValue(b)
+if az then
+az.TitleFrame.Text=FormatValue(b)
 end
-al.Value.Default=FormatValue(aA)
-aq=aA
-ae.SafeCallback(al.Callback,FormatValue(aA))
+al.Value.Default=FormatValue(b)
+aq=b
+ae.SafeCallback(al.Callback,FormatValue(b))
 end
 end
 end
 end
 end
 
-function al.SetMax(az,aA)
-al.Value.Max=aA
+function al.SetMax(aB,b)
+al.Value.Max=b
 
-local aB=tonumber(al.Value.Default)or aq
-if aB>aA then
-al:Set(aA)
+local d=tonumber(al.Value.Default)or aq
+if d>b then
+al:Set(b)
 else
-local b=
-math.clamp((aB-(al.Value.Min or 0))/(aA-(al.Value.Min or 0)),0,1)
-ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(b,0,1,0)}):Play()
+local f=
+math.clamp((d-(al.Value.Min or 0))/(b-(al.Value.Min or 0)),0,1)
+ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(f,0,1,0)}):Play()
 end
 end
 
-function al.SetMin(az,aA)
-al.Value.Min=aA
+function al.SetMin(aB,b)
+al.Value.Min=b
 
-local aB=tonumber(al.Value.Default)or aq
-if aB<aA then
-al:Set(aA)
+local d=tonumber(al.Value.Default)or aq
+if d<b then
+al:Set(b)
 else
-local b=math.clamp((aB-aA)/((al.Value.Max or 100)-aA),0,1)
-ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(b,0,1,0)}):Play()
+local f=math.clamp((d-b)/((al.Value.Max or 100)-b),0,1)
+ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(f,0,1,0)}):Play()
 end
 end
 
-ae.AddSignal(al.UIElements.SliderContainer.TextBox.FocusLost,function(az)
-local aA=tonumber(al.UIElements.SliderContainer.TextBox.Text)
-if aA then
-al:Set(aA)
+ae.AddSignal(al.UIElements.SliderContainer.TextBox.FocusLost,function(aB)
+local b=tonumber(al.UIElements.SliderContainer.TextBox.Text)
+if b then
+al:Set(b)
 else
 al.UIElements.SliderContainer.TextBox.Text=FormatValue(aq)
-if ax then
-ax.TitleFrame.Text=FormatValue(aq)
+if az then
+az.TitleFrame.Text=FormatValue(aq)
 end
 end
 end)
 
-local az=ak.WindUI.GenerateGUID()
+local aB=ak.WindUI.GenerateGUID()
 
-ae.AddSignal(al.UIElements.SliderContainer.InputBegan,function(aA)
+ae.AddSignal(al.UIElements.SliderContainer.InputBegan,function(b)
 if al.Locked or ai then
 return
 end
 if
-aA.UserInputType==Enum.UserInputType.MouseButton1
-or aA.UserInputType==Enum.UserInputType.Touch
+b.UserInputType==Enum.UserInputType.MouseButton1
+or b.UserInputType==Enum.UserInputType.Touch
 then
-if ak.WindUI.CurrentInput and ak.WindUI.CurrentInput~=az then
+if ak.WindUI.CurrentInput and ak.WindUI.CurrentInput~=aB then
 return
 end
-ak.WindUI.CurrentInput=az
+ak.WindUI.CurrentInput=aB
 
-al:Set(ap,aA)
+al:Set(ap,b)
 
 
 if ak.Window.NewElements then
@@ -8292,8 +8307,8 @@ ImageTransparency=0,
 Size=UDim2.fromOffset(al.ThumbSize+3,al.ThumbSize+3),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
-if ax then
-ax:Open()
+if az then
+az:Open()
 end
 
 end
@@ -12777,6 +12792,10 @@ local aw=ar.UIElements.Main.Frame.Position
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
 if not ar.Locked then
 ak.PlaySound"Hover"
+if ar.UIElements.Icon and not ar.IconColor then
+ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,
+{ImageColor3="Primary"},0.13)
+end
 if not ak.PremiumReduceMotion then
 local ax=aw.X
 ak.Tween(ar.UIElements.Main.Frame,0.13,{
@@ -12786,6 +12805,10 @@ end
 end
 end)
 ak.AddSignal(ar.UIElements.Main.MouseLeave,function()
+if ar.UIElements.Icon and not ar.IconColor then
+ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,
+{ImageColor3=ar.Selected and"Primary"or"TabIcon"},0.14)
+end
 ak.Tween(ar.UIElements.Main.Frame,0.14,{Position=aw},
 Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 end)
@@ -13048,6 +13071,7 @@ TextTransparency="TabTextTransparency",
 if as.UIElements.Icon and not as.IconColor then
 ak.SetThemeTag(as.UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparency",
+ImageColor3="TabIcon",
 },0.15)
 end
 as.Selected=false
@@ -13077,6 +13101,7 @@ TextTransparency="TabTextTransparencyActive",
 if ao.Tabs[aq].UIElements.Icon and not ao.Tabs[aq].IconColor then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparencyActive",
+ImageColor3="Primary",
 },0.15)
 end
 ao.Tabs[aq].Selected=true
