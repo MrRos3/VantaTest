@@ -484,7 +484,21 @@ local function attachCrimsonAmbient(window)
         else
             slowFrames=math.max(0,slowFrames-1)
         end
-        window._VantaLowFPS=slowFrames>=24
+        local lowFPS=slowFrames>=24
+        if lowFPS~=window._VantaLowFPS then
+            window._VantaLowFPS=lowFPS
+            if window._VantaPremium then window._VantaPremium:Refresh() end
+            if lowFPS then
+                local creator=VantaUI.Creator
+                for _,desc in ipairs((window.UIElements.Main):GetDescendants()) do
+                    if desc.Name=="PremiumProgressSweep" then
+                        desc.Enabled=false
+                        local t=creator and creator.PremiumSweeps and creator.PremiumSweeps[desc]
+                        if t then t:Cancel() end
+                    end
+                end
+            end
+        end
         -- Hold particles in place during minimize; never jump ahead on reopening.
         frameAccumulator = frameAccumulator + math.min(tonumber(dt) or 1 / 60, 0.075)
         if frameAccumulator < (1 / CRIMSON_AMBIENT_FPS) then return end
@@ -558,7 +572,7 @@ local function attachPremiumWindow(window,theme)
     if not root or not topbar then return nil end
     local settings=window._VantaVisuals
     local alive=true
-    local active={}
+    local active=setmetatable({},{__mode="k"})
     local function add(class,name,parent,props)
         local obj=Instance.new(class)
         obj.Name=name
@@ -570,7 +584,8 @@ local function attachPremiumWindow(window,theme)
     local function play(obj,duration,goal,easing)
         local t=VfxTweenService:Create(obj,
             TweenInfo.new(duration,easing or Enum.EasingStyle.Sine,Enum.EasingDirection.Out),goal)
-        active[#active+1]=t
+        if active[obj] then active[obj]:Cancel() end
+        active[obj]=t
         t:Play()
         return t
     end
@@ -685,7 +700,7 @@ local function attachPremiumWindow(window,theme)
         alive=false
         if rotationTween then rotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
-        for _,t in ipairs(active) do pcall(function() t:Cancel() end) end
+        for _,t in pairs(active) do pcall(function() t:Cancel() end) end
         for _,object in ipairs({edge,halo,glass,divider,scale,vignette}) do
             if object and object.Parent then object:Destroy() end
         end
@@ -757,7 +772,20 @@ function VantaUI:SetParticleDensity(value)
 end
 function VantaUI:SetReduceMotion(value)
     VisualDefaults.ReduceMotion=value==true
-    if VantaUI.Creator then VantaUI.Creator.PremiumReduceMotion=VisualDefaults.ReduceMotion end
+    if VantaUI.Creator then
+        VantaUI.Creator.PremiumReduceMotion=VisualDefaults.ReduceMotion
+        for gradient,t in pairs(VantaUI.Creator.PremiumSweeps or {}) do
+            if VisualDefaults.ReduceMotion then
+                t:Cancel()
+                if gradient.Parent then gradient.Enabled=false end
+            else
+                if gradient.Parent then
+                    gradient.Enabled=true
+                    t:Play()
+                end
+            end
+        end
+    end
     for window in pairs(ActiveWindows) do
         window._VantaVisuals.ReduceMotion=VisualDefaults.ReduceMotion
         if window._VantaPremium then window._VantaPremium:Refresh() end
