@@ -105,14 +105,14 @@ local VantaThemes = {
         PanelBackgroundTransparency = 0.42,
         LabelBackground = Color3.fromHex("#0A080A"),
         LabelBackgroundTransparency = 0.08,
-        ElementBackground = Color3.fromHex("#151116"),
-        ElementBackgroundTransparency = 0.16,
+        ElementBackground = Color3.fromHex("#311522"),
+        ElementBackgroundTransparency = 0.06,
         -- Let the Crimson01 artwork show through; selection fades away to the right.
-        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
-        TabBackgroundActiveTransparency = 1,
+        TabBackgroundActive = Color3.fromHex("#A1162F"),
+        TabBackgroundActiveTransparency = 0.05,
         TabBackgroundHover = Color3.fromHex("#151013"),
         TabBackgroundHoverTransparency = 0.82,
-        TabSelectionFade = Color3.fromHex("#4A1C2B"),
+        TabSelectionFade = Color3.fromHex("#A1162F"),
         TabTitle = Color3.fromHex("#D8D2D5"),
         TabTitleActive = Color3.fromHex("#FFFFFF"),
         TabTextTransparency = 0,
@@ -295,9 +295,9 @@ end
 local function visualGradient(low,high)
     return ColorSequence.new({
         ColorSequenceKeypoint.new(0,low),
-        ColorSequenceKeypoint.new(0.4,low),
-        ColorSequenceKeypoint.new(0.5,high),
-        ColorSequenceKeypoint.new(0.6,low),
+        ColorSequenceKeypoint.new(0.28,low:Lerp(high,0.50)),
+        ColorSequenceKeypoint.new(0.50,high),
+        ColorSequenceKeypoint.new(0.72,low:Lerp(high,0.50)),
         ColorSequenceKeypoint.new(1,low),
     })
 end
@@ -352,7 +352,7 @@ local function attachCrimsonAmbient(window)
     ambientLight.AnchorPoint=Vector2.new(0.5,0.5)
     ambientLight.Position=UDim2.fromScale(0.58,0.48)
     ambientLight.BackgroundColor3=themeAccent(window._VantaTheme)
-    ambientLight.BackgroundTransparency=0.97
+    ambientLight.BackgroundTransparency=0.88
     ambientLight.BorderSizePixel=0
     ambientLight.Active=false
     ambientLight.ZIndex=overlay.ZIndex
@@ -522,7 +522,7 @@ local function attachCrimsonAmbient(window)
         if frameAccumulator < (1 / CRIMSON_AMBIENT_FPS) then return end
         elapsed = elapsed + frameAccumulator
         frameAccumulator = 0
-        ambientLight.BackgroundTransparency=0.95-0.032*settings.Intensity*
+        ambientLight.BackgroundTransparency=0.89-0.115*settings.Intensity*
             (0.5+0.5*math.sin(elapsed*0.75))
         for _, p in ipairs(particles) do
             p.item.Visible=p.index<=math.ceil(CRIMSON_PARTICLE_COUNTS[p.kind]*settings.Density)
@@ -612,10 +612,24 @@ local function attachPremiumWindow(window,theme)
     local edge=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline",{
         Name="PremiumWindowOutline",Size=UDim2.fromScale(1,1),
         Parent=root,ZIndex=98,ImageColor3=Color3.fromRGB(255,255,255),
-        ImageTransparency=0.15,Active=false,
+        ImageTransparency=0.03,Active=false,
     })
     local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
         Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),Rotation=0,
+    })
+    -- Larger round-only aura stays behind all interactive window content.
+    local aura=VantaUI.Creator.NewRoundFrame(window.UICorner+8,"Squircle",{
+        Name="PremiumOuterAura",Parent=root,
+        Size=UDim2.new(1,20,1,20),Position=UDim2.fromScale(0.5,0.5),
+        AnchorPoint=Vector2.new(0.5,0.5),Active=false,ZIndex=0,
+        ImageTransparency=0.78,ImageColor3=themeAccent(theme),
+    })
+    add("UIGradient","PremiumAuraSoftness",aura,{
+        Color=ColorSequence.new({
+            ColorSequenceKeypoint.new(0,Color3.fromRGB(130,130,130)),
+            ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
+            ColorSequenceKeypoint.new(1,Color3.fromRGB(130,130,130)),
+        }),
     })
     local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
     local glass=add("Frame","PremiumTopbarGlass",topbar,{
@@ -628,16 +642,8 @@ local function attachPremiumWindow(window,theme)
             NumberSequenceKeypoint.new(1,0.90),
         }),
     })
-    local divider=add("Frame","PremiumTopbarDivider",topbar,{
-        Position=UDim2.new(0,0,1,-1),Size=UDim2.new(1,0,0,1),
-        BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.25,
-        BorderSizePixel=0,ZIndex=topbar.ZIndex+1,
-    })
-    local dividerGradient=add("UIGradient","PremiumDividerGradient",divider,{
-        Color=ColorSequence.new(Color3.fromRGB(32,6,13),themeAccent(theme)),
-    })
     local wallpaper=root:FindFirstChild("Background")
-    local premiumClip
+    local premiumClip,grade
     if wallpaper then
         -- Confine decorations to their own rounded clip; the original
         -- Background and its overhanging resize handle remain untouched.
@@ -657,9 +663,24 @@ local function attachPremiumWindow(window,theme)
         })
         add("UIGradient","PremiumVerticalVignette",vignette,{
             Rotation=90,Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0,0.84),
-                NumberSequenceKeypoint.new(0.5,0.96),
-                NumberSequenceKeypoint.new(1,0.40),
+                NumberSequenceKeypoint.new(0,0.50),
+                NumberSequenceKeypoint.new(0.5,0.89),
+                NumberSequenceKeypoint.new(1,0.19),
+            }),
+        })
+        grade=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle",{
+            Name="PremiumCrimsonGrade",Parent=premiumClip,
+            Size=UDim2.fromScale(1,1),ImageColor3=themeAccent(theme),
+            ImageTransparency=0.62,Active=false,ZIndex=premiumClip.ZIndex+1,
+        })
+        add("UIGradient","PremiumGradeFalloff",grade,{
+            Rotation=0,
+            Transparency=NumberSequence.new({
+                NumberSequenceKeypoint.new(0,1),
+                NumberSequenceKeypoint.new(0.26,0.84),
+                NumberSequenceKeypoint.new(0.53,0.53),
+                NumberSequenceKeypoint.new(0.82,0.90),
+                NumberSequenceKeypoint.new(1,1),
             }),
         })
         local scrim=add("Frame","PremiumSidebarScrim",premiumClip,{
@@ -667,7 +688,7 @@ local function attachPremiumWindow(window,theme)
             Size=UDim2.new(0,window.SideBarWidth or 200,1,-(window.Topbar.Height or 44)),
             BackgroundColor3=Color3.fromRGB(0,0,0),
             BackgroundTransparency=0,BorderSizePixel=0,
-            ZIndex=premiumClip.ZIndex+1,
+            ZIndex=premiumClip.ZIndex+2,
         })
         add("UICorner","PremiumScrimCorner",scrim,{
             CornerRadius=UDim.new(0,window.UICorner),
@@ -711,10 +732,12 @@ local function attachPremiumWindow(window,theme)
         if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         local motion=not settings.ReduceMotion and not window._VantaLowFPS
             and settings.Intensity>0
-        edge.ImageTransparency=0.15+0.30*(1-settings.Intensity)
+        edge.ImageTransparency=0.03+0.12*(1-settings.Intensity)
+        aura.ImageTransparency=motion and (0.89-0.20*settings.Intensity) or 1
+        if grade then grade.ImageTransparency=0.84-0.30*settings.Intensity end
         if motion then
             rotationTween=VfxTweenService:Create(edgeGradient,
-                TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
+                TweenInfo.new(4,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
                 {Rotation=360})
             rotationTween:Play()
         else
@@ -728,7 +751,8 @@ local function attachPremiumWindow(window,theme)
         local tint=themeAccent(nextTheme)
         local strokeColors=visualGradient(tint:Lerp(Color3.new(0,0,0),0.80),tint)
         edgeGradient.Color=strokeColors
-        dividerGradient.Color=ColorSequence.new(Color3.fromRGB(15,3,7),tint)
+        aura.ImageColor3=tint
+        if grade then grade.ImageColor3=tint end
         if nameGradient then
             title.TextColor3=Color3.fromRGB(255,255,255)
             nameGradient.Color=premiumTitleGradient(tint)
@@ -748,7 +772,7 @@ local function attachPremiumWindow(window,theme)
         if rotationTween then rotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
         for _,t in pairs(active) do pcall(function() t:Cancel() end) end
-        for _,object in ipairs({edge,glass,divider,scale,premiumClip}) do
+        for _,object in ipairs({edge,aura,glass,scale,premiumClip}) do
             if object and object.Parent then object:Destroy() end
         end
         if nameGradient and nameGradient.Parent then nameGradient:Destroy() end
