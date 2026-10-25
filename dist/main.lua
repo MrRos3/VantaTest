@@ -14540,6 +14540,16 @@ TextColor3="WindowTopbarTitle",
 },
 })
 
+
+ao("UIGradient",{
+Name="StaticMichromaTitleTint",
+Parent=M,
+Color=ColorSequence.new(
+Color3.fromRGB(255,255,255),
+Color3.fromRGB(233,236,244)
+),
+})
+
 b.UIElements.Main=ao("Frame",{
 Size=UDim2.new(b.Size.X.Scale,b.Size.X.Offset,0,0),
 Position=b.Position,
