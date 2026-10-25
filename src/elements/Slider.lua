@@ -164,6 +164,7 @@ function Element:New(Config)
 		}),
 	})
 	local Thumb=Slider.UIElements.SliderIcon.Frame.Thumb
+	Thumb.ZIndex=math.max(2,Thumb.ZIndex)
 	Creator.NewRoundFrame(999,"Squircle",{
 		Name="PremiumRoundThumbGlow",Parent=Slider.UIElements.SliderIcon.Frame,
 		Position=UDim2.new(1,0,0.5,0),
