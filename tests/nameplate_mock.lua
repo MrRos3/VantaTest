@@ -210,7 +210,7 @@ end
 assert(borderGradient.Rotation==0)
 assert(#tweenCreated==2,"One stroke rotation and one name shine only")
 local borderTween=tweenCreated[1]
-assert(borderTween.target==borderGradient and borderTween.info[1]==3)
+assert(borderTween.target==borderGradient and borderTween.info[1]==5)
 assert(borderTween.info[2]==Enum.EasingStyle.Linear)
 assert(borderTween.info[4]==-1 and borderTween.info[5]==false)
 assert(borderTween.goal.Rotation==360 and borderTween.plays==1)
