@@ -292,13 +292,17 @@ local THEME_ACCENTS = {
 local function themeAccent(name)
     return THEME_ACCENTS[name] or THEME_ACCENTS["Salty Special"]
 end
-local function visualGradient(low,high)
+-- Five-stop chrome: only the narrow ice-white band and its faint tail
+-- have contrast. Theme changes touch the tail, never the steel base.
+local function visualGradient(accent)
+    local steel=Color3.fromRGB(35,37,45) -- #23252D
+    local ice=Color3.fromRGB(234,246,255) -- #EAF6FF
     return ColorSequence.new({
-        ColorSequenceKeypoint.new(0,low),
-        ColorSequenceKeypoint.new(0.28,low:Lerp(high,0.50)),
-        ColorSequenceKeypoint.new(0.50,high),
-        ColorSequenceKeypoint.new(0.72,low:Lerp(high,0.50)),
-        ColorSequenceKeypoint.new(1,low),
+        ColorSequenceKeypoint.new(0.00,steel),
+        ColorSequenceKeypoint.new(0.44,steel),
+        ColorSequenceKeypoint.new(0.50,ice),
+        ColorSequenceKeypoint.new(0.56,steel:Lerp(accent,0.14)),
+        ColorSequenceKeypoint.new(1.00,steel),
     })
 end
 -- White is the resting title color. Only a narrow red/white band crosses
@@ -612,24 +616,17 @@ local function attachPremiumWindow(window,theme)
     local edge=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline",{
         Name="PremiumWindowOutline",Size=UDim2.fromScale(1,1),
         Parent=root,ZIndex=98,ImageColor3=Color3.fromRGB(255,255,255),
-        ImageTransparency=0.03,Active=false,
+        ImageTransparency=0.20,Active=false,
     })
     local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
-        Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),Rotation=0,
+        Color=visualGradient(themeAccent(theme)),Rotation=0,
     })
-    -- Larger round-only aura stays behind all interactive window content.
-    local aura=VantaUI.Creator.NewRoundFrame(window.UICorner+8,"Squircle",{
-        Name="PremiumOuterAura",Parent=root,
-        Size=UDim2.new(1,20,1,20),Position=UDim2.fromScale(0.5,0.5),
+    -- One low-opacity black squircle behind the window, with no red aura.
+    local shadow=VantaUI.Creator.NewRoundFrame(window.UICorner+12,"Squircle",{
+        Name="PremiumBlackShadow",Parent=root,
+        Size=UDim2.new(1,28,1,28),Position=UDim2.fromScale(0.5,0.5),
         AnchorPoint=Vector2.new(0.5,0.5),Active=false,ZIndex=0,
-        ImageTransparency=0.78,ImageColor3=themeAccent(theme),
-    })
-    add("UIGradient","PremiumAuraSoftness",aura,{
-        Color=ColorSequence.new({
-            ColorSequenceKeypoint.new(0,Color3.fromRGB(130,130,130)),
-            ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
-            ColorSequenceKeypoint.new(1,Color3.fromRGB(130,130,130)),
-        }),
+        ImageTransparency=0.85,ImageColor3=Color3.fromRGB(0,0,0),
     })
     local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
     local glass=add("Frame","PremiumTopbarGlass",topbar,{
@@ -763,16 +760,21 @@ local function attachPremiumWindow(window,theme)
         if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         local motion=not settings.ReduceMotion and not window._VantaLowFPS
             and settings.Intensity>0
-        edge.ImageTransparency=0.03+0.12*(1-settings.Intensity)
-        aura.ImageTransparency=motion and (0.89-0.20*settings.Intensity) or 1
+        edge.ImageTransparency=0.20+0.10*(1-settings.Intensity)
+        -- Shadow is static, so reduced motion never makes it disappear.
+        shadow.ImageTransparency=0.85
         if grade then grade.ImageTransparency=0.84-0.30*settings.Intensity end
         if motion then
             rotationTween=VfxTweenService:Create(edgeGradient,
-                TweenInfo.new(4,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
+                TweenInfo.new(6,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
                 {Rotation=360})
+            edgeGradient.Offset=Vector2.new(0,0)
+            edgeGradient.Rotation=0
             rotationTween:Play()
         else
-            edgeGradient.Rotation=0
+            -- Park the narrow ice-white highlight toward the top-left corner.
+            edgeGradient.Rotation=45
+            edgeGradient.Offset=Vector2.new(-0.35,0)
             if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         end
     end
@@ -780,9 +782,8 @@ local function attachPremiumWindow(window,theme)
     function controller:Refresh() refresh() end
     function controller:UpdateTheme(nextTheme)
         local tint=themeAccent(nextTheme)
-        local strokeColors=visualGradient(tint:Lerp(Color3.new(0,0,0),0.80),tint)
-        edgeGradient.Color=strokeColors
-        aura.ImageColor3=tint
+        -- Steel and ice-white never recolor; only the subtle tail picks up tint.
+        edgeGradient.Color=visualGradient(tint)
         if grade then grade.ImageColor3=tint end
         if nameGradient then
             title.TextColor3=Color3.fromRGB(255,255,255)
@@ -803,7 +804,7 @@ local function attachPremiumWindow(window,theme)
         if rotationTween then rotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
         for _,t in pairs(active) do pcall(function() t:Cancel() end) end
-        for _,object in ipairs({edge,aura,glass,scale,premiumClip,contentBottomFade}) do
+        for _,object in ipairs({edge,shadow,glass,scale,premiumClip,contentBottomFade}) do
             if object and object.Parent then object:Destroy() end
         end
         if nameGradient and nameGradient.Parent then nameGradient:Destroy() end

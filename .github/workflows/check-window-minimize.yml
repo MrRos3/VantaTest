@@ -85,7 +85,7 @@ jobs:
           assert 'VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline"' in main
           assert 'PremiumWindowOutline' in main
           assert 'Parent=root,ZIndex=98' in main
-          assert 'ImageTransparency=0.03,Active=false' in main
+          assert 'ImageTransparency=0.20,Active=false' in main
           assert 'PremiumWindowEdge' not in main
           assert 'PremiumRoundWindow' not in main
           assert 'PremiumHalo' not in main
@@ -125,20 +125,43 @@ jobs:
           assert 'CornerRadius=UDim.new(0,window.UICorner)' in main
           assert 'PremiumEdgeMotion' in main
           assert 'rotationTween:Cancel()' in main
-          assert 'edge.ImageTransparency=0.03+0.12*(1-settings.Intensity)' in main
-          assert 'TweenInfo.new(4,Enum.EasingStyle.Linear' in main
+          assert 'edge.ImageTransparency=0.20+0.10*(1-settings.Intensity)' in main
+          assert 'TweenInfo.new(6,Enum.EasingStyle.Linear' in main
+          assert 'Color3.fromRGB(35,37,45)' in main
+          assert 'Color3.fromRGB(234,246,255)' in main
+          assert 'ColorSequenceKeypoint.new(0.44,steel)' in main
+          assert 'ColorSequenceKeypoint.new(0.50,ice)' in main
+          assert 'ColorSequenceKeypoint.new(0.56,steel:Lerp(accent,0.14))' in main
+          assert 'edgeGradient.Color=visualGradient(tint)' in main
+          assert 'edgeGradient.Rotation=45' in main
+          assert 'edgeGradient.Offset=Vector2.new(-0.35,0)' in main
+          assert 'PremiumOuterAura' not in main
+          assert 'PremiumAuraSoftness' not in main
+          assert 'PremiumBlackShadow' in main
+          assert 'Size=UDim2.new(1,28,1,28)' in main
+          assert 'ImageTransparency=0.85,ImageColor3=Color3.fromRGB(0,0,0)' in main
           assert 'PremiumTopbarDivider' not in main
           assert 'PremiumDividerGradient' not in main
-          assert 'PremiumOuterAura' in main
-          assert 'PremiumAuraSoftness' in main
+          assert 'PremiumOuterAura' not in main
+          assert 'PremiumAuraSoftness' not in main
           assert 'PremiumCrimsonGrade' in main
           assert 'PremiumGradeFalloff' in main
           assert 'ambientLight.BackgroundTransparency=0.89-0.115*settings.Intensity' in main
           assert 'TabBackgroundActiveTransparency = 0.05' in main
           assert 'ElementBackgroundTransparency = 0.06' in main
           window_src = Path('src/components/window/Init.lua').read_text()
-          assert 'rbxassetid://120997033468887' not in window_src
-          assert 'Visible = false, -- permanently hide the old gray resize arc' in window_src
+          assert 'rbxassetid://120997033468887' in window_src
+          assert 'Visible = false, -- permanently hide the old gray resize arc' not in window_src
+          assert 'Size = UDim2.fromOffset(28, 28)' in window_src
+          assert 'Position = UDim2.new(1, -22, 1, -22)' in window_src
+          assert 'ImageTransparency = 1, -- rest during load, 0.8 after open' in window_src
+          assert 'ThemeTag = { ImageColor3 = "Primary" }' in window_src
+          assert 'Creator.AddSignal(ResizeHandle.InputBegan' in window_src
+          assert 'Creator.AddSignal(UserInputService.InputChanged' in window_src
+          assert 'Tween(ResizeHandle.ImageLabel, 0.1, { ImageTransparency = 0.35 }):Play()' in window_src
+          assert 'Tween(ResizeHandle.ImageLabel, 0.17, { ImageTransparency = 0.8 }):Play()' in window_src
+          assert 'math.clamp(newSize.X.Offset, Window.MinSize.X, Window.MaxSize.X)' in window_src
+          assert 'math.clamp(newSize.Y.Offset, Window.MinSize.Y, Window.MaxSize.Y)' in window_src
           tabs = Path('src/components/window/Tab.lua').read_text()
           assert 'PremiumMovingPill' in tabs
           assert 'PremiumActiveCrimson' in tabs

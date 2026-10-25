@@ -194,21 +194,24 @@ return function(Config)
 	end
 
 	local ResizeHandle = New("Frame", {
-		Size = UDim2.new(0, 32, 0, 32),
-		Position = UDim2.new(1, 0, 1, 0),
+		Size = UDim2.fromOffset(32, 32),
+		-- Keep the 32px hit area and 28px artwork entirely inside the
+		-- corner's radius, instead of straddling the bottom-right edge.
+		Position = UDim2.new(1, -22, 1, -22),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
 		ZIndex = 99,
 		Active = true,
 	}, {
 		New("ImageLabel", {
-			Size = UDim2.new(0, 48 * 2, 0, 48 * 2),
+			Size = UDim2.fromOffset(28, 28),
 			BackgroundTransparency = 1,
-			Image = "",
-			Visible = false, -- permanently hide the old gray resize arc
-			Position = UDim2.new(0.5, -16, 0.5, -16),
+			Image = "rbxassetid://120997033468887",
+			Position = UDim2.fromScale(0.5, 0.5),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			ImageTransparency = 1, -- .8; .35
+			ImageTransparency = 1, -- rest during load, 0.8 after open
+			ThemeTag = { ImageColor3 = "Primary" },
+			Active = false,
 		}),
 	})
 	local FullScreenIcon = Creator.NewRoundFrame(Window.UICorner, "Squircle", {
