@@ -546,6 +546,202 @@ local function attachCrimsonAmbient(window)
     return overlay
 end
 
+
+-- Shared premium window decorations. Every animation is a TweenService tween,
+-- not another per-frame connection; ambient owns the only 30 FPS visual loop.
+local VfxTweenService=game:GetService("TweenService")
+local function attachPremiumWindow(window,theme)
+    local root=window and window.UIElements and window.UIElements.Main
+    local body=root and root:FindFirstChild("Main")
+    local topbar=body and body:FindFirstChild("Topbar")
+    if not root or not topbar then return nil end
+    local settings=window._VantaVisuals
+    local alive=true
+    local active={}
+    local function add(class,name,parent,props)
+        local obj=Instance.new(class)
+        obj.Name=name
+        for k,v in pairs(props or {}) do obj[k]=v end
+        if obj:IsA("GuiObject") then obj.Active=false end
+        obj.Parent=parent
+        return obj
+    end
+    local function play(obj,duration,goal,easing)
+        local t=VfxTweenService:Create(obj,
+            TweenInfo.new(duration,easing or Enum.EasingStyle.Sine,Enum.EasingDirection.Out),goal)
+        active[#active+1]=t
+        t:Play()
+        return t
+    end
+    local edge=add("UIStroke","PremiumWindowEdge",root,{
+        Thickness=2,Color=Color3.new(1,1,1),Transparency=0.13,
+        ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+    })
+    add("UICorner","PremiumRoundWindow",root,{CornerRadius=UDim.new(0,16)})
+    local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
+        Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),Rotation=0,
+    })
+    local halo=add("Frame","PremiumHalo",root,{
+        Size=UDim2.new(1,10,1,10),Position=UDim2.fromScale(0.5,0.5),
+        AnchorPoint=Vector2.new(0.5,0.5),BackgroundTransparency=1,
+        BorderSizePixel=0,ZIndex=0,
+    })
+    add("UICorner","PremiumHaloCorner",halo,{CornerRadius=UDim.new(0,19)})
+    local haloBorder=add("UIStroke","PremiumHaloStroke",halo,{
+        Thickness=10,Transparency=0.90,Color=themeAccent(theme),
+        ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+    })
+    local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
+    local glass=add("Frame","PremiumTopbarGlass",topbar,{
+        Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(8,5,10),
+        BackgroundTransparency=0.35,BorderSizePixel=0,ZIndex=topbar.ZIndex,
+    })
+    add("UIGradient","PremiumGlassGradient",glass,{
+        Rotation=90,Transparency=NumberSequence.new({
+            NumberSequenceKeypoint.new(0,0.17),
+            NumberSequenceKeypoint.new(1,0.90),
+        }),
+    })
+    local divider=add("Frame","PremiumTopbarDivider",topbar,{
+        Position=UDim2.new(0,0,1,-1),Size=UDim2.new(1,0,0,1),
+        BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=0.25,
+        BorderSizePixel=0,ZIndex=topbar.ZIndex+1,
+    })
+    local dividerGradient=add("UIGradient","PremiumDividerGradient",divider,{
+        Color=ColorSequence.new(Color3.fromRGB(32,6,13),themeAccent(theme)),
+    })
+    local wallpaper=root:FindFirstChild("Background")
+    local vignette
+    if wallpaper then
+        vignette=add("Frame","PremiumWallpaperVignette",wallpaper,{
+            Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=wallpaper.ZIndex+1,
+        })
+        add("UIGradient","PremiumVerticalVignette",vignette,{
+            Rotation=90,Transparency=NumberSequence.new({
+                NumberSequenceKeypoint.new(0,0.84),
+                NumberSequenceKeypoint.new(0.5,0.96),
+                NumberSequenceKeypoint.new(1,0.40),
+            }),
+        })
+    end
+    local title
+    local left=topbar:FindFirstChild("Left")
+    local holder=left and left:FindFirstChild("Title")
+    if holder then
+        local candidate=holder:FindFirstChild("Title") or holder:FindFirstChildWhichIsA("TextLabel",true)
+        if candidate and candidate:IsA("TextLabel") then title=candidate end
+    end
+    local nameGradient
+    if title then
+        pcall(function() title.Font=Enum.Font.Michroma end)
+        title.TextColor3=Color3.new(1,1,1)
+        nameGradient=add("UIGradient","PremiumTitleShine",title,{
+            Color=visualGradient(themeAccent(theme),Color3.new(1,1,1)),
+            Offset=Vector2.new(-1,0),Rotation=0,
+        })
+    end
+    local rotationTween,shineTween
+    local function refresh()
+        if not alive then return end
+        if rotationTween then rotationTween:Cancel();rotationTween=nil end
+        if shineTween then shineTween:Cancel();shineTween=nil end
+        local motion=not settings.ReduceMotion and not window._VantaLowFPS
+        haloBorder.Transparency=motion and (0.98-0.12*settings.Intensity) or 1
+        edge.Transparency=0.13+0.30*(1-settings.Intensity)
+        if motion then
+            rotationTween=VfxTweenService:Create(edgeGradient,
+                TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
+                {Rotation=360})
+            rotationTween:Play()
+        else
+            edgeGradient.Rotation=0
+            if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
+        end
+    end
+    local controller={}
+    function controller:Refresh() refresh() end
+    function controller:UpdateTheme(nextTheme)
+        local tint=themeAccent(nextTheme)
+        edgeGradient.Color=visualGradient(tint:Lerp(Color3.new(0,0,0),0.80),tint)
+        dividerGradient.Color=ColorSequence.new(Color3.fromRGB(15,3,7),tint)
+        haloBorder.Color=tint
+        if nameGradient then
+            title.TextColor3=Color3.new(1,1,1)
+            nameGradient.Color=visualGradient(tint,Color3.new(1,1,1))
+        end
+        if window._VantaAmbientLight then window._VantaAmbientLight.BackgroundColor3=tint end
+        for _,p in ipairs(window._VantaAmbientParticles or {}) do
+            if p.item.Parent then
+                p.item.BackgroundColor3=tint
+                if p.core then p.core.BackgroundColor3=tint end
+            end
+        end
+        refresh()
+    end
+    function controller:Cleanup()
+        if not alive then return end
+        alive=false
+        if rotationTween then rotationTween:Cancel() end
+        if shineTween then shineTween:Cancel() end
+        for _,t in ipairs(active) do pcall(function() t:Cancel() end) end
+        for _,object in ipairs({edge,halo,glass,divider,scale,vignette}) do
+            if object and object.Parent then object:Destroy() end
+        end
+    end
+    task.spawn(function()
+        while alive and not window.Destroyed do
+            if nameGradient and not settings.ReduceMotion and not window._VantaLowFPS and not window.Closed then
+                nameGradient.Offset=Vector2.new(-1,0)
+                shineTween=VfxTweenService:Create(nameGradient,
+                    TweenInfo.new(1.4,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut),
+                    {Offset=Vector2.new(1,0)})
+                shineTween:Play()
+                task.wait(1.4)
+                if shineTween then shineTween:Cancel();shineTween=nil end
+                if alive then nameGradient.Offset=Vector2.new(-1,0) end
+                task.wait(2.5)
+            else task.wait(0.3) end
+        end
+    end)
+    local oldOpen,oldClose,oldDestroy=window.Open,window.Close,window.Destroy
+    function window:Open(...)
+        local result=oldOpen(self,...)
+        if alive then
+            if not settings.ReduceMotion and not window._VantaLowFPS then
+                scale.Scale=0.95
+                play(scale,0.32,{Scale=1.023},Enum.EasingStyle.Back)
+                task.delay(0.33,function()
+                    if alive and not window.Closed then
+                        play(scale,0.16,{Scale=1},Enum.EasingStyle.Sine)
+                    end
+                end)
+            else scale.Scale=1 end
+            refresh()
+        end
+        return result
+    end
+    function window:Close(...)
+        if shineTween then shineTween:Cancel();shineTween=nil end
+        if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
+        if alive and not settings.ReduceMotion then
+            play(scale,0.22,{Scale=0.96},Enum.EasingStyle.Sine)
+        end
+        return oldClose(self,...)
+    end
+    function window:Destroy(...)
+        controller:Cleanup()
+        return oldDestroy(self,...)
+    end
+    window._VantaPremium=controller
+    controller:UpdateTheme(theme)
+    if not settings.ReduceMotion then
+        scale.Scale=0.96
+        play(scale,0.38,{Scale=1},Enum.EasingStyle.Back)
+    end
+    return controller
+end
+
 local ActiveWindows = setmetatable({}, { __mode = "k" })
 function VantaUI:SetVisualIntensity(value)
     VisualDefaults.Intensity=math.clamp(tonumber(value) or 0.8,0,1)
@@ -771,6 +967,7 @@ function VantaUI:CreateWindow(config)
         end
     end
 
+    attachPremiumWindow(window,config.Theme)
     local BaseTab = window.Tab
     local startupTabSelected = false
 
