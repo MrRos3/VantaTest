@@ -1,5 +1,18 @@
 # VantaTest 🧪
 
+## v0.4.0 • Salty Special: Nightfall Edition
+
+The laboratory now introduces a premium motion system without changing the public element APIs. The Salty Special shell has a themed rotating 2px crimson border, soft aura, glass topbar, animated Michroma title shine, wallpaper vignette and spring-style open/close scale. Active tabs gain a luminous accent strip, while element hover outlines, press-scale buttons, animated toggles, slider gradients/value bubbles, progress sweeps, dropdown transitions and OLED notification accents add tactile detail.
+
+The existing **50 pooled Crimson01 particles** now share the same 30 FPS ambient update loop with a breathing gradient light and an occasional shooting ember recycled from the pool. The Themes showcase has **Visuals** settings for intensity, particle density and reduced motion; low-FPS fallback suppresses motion. Vanta Void adds a cyan (`#5DE7FF`) theme, and all six themes recolor premium borders and glow on live switches.
+
+**Compatibility:** Existing calls and configuration keys remain valid. New optional `Visuals={Intensity=0.8,Density=1,ReduceMotion=false}` defaults are safe. The library exposes `SetVisualIntensity(number 0..1)`, `SetParticleDensity(number 0..1)`, `SetReduceMotion(boolean)`, and `GetVisualSettings()`. VantaUI production remains unchanged. Roblox-client rendering and executor-specific input performance need live verification.
+
+### Changelog
+- **0.4.0**: premium shell, microinteractions, six live themes, adjustable ambient visuals and reduced-motion support
+- **0.3.8**: Salty Special UI lab, Crimson01 wallpaper and pooled ambient particles
+
+
 An independent test copy of [VantaUI](https://github.com/MrRos3/VantaUI). Use this repository to experiment with components, themes, motion and styling without changing production VantaUI.
 
 ## Run the full UI laboratory
@@ -25,7 +38,7 @@ The LAB showcase creates a complete window. Loading the library by itself does *
 | Sliders | Whole-number and fractional sliders, progress bars, volume adjustment |
 | Dropdowns | Single-select, multi-select, searchable, and dynamically refreshed lists |
 | Inputs | Single-line and multiline entry, color pickers, transparency |
-| Themes | All 5 built-in themes, sound switch and stacked notifications |
+| Themes | All 6 built-in themes, sound switch and stacked notifications |
 | Layouts | Sections, paragraphs, spacers, dividers, groups, HStack and VStack |
 | Advanced | Image, interactive 3D viewport, code block, component diagnostics |
 
@@ -90,7 +103,7 @@ The public loader and branding image URLs now use **MrRos3/VantaTest**. All chan
   - The official VantaTest loader enables the animation automatically while respecting custom backgrounds
   - Cached full-resolution artwork is downloaded through existing custom-image support
 - Rounded components with the compact three-dot window topbar
-- Optional themes: Smoked, Dark, AMOLED and Violet
+- Optional themes: Smoked, Dark, AMOLED, Violet and Void
 - v0.3.8 runtime; changes to `src/` trigger the GitHub build workflow for `dist/main.lua`
 
 ## Build
