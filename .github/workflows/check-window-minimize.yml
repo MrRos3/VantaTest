@@ -28,6 +28,9 @@ jobs:
         run: |
           luac -p main.lua
           luac -p example.lua
+          luac -p tests/200Elements.lua
+          luac -p tests/ProgressBar.lua
+          luac -p tests/nameplate_mock.lua
       - name: Verify instant particle cleanup and removed chat
         run: |
           python3 - <<'PY'
@@ -68,6 +71,7 @@ jobs:
           assert 'PremiumWindowEdge' in main
           assert 'PremiumTopbarGlass' in main
           assert 'PremiumTitleShine' in main
+          assert 'PremiumSweeps' in main
           assert 'Vanta Void' in main
           assert 'VantaTest:SetReduceMotion(v)' in example
           assert 'VantaTest:SetParticleDensity(v/100)' in example
