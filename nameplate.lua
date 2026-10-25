@@ -524,7 +524,7 @@ function module.new(options)
             local asset,status=resolveOwlAsset(currentOwlImage)
             if ended or version~=assetSerial then return end
             setOwlImage(asset,status)
-            if not asset then warn("[Vanta Owl] "..status) end
+            if not asset and type(warn)=="function" then warn("[Vanta Owl] "..status) end
         end)
         return normalizeOwlImage(currentOwlImage)~=nil or currentOwlImage==""
     end

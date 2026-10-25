@@ -150,7 +150,7 @@ jobs:
           assert 'PremiumCrimsonGrade' in main
           assert 'PremiumGradeFalloff' in main
           assert 'ambientLight.BackgroundTransparency=0.89-0.115*settings.Intensity' in main
-          assert 'TabBackgroundActiveTransparency = 0.05' in main
+          assert 'TabBackgroundActiveTransparency = 1' in main
           assert 'ElementBackgroundTransparency = 0.06' in main
           window_src = Path('src/components/window/Init.lua').read_text()
           assert 'rbxassetid://120997033468887' in window_src
