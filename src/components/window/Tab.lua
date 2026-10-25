@@ -396,6 +396,10 @@ function TabModule.New(Config, UIScale)
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter,function()
 		if not Tab.Locked then
 			Creator.PlaySound("Hover")
+			if Tab.UIElements.Icon and not Tab.IconColor then
+				Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,
+					{ImageColor3="Primary"},0.13)
+			end
 			if not Creator.PremiumReduceMotion then
 				local x=tabHome.X
 				Creator.Tween(Tab.UIElements.Main.Frame,0.13,{
@@ -405,6 +409,10 @@ function TabModule.New(Config, UIScale)
 		end
 	end)
 	Creator.AddSignal(Tab.UIElements.Main.MouseLeave,function()
+		if Tab.UIElements.Icon and not Tab.IconColor then
+			Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,
+				{ImageColor3=Tab.Selected and "Primary" or "TabIcon"},0.14)
+		end
 		Creator.Tween(Tab.UIElements.Main.Frame,0.14,{Position=tabHome},
 			Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 	end)
@@ -667,6 +675,7 @@ function TabModule:SelectTab(TabIndex)
 				if TabObject.UIElements.Icon and not TabObject.IconColor then
 					Creator.SetThemeTag(TabObject.UIElements.Icon.ImageLabel, {
 						ImageTransparency = "TabIconTransparency",
+						ImageColor3 = "TabIcon",
 					}, 0.15)
 				end
 				TabObject.Selected = false
@@ -696,6 +705,7 @@ function TabModule:SelectTab(TabIndex)
 		if TabModule.Tabs[TabIndex].UIElements.Icon and not TabModule.Tabs[TabIndex].IconColor then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Icon.ImageLabel, {
 				ImageTransparency = "TabIconTransparencyActive",
+				ImageColor3 = "Primary",
 			}, 0.15)
 		end
 		TabModule.Tabs[TabIndex].Selected = true
