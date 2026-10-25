@@ -3167,12 +3167,12 @@ BackgroundTransparency=1,
 },{
 ab.NewRoundFrame(am,"Squircle",{
 ThemeTag={
-ImageColor3=ah~="White"and"Button"or nil,
+ImageColor3=ah=="Primary"and"Primary"or ah~="White"and"Button"or nil,
 },
 ImageColor3=ah=="White"and Color3.new(1,1,1)or nil,
 Size=UDim2.new(1,0,1,0),
 Name="Squircle",
-ImageTransparency=ah=="Primary"and 0 or ah=="White"and 0 or 0.9,
+ImageTransparency=ah=="Primary"and 0.03 or ah=="White"and 0 or 0.26,
 }),
 
 ab.NewRoundFrame(am,"Squircle",{
@@ -3229,7 +3229,7 @@ ab.NewRoundFrame(am,"Squircle",{
 Size=UDim2.new(1,0,1,0),
 Name="Frame",
 ThemeTag={
-ImageColor3=ah~="White"and"Text"or nil,
+ImageColor3=ah~="White"and"Primary"or nil,
 },
 ImageColor3=ah=="White"and Color3.new(0,0,0)or nil,
 ImageTransparency=1,
@@ -3261,6 +3261,14 @@ TextSize=18,
 }),
 })
 
+ac("UIGradient",{
+Name="PremiumButtonGlass",Parent=ao.Squircle,Rotation=18,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(0.55,Color3.fromRGB(245,165,187)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(138,47,74)),
+},
+})
 local ap=ac("UIScale",{Name="PremiumPressScale",Scale=1,Parent=ao})
 ab.AddSignal(ao.MouseEnter,function()
 ab.PlaySound"Hover"
