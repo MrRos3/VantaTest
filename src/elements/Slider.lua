@@ -22,7 +22,7 @@ function Element:New(Config)
 		LockedTitle = Config.LockedTitle,
 		Value = Config.Value or {},
 		Icons = Config.Icons or nil,
-		IsTooltip = Config.IsTooltip or false,
+		IsTooltip = Config.IsTooltip ~= false,
 		IsTextbox = Config.IsTextbox,
 		Step = Config.Step or 1,
 		Callback = Config.Callback or function() end,
@@ -155,6 +155,14 @@ function Element:New(Config)
 		}),
 	})
 
+	New("UIGradient",{
+		Name="PremiumSliderGradient",Parent=Slider.UIElements.SliderIcon.Frame,
+		Color=ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.fromRGB(140,140,140)),
+			ColorSequenceKeypoint.new(0.7,Color3.new(1,1,1)),
+			ColorSequenceKeypoint.new(1,Color3.fromRGB(220,220,220)),
+		}),
+	})
 	Slider.UIElements.SliderContainer = New("Frame", {
 		Size = UDim2.new(Slider.Title == nil and 1 or 0, Slider.Title == nil and 0 or Slider.Width, 0, 0),
 		AutomaticSize = "Y",
