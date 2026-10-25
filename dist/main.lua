@@ -2401,6 +2401,14 @@ ImageColor3=Color3.fromHex"#251016",
 ImageTransparency=0,
 })
 
+d("UIGradient",{
+Name="PremiumCountdownGradient",Parent=m,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(90,10,28)),
+ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,51,85)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(90,10,28)),
+},
+})
 local p=d("Frame",{
 Size=UDim2.new(1,h.Icon and-28-f.UIPadding or 0,1,0),
 Position=UDim2.new(1,0,0,0),
@@ -2507,6 +2515,15 @@ l,
 })
 
 local u=d("Frame",{
+Name="PremiumNotificationEdge",Size=UDim2.new(0,3,1,-12),
+Position=UDim2.new(0,2,0,6),BackgroundTransparency=0.06,
+BorderSizePixel=0,Active=false,Parent=r,
+ThemeTag={BackgroundColor3="Primary"},
+})
+d("UICorner",{CornerRadius=UDim.new(1,0),Parent=u})
+local v
+if i then v=d("UIScale",{Name="PremiumIconScale",Scale=0.75,Parent=i})end
+local x=d("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,0,0),
 Parent=g.Holder,
@@ -2514,11 +2531,11 @@ Parent=g.Holder,
 r,
 })
 
-function h.Close(v)
+function h.Close(z)
 if not h.Closed then
 h.Closed=true
 e(
-u,
+x,
 0.45,
 {Size=UDim2.new(1,0,0,-8)},
 Enum.EasingStyle.Quint,
@@ -2526,20 +2543,30 @@ Enum.EasingDirection.Out
 ):Play()
 e(r,0.55,{Position=UDim2.new(2,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 task.wait(0.45)
-u:Destroy()
+x:Destroy()
 end
 end
 
 task.spawn(function()
 task.wait()
 e(
-u,
+x,
 0.45,
 {Size=UDim2.new(1,0,0,r.AbsoluteSize.Y)},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-e(r,0.45,{Position=UDim2.new(0,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+e(r,b.PremiumReduceMotion and 0.12 or 0.55,
+{Position=UDim2.new(0,0,1,0)},
+b.PremiumReduceMotion and Enum.EasingStyle.Sine or Enum.EasingStyle.Back,
+Enum.EasingDirection.Out):Play()
+if v then
+if b.PremiumReduceMotion then v.Scale=1
+else
+e(v,0.42,{Scale=1},Enum.EasingStyle.Back,
+Enum.EasingDirection.Out):Play()
+end
+end
 if h.Duration then
 m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,1,0)
 e(
@@ -8403,6 +8430,21 @@ ImageColor3="ProgressBar",
 },
 })
 
+local ap=ac("UIGradient",{
+Name="PremiumProgressSweep",Parent=ao.UIElements.Fill,
+Offset=Vector2.new(-1,0),
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(174,174,174)),
+ColorSequenceKeypoint.new(0.48,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(0.52,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(174,174,174)),
+},
+})
+local aq=game:GetService"TweenService":Create(ap,
+TweenInfo.new(2.2,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,false),
+{Offset=Vector2.new(1,0)})
+if not aa.PremiumReduceMotion then aq:Play()else ap.Enabled=false end
+aa.AddSignal(ao.UIElements.Fill.Destroying,function()aq:Cancel()end)
 ao.UIElements.Bar=aa.NewRoundFrame(99,"Squircle",{
 Name="Bar",
 Size=UDim2.new(1,ao.ShowValue and-(ao.ValueWidth+8)or 0,0,6),
@@ -8451,7 +8493,7 @@ ao.UIElements.Value,
 })
 
 if ao.Indeterminate then
-local ap=ad(
+local ar=ad(
 ao.UIElements.Fill,
 1/ao.Speed,
 {Position=UDim2.new(1,0,0,0)},
@@ -8460,90 +8502,90 @@ Enum.EasingDirection.InOut,-1
 
 )
 aa.AddSignal(ao.UIElements.Bar.Destroying,function()
-ap:Cancel()
+ar:Cancel()
 end)
-ap:Play()
+ar:Play()
 end
 
-local function Update(ap,aq)
-local ar=ToFiniteNumber(ap)
-if ar==nil then
+local function Update(ar,as)
+local at=ToFiniteNumber(ar)
+if at==nil then
 return ao.Value.Default
 end
 
-ar=math.clamp(ar,ao.Value.Min,ao.Value.Max)
-ao.Value.Default=ar
+at=math.clamp(at,ao.Value.Min,ao.Value.Max)
+ao.Value.Default=at
 
-local as=GetRatio(ar)
-local at=UDim2.new(as,0,1,0)
+local au=GetRatio(at)
+local av=UDim2.new(au,0,1,0)
 
 if ao.UIElements.Fill and not ao.Indeterminate then
-if aq or not ao.Animate or ao.AnimationDuration<=0 then
-ao.UIElements.Fill.Size=at
+if as or not ao.Animate or ao.AnimationDuration<=0 then
+ao.UIElements.Fill.Size=av
 else
 ad(
 ao.UIElements.Fill,
 ao.AnimationDuration,
-{Size=at},
+{Size=av},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
 end
 end
 
-ao.UIElements.Value.Text=GetValueText(ar,as)
+ao.UIElements.Value.Text=GetValueText(at,au)
 
-return ar
+return at
 end
 
-function ao.Set(ap,aq)
-return Update(aq,false)
+function ao.Set(ar,as)
+return Update(as,false)
 end
 
-function ao.Get(ap)
+function ao.Get(ar)
 return ao.Value.Default
 end
 
-function ao.GetPercentage(ap)
+function ao.GetPercentage(ar)
 return GetRatio(ao.Value.Default)*100
 end
 
-function ao.SetRange(ap,aq,ar)
-aq=ToFiniteNumber(aq)
-ar=ToFiniteNumber(ar)
+function ao.SetRange(ar,as,at)
+as=ToFiniteNumber(as)
+at=ToFiniteNumber(at)
 
-if aq==nil or ar==nil then
+if as==nil or at==nil then
 return ao.Value.Min,ao.Value.Max
 end
 
-if aq>ar then
-aq,ar=ar,aq
+if as>at then
+as,at=at,as
 end
 
-ao.Value.Min=aq
-ao.Value.Max=ar
+ao.Value.Min=as
+ao.Value.Max=at
 Update(ao.Value.Default,false)
 
-return aq,ar
+return as,at
 end
 
-function ao.SetMin(ap,aq)
-aq=ToFiniteNumber(aq)
-if aq==nil then
+function ao.SetMin(ar,as)
+as=ToFiniteNumber(as)
+if as==nil then
 return ao.Value.Min
 end
 
-ao:SetRange(aq,math.max(aq,ao.Value.Max))
+ao:SetRange(as,math.max(as,ao.Value.Max))
 return ao.Value.Min
 end
 
-function ao.SetMax(ap,aq)
-aq=ToFiniteNumber(aq)
-if aq==nil then
+function ao.SetMax(ar,as)
+as=ToFiniteNumber(as)
+if as==nil then
 return ao.Value.Max
 end
 
-ao:SetRange(math.min(ao.Value.Min,aq),aq)
+ao:SetRange(math.min(ao.Value.Min,as),as)
 return ao.Value.Max
 end
 
