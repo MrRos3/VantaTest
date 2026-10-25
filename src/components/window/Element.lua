@@ -361,7 +361,7 @@ return function(Config)
 		Visible = false,
 		Active = false,
 		ThemeTag = {
-			ImageColor3 = "Text",
+			ImageColor3 = "Primary",
 		},
 		Parent = ElementFullFrame,
 	}, {
@@ -393,7 +393,7 @@ return function(Config)
 		ImageTransparency = 1, -- 0.88
 		Active = false,
 		ThemeTag = {
-			ImageColor3 = "Text",
+			ImageColor3 = "Primary",
 		},
 		Parent = ElementFullFrame,
 	}, {
@@ -450,19 +450,36 @@ return function(Config)
 
 	Element.UIElements.Main = Main
 	Element.UIElements.Locked = Locked
+	-- Grade the rounded image directly; square UIStrokes are intentionally absent.
+	if not Element.Color then
+		New("UIGradient",{
+			Name="PremiumCardGlass",Parent=Main,Rotation=9,
+			Color=ColorSequence.new({
+				ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+				ColorSequenceKeypoint.new(0.54,Color3.fromRGB(214,171,185)),
+				ColorSequenceKeypoint.new(1,Color3.fromRGB(118,90,102)),
+			}),
+		})
+	end
 	if Element.Hover then
+		-- Reuse one hover tracking signal, rather than adding one every enter.
+		Creator.AddSignal(Main.MouseMoved,function(x,y)
+			if CanHover and Main.AbsoluteSize.X>0 then
+				local offset=Vector2.new(((x-Main.AbsolutePosition.X)/Main.AbsoluteSize.X)-0.5,0)
+				Hover.HoverGradient.Offset=offset
+				HoverOutline.HoverGradient.Offset=offset
+			end
+		end)
 		Creator.AddSignal(Main.MouseEnter, function()
 			if CanHover then
 				--Tween(Main, 0.12, { ImageTransparency = Element.Color and 0.15 or 0.9 }):Play()
-				Tween(Hover, 0.12, { ImageTransparency = 0.9 }):Play()
-				Tween(HoverOutline, 0.12, { ImageTransparency = 0.8 }):Play()
-				Creator.AddSignal(Main.MouseMoved, function(x, y)
-					Hover.HoverGradient.Offset =
-						Vector2.new(((x - Main.AbsolutePosition.X) / Main.AbsoluteSize.X) - 0.5, 0)
-					HoverOutline.HoverGradient.Offset =
-						Vector2.new(((x - Main.AbsolutePosition.X) / Main.AbsoluteSize.X) - 0.5, 0)
-				end)
+				Tween(Hover,0.12,{ImageTransparency=0.78}):Play()
+				Tween(HoverOutline,0.12,{ImageTransparency=0.55}):Play()
 			end
+		end)
+		Creator.AddSignal(Main.MouseLeave,function()
+			Tween(Hover,0.14,{ImageTransparency=1}):Play()
+			Tween(HoverOutline,0.14,{ImageTransparency=1}):Play()
 		end)
 		Creator.AddSignal(Main.InputEnded, function()
 			if CanHover then
