@@ -14725,12 +14725,13 @@ end
 
 local L=ao("TextLabel",{
 Text=b.Title,
-FontFace=Font.new(an.Font,Enum.FontWeight.SemiBold),
+
+FontFace=Font.new("rbxasset://fonts/families/Michroma.json",Enum.FontWeight.Regular),
 BackgroundTransparency=1,
 AutomaticSize="XY",
 Name="Title",
 TextXAlignment="Left",
-TextSize=16,
+TextSize=14,
 ThemeTag={
 TextColor3="WindowTopbarTitle",
 },
