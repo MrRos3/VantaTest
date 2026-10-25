@@ -763,12 +763,13 @@ return function(Config)
 
 	local WindowTitle = New("TextLabel", {
 		Text = Window.Title,
-		FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
+		-- Set on the real title TextLabel rather than its parent Frame.
+		FontFace = Font.new("rbxasset://fonts/families/Michroma.json", Enum.FontWeight.Regular),
 		BackgroundTransparency = 1,
 		AutomaticSize = "XY",
 		Name = "Title",
 		TextXAlignment = "Left",
-		TextSize = 16,
+		TextSize = 14,
 		ThemeTag = {
 			TextColor3 = "WindowTopbarTitle",
 		},

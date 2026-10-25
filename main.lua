@@ -406,12 +406,12 @@ local function attachCrimsonAmbient(window)
         if kind == "Petal" then
             -- Different depths: near petals are larger, brighter and a little faster.
             local near = index % 4 == 0
-            local w = near and (8 + index % 4) or (4 + index % 5)
-            local h = near and (5 + index % 3) or (3 + index % 3)
+            local w = near and (10 + index % 3) or (4 + index % 5)
+            local h = near and (6 + index % 3) or (3 + index % 3)
             particle.Size = UDim2.fromOffset(w, h)
             particle.BackgroundColor3 = near
                 and Color3.fromRGB(213, 38, 63) or Color3.fromRGB(164, 24, 47)
-            p.alpha = near and 0.27 or 0.49
+            p.alpha = near and 0.13 or 0.38
             p.rate = near and (0.047 + b * 0.028) or (0.028 + b * 0.020)
             p.sway = 0.012 + c * 0.027
             local shape = Instance.new("UICorner")
@@ -429,7 +429,7 @@ local function attachCrimsonAmbient(window)
             particle.Size = UDim2.fromOffset(bright and 3 or 2, bright and 4 or 3)
             particle.BackgroundColor3 = bright
                 and Color3.fromRGB(255, 112, 75) or Color3.fromRGB(228, 46, 65)
-            p.alpha = bright and 0.22 or 0.44
+            p.alpha = bright and 0.10 or 0.33
             p.rate = 0.065 + b * 0.060
             p.sway = 0.004 + c * 0.015
             local shape = Instance.new("UICorner")
@@ -535,8 +535,8 @@ local function attachCrimsonAmbient(window)
                 positionY = -0.10 + 1.19 * progress
                 -- Fade at the very top and bottom to prevent popping.
                 alpha = math.min(0.94, p.alpha +
-                    0.32 * math.abs(2 * progress - 1) +
-                    0.08 * math.sin(t * p.pulse + p.phase * 11))
+                    0.25 * math.abs(2 * progress - 1) +
+                    0.06 * math.sin(t * p.pulse + p.phase * 11))
                 p.item.Rotation = (t * p.rotation + p.phase * 360) % 360
             elseif p.kind == "Ember" then
                 local progress = (t * p.rate + p.phase) % 1
@@ -544,8 +544,8 @@ local function attachCrimsonAmbient(window)
                     + p.sway * math.sin(t * 1.8 + p.phase * 8)
                 positionY = 1.08 - 1.18 * progress
                 alpha = math.min(0.94, p.alpha +
-                    0.45 * math.abs(2 * progress - 1) +
-                    0.08 * math.sin(t * p.pulse + p.phase * 7))
+                    0.33 * math.abs(2 * progress - 1) +
+                    0.06 * math.sin(t * p.pulse + p.phase * 7))
                 p.item.Rotation = 12 * math.sin(t * 1.3 + p.phase * 8)
             elseif p.kind == "Mote" then
                 positionX = p.x + p.sway * math.sin(t * p.rate + p.phase * 6)
@@ -685,7 +685,7 @@ local function attachPremiumWindow(window,theme)
         })
         local scrim=add("Frame","PremiumSidebarScrim",premiumClip,{
             Position=UDim2.fromOffset(0,window.Topbar.Height or 44),
-            Size=UDim2.new(0,window.SideBarWidth or 200,1,-(window.Topbar.Height or 44)),
+            Size=UDim2.new(0,(window.SideBarWidth or 200)+40,1,-(window.Topbar.Height or 44)),
             BackgroundColor3=Color3.fromRGB(0,0,0),
             BackgroundTransparency=0,BorderSizePixel=0,
             ZIndex=premiumClip.ZIndex+2,
@@ -697,21 +697,52 @@ local function attachPremiumWindow(window,theme)
             Rotation=0,
             Transparency=NumberSequence.new({
                 NumberSequenceKeypoint.new(0.00,0.25),
+                NumberSequenceKeypoint.new(0.25,0.62),
+                NumberSequenceKeypoint.new(0.50,0.85),
+                NumberSequenceKeypoint.new(0.75,0.97),
                 NumberSequenceKeypoint.new(1.00,1.00),
             }),
         })
     end
+    -- One static, rounded 28px fade over the scrolling content viewport.
+    -- Existing tab containers and scrolling remain completely interactive.
+    local contentBottomFade
+    local contentArea=window.UIElements and window.UIElements.MainBar
+    if contentArea then
+        contentBottomFade=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle",{
+            Name="PremiumContentBottomFade",Parent=contentArea,
+            Size=UDim2.new(1,0,0,28),Position=UDim2.new(0,0,1,-28),
+            ImageColor3=Color3.fromRGB(0,0,0),ImageTransparency=0,
+            ZIndex=contentArea.ZIndex+15,Active=false,
+        })
+        add("UIGradient","PremiumBottomDissolve",contentBottomFade,{
+            Rotation=90,
+            Transparency=NumberSequence.new({
+                NumberSequenceKeypoint.new(0.00,1.00),
+                NumberSequenceKeypoint.new(0.35,0.92),
+                NumberSequenceKeypoint.new(0.70,0.50),
+                NumberSequenceKeypoint.new(1.00,0.08),
+            }),
+        })
+    end
     local title
+    -- Left.Title is a Frame; prefer its actual TextLabel child.
     local left=topbar:FindFirstChild("Left")
     local holder=left and left:FindFirstChild("Title")
-    if holder then
-        local candidate=holder:FindFirstChild("Title") or holder:FindFirstChildWhichIsA("TextLabel",true)
-        if candidate and candidate:IsA("TextLabel") then title=candidate end
+    local candidate=holder and holder:FindFirstChildWhichIsA("TextLabel")
+    if not candidate then
+        candidate=holder and holder:FindFirstChildWhichIsA("TextLabel",true)
     end
+    if candidate and candidate:IsA("TextLabel") then title=candidate end
     local nameGradient
     local titleStroke
     if title then
-        pcall(function() title.Font=Enum.Font.Michroma end)
+        local fontOK=pcall(function()
+            title.FontFace=Font.new("rbxasset://fonts/families/Michroma.json")
+        end)
+        if not fontOK then pcall(function() title.Font=Enum.Font.Michroma end) end
+        title.TextSize=14
+        title.TextScaled=false
         title.TextColor3=Color3.fromRGB(255,255,255)
         title.TextStrokeTransparency=1
         title.ZIndex=math.max(title.ZIndex,glass.ZIndex+2)
@@ -772,7 +803,7 @@ local function attachPremiumWindow(window,theme)
         if rotationTween then rotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
         for _,t in pairs(active) do pcall(function() t:Cancel() end) end
-        for _,object in ipairs({edge,aura,glass,scale,premiumClip}) do
+        for _,object in ipairs({edge,aura,glass,scale,premiumClip,contentBottomFade}) do
             if object and object.Parent then object:Destroy() end
         end
         if nameGradient and nameGradient.Parent then nameGradient:Destroy() end

@@ -97,6 +97,25 @@ jobs:
           assert 'PremiumTitleOutline' in main
           assert 'Color3.fromRGB(26,0,8),Thickness=1' in main
           assert 'PremiumSidebarScrim' in main
+          assert 'Size=UDim2.new(0,(window.SideBarWidth or 200)+40' in main
+          assert 'NumberSequenceKeypoint.new(0.25,0.62)' in main
+          assert 'NumberSequenceKeypoint.new(0.50,0.85)' in main
+          assert 'NumberSequenceKeypoint.new(0.75,0.97)' in main
+          assert 'PremiumContentBottomFade' in main
+          assert 'PremiumBottomDissolve' in main
+          assert 'Size=UDim2.new(1,0,0,28)' in main
+          assert 'Parent=contentArea' in main
+          assert 'Active=false' in main
+          assert 'contentBottomFade}) do' in main
+          assert 'p.alpha = near and 0.13 or 0.38' in main
+          assert 'p.alpha = bright and 0.10 or 0.33' in main
+          assert 'near and (10 + index % 3)' in main
+          assert 'Font.new("rbxasset://fonts/families/Michroma.json")' in main
+          assert 'title.TextSize=14' in main
+          assert 'FindFirstChildWhichIsA("TextLabel")' in main
+          win = Path('src/components/window/Init.lua').read_text()
+          assert 'Font.new("rbxasset://fonts/families/Michroma.json", Enum.FontWeight.Regular)' in win
+          assert 'TextSize = 14' in win
           assert 'NumberSequenceKeypoint.new(0.00,0.25)' in main
           assert 'NumberSequenceKeypoint.new(1.00,1.00)' in main
           assert 'PremiumWallpaperClip' in main
