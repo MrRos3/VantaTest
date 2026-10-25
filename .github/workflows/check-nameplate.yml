@@ -58,7 +58,21 @@ jobs:
           assert 'listen(Players.PlayerAdded' not in script
           assert 'if p and p~=LocalPlayer then return nil end' in script
           assert 'LeftOwl' in script and 'RightOwl' in script
-          assert '🦉' in script
+          assert '🦉' not in script
+          assert 'PNG_SIGNATURE={137,80,78,71,13,10,26,10}' in script
+          assert 'type(http_request)=="function"' in script
+          assert 'type(syn.request)=="function"' in script
+          assert 'type(http.request)=="function"' in script
+          assert 'response.Body' in script
+          assert 'for attempt=1,3 do' in script
+          assert 'task.wait(0.5)' in script
+          assert 'loaded via getcustomasset(path, true)' in script
+          assert 'Name="CircleOutline"' in script
+          assert 'Name="Mark",Text="V"' in script
+          assert 'function controller:SetOwlImage(value)' in script
+          assert 'function controller:OnOwlStatus(callback)' in script
+          assert 'Title = "Roblox owl image ID"' in showcase
+          assert 'Title = "Owl asset status"' in showcase
           assert 'NAME_FONT = Enum.Font.Michroma' in script
           assert 'NAME_SIZE = 14' in script
           assert 'ICON_PADDING = 18' in script
@@ -68,7 +82,7 @@ jobs:
           assert 'BORDER_DARK = Color3.fromRGB(90,10,28)' in script
           assert 'BORDER_BRIGHT = Color3.fromRGB(255,51,85)' in script
           assert 'BORDER_THICKNESS = 2' in script
-          assert 'BORDER_ROTATE_SECONDS = 3' in script
+          assert 'BORDER_ROTATE_SECONDS = 5' in script
           assert 'new("UICorner",{CornerRadius=UDim.new(0.5,0)},plate)' in script
           assert 'borderStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border' in script
           for point in ('0.00,CONFIG.BORDER_DARK','0.40,CONFIG.BORDER_DARK',
