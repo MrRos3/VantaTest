@@ -7386,8 +7386,16 @@ Parent=au,
 })
 addCorner(aw,ao/2)
 addStroke(aw,Color3.fromRGB(255,255,255),0.94,1)
+local ax=ac("UIGradient",{
+Name="PremiumTrackGradient",Parent=aw,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(150,150,150)),
+ColorSequenceKeypoint.new(0.7,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(210,210,210)),
+},
+})
 
-local ax=ac("Frame",{
+local ay=ac("Frame",{
 Name="Thumb",
 Size=UDim2.fromOffset(ap,ap),
 Position=UDim2.new(0,aq,0.5,0),
@@ -7398,32 +7406,32 @@ BorderSizePixel=0,
 ZIndex=5,
 Parent=aw,
 })
-addCorner(ax,ap/2)
-local ay=addStroke(ax,getOnColor(),0.48,1)
-ab.AddThemeObject(ay,{Color="Toggle"})
+addCorner(ay,ap/2)
+local az=addStroke(ay,getOnColor(),0.48,1)
+ab.AddThemeObject(az,{Color="Toggle"})
 
-local az=ac("UIScale",{
+local aA=ac("UIScale",{
 Name="UIScale",
 Scale=1,
-Parent=ax,
+Parent=ay,
 })
 
 if ag and ag~=""then
-local aA=ab.Icon(ag)
-if aA then
+local aB=ab.Icon(ag)
+if aB then
 ac("ImageLabel",{
 Name="Icon",
 Size=UDim2.fromOffset(math.min(10,ah or 10),math.min(10,ah or 10)),
 BackgroundTransparency=1,
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.fromScale(0.5,0.5),
-Image=aA[1],
-ImageRectOffset=aA[2].ImageRectPosition,
-ImageRectSize=aA[2].ImageRectSize,
+Image=aB[1],
+ImageRectOffset=aB[2].ImageRectPosition,
+ImageRectSize=aB[2].ImageRectSize,
 ImageTransparency=0.35,
 ImageColor3=Color3.fromRGB(72,72,76),
 ZIndex=6,
-Parent=ax,
+Parent=ay,
 })
 end
 end
@@ -7439,154 +7447,161 @@ ZIndex=10,
 Parent=aw,
 })
 
-local aA
 local aB
+local b
 
-local function getThumbX(b)
-return aq+(b and ar or 0)
+local function getThumbX(d)
+return aq+(d and ar or 0)
 end
 
-local function updateThemeBindings(b)
+local function updateThemeBindings(d)
 ab.AddThemeObject(aw,{
-BackgroundColor3=b and"Toggle"or"Button",
+BackgroundColor3=d and"Toggle"or"Button",
 },true)
 ab.AddThemeObject(av,{
-TextColor3=b and"Toggle"or"Placeholder",
+TextColor3=d and"Toggle"or"Placeholder",
 },true)
 end
 
-local function updateStateLabel(b)
-av.Text=b and"ON"or"OFF"
+local function updateStateLabel(d)
+av.Text=d and"ON"or"OFF"
 end
 
-local function applyVisual(b,d)
-local f=UDim2.new(0,getThumbX(b),0.5,0)
-local g=b and getOnColor()or getOffColor()
-local h=b and getOnColor()or getOffTextColor()
+local function applyVisual(d,f)
+local g=UDim2.new(0,getThumbX(d),0.5,0)
+local h=d and getOnColor()or getOffColor()
+local i=d and getOnColor()or getOffTextColor()
 
-updateThemeBindings(b)
-updateStateLabel(b)
-
-if d then
-ad(ax,0.22,{Position=f},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
-ad(aw,0.16,{BackgroundColor3=g},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
-ad(av,0.16,{TextColor3=h},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
+updateThemeBindings(d)
+updateStateLabel(d)
+if f and not ab.PremiumReduceMotion then
+ad(ax,0.25,{Rotation=d and 150 or 0}):Play()
+ad(az,0.22,{Transparency=d and 0.12 or 0.70}):Play()
 else
-ax.Position=f
-aw.BackgroundColor3=g
-av.TextColor3=h
+ax.Rotation=d and 150 or 0
+az.Transparency=d and 0.12 or 0.70
+end
+
+if f then
+ad(ay,0.22,{Position=g},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+ad(aw,0.16,{BackgroundColor3=h},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
+ad(av,0.16,{TextColor3=i},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
+else
+ay.Position=g
+aw.BackgroundColor3=h
+av.TextColor3=i
 end
 end
 
-function am.Set(b,d,f,g)
-applyVisual(d,not g)
+function am.Set(d,f,g,h)
+applyVisual(f,not h)
 
-f=f~=false
+g=g~=false
 task.spawn(function()
-if aj and f then
-ab.SafeCallback(aj,d)
+if aj and g then
+ab.SafeCallback(aj,f)
 end
 end)
 end
 
-function am.Animate(b,d,f)
+function am.Animate(d,f,g)
 if al.Window.IsToggleDragging then
 return
 end
 
 al.Window.IsToggleDragging=true
 
-local g=d.Position.X
-local h=d.Position.Y
-local i=ax.Position.X.Offset
-local l=false
+local h=f.Position.X
+local i=f.Position.Y
+local l=ay.Position.X.Offset
 local m=false
+local p=false
 
-ad(az,0.10,{Scale=1.04},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-
-if aA then
-aA:Disconnect()
-end
-
-aA=ae.InputChanged:Connect(function(p)
-if not al.Window.IsToggleDragging then
-return
-end
-if p.UserInputType~=Enum.UserInputType.MouseMovement and p.UserInputType~=Enum.UserInputType.Touch then
-return
-end
-
-local r=math.abs(p.Position.X-g)
-local u=math.abs(p.Position.Y-h)
-
-if not l and u>10 and u>r then
-m=true
-return
-end
-if m then
-return
-end
-
-if r>5 then
-l=true
-end
-
-local v=p.Position.X-g
-local x=math.clamp(i+v,aq,aq+ar)
-local z=ar>0 and math.clamp((x-aq)/ar,0,1)or 0
-local A=getOffColor()
-local B=getOnColor()
-local C=getOffTextColor()
-
-ax.Position=UDim2.new(0,x,0.5,0)
-aw.BackgroundColor3=A:Lerp(B,z)
-
-if z>=0.5 then
-av.Text="ON"
-av.TextColor3=B
-else
-av.Text="OFF"
-av.TextColor3=C
-end
-end)
+ad(aA,0.10,{Scale=1.04},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
 if aB then
 aB:Disconnect()
 end
 
-aB=ae.InputEnded:Connect(function(p)
+aB=ae.InputChanged:Connect(function(r)
 if not al.Window.IsToggleDragging then
 return
 end
-if p.UserInputType~=Enum.UserInputType.MouseButton1 and p.UserInputType~=Enum.UserInputType.Touch then
+if r.UserInputType~=Enum.UserInputType.MouseMovement and r.UserInputType~=Enum.UserInputType.Touch then
+return
+end
+
+local u=math.abs(r.Position.X-h)
+local v=math.abs(r.Position.Y-i)
+
+if not m and v>10 and v>u then
+p=true
+return
+end
+if p then
+return
+end
+
+if u>5 then
+m=true
+end
+
+local x=r.Position.X-h
+local z=math.clamp(l+x,aq,aq+ar)
+local A=ar>0 and math.clamp((z-aq)/ar,0,1)or 0
+local B=getOffColor()
+local C=getOnColor()
+local F=getOffTextColor()
+
+ay.Position=UDim2.new(0,z,0.5,0)
+aw.BackgroundColor3=B:Lerp(C,A)
+
+if A>=0.5 then
+av.Text="ON"
+av.TextColor3=C
+else
+av.Text="OFF"
+av.TextColor3=F
+end
+end)
+
+if b then
+b:Disconnect()
+end
+
+b=ae.InputEnded:Connect(function(r)
+if not al.Window.IsToggleDragging then
+return
+end
+if r.UserInputType~=Enum.UserInputType.MouseButton1 and r.UserInputType~=Enum.UserInputType.Touch then
 return
 end
 
 al.Window.IsToggleDragging=false
 al.WindUI.CurrentInput=nil
 
-if aA then
-aA:Disconnect()
-aA=nil
-end
 if aB then
 aB:Disconnect()
 aB=nil
 end
+if b then
+b:Disconnect()
+b=nil
+end
 
-ad(az,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ad(aA,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-if m then
-applyVisual(f.Value,true)
+if p then
+applyVisual(g.Value,true)
 return
 end
 
-if not l then
-f:Set(not f.Value,true,false)
+if not m then
+g:Set(not g.Value,true,false)
 else
-local r=ax.Position.X.Offset
-local u=r>(aq+ar/2)
-f:Set(u,true,false)
+local u=ay.Position.X.Offset
+local v=u>(aq+ar/2)
+g:Set(v,true,false)
 end
 end)
 end
