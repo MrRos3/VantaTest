@@ -47,6 +47,8 @@ jobs:
           assert 'CrimsonBreath' in main and 'BreathingMask' in main
           assert 'local streak=elapsed%19' in main
           assert 'VisualDefaults.ReduceMotion=value==true' in main
+          assert 'window._VantaPremium:Refresh()' in main
+          assert 'PremiumSweeps' in main
           assert 'overlay.Visible = true' in main
           assert 'RunService.RenderStepped:Connect' in main
           assert 'CRIMSON_AMBIENT_FPS = 30' in main
