@@ -200,7 +200,7 @@ return function(Config)
 		Position = UDim2.new(1, -22, 1, -22),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
-		ZIndex = 99,
+		ZIndex = 100,
 		Active = true,
 	}, {
 		New("ImageLabel", {
@@ -803,7 +803,6 @@ return function(Config)
 		}, {
 			BGImage,
 			BottomDragFrame,
-			ResizeHandle,
 		}),
 		--[[New("UIScale", {
 			Scale = 0.89,
@@ -812,6 +811,7 @@ return function(Config)
 		UICorner,
 		FullScreenIcon,
 		FullScreenBlur,
+		ResizeHandle,
 		New("Frame", {
 			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,
