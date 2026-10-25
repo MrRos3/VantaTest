@@ -30,7 +30,7 @@ local CONFIG = {
     HEIGHT_STUDS = 2.5,
     MAX_DISTANCE = 60,
     FADE_START = 40,
-    BORDER_ROTATE_SECONDS = 3,
+    BORDER_ROTATE_SECONDS = 5,
     UPDATE_FPS = 30,
 }
 local ROOT = "VantaTestNameplateLifecycle"
@@ -83,29 +83,99 @@ local function clearLegacy()
     end
 end
 
--- GitHub raw PNG URLs cannot be assigned directly to Roblox ImageLabel.Image.
--- Use the actual repo image via executor custom asset support, or a proper
--- published rbxassetid override. Emoji fallbacks prevent blank icon slots.
-local function resolveOwlAsset()
-    if type(CONFIG.OWL_IMAGE)=="string" and
-        CONFIG.OWL_IMAGE:match("^rbxassetid://%d+$") then
-        return CONFIG.OWL_IMAGE
+-- HTTP PNGs require local registration; Roblox IDs work without file APIs.
+local function normalizeOwlImage(value)
+    if value==nil then return nil end
+    local input=tostring(value):match("^%s*(.-)%s*$")
+    local id=input:match("^rbxassetid://(%d+)$") or input:match("^(%d+)$")
+    return id and "rbxassetid://"..id or nil
+end
+local PNG_SIGNATURE={137,80,78,71,13,10,26,10}
+local function validPNG(bytes)
+    if type(bytes)~="string" or #bytes<8 then return false end
+    for i=1,8 do
+        if string.byte(bytes,i)~=PNG_SIGNATURE[i] then return false end
     end
-    local assetFunc=type(getcustomasset)=="function" and getcustomasset
-        or type(getsynasset)=="function" and getsynasset or nil
-    if not assetFunc or type(writefile)~="function" then
-        return nil
+    return true
+end
+local function resolveOwlAsset(chosen)
+    local value=chosen
+    if value==nil then value=CONFIG.OWL_IMAGE end
+    local id=normalizeOwlImage(value)
+    if id then return id,"loaded Roblox owl image ID" end
+    if value~=nil and tostring(value)~="" then
+        return nil,"invalid Roblox owl image ID"
     end
-    local ok,data=pcall(function()
-        return game:HttpGet(CONFIG.OWL_SOURCE .. "?v=owl-96-1")
-    end)
-    if not ok or type(data)~="string" or data:sub(1,8)~="\137PNG\r\n\26\n" then
-        return nil
+    local custom=type(getcustomasset)=="function" and getcustomasset or nil
+    local synasset=type(getsynasset)=="function" and getsynasset or nil
+    local status="download failed"
+    for attempt=1,3 do
+        local url=CONFIG.OWL_SOURCE.."?v=owl-96-3"
+        local providers={}
+        if type(request)=="function" then providers[#providers+1]=request end
+        if type(http_request)=="function" then providers[#providers+1]=http_request end
+        if type(syn)=="table" and type(syn.request)=="function" then providers[#providers+1]=syn.request end
+        if type(http)=="table" and type(http.request)=="function" then providers[#providers+1]=http.request end
+        local data
+        for _,fetch in ipairs(providers) do
+            local ok,response=pcall(fetch,{Url=url,Method="GET"})
+            if ok and type(response)=="table" and type(response.Body)=="string"
+                and response.Success~=false
+                and (response.StatusCode==nil or response.StatusCode==200) then
+                data=response.Body
+                break
+            end
+        end
+        if not data then
+            local ok,body=pcall(function()return game:HttpGet(url)end)
+            if ok and type(body)=="string" then data=body end
+        end
+        if not data then status="download failed"
+        elseif not validPNG(data) then status="bad PNG"
+        elseif type(writefile)~="function" then status="writefile failed"
+        else
+            local paths={}
+            if type(makefolder)=="function" then
+                local ok=pcall(function()
+                    if type(isfolder)~="function" or not isfolder("VantaTest") then
+                        makefolder("VantaTest")
+                    end
+                end)
+                if ok then paths[#paths+1]="VantaTest/"..CONFIG.OWL_FILE end
+            end
+            paths[#paths+1]=CONFIG.OWL_FILE
+            local written=false
+            for _,path in ipairs(paths) do
+                if pcall(writefile,path,data) then
+                    written=true
+                    if not custom and not synasset then
+                        status="no getcustomasset"
+                    else
+                        if custom then
+                            local ok,uri=pcall(custom,path)
+                            if ok and type(uri)=="string" and uri~="" then
+                                return uri,"loaded via getcustomasset"
+                            end
+                            ok,uri=pcall(custom,path,true)
+                            if ok and type(uri)=="string" and uri~="" then
+                                return uri,"loaded via getcustomasset(path, true)"
+                            end
+                        end
+                        if synasset then
+                            local ok,uri=pcall(synasset,path)
+                            if ok and type(uri)=="string" and uri~="" then
+                                return uri,"loaded via getsynasset"
+                            end
+                        end
+                        status="getcustomasset failed"
+                    end
+                end
+            end
+            if not written then status="writefile failed" end
+        end
+        if attempt<3 and type(task.wait)=="function" then task.wait(0.5) end
     end
-    local written=pcall(writefile,CONFIG.OWL_FILE,data)
-    if not written then return nil end
-    local loaded,uri=pcall(assetFunc,CONFIG.OWL_FILE)
-    return loaded and type(uri)=="string" and uri~="" and uri or nil
+    return nil,status
 end
 
 function module.new(options)
@@ -130,6 +200,9 @@ function module.new(options)
     local displayLabel
     local owlAsset=nil
     local iconStatus="loading"
+    local currentOwlImage=options.OWL_IMAGE or CONFIG.OWL_IMAGE
+    local statusListener
+    local assetSerial=0
     local serial=0
     local updateTime=0
     local shineClock=0
@@ -199,11 +272,12 @@ function module.new(options)
         displayLabel=nil
         owls,emojiLabels={},{}
     end
-    local function setOwlImage(value)
+    local function setOwlImage(value,status)
         owlAsset=value
-        iconStatus=value and "loaded" or "fallback"
+        iconStatus=status or (value and "loaded" or "fallback")
         for _,icon in ipairs(owls) do icon.Image=value or "" end
-        for _,fallback in ipairs(emojiLabels) do fallback.Visible=not not (not value) end
+        for _,fallback in ipairs(emojiLabels) do fallback.Visible=not value end
+        if statusListener then pcall(statusListener,iconStatus) end
     end
 
     local function updateDimensions()
@@ -236,13 +310,24 @@ function module.new(options)
             Size=UDim2.fromOffset(CONFIG.ICON_SIZE,CONFIG.ICON_SIZE),
             ZIndex=6,
         },parent)
-        local label=new("TextLabel",{
-            Name=name.."Fallback",Text="🦉",TextScaled=true,Visible=not owlAsset,
-            BackgroundTransparency=1,BorderSizePixel=0,TextColor3=CONFIG.OWL_TINT,
+        local fallback=new("Frame",{
+            Name=name.."Fallback",Visible=not owlAsset,
+            BackgroundTransparency=1,BorderSizePixel=0,
             Position=icon.Position,Size=icon.Size,ZIndex=6,
         },parent)
+        new("UICorner",{CornerRadius=UDim.new(1,0)},fallback)
+        new("UIStroke",{
+            Name="CircleOutline",Color=Color3.fromRGB(255,255,255),
+            Thickness=1.5,Transparency=0,
+        },fallback)
+        new("TextLabel",{
+            Name="Mark",Text="V",Font=Enum.Font.Michroma,TextSize=17,
+            TextColor3=Color3.fromRGB(255,255,255),
+            BackgroundTransparency=1,BorderSizePixel=0,
+            Size=UDim2.fromScale(1,1),ZIndex=7,
+        },fallback)
         owls[#owls+1]=icon
-        emojiLabels[#emojiLabels+1]=label
+        emojiLabels[#emojiLabels+1]=fallback
     end
 
     local function attach(character,version)
@@ -383,7 +468,12 @@ function module.new(options)
         plate.BackgroundTransparency=fade
         borderStroke.Transparency=fade
         for _,icon in ipairs(owls) do icon.ImageTransparency=fade end
-        for _,fallback in ipairs(emojiLabels) do fallback.TextTransparency=fade end
+        for _,fallback in ipairs(emojiLabels) do
+            local mark=fallback:FindFirstChild("Mark")
+            local ring=fallback:FindFirstChild("CircleOutline")
+            if mark then mark.TextTransparency=fade end
+            if ring then ring.Transparency=fade end
+        end
         displayLabel.TextTransparency=fade
         nameStroke.Transparency=0.3+0.7*fade
     end)
@@ -424,6 +514,24 @@ function module.new(options)
     function controller:GetOwlStatus()
         return iconStatus
     end
+    function controller:OnOwlStatus(callback)
+        statusListener=type(callback)=="function" and callback or nil
+        if statusListener then pcall(statusListener,iconStatus) end
+    end
+    function controller:SetOwlImage(value)
+        currentOwlImage=value==nil and "" or tostring(value)
+        assetSerial=assetSerial+1
+        local version=assetSerial
+        iconStatus="loading"
+        if statusListener then pcall(statusListener,iconStatus) end
+        task.spawn(function()
+            local asset,status=resolveOwlAsset(currentOwlImage)
+            if ended or version~=assetSerial then return end
+            setOwlImage(asset,status)
+            if not asset and type(warn)=="function" then warn("[Vanta Owl] "..status) end
+        end)
+        return normalizeOwlImage(currentOwlImage)~=nil or currentOwlImage==""
+    end
     function controller:Destroy()
         if ended then return end
         ended=true
@@ -434,14 +542,7 @@ function module.new(options)
     end
 
     if LocalPlayer.Character then startCharacter(LocalPlayer.Character) end
-    task.spawn(function()
-        local asset=resolveOwlAsset()
-        if ended then return end
-        setOwlImage(asset)
-        if not asset then
-            warn("[Vanta Owl] Custom PNG asset APIs unavailable. Showing owl emoji fallback. Upload the image to Roblox or use an executor supporting getcustomasset.")
-        end
-    end)
+    controller:SetOwlImage(currentOwlImage)
     return controller
 end
 
