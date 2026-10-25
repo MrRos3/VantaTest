@@ -450,20 +450,6 @@ return function(Config)
 
 	Element.UIElements.Main = Main
 	Element.UIElements.Locked = Locked
-	local PremiumCardEdge=New("UIStroke",{
-		Name="PremiumCardEdge",Parent=Main,Thickness=1,Transparency=1,
-		ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
-		ThemeTag={Color="Primary"},
-	})
-	Creator.AddSignal(Main.MouseEnter,function()
-		if not Creator.PremiumReduceMotion then
-			Tween(PremiumCardEdge,0.16,{Transparency=0.45}):Play()
-		end
-	end)
-	Creator.AddSignal(Main.MouseLeave,function()
-		Tween(PremiumCardEdge,0.16,{Transparency=1}):Play()
-	end)
-
 	if Element.Hover then
 		Creator.AddSignal(Main.MouseEnter, function()
 			if CanHover then

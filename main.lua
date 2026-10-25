@@ -607,33 +607,15 @@ local function attachPremiumWindow(window,theme)
         t:Play()
         return t
     end
-    local edge=add("UIStroke","PremiumWindowEdge",root,{
-        Thickness=2,Color=Color3.new(1,1,1),Transparency=0.13,
-        ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
-    })
-    add("UICorner","PremiumRoundWindow",root,{
-        CornerRadius=UDim.new(0,window.UICorner or 16),
+    -- Native squircle-outline image follows the window Background shape.
+    -- It replaces both the square-corner UIStroke and detached halo.
+    local edge=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline",{
+        Name="PremiumWindowOutline",Size=UDim2.fromScale(1,1),
+        Parent=root,ZIndex=98,ImageColor3=Color3.fromRGB(255,255,255),
+        ImageTransparency=0.15,Active=false,
     })
     local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
         Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),Rotation=0,
-    })
-    -- The old 10px / +10px halo created a detached gray arc at corners.
-    -- Keep the subtle aura, but use the *exact* window geometry and gradient.
-    local halo=add("Frame","PremiumHalo",root,{
-        Size=UDim2.fromScale(1,1),Position=UDim2.fromScale(0.5,0.5),
-        AnchorPoint=Vector2.new(0.5,0.5),BackgroundTransparency=1,
-        BorderSizePixel=0,ZIndex=0,
-    })
-    add("UICorner","PremiumHaloCorner",halo,{
-        CornerRadius=UDim.new(0,window.UICorner or 16),
-    })
-    local haloBorder=add("UIStroke","PremiumHaloStroke",halo,{
-        Thickness=2,Transparency=0.90,Color=Color3.fromRGB(255,255,255),
-        ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
-    })
-    local haloGradient=add("UIGradient","PremiumHaloGradient",haloBorder,{
-        Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),
-        Rotation=0,
     })
     local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
     local glass=add("Frame","PremiumTopbarGlass",topbar,{
@@ -655,11 +637,23 @@ local function attachPremiumWindow(window,theme)
         Color=ColorSequence.new(Color3.fromRGB(32,6,13),themeAccent(theme)),
     })
     local wallpaper=root:FindFirstChild("Background")
-    local vignette
+    local premiumClip
     if wallpaper then
-        vignette=add("Frame","PremiumWallpaperVignette",wallpaper,{
+        -- Confine decorations to their own rounded clip; the original
+        -- Background and its overhanging resize handle remain untouched.
+        premiumClip=add("Frame","PremiumWallpaperClip",wallpaper,{
+            Size=UDim2.fromScale(1,1),BackgroundTransparency=1,
+            BorderSizePixel=0,ClipsDescendants=true,ZIndex=wallpaper.ZIndex+1,
+        })
+        add("UICorner","PremiumClipCorner",premiumClip,{
+            CornerRadius=UDim.new(0,window.UICorner),
+        })
+        local vignette=add("Frame","PremiumWallpaperVignette",premiumClip,{
             Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=wallpaper.ZIndex+1,
+            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=premiumClip.ZIndex,
+        })
+        add("UICorner","PremiumVignetteCorner",vignette,{
+            CornerRadius=UDim.new(0,window.UICorner),
         })
         add("UIGradient","PremiumVerticalVignette",vignette,{
             Rotation=90,Transparency=NumberSequence.new({
@@ -668,14 +662,15 @@ local function attachPremiumWindow(window,theme)
                 NumberSequenceKeypoint.new(1,0.40),
             }),
         })
-        -- Wallpaper-level scrim is behind the interactive sidebar tabs.
-        -- Left: 25%-transparent black; right: fully clear at content edge.
-        local scrim=add("Frame","PremiumSidebarScrim",wallpaper,{
+        local scrim=add("Frame","PremiumSidebarScrim",premiumClip,{
             Position=UDim2.fromOffset(0,window.Topbar.Height or 44),
             Size=UDim2.new(0,window.SideBarWidth or 200,1,-(window.Topbar.Height or 44)),
             BackgroundColor3=Color3.fromRGB(0,0,0),
             BackgroundTransparency=0,BorderSizePixel=0,
-            ZIndex=wallpaper.ZIndex+2,
+            ZIndex=premiumClip.ZIndex+1,
+        })
+        add("UICorner","PremiumScrimCorner",scrim,{
+            CornerRadius=UDim.new(0,window.UICorner),
         })
         add("UIGradient","SidebarContrastFade",scrim,{
             Rotation=0,
@@ -708,28 +703,21 @@ local function attachPremiumWindow(window,theme)
             Offset=Vector2.new(-1,0),Rotation=0,
         })
     end
-    local rotationTween,haloRotationTween,shineTween
+    local rotationTween,shineTween
     local function refresh()
         if not alive then return end
         if rotationTween then rotationTween:Cancel();rotationTween=nil end
-        if haloRotationTween then haloRotationTween:Cancel();haloRotationTween=nil end
         if shineTween then shineTween:Cancel();shineTween=nil end
         if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         local motion=not settings.ReduceMotion and not window._VantaLowFPS
             and settings.Intensity>0
-        haloBorder.Transparency=motion and (0.98-0.12*settings.Intensity) or 1
-        edge.Transparency=0.13+0.30*(1-settings.Intensity)
+        edge.ImageTransparency=0.15+0.30*(1-settings.Intensity)
         if motion then
             rotationTween=VfxTweenService:Create(edgeGradient,
                 TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
                 {Rotation=360})
-            haloRotationTween=VfxTweenService:Create(haloGradient,
-                TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
-                {Rotation=360})
             rotationTween:Play()
-            haloRotationTween:Play()
         else
-            haloGradient.Rotation=0
             edgeGradient.Rotation=0
             if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         end
@@ -740,7 +728,6 @@ local function attachPremiumWindow(window,theme)
         local tint=themeAccent(nextTheme)
         local strokeColors=visualGradient(tint:Lerp(Color3.new(0,0,0),0.80),tint)
         edgeGradient.Color=strokeColors
-        haloGradient.Color=strokeColors
         dividerGradient.Color=ColorSequence.new(Color3.fromRGB(15,3,7),tint)
         if nameGradient then
             title.TextColor3=Color3.fromRGB(255,255,255)
@@ -759,15 +746,11 @@ local function attachPremiumWindow(window,theme)
         if not alive then return end
         alive=false
         if rotationTween then rotationTween:Cancel() end
-        if haloRotationTween then haloRotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
         for _,t in pairs(active) do pcall(function() t:Cancel() end) end
-        for _,object in ipairs({edge,halo,glass,divider,scale,vignette}) do
+        for _,object in ipairs({edge,glass,divider,scale,premiumClip}) do
             if object and object.Parent then object:Destroy() end
         end
-        local wallpaperBackground=root:FindFirstChild("Background")
-        local scrim=wallpaperBackground and wallpaperBackground:FindFirstChild("PremiumSidebarScrim")
-        if scrim then scrim:Destroy() end
         if nameGradient and nameGradient.Parent then nameGradient:Destroy() end
         if titleStroke and titleStroke.Parent then titleStroke:Destroy() end
     end
