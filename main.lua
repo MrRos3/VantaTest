@@ -276,6 +276,7 @@ end
 local RunService = game:GetService("RunService")
 local CRIMSON_AMBIENT_FPS = 30
 local VisualDefaults = {Intensity=0.8,Density=1,ReduceMotion=false}
+if VantaUI.Creator then VantaUI.Creator.PremiumReduceMotion=false end
 local THEME_ACCENTS = {
     ["Salty Special"]=Color3.fromHex("#FF3355"),
     ["Vanta Smoked"]=Color3.fromHex("#B5BAC7"),
@@ -756,9 +757,18 @@ function VantaUI:SetParticleDensity(value)
 end
 function VantaUI:SetReduceMotion(value)
     VisualDefaults.ReduceMotion=value==true
+    if VantaUI.Creator then VantaUI.Creator.PremiumReduceMotion=VisualDefaults.ReduceMotion end
     for window in pairs(ActiveWindows) do
         window._VantaVisuals.ReduceMotion=VisualDefaults.ReduceMotion
         if window._VantaPremium then window._VantaPremium:Refresh() end
+        local root=window.UIElements and window.UIElements.Main
+        if root then
+            for _,desc in ipairs(root:GetDescendants()) do
+                if desc.Name=="PremiumProgressSweep" and desc:IsA("UIGradient") then
+                    desc.Enabled=not VisualDefaults.ReduceMotion
+                end
+            end
+        end
     end
 end
 function VantaUI:GetVisualSettings()
