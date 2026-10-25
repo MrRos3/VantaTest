@@ -125,6 +125,7 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		}),
 	})
 
+	local PressScale=New("UIScale",{Name="PremiumPressScale",Scale=1,Parent=ButtonFrame})
 	Creator.AddSignal(ButtonFrame.MouseEnter, function()
 		Creator.PlaySound("Hover")
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 0.95 }):Play()
@@ -133,6 +134,16 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 1 }):Play()
 	end)
 	Creator.AddSignal(ButtonFrame.MouseButton1Click, function()
+		if not Creator.PremiumReduceMotion then
+			Tween(PressScale,0.08,{Scale=0.97},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
+			Tween(ButtonFrame.Frame,0.07,{ImageTransparency=0.45}):Play()
+			task.delay(0.09,function()
+				if ButtonFrame.Parent then
+					Tween(PressScale,0.16,{Scale=1},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+					Tween(ButtonFrame.Frame,0.17,{ImageTransparency=1}):Play()
+				end
+			end)
+		end
 		Creator.PlaySound("Click")
 		if Dialog then --idk
 			Dialog:Close()()
