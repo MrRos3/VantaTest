@@ -92,6 +92,14 @@ function Toggle.New(Value, Icon, IconSize, Parent, Callback, NewElement, Config)
 	})
 	addCorner(ToggleFrame, TrackHeight / 2)
 	addStroke(ToggleFrame, Color3.fromRGB(255, 255, 255), 0.94, 1)
+	local TrackGradient=New("UIGradient",{
+		Name="PremiumTrackGradient",Parent=ToggleFrame,
+		Color=ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.fromRGB(150,150,150)),
+			ColorSequenceKeypoint.new(0.7,Color3.new(1,1,1)),
+			ColorSequenceKeypoint.new(1,Color3.fromRGB(210,210,210)),
+		}),
+	})
 
 	local Thumb = New("Frame", {
 		Name = "Thumb",
@@ -172,6 +180,13 @@ function Toggle.New(Value, Icon, IconSize, Parent, Callback, NewElement, Config)
 
 		updateThemeBindings(toggled)
 		updateStateLabel(toggled)
+		if animate and not Creator.PremiumReduceMotion then
+			Tween(TrackGradient,0.25,{Rotation=toggled and 150 or 0}):Play()
+			Tween(ThumbStroke,0.22,{Transparency=toggled and 0.12 or 0.70}):Play()
+		else
+			TrackGradient.Rotation=toggled and 150 or 0
+			ThumbStroke.Transparency=toggled and 0.12 or 0.70
+		end
 
 		if animate then
 			Tween(Thumb, 0.22, { Position = thumbPosition }, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
