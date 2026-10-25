@@ -101,6 +101,13 @@ function Toggle.New(Value, Icon, IconSize, Parent, Callback, NewElement, Config)
 		}),
 	})
 
+	-- One rounded image under the track produces real crimson glow, no box stroke.
+	local TrackAura=Creator.NewRoundFrame(99,"Squircle",{
+		Name="PremiumTrackAura",Parent=ToggleFrame,
+		Size=UDim2.new(1,10,1,10),Position=UDim2.fromScale(0.5,0.5),
+		AnchorPoint=Vector2.new(0.5,0.5),ImageTransparency=1,
+		Active=false,ZIndex=2,ThemeTag={ImageColor3="Toggle"},
+	})
 	local Thumb = New("Frame", {
 		Name = "Thumb",
 		Size = UDim2.fromOffset(ThumbSize, ThumbSize),
@@ -113,6 +120,12 @@ function Toggle.New(Value, Icon, IconSize, Parent, Callback, NewElement, Config)
 		Parent = ToggleFrame,
 	})
 	addCorner(Thumb, ThumbSize / 2)
+	local KnobAura=Creator.NewRoundFrame(999,"Squircle",{
+		Name="PremiumKnobAura",Parent=Thumb,
+		Size=UDim2.new(1,12,1,12),AnchorPoint=Vector2.new(0.5,0.5),
+		Position=UDim2.fromScale(0.5,0.5),ImageTransparency=1,
+		Active=false,ZIndex=4,ThemeTag={ImageColor3="Toggle"},
+	})
 	local ThumbStroke = addStroke(Thumb, getOnColor(), 0.48, 1)
 	Creator.AddThemeObject(ThumbStroke, { Color = "Toggle" })
 
@@ -182,13 +195,17 @@ function Toggle.New(Value, Icon, IconSize, Parent, Callback, NewElement, Config)
 		updateStateLabel(toggled)
 		if animate and not Creator.PremiumReduceMotion then
 			Tween(TrackGradient,0.25,{Rotation=toggled and 150 or 0}):Play()
+			Tween(TrackAura,0.20,{ImageTransparency=toggled and 0.53 or 1}):Play()
+			Tween(KnobAura,0.22,{ImageTransparency=toggled and 0.36 or 1}):Play()
 			Tween(ThumbStroke,0.22,{Transparency=toggled and 0.12 or 0.70}):Play()
 		else
 			TrackGradient.Rotation=toggled and 150 or 0
+			TrackAura.ImageTransparency=toggled and 0.53 or 1
+			KnobAura.ImageTransparency=toggled and 0.36 or 1
 			ThumbStroke.Transparency=toggled and 0.12 or 0.70
 		end
 
-		if animate then
+		if animate and not Creator.PremiumReduceMotion then
 			Tween(Thumb, 0.22, { Position = thumbPosition }, Enum.EasingStyle.Back, Enum.EasingDirection.Out):Play()
 			Tween(ToggleFrame, 0.16, { BackgroundColor3 = trackColor }, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
 			Tween(StateLabel, 0.16, { TextColor3 = textColor }, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
