@@ -14156,21 +14156,24 @@ b.AcrylicPaint=g
 end
 
 local g=ao("Frame",{
-Size=UDim2.new(0,32,0,32),
-Position=UDim2.new(1,0,1,0),
+Size=UDim2.fromOffset(32,32),
+
+
+Position=UDim2.new(1,-22,1,-22),
 AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundTransparency=1,
 ZIndex=99,
 Active=true,
 },{
 ao("ImageLabel",{
-Size=UDim2.new(0,96,0,96),
+Size=UDim2.fromOffset(28,28),
 BackgroundTransparency=1,
-Image="",
-Visible=false,
-Position=UDim2.new(0.5,-16,0.5,-16),
+Image="rbxassetid://120997033468887",
+Position=UDim2.fromScale(0.5,0.5),
 AnchorPoint=Vector2.new(0.5,0.5),
 ImageTransparency=1,
+ThemeTag={ImageColor3="Primary"},
+Active=false,
 }),
 })
 local h=an.NewRoundFrame(b.UICorner,"Squircle",{
