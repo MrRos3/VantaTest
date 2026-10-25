@@ -86,6 +86,17 @@ jobs:
           assert 'PremiumWindowOutline' in main
           assert 'Parent=root,ZIndex=98' in main
           assert 'ImageTransparency=0.20,Active=false' in main
+          assert 'Transparency=lightBand()' in main
+          assert 'ColorSequenceKeypoint.new(0.50,0)' not in main
+          assert 'NumberSequenceKeypoint.new(0.50,0)' in main
+          assert 'edge.ImageTransparency=motion and (0.08+0.12*(1-settings.Intensity)) or 1' in main
+          assert 'PremiumBlackShadow' not in main
+          assert 'PremiumOuterAura' not in main
+          assert 'visualGradient(tint)' not in main
+          assert 'edgeGradient.Color=visualGradient()' in main
+          assert 'TabBackgroundActiveTransparency = 1' in main
+          assert 'TabSelectionFade = Color3.fromHex("#4A1C2B")' in main
+          assert 'TabBackgroundActive = Color3.fromHex("#0B0A0C")' in main
           assert 'PremiumWindowEdge' not in main
           assert 'PremiumRoundWindow' not in main
           assert 'PremiumHalo' not in main
@@ -125,21 +136,13 @@ jobs:
           assert 'CornerRadius=UDim.new(0,window.UICorner)' in main
           assert 'PremiumEdgeMotion' in main
           assert 'rotationTween:Cancel()' in main
-          assert 'edge.ImageTransparency=0.20+0.10*(1-settings.Intensity)' in main
+          assert 'edge.ImageTransparency=motion and (0.08+0.12*(1-settings.Intensity)) or 1' in main
           assert 'TweenInfo.new(6,Enum.EasingStyle.Linear' in main
-          assert 'Color3.fromRGB(35,37,45)' in main
           assert 'Color3.fromRGB(234,246,255)' in main
-          assert 'ColorSequenceKeypoint.new(0.44,steel)' in main
-          assert 'ColorSequenceKeypoint.new(0.50,ice)' in main
-          assert 'ColorSequenceKeypoint.new(0.56,steel:Lerp(accent,0.14))' in main
-          assert 'edgeGradient.Color=visualGradient(tint)' in main
-          assert 'edgeGradient.Rotation=45' in main
-          assert 'edgeGradient.Offset=Vector2.new(-0.35,0)' in main
+          assert 'local function lightBand()' in main
+          assert 'edgeGradient.Rotation=0' in main
+          assert 'PremiumBlackShadow' not in main
           assert 'PremiumOuterAura' not in main
-          assert 'PremiumAuraSoftness' not in main
-          assert 'PremiumBlackShadow' in main
-          assert 'Size=UDim2.new(1,28,1,28)' in main
-          assert 'ImageTransparency=0.85,ImageColor3=Color3.fromRGB(0,0,0)' in main
           assert 'PremiumTopbarDivider' not in main
           assert 'PremiumDividerGradient' not in main
           assert 'PremiumOuterAura' not in main
@@ -154,6 +157,9 @@ jobs:
           assert 'Visible = false, -- permanently hide the old gray resize arc' not in window_src
           assert 'Size = UDim2.fromOffset(28, 28)' in window_src
           assert 'Position = UDim2.new(1, -22, 1, -22)' in window_src
+          assert 'ZIndex = 100' in window_src
+          assert '\t\tFullScreenBlur,\n\t\tResizeHandle,' in window_src
+          assert '\t\t\tBottomDragFrame,\n\t\t\tResizeHandle,' not in window_src
           assert 'ImageTransparency = 1, -- rest during load, 0.8 after open' in window_src
           assert 'ThemeTag = { ImageColor3 = "Primary" }' in window_src
           assert 'Creator.AddSignal(ResizeHandle.InputBegan' in window_src
