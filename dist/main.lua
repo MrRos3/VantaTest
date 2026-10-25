@@ -7875,7 +7875,7 @@ Locked=ak.Locked or nil,
 LockedTitle=ak.LockedTitle,
 Value=ak.Value or{},
 Icons=ak.Icons or nil,
-IsTooltip=ak.IsTooltip or false,
+IsTooltip=ak.IsTooltip~=false,
 IsTextbox=ak.IsTextbox,
 Step=ak.Step or 1,
 Callback=ak.Callback or function()end,
@@ -8008,6 +8008,14 @@ ImageTransparency=0.5,
 }),
 })
 
+af("UIGradient",{
+Name="PremiumSliderGradient",Parent=al.UIElements.SliderIcon.Frame,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(140,140,140)),
+ColorSequenceKeypoint.new(0.7,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(220,220,220)),
+},
+})
 al.UIElements.SliderContainer=af("Frame",{
 Size=UDim2.new(al.Title==nil and 1 or 0,al.Title==nil and 0 or al.Width,0,0),
 AutomaticSize="Y",
