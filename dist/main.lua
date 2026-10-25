@@ -6799,20 +6799,15 @@ Padding=UDim.new(0,8),
 local d,f=ac(ah.UICorner,"Squircle",{
 Size=UDim2.new(1,0,0,0),
 AutomaticSize="Y",
-ImageTransparency=ah.Color and 0.05 or(not ag.Window.NewElements and 0.93 or nil),
+ImageTransparency=ah.Color and 0.05 or 0.94,
 
 
 
 Parent=ag.Parent,
-ThemeTag={
-ImageColor3=not ah.Color and(ag.Window.NewElements and"ElementBackground"or"Text")or nil,
-ImageTransparency=not ah.Color
-and(ag.Window.NewElements and"ElementBackgroundTransparency"or nil)
-or nil,
-},
+
 ImageColor3=ah.Color and(typeof(ah.Color)=="string"and Color3.fromHex(
 aa.Colors[ah.Color]
-)or typeof(ah.Color)=="Color3"and ah.Color)or nil,
+)or typeof(ah.Color)=="Color3"and ah.Color)or Color3.fromRGB(255,255,255),
 },{
 ah.UIElements.Container,
 au,
@@ -6826,6 +6821,25 @@ PaddingBottom=UDim.new(0,ah.UIPadding),
 
 ah.UIElements.Main=d
 ah.UIElements.Locked=av
+if not ah.Color then
+local g=ac(ah.UICorner,"Squircle-Outline",{
+Name="GlassCardOutline",
+Parent=d,
+Size=UDim2.fromScale(1,1),
+ImageColor3=Color3.fromRGB(235,235,242),
+ImageTransparency=0.78,
+Active=false,
+ZIndex=d.ZIndex+1,
+})
+ab("UIGradient",{
+Name="GlassEdgeGradient",Parent=g,
+Transparency=NumberSequence.new{
+NumberSequenceKeypoint.new(0,0.26),
+NumberSequenceKeypoint.new(0.5,0.52),
+NumberSequenceKeypoint.new(1,0.83),
+},
+})
+end
 
 if ah.Hover then
 aa.AddSignal(d.MouseEnter,function()
