@@ -689,7 +689,8 @@ function TabModule:SelectTab(TabIndex)
 		local item=TabModule.Tabs[TabIndex].UIElements.Main
 		if sidebar and item then
 			local moving=TabModule.PremiumMovingPill
-			if not moving or not moving.Parent then
+			local newPill=not moving or not moving.Parent
+			if newPill then
 				moving=Creator.NewRoundFrame(TabModule.Tabs[TabIndex].UICorner,"Squircle",{
 					Name="PremiumMovingPill",Parent=sidebar,
 					Size=UDim2.fromOffset(math.max(item.AbsoluteSize.X,1),math.max(item.AbsoluteSize.Y,1)),
@@ -719,10 +720,18 @@ function TabModule:SelectTab(TabIndex)
 					moving.Size=size
 				end
 			end
-			setPill(moving.AbsoluteSize.X>1)
-			task.defer(function()
-				if TabModule.SelectedTab==TabIndex then setPill(false) end
-			end)
+			if newPill then
+				setPill(false)
+				-- A first-frame layout may have zero bounds; correct only once.
+				task.defer(function()
+					if TabModule.SelectedTab==TabIndex and item.AbsoluteSize.Y>0 then
+						setPill(false)
+					end
+				end)
+			else
+				-- Never snap the destination on the next frame: finish the slide.
+				setPill(true)
+			end
 		end
 
 		for _, TabObject in next, TabModule.Tabs do
