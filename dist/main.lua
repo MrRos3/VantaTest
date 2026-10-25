@@ -13102,7 +13102,8 @@ local ar=Window.UIElements and Window.UIElements.SideBar
 local as=ao.Tabs[aq].UIElements.Main
 if ar and as then
 local at=ao.PremiumMovingPill
-if not at or not at.Parent then
+local au=not at or not at.Parent
+if au then
 at=ak.NewRoundFrame(ao.Tabs[aq].UICorner,"Squircle",{
 Name="PremiumMovingPill",Parent=ar,
 Size=UDim2.fromOffset(math.max(as.AbsoluteSize.X,1),math.max(as.AbsoluteSize.Y,1)),
@@ -13118,24 +13119,32 @@ ColorSequenceKeypoint.new(1,Color3.fromRGB(75,38,50)),
 })
 ao.PremiumMovingPill=at
 end
-local function setPill(au)
+local function setPill(av)
 if not at.Parent or not as.Parent then return end
-local av=UDim2.fromOffset(
+local aw=UDim2.fromOffset(
 as.AbsolutePosition.X-ar.AbsolutePosition.X,
 as.AbsolutePosition.Y-ar.AbsolutePosition.Y)
-local aw=UDim2.fromOffset(as.AbsoluteSize.X,as.AbsoluteSize.Y)
-if au and not ak.PremiumReduceMotion then
-ak.Tween(at,0.28,{Position=av,Size=aw},
+local ax=UDim2.fromOffset(as.AbsoluteSize.X,as.AbsoluteSize.Y)
+if av and not ak.PremiumReduceMotion then
+ak.Tween(at,0.28,{Position=aw,Size=ax},
 Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 else
-at.Position=av
-at.Size=aw
+at.Position=aw
+at.Size=ax
 end
 end
-setPill(at.AbsoluteSize.X>1)
+if au then
+setPill(false)
+
 task.defer(function()
-if ao.SelectedTab==aq then setPill(false)end
+if ao.SelectedTab==aq and as.AbsoluteSize.Y>0 then
+setPill(false)
+end
 end)
+else
+
+setPill(true)
+end
 end
 
 for at,au in next,ao.Tabs do
