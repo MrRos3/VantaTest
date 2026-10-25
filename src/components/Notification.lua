@@ -154,9 +154,9 @@ function NotificationModule.New(Config)
 	New("UIGradient",{
 		Name="PremiumCountdownGradient",Parent=Duration,
 		Color=ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.fromRGB(56,56,56)),
-			ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
-			ColorSequenceKeypoint.new(1,Color3.fromRGB(56,56,56)),
+			ColorSequenceKeypoint.new(0,Color3.fromRGB(105,105,105)),
+			ColorSequenceKeypoint.new(0.45,Color3.new(1,1,1)),
+			ColorSequenceKeypoint.new(1,Color3.fromRGB(145,145,145)),
 		}),
 	})
 	-- The muted accent still multiplies the native gradient on the countdown.
