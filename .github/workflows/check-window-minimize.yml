@@ -6,11 +6,17 @@ on:
     paths:
       - "main.lua"
       - "example.lua"
+      - "src/components/window/Element.lua"
+      - "src/components/Notification.lua"
+      - "src/elements/Slider.lua"
       - ".github/workflows/check-window-minimize.yml"
   pull_request:
     paths:
       - "main.lua"
       - "example.lua"
+      - "src/components/window/Element.lua"
+      - "src/components/Notification.lua"
+      - "src/elements/Slider.lua"
       - ".github/workflows/check-window-minimize.yml"
 
 permissions:
@@ -68,7 +74,14 @@ jobs:
           assert 'overlay.Active = false' in main
           assert 'p.item.BackgroundTransparency = math.clamp' in main
           assert 'local function attachPremiumWindow(window,theme)' in main
-          assert 'PremiumWindowEdge' in main
+          assert 'VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline"' in main
+          assert 'PremiumWindowOutline' in main
+          assert 'Parent=root,ZIndex=98' in main
+          assert 'ImageTransparency=0.15,Active=false' in main
+          assert 'PremiumWindowEdge' not in main
+          assert 'PremiumRoundWindow' not in main
+          assert 'PremiumHalo' not in main
+          assert 'haloRotationTween' not in main
           assert 'PremiumTopbarGlass' in main
           assert 'PremiumTitleShine' in main
           assert 'premiumTitleGradient(themeAccent(theme))' in main
@@ -78,9 +91,25 @@ jobs:
           assert 'PremiumSidebarScrim' in main
           assert 'NumberSequenceKeypoint.new(0.00,0.25)' in main
           assert 'NumberSequenceKeypoint.new(1.00,1.00)' in main
-          assert 'Thickness=2,Transparency=0.90' in main
-          assert 'PremiumHaloGradient' in main
-          assert 'CornerRadius=UDim.new(0,window.UICorner or 16)' in main
+          assert 'PremiumWallpaperClip' in main
+          assert 'ClipsDescendants=true' in main
+          assert 'PremiumVignetteCorner' in main
+          assert 'PremiumScrimCorner' in main
+          assert 'CornerRadius=UDim.new(0,window.UICorner)' in main
+          assert 'PremiumEdgeMotion' in main
+          assert 'rotationTween:Cancel()' in main
+          assert 'edge.ImageTransparency=0.15+0.30*(1-settings.Intensity)' in main
+          element = Path('src/components/window/Element.lua').read_text()
+          notification = Path('src/components/Notification.lua').read_text()
+          slider = Path('src/elements/Slider.lua').read_text()
+          assert 'PremiumCardEdge' not in element
+          assert 'PremiumNotificationEdge' not in notification
+          assert 'PremiumEdgeGradient' not in notification
+          assert 'PremiumThumbAura' not in slider
+          assert 'HoverOutline' in element and 'HoverGradient' in element
+          assert 'PremiumIconScale' in notification
+          assert 'PremiumCountdownGradient' in notification
+          assert 'PremiumSliderGradient' in slider
           tab = Path('src/components/window/Tab.lua').read_text()
           fallbacks = Path('src/themes/Fallbacks.lua').read_text()
           assert 'TextColor3 = "TabTitleActive"' in tab
