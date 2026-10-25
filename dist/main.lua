@@ -3238,6 +3238,7 @@ TextSize=18,
 }),
 })
 
+local ap=ac("UIScale",{Name="PremiumPressScale",Scale=1,Parent=ao})
 ab.AddSignal(ao.MouseEnter,function()
 ab.PlaySound"Hover"
 ad(ao.Frame,0.047,{ImageTransparency=0.95}):Play()
@@ -3246,6 +3247,16 @@ ab.AddSignal(ao.MouseLeave,function()
 ad(ao.Frame,0.047,{ImageTransparency=1}):Play()
 end)
 ab.AddSignal(ao.MouseButton1Click,function()
+if not ab.PremiumReduceMotion then
+ad(ap,0.08,{Scale=0.97},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
+ad(ao.Frame,0.07,{ImageTransparency=0.45}):Play()
+task.delay(0.09,function()
+if ao.Parent then
+ad(ap,0.16,{Scale=1},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+ad(ao.Frame,0.17,{ImageTransparency=1}):Play()
+end
+end)
+end
 ab.PlaySound"Click"
 if aj then
 aj:Close()()
@@ -6826,6 +6837,19 @@ PaddingBottom=UDim.new(0,ah.UIPadding),
 
 ah.UIElements.Main=d
 ah.UIElements.Locked=av
+local g=ab("UIStroke",{
+Name="PremiumCardEdge",Parent=d,Thickness=1,Transparency=1,
+ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+ThemeTag={Color="Primary"},
+})
+aa.AddSignal(d.MouseEnter,function()
+if not aa.PremiumReduceMotion then
+ad(g,0.16,{Transparency=0.45}):Play()
+end
+end)
+aa.AddSignal(d.MouseLeave,function()
+ad(g,0.16,{Transparency=1}):Play()
+end)
 
 if ah.Hover then
 aa.AddSignal(d.MouseEnter,function()
@@ -6833,11 +6857,11 @@ if am then
 
 ad(aB,0.12,{ImageTransparency=0.9}):Play()
 ad(aA,0.12,{ImageTransparency=0.8}):Play()
-aa.AddSignal(d.MouseMoved,function(g,h)
+aa.AddSignal(d.MouseMoved,function(h,i)
 aB.HoverGradient.Offset=
-Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
+Vector2.new(((h-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
 aA.HoverGradient.Offset=
-Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
+Vector2.new(((h-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
 end)
 end
 end)
@@ -6850,24 +6874,24 @@ end
 end)
 end
 
-function ah.SetTitle(g,h)
-ah.Title=h
-aq.Text=h
+function ah.SetTitle(h,i)
+ah.Title=i
+aq.Text=i
 end
 
-function ah.SetDesc(g,h)
-ah.Desc=h
-ar.Text=h or""
-if not h then
+function ah.SetDesc(h,i)
+ah.Desc=i
+ar.Text=i or""
+if not i then
 ar.Visible=false
 elseif not ar.Visible then
 ar.Visible=true
 end
 end
 
-function ah.Colorize(g,h,i)
+function ah.Colorize(h,i,l)
 if ah.Color then
-h[i]=typeof(ah.Color)=="string"
+i[l]=typeof(ah.Color)=="string"
 and GetTextColorForHSB(Color3.fromHex(aa.Colors[ah.Color]))
 or typeof(ah.Color)=="Color3"and GetTextColorForHSB(ah.Color)
 or nil
@@ -6893,18 +6917,18 @@ end
 
 
 
-function ah.SetThumbnail(g,h,i)
-ah.Thumbnail=h
-if i then
-ah.ThumbnailSize=i
-al=i
+function ah.SetThumbnail(h,i,l)
+ah.Thumbnail=i
+if l then
+ah.ThumbnailSize=l
+al=l
 end
 
 if ao then
-if h then
+if i then
 ao:Destroy()
 ao=aa.Image(
-h,
+i,
 ah.Title,
 ah.UICorner-3,
 ag.Window.Folder,
@@ -6915,8 +6939,8 @@ ah.IconThemed
 if ao then
 ao.Size=UDim2.new(1,0,0,al)
 ao.Parent=ah.UIElements.Container
-local l=ah.UIElements.Container:FindFirstChild"UIListLayout"
-if l then
+local m=ah.UIElements.Container:FindFirstChild"UIListLayout"
+if m then
 ao.LayoutOrder=-1
 end
 end
@@ -6924,9 +6948,9 @@ else
 ao.Visible=false
 end
 else
-if h then
+if i then
 ao=aa.Image(
-h,
+i,
 ah.Title,
 ah.UICorner-3,
 ag.Window.Folder,
@@ -6937,8 +6961,8 @@ ah.IconThemed
 if ao then
 ao.Size=UDim2.new(1,0,0,al)
 ao.Parent=ah.UIElements.Container
-local l=ah.UIElements.Container:FindFirstChild"UIListLayout"
-if l then
+local m=ah.UIElements.Container:FindFirstChild"UIListLayout"
+if m then
 ao.LayoutOrder=-1
 end
 end
@@ -6946,22 +6970,22 @@ end
 end
 end
 
-function ah.SetImage(g,h,i)
-ah.Image=h
-if i then
-ah.ImageSize=i
-ak=i
+function ah.SetImage(h,i,l)
+ah.Image=i
+if l then
+ah.ImageSize=l
+ak=l
 end
 
-if h then
-local l=ap and ap.Parent or ah.UIElements.Container.TitleFrame
+if i then
+local m=ap and ap.Parent or ah.UIElements.Container.TitleFrame
 if ap then
 ap:Destroy()
 end
 
 ap=aa.Image(
-h,
-h,
+i,
+i,
 ah.UICorner-3,
 ag.Window.Folder,
 "Image",
@@ -6976,7 +7000,7 @@ ap.ImageLabel.ImageColor3=GetTextColorForHSB(ah.Color)
 end
 
 ap.Visible=true
-ap.Parent=l
+ap.Parent=m
 ap.LayoutOrder=-99
 
 ap.Size=UDim2.new(0,ak,0,ak)
@@ -6992,25 +7016,25 @@ end
 ah.UIElements.Container.TitleFrame.TitleFrame.Size=UDim2.new(1,-an,1,0)
 end
 
-function ah.Destroy(g)
+function ah.Destroy(h)
 d:Destroy()
 end
 
-function ah.Lock(g,h)
+function ah.Lock(h,i)
 am=false
 av.Active=true
 av.Visible=true
-at.Text=h or"Locked"
+at.Text=i or"Locked"
 end
 
-function ah.Unlock(g)
+function ah.Unlock(h)
 am=true
 av.Active=false
 av.Visible=false
 end
 
-function ah.Highlight(g)
-local h=ab("UIGradient",{
+function ah.Highlight(h)
+local i=ab("UIGradient",{
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
 ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
@@ -7028,7 +7052,7 @@ Offset=Vector2.new(-1,0),
 Parent=ax,
 })
 
-local i=ab("UIGradient",{
+local l=ab("UIGradient",{
 Color=ColorSequence.new{
 ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
 ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
@@ -7049,11 +7073,11 @@ Parent=ay,
 ax.ImageTransparency=0.65
 ay.ImageTransparency=0.88
 
-ad(h,0.75,{
+ad(i,0.75,{
 Offset=Vector2.new(1,0),
 }):Play()
 
-ad(i,0.75,{
+ad(l,0.75,{
 Offset=Vector2.new(1,0),
 }):Play()
 
@@ -7061,25 +7085,25 @@ task.spawn(function()
 task.wait(0.75)
 ax.ImageTransparency=1
 ay.ImageTransparency=1
-h:Destroy()
 i:Destroy()
+l:Destroy()
 end)
 end
 
-function ah.UpdateShape(g)
+function ah.UpdateShape(h)
 if ag.Window.NewElements then
-local h=aa:GetElementPosition(
-g.Elements,
+local i=aa:GetElementPosition(
+h.Elements,
 ah.Index,
 ag.ParentConfig.ParentTable.__type=="HStack"or ag.ParentConfig.ParentTable.__type=="Group"
 )
 
-if h and d then
-f:SetType(h)
-aw:SetType(h)
-az:SetType(h)
+if i and d then
+f:SetType(i)
+aw:SetType(i)
+az:SetType(i)
 
-b:SetType(h)
+b:SetType(i)
 
 end
 end
