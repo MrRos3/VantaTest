@@ -5,7 +5,7 @@
    \ V / (_| | | | | || (_| | |_| || |
     \_/ \__,_|_| |_|\__\__,_|\___/|___|
 
-    v0.4.0  |  2026-10-25  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
+    v0.3.8  |  2026-10-21  |  VantaUI - polished AMOLED-first Roblox UI library by MrRos3
 
     Source: https://github.com/MrRos3/VantaUI
     Project: VantaUI by MrRos3
@@ -511,7 +511,6 @@ TabText="Text",
 TabTextTransparency=0.3,
 TabTextTransparencyActive=0,
 TabTitle="Text",
-TabTitleActive="Text",
 TabIcon="Icon",
 TabIconTransparency=0.4,
 TabIconTransparencyActive=0.1,
@@ -2402,16 +2401,6 @@ ImageColor3=Color3.fromHex"#251016",
 ImageTransparency=0,
 })
 
-d("UIGradient",{
-Name="PremiumCountdownGradient",Parent=m,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(105,105,105)),
-ColorSequenceKeypoint.new(0.45,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(145,145,145)),
-},
-})
-
-b.AddThemeObject(m,{ImageColor3="Primary"})
 local p=d("Frame",{
 Size=UDim2.new(1,h.Icon and-28-f.UIPadding or 0,1,0),
 Position=UDim2.new(1,0,0,0),
@@ -2517,9 +2506,7 @@ i,
 l,
 })
 
-local u
-if i then u=d("UIScale",{Name="PremiumIconScale",Scale=0.75,Parent=i})end
-local v=d("Frame",{
+local u=d("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,0,0),
 Parent=g.Holder,
@@ -2527,11 +2514,11 @@ Parent=g.Holder,
 r,
 })
 
-function h.Close(x)
+function h.Close(v)
 if not h.Closed then
 h.Closed=true
 e(
-v,
+u,
 0.45,
 {Size=UDim2.new(1,0,0,-8)},
 Enum.EasingStyle.Quint,
@@ -2539,30 +2526,20 @@ Enum.EasingDirection.Out
 ):Play()
 e(r,0.55,{Position=UDim2.new(2,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 task.wait(0.45)
-v:Destroy()
+u:Destroy()
 end
 end
 
 task.spawn(function()
 task.wait()
 e(
-v,
+u,
 0.45,
 {Size=UDim2.new(1,0,0,r.AbsoluteSize.Y)},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-e(r,b.PremiumReduceMotion and 0.12 or 0.55,
-{Position=UDim2.new(0,0,1,0)},
-b.PremiumReduceMotion and Enum.EasingStyle.Sine or Enum.EasingStyle.Back,
-Enum.EasingDirection.Out):Play()
-if u then
-if b.PremiumReduceMotion then u.Scale=1
-else
-e(u,0.42,{Scale=1},Enum.EasingStyle.Back,
-Enum.EasingDirection.Out):Play()
-end
-end
+e(r,0.45,{Position=UDim2.new(0,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 if h.Duration then
 m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,1,0)
 e(
@@ -3104,7 +3081,7 @@ New=a.load'k'.New
 return[[
 {
     "name": "mrros3-vantaui",
-    "version": "0.4.0",
+    "version": "0.3.8",
     "private": false,
     "main": "./dist/main.lua",
     "repository": "https://github.com/MrRos3/VantaUI",
@@ -3167,12 +3144,12 @@ BackgroundTransparency=1,
 },{
 ab.NewRoundFrame(am,"Squircle",{
 ThemeTag={
-ImageColor3=ah=="Primary"and"Primary"or ah~="White"and"Button"or nil,
+ImageColor3=ah~="White"and"Button"or nil,
 },
 ImageColor3=ah=="White"and Color3.new(1,1,1)or nil,
 Size=UDim2.new(1,0,1,0),
 Name="Squircle",
-ImageTransparency=ah=="Primary"and 0.03 or ah=="White"and 0 or 0.26,
+ImageTransparency=ah=="Primary"and 0 or ah=="White"and 0 or 0.9,
 }),
 
 ab.NewRoundFrame(am,"Squircle",{
@@ -3229,7 +3206,7 @@ ab.NewRoundFrame(am,"Squircle",{
 Size=UDim2.new(1,0,1,0),
 Name="Frame",
 ThemeTag={
-ImageColor3=ah~="White"and"Primary"or nil,
+ImageColor3=ah~="White"and"Text"or nil,
 },
 ImageColor3=ah=="White"and Color3.new(0,0,0)or nil,
 ImageTransparency=1,
@@ -3261,15 +3238,6 @@ TextSize=18,
 }),
 })
 
-ac("UIGradient",{
-Name="PremiumButtonGlass",Parent=ao.Squircle,Rotation=18,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(0.55,Color3.fromRGB(245,165,187)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(138,47,74)),
-},
-})
-local ap=ac("UIScale",{Name="PremiumPressScale",Scale=1,Parent=ao})
 ab.AddSignal(ao.MouseEnter,function()
 ab.PlaySound"Hover"
 ad(ao.Frame,0.047,{ImageTransparency=0.95}):Play()
@@ -3278,16 +3246,6 @@ ab.AddSignal(ao.MouseLeave,function()
 ad(ao.Frame,0.047,{ImageTransparency=1}):Play()
 end)
 ab.AddSignal(ao.MouseButton1Click,function()
-if not ab.PremiumReduceMotion then
-ad(ap,0.08,{Scale=0.97},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-ad(ao.Frame,0.07,{ImageTransparency=0.45}):Play()
-task.delay(0.09,function()
-if ao.Parent then
-ad(ap,0.16,{Scale=1},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
-ad(ao.Frame,0.17,{ImageTransparency=1}):Play()
-end
-end)
-end
 ab.PlaySound"Click"
 if aj then
 aj:Close()()
@@ -6779,7 +6737,7 @@ ImageTransparency=1,
 Visible=false,
 Active=false,
 ThemeTag={
-ImageColor3="Primary",
+ImageColor3="Text",
 },
 Parent=au,
 },{
@@ -6811,7 +6769,7 @@ Size=UDim2.new(1,0,1,0),
 ImageTransparency=1,
 Active=false,
 ThemeTag={
-ImageColor3="Primary",
+ImageColor3="Text",
 },
 Parent=au,
 },{
@@ -6869,35 +6827,19 @@ PaddingBottom=UDim.new(0,ah.UIPadding),
 ah.UIElements.Main=d
 ah.UIElements.Locked=av
 
-if not ah.Color then
-ab("UIGradient",{
-Name="PremiumCardGlass",Parent=d,Rotation=9,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(0.54,Color3.fromRGB(214,171,185)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(118,90,102)),
-},
-})
-end
 if ah.Hover then
-
-aa.AddSignal(d.MouseMoved,function(g,h)
-if am and d.AbsoluteSize.X>0 then
-local i=Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
-aB.HoverGradient.Offset=i
-aA.HoverGradient.Offset=i
-end
-end)
 aa.AddSignal(d.MouseEnter,function()
 if am then
 
-ad(aB,0.12,{ImageTransparency=0.78}):Play()
-ad(aA,0.12,{ImageTransparency=0.55}):Play()
-end
+ad(aB,0.12,{ImageTransparency=0.9}):Play()
+ad(aA,0.12,{ImageTransparency=0.8}):Play()
+aa.AddSignal(d.MouseMoved,function(g,h)
+aB.HoverGradient.Offset=
+Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
+aA.HoverGradient.Offset=
+Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
 end)
-aa.AddSignal(d.MouseLeave,function()
-ad(aB,0.14,{ImageTransparency=1}):Play()
-ad(aA,0.14,{ImageTransparency=1}):Play()
+end
 end)
 aa.AddSignal(d.InputEnded,function()
 if am then
@@ -7420,23 +7362,8 @@ Parent=au,
 })
 addCorner(aw,ao/2)
 addStroke(aw,Color3.fromRGB(255,255,255),0.94,1)
-local ax=ac("UIGradient",{
-Name="PremiumTrackGradient",Parent=aw,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(150,150,150)),
-ColorSequenceKeypoint.new(0.7,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(210,210,210)),
-},
-})
 
-
-local ay=ab.NewRoundFrame(99,"Squircle",{
-Name="PremiumTrackAura",Parent=aw,
-Size=UDim2.new(1,10,1,10),Position=UDim2.fromScale(0.5,0.5),
-AnchorPoint=Vector2.new(0.5,0.5),ImageTransparency=1,
-Active=false,ZIndex=2,ThemeTag={ImageColor3="Toggle"},
-})
-local az=ac("Frame",{
+local ax=ac("Frame",{
 Name="Thumb",
 Size=UDim2.fromOffset(ap,ap),
 Position=UDim2.new(0,aq,0.5,0),
@@ -7447,38 +7374,32 @@ BorderSizePixel=0,
 ZIndex=5,
 Parent=aw,
 })
-addCorner(az,ap/2)
-local aA=ab.NewRoundFrame(999,"Squircle",{
-Name="PremiumKnobAura",Parent=az,
-Size=UDim2.new(1,12,1,12),AnchorPoint=Vector2.new(0.5,0.5),
-Position=UDim2.fromScale(0.5,0.5),ImageTransparency=1,
-Active=false,ZIndex=4,ThemeTag={ImageColor3="Toggle"},
-})
-local aB=addStroke(az,getOnColor(),0.48,1)
-ab.AddThemeObject(aB,{Color="Toggle"})
+addCorner(ax,ap/2)
+local ay=addStroke(ax,getOnColor(),0.48,1)
+ab.AddThemeObject(ay,{Color="Toggle"})
 
-local b=ac("UIScale",{
+local az=ac("UIScale",{
 Name="UIScale",
 Scale=1,
-Parent=az,
+Parent=ax,
 })
 
 if ag and ag~=""then
-local d=ab.Icon(ag)
-if d then
+local aA=ab.Icon(ag)
+if aA then
 ac("ImageLabel",{
 Name="Icon",
 Size=UDim2.fromOffset(math.min(10,ah or 10),math.min(10,ah or 10)),
 BackgroundTransparency=1,
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.fromScale(0.5,0.5),
-Image=d[1],
-ImageRectOffset=d[2].ImageRectPosition,
-ImageRectSize=d[2].ImageRectSize,
+Image=aA[1],
+ImageRectOffset=aA[2].ImageRectPosition,
+ImageRectSize=aA[2].ImageRectSize,
 ImageTransparency=0.35,
 ImageColor3=Color3.fromRGB(72,72,76),
 ZIndex=6,
-Parent=az,
+Parent=ax,
 })
 end
 end
@@ -7494,165 +7415,154 @@ ZIndex=10,
 Parent=aw,
 })
 
-local d
-local f
+local aA
+local aB
 
-local function getThumbX(g)
-return aq+(g and ar or 0)
+local function getThumbX(b)
+return aq+(b and ar or 0)
 end
 
-local function updateThemeBindings(g)
+local function updateThemeBindings(b)
 ab.AddThemeObject(aw,{
-BackgroundColor3=g and"Toggle"or"Button",
+BackgroundColor3=b and"Toggle"or"Button",
 },true)
 ab.AddThemeObject(av,{
-TextColor3=g and"Toggle"or"Placeholder",
+TextColor3=b and"Toggle"or"Placeholder",
 },true)
 end
 
-local function updateStateLabel(g)
-av.Text=g and"ON"or"OFF"
+local function updateStateLabel(b)
+av.Text=b and"ON"or"OFF"
 end
 
-local function applyVisual(g,h)
-local i=UDim2.new(0,getThumbX(g),0.5,0)
-local l=g and getOnColor()or getOffColor()
-local m=g and getOnColor()or getOffTextColor()
+local function applyVisual(b,d)
+local f=UDim2.new(0,getThumbX(b),0.5,0)
+local g=b and getOnColor()or getOffColor()
+local h=b and getOnColor()or getOffTextColor()
 
-updateThemeBindings(g)
-updateStateLabel(g)
-if h and not ab.PremiumReduceMotion then
-ad(ax,0.25,{Rotation=g and 150 or 0}):Play()
-ad(ay,0.20,{ImageTransparency=g and 0.53 or 1}):Play()
-ad(aA,0.22,{ImageTransparency=g and 0.36 or 1}):Play()
-ad(aB,0.22,{Transparency=g and 0.12 or 0.70}):Play()
+updateThemeBindings(b)
+updateStateLabel(b)
+
+if d then
+ad(ax,0.22,{Position=f},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+ad(aw,0.16,{BackgroundColor3=g},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
+ad(av,0.16,{TextColor3=h},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
 else
-ax.Rotation=g and 150 or 0
-ay.ImageTransparency=g and 0.53 or 1
-aA.ImageTransparency=g and 0.36 or 1
-aB.Transparency=g and 0.12 or 0.70
-end
-
-if h and not ab.PremiumReduceMotion then
-ad(az,0.22,{Position=i},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
-ad(aw,0.16,{BackgroundColor3=l},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
-ad(av,0.16,{TextColor3=m},Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()
-else
-az.Position=i
-aw.BackgroundColor3=l
-av.TextColor3=m
+ax.Position=f
+aw.BackgroundColor3=g
+av.TextColor3=h
 end
 end
 
-function am.Set(g,h,i,l)
-applyVisual(h,not l)
+function am.Set(b,d,f,g)
+applyVisual(d,not g)
 
-i=i~=false
+f=f~=false
 task.spawn(function()
-if aj and i then
-ab.SafeCallback(aj,h)
+if aj and f then
+ab.SafeCallback(aj,d)
 end
 end)
 end
 
-function am.Animate(g,h,i)
+function am.Animate(b,d,f)
 if al.Window.IsToggleDragging then
 return
 end
 
 al.Window.IsToggleDragging=true
 
-local l=h.Position.X
-local m=h.Position.Y
-local p=az.Position.X.Offset
-local r=false
-local u=false
+local g=d.Position.X
+local h=d.Position.Y
+local i=ax.Position.X.Offset
+local l=false
+local m=false
 
-ad(b,0.10,{Scale=1.04},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ad(az,0.10,{Scale=1.04},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-if d then
-d:Disconnect()
+if aA then
+aA:Disconnect()
 end
 
-d=ae.InputChanged:Connect(function(v)
+aA=ae.InputChanged:Connect(function(p)
 if not al.Window.IsToggleDragging then
 return
 end
-if v.UserInputType~=Enum.UserInputType.MouseMovement and v.UserInputType~=Enum.UserInputType.Touch then
+if p.UserInputType~=Enum.UserInputType.MouseMovement and p.UserInputType~=Enum.UserInputType.Touch then
 return
 end
 
-local x=math.abs(v.Position.X-l)
-local z=math.abs(v.Position.Y-m)
+local r=math.abs(p.Position.X-g)
+local u=math.abs(p.Position.Y-h)
 
-if not r and z>10 and z>x then
-u=true
+if not l and u>10 and u>r then
+m=true
 return
 end
-if u then
+if m then
 return
 end
 
-if x>5 then
-r=true
+if r>5 then
+l=true
 end
 
-local A=v.Position.X-l
-local B=math.clamp(p+A,aq,aq+ar)
-local C=ar>0 and math.clamp((B-aq)/ar,0,1)or 0
-local F=getOffColor()
-local G=getOnColor()
-local H=getOffTextColor()
+local v=p.Position.X-g
+local x=math.clamp(i+v,aq,aq+ar)
+local z=ar>0 and math.clamp((x-aq)/ar,0,1)or 0
+local A=getOffColor()
+local B=getOnColor()
+local C=getOffTextColor()
 
-az.Position=UDim2.new(0,B,0.5,0)
-aw.BackgroundColor3=F:Lerp(G,C)
+ax.Position=UDim2.new(0,x,0.5,0)
+aw.BackgroundColor3=A:Lerp(B,z)
 
-if C>=0.5 then
+if z>=0.5 then
 av.Text="ON"
-av.TextColor3=G
+av.TextColor3=B
 else
 av.Text="OFF"
-av.TextColor3=H
+av.TextColor3=C
 end
 end)
 
-if f then
-f:Disconnect()
+if aB then
+aB:Disconnect()
 end
 
-f=ae.InputEnded:Connect(function(v)
+aB=ae.InputEnded:Connect(function(p)
 if not al.Window.IsToggleDragging then
 return
 end
-if v.UserInputType~=Enum.UserInputType.MouseButton1 and v.UserInputType~=Enum.UserInputType.Touch then
+if p.UserInputType~=Enum.UserInputType.MouseButton1 and p.UserInputType~=Enum.UserInputType.Touch then
 return
 end
 
 al.Window.IsToggleDragging=false
 al.WindUI.CurrentInput=nil
 
-if d then
-d:Disconnect()
-d=nil
+if aA then
+aA:Disconnect()
+aA=nil
 end
-if f then
-f:Disconnect()
-f=nil
+if aB then
+aB:Disconnect()
+aB=nil
 end
 
-ad(b,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+ad(az,0.14,{Scale=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 
-if u then
-applyVisual(i.Value,true)
+if m then
+applyVisual(f.Value,true)
 return
 end
 
-if not r then
-i:Set(not i.Value,true,false)
+if not l then
+f:Set(not f.Value,true,false)
 else
-local x=az.Position.X.Offset
-local z=x>(aq+ar/2)
-i:Set(z,true,false)
+local r=ax.Position.X.Offset
+local u=r>(aq+ar/2)
+f:Set(u,true,false)
 end
 end)
 end
@@ -7926,7 +7836,7 @@ Locked=ak.Locked or nil,
 LockedTitle=ak.LockedTitle,
 Value=ak.Value or{},
 Icons=ak.Icons or nil,
-IsTooltip=ak.IsTooltip~=false,
+IsTooltip=ak.IsTooltip or false,
 IsTextbox=ak.IsTextbox,
 Step=ak.Step or 1,
 Callback=ak.Callback or function()end,
@@ -8023,7 +7933,7 @@ Tags=ak.Tags,
 }
 
 al.UIElements.SliderIcon=ae.NewRoundFrame(99,"Squircle",{
-ImageTransparency=0.62,
+ImageTransparency=0.88,
 Size=UDim2.new(1,not al.IsTextbox and-aw or(-al.TextBoxWidth-8),0,3),
 AnchorPoint=Vector2.new(0.5,0.5),
 Position=UDim2.new(0.5,0,0.5,0),
@@ -8059,24 +7969,6 @@ ImageTransparency=0.5,
 }),
 })
 
-af("UIGradient",{
-Name="PremiumSliderGradient",Parent=al.UIElements.SliderIcon.Frame,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(0.58,Color3.fromRGB(255,185,202)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(190,76,108)),
-},
-})
-local ax=al.UIElements.SliderIcon.Frame.Thumb
-ax.ZIndex=math.max(2,ax.ZIndex)
-ae.NewRoundFrame(999,"Squircle",{
-Name="PremiumRoundThumbGlow",Parent=al.UIElements.SliderIcon.Frame,
-Position=UDim2.new(1,0,0.5,0),
-AnchorPoint=Vector2.new(0.5,0.5),
-Size=UDim2.fromOffset(al.ThumbSize+11,al.ThumbSize+11),
-ImageTransparency=0.47,Active=false,ZIndex=ax.ZIndex-1,
-ThemeTag={ImageColor3="Slider"},
-})
 al.UIElements.SliderContainer=af("Frame",{
 Size=UDim2.new(al.Title==nil and 1 or 0,al.Title==nil and 0 or al.Width,0,0),
 AutomaticSize="Y",
@@ -8113,9 +8005,9 @@ Visible=al.IsTextbox,
 }),
 })
 
-local ay
+local ax
 if al.IsTooltip then
-ay=a.load'C'.New(
+ax=a.load'C'.New(
 ap,
 al.UIElements.SliderIcon.Frame.Thumb,
 true,
@@ -8123,16 +8015,16 @@ true,
 "Small",
 false
 )
-ay.Container.AnchorPoint=Vector2.new(0.5,1)
-ay.Container.Position=UDim2.new(0.5,0,0,-8)
+ax.Container.AnchorPoint=Vector2.new(0.5,1)
+ax.Container.Position=UDim2.new(0.5,0,0,-8)
 end
 
-function al.Lock(az)
+function al.Lock(ay)
 al.Locked=true
 as=false
 return al.SliderFrame:Lock(al.LockedTitle)
 end
-function al.Unlock(az)
+function al.Unlock(ay)
 al.Locked=false
 as=true
 return al.SliderFrame:Unlock()
@@ -8143,87 +8035,87 @@ al:Lock()
 end
 
 
-local az=ak.Tab.UIElements.ContainerFrame
+local ay=ak.Tab.UIElements.ContainerFrame
 
-function al.Set(aA,aB,b)
+function al.Set(az,aA,aB)
 if as then
 if
 not al.IsFocusing
 and not ai
 and(
-not b
+not aB
 or(
-b.UserInputType==Enum.UserInputType.MouseButton1
-or b.UserInputType==Enum.UserInputType.Touch
+aB.UserInputType==Enum.UserInputType.MouseButton1
+or aB.UserInputType==Enum.UserInputType.Touch
 )
 )
 then
-if b then
-am=(b.UserInputType==Enum.UserInputType.Touch)
-az.ScrollingEnabled=false
+if aB then
+am=(aB.UserInputType==Enum.UserInputType.Touch)
+ay.ScrollingEnabled=false
 ai=true
 
-local d=am and b.Position.X or ac:GetMouseLocation().X
-local f=math.clamp(
-(d-al.UIElements.SliderIcon.AbsolutePosition.X)
+local b=am and aB.Position.X or ac:GetMouseLocation().X
+local d=math.clamp(
+(b-al.UIElements.SliderIcon.AbsolutePosition.X)
 /al.UIElements.SliderIcon.AbsoluteSize.X,
 0,
 1
 )
-aB=CalculateValue(al.Value.Min+f*(al.Value.Max-al.Value.Min))
-aB=math.clamp(aB,al.Value.Min or 0,al.Value.Max or 100)
+aA=CalculateValue(al.Value.Min+d*(al.Value.Max-al.Value.Min))
+aA=math.clamp(aA,al.Value.Min or 0,al.Value.Max or 100)
 
-if aB~=aq then
+if aA~=aq then
 ae.PlaySound("SliderTick",{
-Pitch=0.82+f*0.36,
+Pitch=0.82+d*0.36,
 })
-ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(f,0,1,0)}):Play()
-al.UIElements.SliderContainer.TextBox.Text=FormatValue(aB)
-if ay then
-ay.TitleFrame.Text=FormatValue(aB)
+ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(d,0,1,0)}):Play()
+al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
+if ax then
+ax.TitleFrame.Text=FormatValue(aA)
 end
-al.Value.Default=FormatValue(aB)
-aq=aB
-ae.SafeCallback(al.Callback,FormatValue(aB))
+al.Value.Default=FormatValue(aA)
+aq=aA
+ae.SafeCallback(al.Callback,FormatValue(aA))
 end
 
 an=ad.RenderStepped:Connect(function()
-local g=am and b.Position.X or ac:GetMouseLocation().X
-local h=math.clamp(
-(g-al.UIElements.SliderIcon.AbsolutePosition.X)
+local f=am and aB.Position.X or ac:GetMouseLocation().X
+local g=math.clamp(
+(f-al.UIElements.SliderIcon.AbsolutePosition.X)
 /al.UIElements.SliderIcon.AbsoluteSize.X,
 0,
 1
 )
-aB=CalculateValue(al.Value.Min+h*(al.Value.Max-al.Value.Min))
+aA=CalculateValue(al.Value.Min+g*(al.Value.Max-al.Value.Min))
 
-if aB~=aq then
+if aA~=aq then
 ae.PlaySound("SliderTick",{
-Pitch=0.82+h*0.36,
+Pitch=0.82+g*0.36,
 })
-ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(h,0,1,0)}):Play()
-al.UIElements.SliderContainer.TextBox.Text=FormatValue(aB)
-if ay then
-ay.TitleFrame.Text=FormatValue(aB)
+ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(g,0,1,0)}):Play()
+al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
+if ax then
+ax.TitleFrame.Text=FormatValue(aA)
 end
-al.Value.Default=FormatValue(aB)
-aq=aB
-ae.SafeCallback(al.Callback,FormatValue(aB))
+al.Value.Default=FormatValue(aA)
+aq=aA
+ae.SafeCallback(al.Callback,FormatValue(aA))
 end
 end)
 
 
-ao=ac.InputEnded:Connect(function(g)
+ao=ac.InputEnded:Connect(function(f)
 if
 (
-g.UserInputType==Enum.UserInputType.MouseButton1
-or g.UserInputType==Enum.UserInputType.Touch
-)and b==g
+f.UserInputType==Enum.UserInputType.MouseButton1
+or f.UserInputType==Enum.UserInputType.Touch
+)and aB==f
 then
 an:Disconnect()
 ao:Disconnect()
 ai=false
-az.ScrollingEnabled=true
+ay.ScrollingEnabled=true
 
 ak.WindUI.CurrentInput=nil
 
@@ -8233,89 +8125,89 @@ ImageTransparency=0,
 Size=UDim2.fromOffset(al.ThumbSize,al.ThumbSize),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.InOut):Play()
 end
-if ay then
-ay:Close(false)
+if ax then
+ax:Close(false)
 end
 end
 end)
 else
-aB=math.clamp(aB,al.Value.Min or 0,al.Value.Max or 100)
+aA=math.clamp(aA,al.Value.Min or 0,al.Value.Max or 100)
 
-local d=math.clamp(
-(aB-(al.Value.Min or 0))/((al.Value.Max or 100)-(al.Value.Min or 0)),
+local b=math.clamp(
+(aA-(al.Value.Min or 0))/((al.Value.Max or 100)-(al.Value.Min or 0)),
 0,
 1
 )
-aB=CalculateValue(al.Value.Min+d*(al.Value.Max-al.Value.Min))
+aA=CalculateValue(al.Value.Min+b*(al.Value.Max-al.Value.Min))
 
-if aB~=aq then
-ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(d,0,1,0)}):Play()
-al.UIElements.SliderContainer.TextBox.Text=FormatValue(aB)
-if ay then
-ay.TitleFrame.Text=FormatValue(aB)
+if aA~=aq then
+ag(al.UIElements.SliderIcon.Frame,0.05,{Size=UDim2.new(b,0,1,0)}):Play()
+al.UIElements.SliderContainer.TextBox.Text=FormatValue(aA)
+if ax then
+ax.TitleFrame.Text=FormatValue(aA)
 end
-al.Value.Default=FormatValue(aB)
-aq=aB
-ae.SafeCallback(al.Callback,FormatValue(aB))
+al.Value.Default=FormatValue(aA)
+aq=aA
+ae.SafeCallback(al.Callback,FormatValue(aA))
 end
 end
 end
 end
 end
 
-function al.SetMax(aA,aB)
-al.Value.Max=aB
+function al.SetMax(az,aA)
+al.Value.Max=aA
 
-local b=tonumber(al.Value.Default)or aq
-if b>aB then
-al:Set(aB)
+local aB=tonumber(al.Value.Default)or aq
+if aB>aA then
+al:Set(aA)
 else
-local d=
-math.clamp((b-(al.Value.Min or 0))/(aB-(al.Value.Min or 0)),0,1)
-ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(d,0,1,0)}):Play()
+local b=
+math.clamp((aB-(al.Value.Min or 0))/(aA-(al.Value.Min or 0)),0,1)
+ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(b,0,1,0)}):Play()
 end
 end
 
-function al.SetMin(aA,aB)
-al.Value.Min=aB
+function al.SetMin(az,aA)
+al.Value.Min=aA
 
-local b=tonumber(al.Value.Default)or aq
-if b<aB then
-al:Set(aB)
+local aB=tonumber(al.Value.Default)or aq
+if aB<aA then
+al:Set(aA)
 else
-local d=math.clamp((b-aB)/((al.Value.Max or 100)-aB),0,1)
-ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(d,0,1,0)}):Play()
+local b=math.clamp((aB-aA)/((al.Value.Max or 100)-aA),0,1)
+ag(al.UIElements.SliderIcon.Frame,0.1,{Size=UDim2.new(b,0,1,0)}):Play()
 end
 end
 
-ae.AddSignal(al.UIElements.SliderContainer.TextBox.FocusLost,function(aA)
-local aB=tonumber(al.UIElements.SliderContainer.TextBox.Text)
-if aB then
-al:Set(aB)
+ae.AddSignal(al.UIElements.SliderContainer.TextBox.FocusLost,function(az)
+local aA=tonumber(al.UIElements.SliderContainer.TextBox.Text)
+if aA then
+al:Set(aA)
 else
 al.UIElements.SliderContainer.TextBox.Text=FormatValue(aq)
-if ay then
-ay.TitleFrame.Text=FormatValue(aq)
+if ax then
+ax.TitleFrame.Text=FormatValue(aq)
 end
 end
 end)
 
-local aA=ak.WindUI.GenerateGUID()
+local az=ak.WindUI.GenerateGUID()
 
-ae.AddSignal(al.UIElements.SliderContainer.InputBegan,function(aB)
+ae.AddSignal(al.UIElements.SliderContainer.InputBegan,function(aA)
 if al.Locked or ai then
 return
 end
 if
-aB.UserInputType==Enum.UserInputType.MouseButton1
-or aB.UserInputType==Enum.UserInputType.Touch
+aA.UserInputType==Enum.UserInputType.MouseButton1
+or aA.UserInputType==Enum.UserInputType.Touch
 then
-if ak.WindUI.CurrentInput and ak.WindUI.CurrentInput~=aA then
+if ak.WindUI.CurrentInput and ak.WindUI.CurrentInput~=az then
 return
 end
-ak.WindUI.CurrentInput=aA
+ak.WindUI.CurrentInput=az
 
-al:Set(ap,aB)
+al:Set(ap,aA)
 
 
 if ak.Window.NewElements then
@@ -8324,8 +8216,8 @@ ImageTransparency=0,
 Size=UDim2.fromOffset(al.ThumbSize+3,al.ThumbSize+3),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
-if ay then
-ay:Open()
+if ax then
+ax:Open()
 end
 
 end
@@ -8464,26 +8356,6 @@ ImageColor3="ProgressBar",
 },
 })
 
-local ap=ac("UIGradient",{
-Name="PremiumProgressSweep",Parent=ao.UIElements.Fill,
-Offset=Vector2.new(-1,0),
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(174,174,174)),
-ColorSequenceKeypoint.new(0.48,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(0.52,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(174,174,174)),
-},
-})
-local aq=game:GetService"TweenService":Create(ap,
-TweenInfo.new(2.2,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,false),
-{Offset=Vector2.new(1,0)})
-aa.PremiumSweeps=aa.PremiumSweeps or setmetatable({},{__mode="k"})
-aa.PremiumSweeps[ap]=aq
-if not aa.PremiumReduceMotion then aq:Play()else ap.Enabled=false end
-aa.AddSignal(ao.UIElements.Fill.Destroying,function()
-aq:Cancel()
-aa.PremiumSweeps[ap]=nil
-end)
 ao.UIElements.Bar=aa.NewRoundFrame(99,"Squircle",{
 Name="Bar",
 Size=UDim2.new(1,ao.ShowValue and-(ao.ValueWidth+8)or 0,0,6),
@@ -8532,7 +8404,7 @@ ao.UIElements.Value,
 })
 
 if ao.Indeterminate then
-local ar=ad(
+local ap=ad(
 ao.UIElements.Fill,
 1/ao.Speed,
 {Position=UDim2.new(1,0,0,0)},
@@ -8541,90 +8413,90 @@ Enum.EasingDirection.InOut,-1
 
 )
 aa.AddSignal(ao.UIElements.Bar.Destroying,function()
-ar:Cancel()
+ap:Cancel()
 end)
-ar:Play()
+ap:Play()
 end
 
-local function Update(ar,as)
-local at=ToFiniteNumber(ar)
-if at==nil then
+local function Update(ap,aq)
+local ar=ToFiniteNumber(ap)
+if ar==nil then
 return ao.Value.Default
 end
 
-at=math.clamp(at,ao.Value.Min,ao.Value.Max)
-ao.Value.Default=at
+ar=math.clamp(ar,ao.Value.Min,ao.Value.Max)
+ao.Value.Default=ar
 
-local au=GetRatio(at)
-local av=UDim2.new(au,0,1,0)
+local as=GetRatio(ar)
+local at=UDim2.new(as,0,1,0)
 
 if ao.UIElements.Fill and not ao.Indeterminate then
-if as or not ao.Animate or ao.AnimationDuration<=0 then
-ao.UIElements.Fill.Size=av
+if aq or not ao.Animate or ao.AnimationDuration<=0 then
+ao.UIElements.Fill.Size=at
 else
 ad(
 ao.UIElements.Fill,
 ao.AnimationDuration,
-{Size=av},
+{Size=at},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
 end
 end
 
-ao.UIElements.Value.Text=GetValueText(at,au)
+ao.UIElements.Value.Text=GetValueText(ar,as)
 
-return at
+return ar
 end
 
-function ao.Set(ar,as)
-return Update(as,false)
+function ao.Set(ap,aq)
+return Update(aq,false)
 end
 
-function ao.Get(ar)
+function ao.Get(ap)
 return ao.Value.Default
 end
 
-function ao.GetPercentage(ar)
+function ao.GetPercentage(ap)
 return GetRatio(ao.Value.Default)*100
 end
 
-function ao.SetRange(ar,as,at)
-as=ToFiniteNumber(as)
-at=ToFiniteNumber(at)
+function ao.SetRange(ap,aq,ar)
+aq=ToFiniteNumber(aq)
+ar=ToFiniteNumber(ar)
 
-if as==nil or at==nil then
+if aq==nil or ar==nil then
 return ao.Value.Min,ao.Value.Max
 end
 
-if as>at then
-as,at=at,as
+if aq>ar then
+aq,ar=ar,aq
 end
 
-ao.Value.Min=as
-ao.Value.Max=at
+ao.Value.Min=aq
+ao.Value.Max=ar
 Update(ao.Value.Default,false)
 
-return as,at
+return aq,ar
 end
 
-function ao.SetMin(ar,as)
-as=ToFiniteNumber(as)
-if as==nil then
+function ao.SetMin(ap,aq)
+aq=ToFiniteNumber(aq)
+if aq==nil then
 return ao.Value.Min
 end
 
-ao:SetRange(as,math.max(as,ao.Value.Max))
+ao:SetRange(aq,math.max(aq,ao.Value.Max))
 return ao.Value.Min
 end
 
-function ao.SetMax(ar,as)
-as=ToFiniteNumber(as)
-if as==nil then
+function ao.SetMax(ap,aq)
+aq=ToFiniteNumber(aq)
+if aq==nil then
 return ao.Value.Max
 end
 
-ao:SetRange(math.min(ao.Value.Min,as),as)
+ao:SetRange(math.min(ao.Value.Min,aq),aq)
 return ao.Value.Max
 end
 
@@ -9572,14 +9444,10 @@ ap.UIElements.Menu.Visible=true
 ap.UIElements.MenuCanvas.Visible=true
 ap.UIElements.MenuCanvas.Active=true
 ap.UIElements.Menu.Size=UDim2.new(1,0,0,0)
-if not ak.PremiumReduceMotion then
-ap.UIElements.Menu.ImageTransparency=0.86
-end
-am(ap.UIElements.Menu,ak.PremiumReduceMotion and 0.08 or 0.23,{
+am(ap.UIElements.Menu,0.1,{
 Size=UDim2.new(1,0,1,0),
 ImageTransparency=0,
-},ak.PremiumReduceMotion and Enum.EasingStyle.Quart or Enum.EasingStyle.Back,
-Enum.EasingDirection.Out):Play()
+},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
 
 task.spawn(function()
 task.wait(0.1)
@@ -12437,7 +12305,6 @@ SelectedTab=nil,
 TabCount=0,
 ToolTipParent=nil,
 TabHighlight=nil,
-PremiumMovingPill=nil,
 
 OnChangeFunc=function(ao)end,
 }
@@ -12447,21 +12314,6 @@ Window=ap
 WindUI=aq
 ao.ToolTipParent=ar
 ao.TabHighlight=as
-ao.PremiumMovingPill=nil
-
-local at=ap.UIElements and ap.UIElements.SideBar
-if at then
-ak.AddSignal(at:GetPropertyChangedSignal"CanvasPosition",function()
-local au=ao.Tabs[ao.SelectedTab]
-local av=ao.PremiumMovingPill
-if au and av and av.Parent then
-local aw=au.UIElements.Main
-av.Position=UDim2.fromOffset(
-aw.AbsolutePosition.X-at.AbsolutePosition.X,
-aw.AbsolutePosition.Y-at.AbsolutePosition.Y)
-end
-end)
-end
 return ao
 end
 
@@ -12568,8 +12420,7 @@ Text=ar.Title,
 ThemeTag={
 TextColor3="TabTitle",
 },
-TextTransparency=not ar.Locked and
-(ak.Theme and ak.Theme.Name=="Salty Special"and 0 or 0.4)or 0.7,
+TextTransparency=not ar.Locked and 0.4 or 0.7,
 TextSize=15,
 Size=UDim2.new(1,0,0,0),
 FontFace=Font.new(ak.Font,Enum.FontWeight.Medium),
@@ -12623,24 +12474,6 @@ NumberSequenceKeypoint.new(1.00,1.00),
 },
 }),
 })
-
-al("UIGradient",{
-Name="PremiumActiveCrimson",Parent=ar.UIElements.Main,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(0.55,Color3.fromRGB(186,140,159)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(89,67,87)),
-},
-})
-ar.UIElements.Main.ZIndex=2
-ar.UIElements.PremiumAccent=al("Frame",{
-Name="PremiumAccent",Parent=ar.UIElements.Main,
-Size=UDim2.new(0,3,0.63,0),
-Position=UDim2.new(0,2,0.5,0),
-AnchorPoint=Vector2.new(0,0.5),BackgroundTransparency=1,
-BorderSizePixel=0,Active=false,ZIndex=ar.UIElements.Main.ZIndex+2,
-ThemeTag={BackgroundColor3="Primary"},
-},{al("UICorner",{CornerRadius=UDim.new(1,0)})})
 ar.UIElements.Main.Frame.ZIndex=ar.UIElements.Main.ZIndex+1
 
 local at=0
@@ -12832,37 +12665,10 @@ end
 ao:SelectTab(as)
 end
 end)
-local aw=ar.UIElements.Main.Frame.Position
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
 if not ar.Locked then
 ak.PlaySound"Hover"
-if not ar.Selected then
-ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
-{TextColor3="Text",TextTransparency="TabTextTransparencyActive"},0.13)
 end
-if ar.UIElements.Icon and not ar.IconColor then
-ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,
-{ImageColor3="Primary"},0.13)
-end
-if not ak.PremiumReduceMotion then
-local ax=aw.X
-ak.Tween(ar.UIElements.Main.Frame,0.13,{
-Position=UDim2.new(ax.Scale,ax.Offset+3,aw.Y.Scale,aw.Y.Offset),
-},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-end
-end
-end)
-ak.AddSignal(ar.UIElements.Main.MouseLeave,function()
-if not ar.Selected then
-ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
-{TextColor3="TabTitle",TextTransparency="TabTextTransparency"},0.14)
-end
-if ar.UIElements.Icon and not ar.IconColor then
-ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,
-{ImageColor3=ar.Selected and"Primary"or"TabIcon"},0.14)
-end
-ak.Tween(ar.UIElements.Main.Frame,0.14,{Position=aw},
-Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 end)
 
 if Window.ScrollBarEnabled then
@@ -12875,30 +12681,30 @@ WindUI
 )
 end
 
+local aw
 local ax
 local ay
-local az
-local aA=false
+local az=false
 
 
 if ar.Desc then
 ak.AddSignal(ar.UIElements.Main.InputBegan,function()
-aA=true
-ay=task.spawn(function()
+az=true
+ax=task.spawn(function()
 task.wait(0.35)
-if aA and not ax then
-ax=am(ar.Desc,ao.ToolTipParent,true)
-ax.Container.AnchorPoint=Vector2.new(0.5,0.5)
+if az and not aw then
+aw=am(ar.Desc,ao.ToolTipParent,true)
+aw.Container.AnchorPoint=Vector2.new(0.5,0.5)
 
 local function updatePosition()
-if ax then
-ax.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
+if aw then
+aw.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
 end
 end
 
 updatePosition()
-az=ai.Move:Connect(updatePosition)
-ax:Open()
+ay=ai.Move:Connect(updatePosition)
+aw:Open()
 end
 end)
 end)
@@ -12914,18 +12720,18 @@ end
 end)
 ak.AddSignal(ar.UIElements.Main.InputEnded,function()
 if ar.Desc then
-aA=false
+az=false
+if ax then
+task.cancel(ax)
+ax=nil
+end
 if ay then
-task.cancel(ay)
+ay:Disconnect()
 ay=nil
 end
-if az then
-az:Disconnect()
-az=nil
-end
-if ax then
-ax:Close()
-ax=nil
+if aw then
+aw:Close()
+aw=nil
 end
 end
 
@@ -12936,13 +12742,13 @@ ImageTransparency="TabBorderTransparency",
 end
 end)
 
-function ar.ScrollToTheElement(aB,b)
+function ar.ScrollToTheElement(aA,aB)
 ar.UIElements.ContainerFrame.ScrollingEnabled=false
 
 ak.Tween(ar.UIElements.ContainerFrame,0.45,{
 CanvasPosition=Vector2.new(
 0,
-ar.Elements[b].ElementFrame.AbsolutePosition.Y
+ar.Elements[aB].ElementFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.UIPadding.PaddingTop.Offset
 ),
@@ -12951,8 +12757,8 @@ ar.Elements[b].ElementFrame.AbsolutePosition.Y
 task.spawn(function()
 task.wait(0.48)
 
-if ar.Elements[b].Highlight then
-ar.Elements[b]:Highlight()
+if ar.Elements[aB].Highlight then
+ar.Elements[aB]:Highlight()
 end
 ar.UIElements.ContainerFrame.ScrollingEnabled=true
 end)
@@ -12962,72 +12768,72 @@ end
 
 
 
-local aB=a.load'aa'
+local aA=a.load'aa'
 
-aB.Load(
+aA.Load(
 ar,
 ar.UIElements.ContainerFrame,
-aB.Elements,
+aA.Elements,
 Window,
 WindUI,
 nil,
-aB,
+aA,
 aq,
 ar
 )
 
-function ar.LockAll(b)
+function ar.LockAll(aB)
+
+for b,d in next,Window.AllElements do
+if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Lock then
+d:Lock()
+end
+end
+end
+function ar.UnlockAll(aB)
+for b,d in next,Window.AllElements do
+if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Unlock then
+d:Unlock()
+end
+end
+end
+function ar.GetLocked(aB)
+local b={}
 
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Lock then
-f:Lock()
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==true then
+table.insert(b,f)
 end
 end
+
+return b
 end
-function ar.UnlockAll(b)
+function ar.GetUnlocked(aB)
+local b={}
+
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Unlock then
-f:Unlock()
-end
-end
-end
-function ar.GetLocked(b)
-local d={}
-
-for f,g in next,Window.AllElements do
-if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==true then
-table.insert(d,g)
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==false then
+table.insert(b,f)
 end
 end
 
-return d
-end
-function ar.GetUnlocked(b)
-local d={}
-
-for f,g in next,Window.AllElements do
-if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==false then
-table.insert(d,g)
-end
+return b
 end
 
-return d
-end
-
-function ar.Select(b)
+function ar.Select(aB)
 return ao:SelectTab(ar.Index)
 end
 
 task.spawn(function()
-local b
+local aB
 if ar.CustomEmptyPage.Icon then
-b=
+aB=
 ak.Image(ar.CustomEmptyPage.Icon,ar.CustomEmptyPage.Icon,0,"Temp","EmptyPage",true)
-b.Size=
+aB.Size=
 UDim2.fromOffset(ar.CustomEmptyPage.IconSize or 48,ar.CustomEmptyPage.IconSize or 48)
 end
 
-local d=al("Frame",{
+local b=al("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,-Window.UIElements.Main.Main.Topbar.AbsoluteSize.Y),
 Parent=ar.UIElements.ContainerFrame,
@@ -13050,7 +12856,7 @@ FillDirection="Vertical",
 
 
 
-b,
+aB,
 ar.CustomEmptyPage.Title and al("TextLabel",{
 AutomaticSize="XY",
 Text=ar.CustomEmptyPage.Title,
@@ -13079,10 +12885,10 @@ FontFace=Font.new(ak.Font,Enum.FontWeight.Regular),
 
 
 
-local f
-f=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
-d.Visible=false
-f:Disconnect()
+local d
+d=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
+b.Visible=false
+d:Disconnect()
 end)
 end)
 
@@ -13097,96 +12903,38 @@ function ao.SelectTab(ap,aq)
 if not ao.Tabs[aq].Locked then
 ao.SelectedTab=aq
 
-
-local ar=Window.UIElements and Window.UIElements.SideBar
-local as=ao.Tabs[aq].UIElements.Main
-if ar and as then
-local at=ao.PremiumMovingPill
-local au=not at or not at.Parent
-if au then
-at=ak.NewRoundFrame(ao.Tabs[aq].UICorner,"Squircle",{
-Name="PremiumMovingPill",Parent=ar,
-Size=UDim2.fromOffset(math.max(as.AbsoluteSize.X,1),math.max(as.AbsoluteSize.Y,1)),
-ImageTransparency=0.62,Active=false,ZIndex=1,
-ThemeTag={ImageColor3="Primary"},
-})
-al("UIGradient",{
-Name="PremiumMovingTint",Parent=at,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(75,38,50)),
-},
-})
-ao.PremiumMovingPill=at
-end
-local function setPill(av)
-if not at.Parent or not as.Parent then return end
-local aw=UDim2.fromOffset(
-as.AbsolutePosition.X-ar.AbsolutePosition.X,
-as.AbsolutePosition.Y-ar.AbsolutePosition.Y)
-local ax=UDim2.fromOffset(as.AbsoluteSize.X,as.AbsoluteSize.Y)
-if av and not ak.PremiumReduceMotion then
-ak.Tween(at,0.28,{Position=aw,Size=ax},
-Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-else
-at.Position=aw
-at.Size=ax
-end
-end
-if au then
-setPill(false)
-
-task.defer(function()
-if ao.SelectedTab==aq and as.AbsoluteSize.Y>0 then
-setPill(false)
-end
-end)
-else
-
-setPill(true)
-end
-end
-
-for at,au in next,ao.Tabs do
-if not au.Locked then
-ak.SetThemeTag(au.UIElements.Main,{
+for ar,as in next,ao.Tabs do
+if not as.Locked then
+ak.SetThemeTag(as.UIElements.Main,{
 ImageColor3="TabBackground",
 ImageTransparency="TabBorderTransparency",
 },0.15)
-ak.Tween(au.UIElements.PremiumAccent,0.15,{
-BackgroundTransparency=1,
-},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-ak.Tween(au.UIElements.SelectionFade,0.16,{
+ak.Tween(as.UIElements.SelectionFade,0.16,{
 BackgroundTransparency=1,
 },Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
-ak.SetThemeTag(au.UIElements.Main.Frame,{
+ak.SetThemeTag(as.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
-if au.Border then
-ak.SetThemeTag(au.UIElements.Main.Outline,{
+if as.Border then
+ak.SetThemeTag(as.UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
 end
-ak.SetThemeTag(au.UIElements.Main.Frame.TextLabel,{
-TextColor3="TabTitle",
+ak.SetThemeTag(as.UIElements.Main.Frame.TextLabel,{
 TextTransparency="TabTextTransparency",
 },0.15)
-if au.UIElements.Icon and not au.IconColor then
-ak.SetThemeTag(au.UIElements.Icon.ImageLabel,{
+if as.UIElements.Icon and not as.IconColor then
+ak.SetThemeTag(as.UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparency",
-ImageColor3="TabIcon",
 },0.15)
 end
-au.Selected=false
+as.Selected=false
 end
 end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main,{
 ImageColor3="TabBackgroundActive",
 ImageTransparency="TabBackgroundActiveTransparency",
 },0.16)
-ak.Tween(ao.Tabs[aq].UIElements.PremiumAccent,0.18,{
-BackgroundTransparency=0.02,
-},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 ak.Tween(ao.Tabs[aq].UIElements.SelectionFade,0.18,{
 BackgroundTransparency=0,
 },Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
@@ -13199,30 +12947,28 @@ ImageTransparency="TabBorderTransparencyActive",
 },0.15)
 end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame.TextLabel,{
-TextColor3="TabTitleActive",
 TextTransparency="TabTextTransparencyActive",
 },0.15)
 if ao.Tabs[aq].UIElements.Icon and not ao.Tabs[aq].IconColor then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparencyActive",
-ImageColor3="Text",
 },0.15)
 end
 ao.Tabs[aq].Selected=true
 
 task.spawn(function()
-for at,au in next,ao.Containers do
-au.AnchorPoint=Vector2.new(0,0.05)
-au.Visible=false
+for ar,as in next,ao.Containers do
+as.AnchorPoint=Vector2.new(0,0.05)
+as.Visible=false
 end
 ao.Containers[aq].Visible=true
-local at=game:GetService"TweenService"
+local ar=game:GetService"TweenService"
 
-local au=TweenInfo.new(0.15,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
-local av=at:Create(ao.Containers[aq],au,{
+local as=TweenInfo.new(0.15,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local at=ar:Create(ao.Containers[aq],as,{
 AnchorPoint=Vector2.new(0,0),
 })
-av:Play()
+at:Play()
 end)
 
 ao.OnChangeFunc(aq)
@@ -14156,24 +13902,20 @@ b.AcrylicPaint=g
 end
 
 local g=ao("Frame",{
-Size=UDim2.fromOffset(32,32),
-
-
-Position=UDim2.new(1,-22,1,-22),
+Size=UDim2.new(0,32,0,32),
+Position=UDim2.new(1,0,1,0),
 AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundTransparency=1,
-ZIndex=100,
+ZIndex=99,
 Active=true,
 },{
 ao("ImageLabel",{
-Size=UDim2.fromOffset(28,28),
+Size=UDim2.new(0,96,0,96),
 BackgroundTransparency=1,
 Image="rbxassetid://120997033468887",
-Position=UDim2.fromScale(0.5,0.5),
+Position=UDim2.new(0.5,-16,0.5,-16),
 AnchorPoint=Vector2.new(0.5,0.5),
 ImageTransparency=1,
-ThemeTag={ImageColor3="Primary"},
-Active=false,
 }),
 })
 local h=an.NewRoundFrame(b.UICorner,"Squircle",{
@@ -14728,13 +14470,12 @@ end
 
 local L=ao("TextLabel",{
 Text=b.Title,
-
-FontFace=Font.new("rbxasset://fonts/families/Michroma.json",Enum.FontWeight.Regular),
+FontFace=Font.new(an.Font,Enum.FontWeight.SemiBold),
 BackgroundTransparency=1,
 AutomaticSize="XY",
 Name="Title",
 TextXAlignment="Left",
-TextSize=14,
+TextSize=16,
 ThemeTag={
 TextColor3="WindowTopbarTitle",
 },
@@ -14765,6 +14506,7 @@ ImageColor3="WindowBackground",
 },{
 v,
 G,
+g,
 }),
 
 
@@ -14773,7 +14515,6 @@ G,
 f,
 h,
 i,
-g,
 ao("Frame",{
 Size=UDim2.new(1,0,1,0),
 BackgroundTransparency=1,

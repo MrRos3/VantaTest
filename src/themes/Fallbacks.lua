@@ -38,7 +38,6 @@ return function(Creator)
 		TabTextTransparency = 0.3,
 		TabTextTransparencyActive = 0,
 		TabTitle = "Text",
-		TabTitleActive = "Text",
 		TabIcon = "Icon",
 		TabIconTransparency = 0.4,
 		TabIconTransparencyActive = 0.1,

@@ -194,24 +194,20 @@ return function(Config)
 	end
 
 	local ResizeHandle = New("Frame", {
-		Size = UDim2.fromOffset(32, 32),
-		-- Keep the 32px hit area and 28px artwork entirely inside the
-		-- corner's radius, instead of straddling the bottom-right edge.
-		Position = UDim2.new(1, -22, 1, -22),
+		Size = UDim2.new(0, 32, 0, 32),
+		Position = UDim2.new(1, 0, 1, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
-		ZIndex = 100,
+		ZIndex = 99,
 		Active = true,
 	}, {
 		New("ImageLabel", {
-			Size = UDim2.fromOffset(28, 28),
+			Size = UDim2.new(0, 48 * 2, 0, 48 * 2),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://120997033468887",
-			Position = UDim2.fromScale(0.5, 0.5),
+			Position = UDim2.new(0.5, -16, 0.5, -16),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			ImageTransparency = 1, -- rest during load, 0.8 after open
-			ThemeTag = { ImageColor3 = "Primary" },
-			Active = false,
+			ImageTransparency = 1, -- .8; .35
 		}),
 	})
 	local FullScreenIcon = Creator.NewRoundFrame(Window.UICorner, "Squircle", {
@@ -766,13 +762,12 @@ return function(Config)
 
 	local WindowTitle = New("TextLabel", {
 		Text = Window.Title,
-		-- Set on the real title TextLabel rather than its parent Frame.
-		FontFace = Font.new("rbxasset://fonts/families/Michroma.json", Enum.FontWeight.Regular),
+		FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
 		BackgroundTransparency = 1,
 		AutomaticSize = "XY",
 		Name = "Title",
 		TextXAlignment = "Left",
-		TextSize = 14,
+		TextSize = 16,
 		ThemeTag = {
 			TextColor3 = "WindowTopbarTitle",
 		},
@@ -803,6 +798,7 @@ return function(Config)
 		}, {
 			BGImage,
 			BottomDragFrame,
+			ResizeHandle,
 		}),
 		--[[New("UIScale", {
 			Scale = 0.89,
@@ -811,7 +807,6 @@ return function(Config)
 		UICorner,
 		FullScreenIcon,
 		FullScreenBlur,
-		ResizeHandle,
 		New("Frame", {
 			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,

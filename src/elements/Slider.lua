@@ -22,7 +22,7 @@ function Element:New(Config)
 		LockedTitle = Config.LockedTitle,
 		Value = Config.Value or {},
 		Icons = Config.Icons or nil,
-		IsTooltip = Config.IsTooltip ~= false,
+		IsTooltip = Config.IsTooltip or false,
 		IsTextbox = Config.IsTextbox,
 		Step = Config.Step or 1,
 		Callback = Config.Callback or function() end,
@@ -119,7 +119,7 @@ function Element:New(Config)
 	})
 
 	Slider.UIElements.SliderIcon = Creator.NewRoundFrame(99, "Squircle", {
-		ImageTransparency = 0.62,
+		ImageTransparency = 0.88,
 		Size = UDim2.new(1, not Slider.IsTextbox and -TotalSliderWidth or (-Slider.TextBoxWidth - 8), 0, 3),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -155,24 +155,6 @@ function Element:New(Config)
 		}),
 	})
 
-	New("UIGradient",{
-		Name="PremiumSliderGradient",Parent=Slider.UIElements.SliderIcon.Frame,
-		Color=ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-			ColorSequenceKeypoint.new(0.58,Color3.fromRGB(255,185,202)),
-			ColorSequenceKeypoint.new(1,Color3.fromRGB(190,76,108)),
-		}),
-	})
-	local Thumb=Slider.UIElements.SliderIcon.Frame.Thumb
-	Thumb.ZIndex=math.max(2,Thumb.ZIndex)
-	Creator.NewRoundFrame(999,"Squircle",{
-		Name="PremiumRoundThumbGlow",Parent=Slider.UIElements.SliderIcon.Frame,
-		Position=UDim2.new(1,0,0.5,0),
-		AnchorPoint=Vector2.new(0.5,0.5),
-		Size=UDim2.fromOffset(Slider.ThumbSize+11,Slider.ThumbSize+11),
-		ImageTransparency=0.47,Active=false,ZIndex=Thumb.ZIndex-1,
-		ThemeTag={ImageColor3="Slider"},
-	})
 	Slider.UIElements.SliderContainer = New("Frame", {
 		Size = UDim2.new(Slider.Title == nil and 1 or 0, Slider.Title == nil and 0 or Slider.Width, 0, 0),
 		AutomaticSize = "Y",

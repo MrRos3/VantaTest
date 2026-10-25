@@ -24,7 +24,6 @@ local TabModule = {
 	TabCount = 0,
 	ToolTipParent = nil,
 	TabHighlight = nil,
-	PremiumMovingPill = nil,
 
 	OnChangeFunc = function(v) end,
 }
@@ -34,21 +33,6 @@ function TabModule.Init(WindowTable, WindUITable, ToolTipParent, TabHighlight)
 	WindUI = WindUITable
 	TabModule.ToolTipParent = ToolTipParent
 	TabModule.TabHighlight = TabHighlight
-	TabModule.PremiumMovingPill = nil
-	-- Keep the single sliding pill aligned when the sidebar scrolls.
-	local sidebar=WindowTable.UIElements and WindowTable.UIElements.SideBar
-	if sidebar then
-		Creator.AddSignal(sidebar:GetPropertyChangedSignal("CanvasPosition"),function()
-			local selected=TabModule.Tabs[TabModule.SelectedTab]
-			local pill=TabModule.PremiumMovingPill
-			if selected and pill and pill.Parent then
-				local target=selected.UIElements.Main
-				pill.Position=UDim2.fromOffset(
-					target.AbsolutePosition.X-sidebar.AbsolutePosition.X,
-					target.AbsolutePosition.Y-sidebar.AbsolutePosition.Y)
-			end
-		end)
-	end
 	return TabModule
 end
 
@@ -155,8 +139,7 @@ function TabModule.New(Config, UIScale)
 				ThemeTag = {
 					TextColor3 = "TabTitle",
 				},
-				TextTransparency = not Tab.Locked and
-				(Creator.Theme and Creator.Theme.Name == "Salty Special" and 0 or 0.4) or 0.7,
+				TextTransparency = not Tab.Locked and 0.4 or 0.7,
 				TextSize = 15,
 				Size = UDim2.new(1, 0, 0, 0),
 				FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
@@ -183,7 +166,7 @@ function TabModule.New(Config, UIScale)
 		}),
 	}, true)
 
-	-- A strong, rounded crimson pill is always visible under active labels.
+	-- Active tab: a soft left-to-right tint that disappears into the wallpaper.
 	-- Render underneath the tab's icons and text so content stays sharp.
 	Tab.UIElements.SelectionFade = New("Frame", {
 		Name = "SelectionFade",
@@ -210,24 +193,6 @@ function TabModule.New(Config, UIScale)
 			}),
 		}),
 	})
-	-- Neutral gradient multiplies the selected theme's accent image color.
-	New("UIGradient",{
-		Name="PremiumActiveCrimson",Parent=Tab.UIElements.Main,
-		Color=ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-			ColorSequenceKeypoint.new(0.55,Color3.fromRGB(186,140,159)),
-			ColorSequenceKeypoint.new(1,Color3.fromRGB(89,67,87)),
-		}),
-	})
-	Tab.UIElements.Main.ZIndex=2
-	Tab.UIElements.PremiumAccent = New("Frame",{
-		Name="PremiumAccent",Parent=Tab.UIElements.Main,
-		Size=UDim2.new(0,3,0.63,0),
-		Position=UDim2.new(0,2,0.5,0),
-		AnchorPoint=Vector2.new(0,0.5),BackgroundTransparency=1,
-		BorderSizePixel=0,Active=false,ZIndex=Tab.UIElements.Main.ZIndex+2,
-		ThemeTag={BackgroundColor3="Primary"},
-	},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
 	Tab.UIElements.Main.Frame.ZIndex = Tab.UIElements.Main.ZIndex + 1
 
 	local TextOffset = 0
@@ -419,37 +384,10 @@ function TabModule.New(Config, UIScale)
 			TabModule:SelectTab(TabIndex)
 		end
 	end)
-	local tabHome=Tab.UIElements.Main.Frame.Position
-	Creator.AddSignal(Tab.UIElements.Main.MouseEnter,function()
+	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
 		if not Tab.Locked then
 			Creator.PlaySound("Hover")
-			if not Tab.Selected then
-				Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
-					{TextColor3="Text",TextTransparency="TabTextTransparencyActive"},0.13)
-			end
-			if Tab.UIElements.Icon and not Tab.IconColor then
-				Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,
-					{ImageColor3="Primary"},0.13)
-			end
-			if not Creator.PremiumReduceMotion then
-				local x=tabHome.X
-				Creator.Tween(Tab.UIElements.Main.Frame,0.13,{
-					Position=UDim2.new(x.Scale,x.Offset+3,tabHome.Y.Scale,tabHome.Y.Offset),
-				},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-			end
 		end
-	end)
-	Creator.AddSignal(Tab.UIElements.Main.MouseLeave,function()
-		if not Tab.Selected then
-			Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
-				{TextColor3="TabTitle",TextTransparency="TabTextTransparency"},0.14)
-		end
-		if Tab.UIElements.Icon and not Tab.IconColor then
-			Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,
-				{ImageColor3=Tab.Selected and "Primary" or "TabIcon"},0.14)
-		end
-		Creator.Tween(Tab.UIElements.Main.Frame,0.14,{Position=tabHome},
-			Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 	end)
 
 	if Window.ScrollBarEnabled then
@@ -683,56 +621,6 @@ end
 function TabModule:SelectTab(TabIndex)
 	if not TabModule.Tabs[TabIndex].Locked then
 		TabModule.SelectedTab = TabIndex
-		-- The one shared underlay slides between rows without creating per-tab
-		-- tweens or drawing any square stroke. It follows sidebar scroll.
-		local sidebar=Window.UIElements and Window.UIElements.SideBar
-		local item=TabModule.Tabs[TabIndex].UIElements.Main
-		if sidebar and item then
-			local moving=TabModule.PremiumMovingPill
-			local newPill=not moving or not moving.Parent
-			if newPill then
-				moving=Creator.NewRoundFrame(TabModule.Tabs[TabIndex].UICorner,"Squircle",{
-					Name="PremiumMovingPill",Parent=sidebar,
-					Size=UDim2.fromOffset(math.max(item.AbsoluteSize.X,1),math.max(item.AbsoluteSize.Y,1)),
-					ImageTransparency=0.62,Active=false,ZIndex=1,
-					ThemeTag={ImageColor3="Primary"},
-				})
-				New("UIGradient",{
-					Name="PremiumMovingTint",Parent=moving,
-					Color=ColorSequence.new({
-						ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-						ColorSequenceKeypoint.new(1,Color3.fromRGB(75,38,50)),
-					}),
-				})
-				TabModule.PremiumMovingPill=moving
-			end
-			local function setPill(animate)
-				if not moving.Parent or not item.Parent then return end
-				local dest=UDim2.fromOffset(
-					item.AbsolutePosition.X-sidebar.AbsolutePosition.X,
-					item.AbsolutePosition.Y-sidebar.AbsolutePosition.Y)
-				local size=UDim2.fromOffset(item.AbsoluteSize.X,item.AbsoluteSize.Y)
-				if animate and not Creator.PremiumReduceMotion then
-					Creator.Tween(moving,0.28,{Position=dest,Size=size},
-						Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-				else
-					moving.Position=dest
-					moving.Size=size
-				end
-			end
-			if newPill then
-				setPill(false)
-				-- A first-frame layout may have zero bounds; correct only once.
-				task.defer(function()
-					if TabModule.SelectedTab==TabIndex and item.AbsoluteSize.Y>0 then
-						setPill(false)
-					end
-				end)
-			else
-				-- Never snap the destination on the next frame: finish the slide.
-				setPill(true)
-			end
-		end
 
 		for _, TabObject in next, TabModule.Tabs do
 			if not TabObject.Locked then
@@ -740,9 +628,6 @@ function TabModule:SelectTab(TabIndex)
 					ImageColor3 = "TabBackground",
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
-				Creator.Tween(TabObject.UIElements.PremiumAccent,0.15,{
-					BackgroundTransparency=1,
-				},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 				Creator.Tween(TabObject.UIElements.SelectionFade, 0.16, {
 					BackgroundTransparency = 1,
 				}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
@@ -755,13 +640,11 @@ function TabModule:SelectTab(TabIndex)
 					}, 0.15)
 				end
 				Creator.SetThemeTag(TabObject.UIElements.Main.Frame.TextLabel, {
-					TextColor3 = "TabTitle",
 					TextTransparency = "TabTextTransparency",
 				}, 0.15)
 				if TabObject.UIElements.Icon and not TabObject.IconColor then
 					Creator.SetThemeTag(TabObject.UIElements.Icon.ImageLabel, {
 						ImageTransparency = "TabIconTransparency",
-						ImageColor3 = "TabIcon",
 					}, 0.15)
 				end
 				TabObject.Selected = false
@@ -771,9 +654,6 @@ function TabModule:SelectTab(TabIndex)
 			ImageColor3 = "TabBackgroundActive",
 			ImageTransparency = "TabBackgroundActiveTransparency",
 		}, 0.16)
-		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.PremiumAccent,0.18,{
-			BackgroundTransparency=0.02,
-		},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.SelectionFade, 0.18, {
 			BackgroundTransparency = 0,
 		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
@@ -786,13 +666,11 @@ function TabModule:SelectTab(TabIndex)
 			}, 0.15)
 		end
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame.TextLabel, {
-			TextColor3 = "TabTitleActive",
 			TextTransparency = "TabTextTransparencyActive",
 		}, 0.15)
 		if TabModule.Tabs[TabIndex].UIElements.Icon and not TabModule.Tabs[TabIndex].IconColor then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Icon.ImageLabel, {
 				ImageTransparency = "TabIconTransparencyActive",
-				ImageColor3 = "Text",
 			}, 0.15)
 		end
 		TabModule.Tabs[TabIndex].Selected = true

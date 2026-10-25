@@ -151,16 +151,6 @@ function NotificationModule.New(Config)
 		ImageTransparency = 0,
 	})
 
-	New("UIGradient",{
-		Name="PremiumCountdownGradient",Parent=Duration,
-		Color=ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.fromRGB(105,105,105)),
-			ColorSequenceKeypoint.new(0.45,Color3.new(1,1,1)),
-			ColorSequenceKeypoint.new(1,Color3.fromRGB(145,145,145)),
-		}),
-	})
-	-- The muted accent still multiplies the native gradient on the countdown.
-	Creator.AddThemeObject(Duration,{ImageColor3="Primary"})
 	local TextContainer = New("Frame", {
 		Size = UDim2.new(1, Notification.Icon and -28 - NotificationModule.UIPadding or 0, 1, 0),
 		Position = UDim2.new(1, 0, 0, 0),
@@ -266,8 +256,6 @@ function NotificationModule.New(Config)
 		CloseButton,
 	})
 
-	local IconScale
-	if Icon then IconScale=New("UIScale",{Name="PremiumIconScale",Scale=0.75,Parent=Icon}) end
 	local MainContainer = New("Frame", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 0),
@@ -301,17 +289,7 @@ function NotificationModule.New(Config)
 			Enum.EasingStyle.Quint,
 			Enum.EasingDirection.Out
 		):Play()
-		Tween(Main, Creator.PremiumReduceMotion and 0.12 or 0.55,
-			{ Position = UDim2.new(0, 0, 1, 0) },
-			Creator.PremiumReduceMotion and Enum.EasingStyle.Sine or Enum.EasingStyle.Back,
-			Enum.EasingDirection.Out):Play()
-		if IconScale then
-			if Creator.PremiumReduceMotion then IconScale.Scale=1
-			else
-				Tween(IconScale,0.42,{Scale=1},Enum.EasingStyle.Back,
-					Enum.EasingDirection.Out):Play()
-			end
-		end
+		Tween(Main, 0.45, { Position = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 		if Notification.Duration then
 			Duration.Size = UDim2.new(0, Main.DurationFrame.AbsoluteSize.X, 1, 0)
 			Tween(

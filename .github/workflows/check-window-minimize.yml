@@ -6,25 +6,11 @@ on:
     paths:
       - "main.lua"
       - "example.lua"
-      - "src/components/window/Element.lua"
-      - "src/components/Notification.lua"
-      - "src/elements/Slider.lua"
-      - "src/components/window/Init.lua"
-      - "src/components/window/Tab.lua"
-      - "src/components/ui/Toggle.lua"
-      - "src/components/ui/Button.lua"
       - ".github/workflows/check-window-minimize.yml"
   pull_request:
     paths:
       - "main.lua"
       - "example.lua"
-      - "src/components/window/Element.lua"
-      - "src/components/Notification.lua"
-      - "src/elements/Slider.lua"
-      - "src/components/window/Init.lua"
-      - "src/components/window/Tab.lua"
-      - "src/components/ui/Toggle.lua"
-      - "src/components/ui/Button.lua"
       - ".github/workflows/check-window-minimize.yml"
 
 permissions:
@@ -42,9 +28,6 @@ jobs:
         run: |
           luac -p main.lua
           luac -p example.lua
-          luac -p tests/200Elements.lua
-          luac -p tests/ProgressBar.lua
-          luac -p tests/nameplate_mock.lua
       - name: Verify instant particle cleanup and removed chat
         run: |
           python3 - <<'PY'
@@ -53,19 +36,10 @@ jobs:
           main = Path('main.lua').read_text()
           example = Path('example.lua').read_text()
           assert 'function window:Close(...)' in main
-          # The premium scale wrapper also has a Close method. Inspect the
-          # original particle-hiding wrapper specifically, not the first Close.
-          assert 'local closeOriginal = window.Close' in main
-          close_body = main.split('local closeOriginal = window.Close',1)[1].split('function window:Close(...)',1)[1].split('end',1)[0]
+          close_body = main.split('function window:Close(...)',1)[1].split('end',1)[0]
           assert close_body.index('ambient.Visible = false') < close_body.index('closeOriginal(self, ...)')
           assert 'overlay.Visible = not window.Closed and main.Visible' in main
-          assert 'if window.Closed or not main.Visible or settings.ReduceMotion or window._VantaLowFPS or settings.Density<=0 then' in main
-          assert 'overlay.Visible = false' in main
-          assert 'CrimsonBreath' in main and 'BreathingMask' in main
-          assert 'local streak=elapsed%19' in main
-          assert 'VisualDefaults.ReduceMotion=value==true' in main
-          assert 'window._VantaPremium:Refresh()' in main
-          assert 'PremiumSweeps' in main
+          assert 'if window.Closed or not main.Visible then\n            overlay.Visible = false' in main
           assert 'overlay.Visible = true' in main
           assert 'RunService.RenderStepped:Connect' in main
           assert 'CRIMSON_AMBIENT_FPS = 30' in main
@@ -81,126 +55,6 @@ jobs:
           assert 'overlay.ClipsDescendants = true' in main
           assert 'overlay.Active = false' in main
           assert 'p.item.BackgroundTransparency = math.clamp' in main
-          assert 'local function attachPremiumWindow(window,theme)' in main
-          assert 'VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline"' in main
-          assert 'PremiumWindowOutline' in main
-          assert 'Parent=root,ZIndex=98' in main
-          assert 'ImageTransparency=0.20,Active=false' in main
-          assert 'Transparency=lightBand()' in main
-          assert 'ColorSequenceKeypoint.new(0.50,0)' not in main
-          assert 'NumberSequenceKeypoint.new(0.50,0)' in main
-          assert 'edge.ImageTransparency=motion and (0.08+0.12*(1-settings.Intensity)) or 1' in main
-          assert 'PremiumBlackShadow' not in main
-          assert 'PremiumOuterAura' not in main
-          assert 'visualGradient(tint)' not in main
-          assert 'edgeGradient.Color=visualGradient()' in main
-          assert 'TabBackgroundActiveTransparency = 1' in main
-          assert 'TabSelectionFade = Color3.fromHex("#4A1C2B")' in main
-          assert 'TabBackgroundActive = Color3.fromHex("#0B0A0C")' in main
-          assert 'PremiumWindowEdge' not in main
-          assert 'PremiumRoundWindow' not in main
-          assert 'PremiumHalo' not in main
-          assert 'haloRotationTween' not in main
-          assert 'PremiumTopbarGlass' in main
-          assert 'PremiumTitleShine' in main
-          assert 'premiumTitleGradient(themeAccent(theme))' in main
-          assert 'Color3.fromRGB(255,255,255)' in main
-          assert 'PremiumTitleOutline' in main
-          assert 'Color3.fromRGB(26,0,8),Thickness=1' in main
-          assert 'PremiumSidebarScrim' in main
-          assert 'Size=UDim2.new(0,(window.SideBarWidth or 200)+40' in main
-          assert 'NumberSequenceKeypoint.new(0.25,0.62)' in main
-          assert 'NumberSequenceKeypoint.new(0.50,0.85)' in main
-          assert 'NumberSequenceKeypoint.new(0.75,0.97)' in main
-          assert 'PremiumContentBottomFade' in main
-          assert 'PremiumBottomDissolve' in main
-          assert 'Size=UDim2.new(1,0,0,28)' in main
-          assert 'Parent=contentArea' in main
-          assert 'Active=false' in main
-          assert 'contentBottomFade}) do' in main
-          assert 'p.alpha = near and 0.13 or 0.38' in main
-          assert 'p.alpha = bright and 0.10 or 0.33' in main
-          assert 'near and (10 + index % 3)' in main
-          assert 'Font.new("rbxasset://fonts/families/Michroma.json")' in main
-          assert 'title.TextSize=14' in main
-          assert 'FindFirstChildWhichIsA("TextLabel")' in main
-          win = Path('src/components/window/Init.lua').read_text()
-          assert 'Font.new("rbxasset://fonts/families/Michroma.json", Enum.FontWeight.Regular)' in win
-          assert 'TextSize = 14' in win
-          assert 'NumberSequenceKeypoint.new(0.00,0.25)' in main
-          assert 'NumberSequenceKeypoint.new(1.00,1.00)' in main
-          assert 'PremiumWallpaperClip' in main
-          assert 'ClipsDescendants=true' in main
-          assert 'PremiumVignetteCorner' in main
-          assert 'PremiumScrimCorner' in main
-          assert 'CornerRadius=UDim.new(0,window.UICorner)' in main
-          assert 'PremiumEdgeMotion' in main
-          assert 'rotationTween:Cancel()' in main
-          assert 'edge.ImageTransparency=motion and (0.08+0.12*(1-settings.Intensity)) or 1' in main
-          assert 'TweenInfo.new(6,Enum.EasingStyle.Linear' in main
-          assert 'Color3.fromRGB(234,246,255)' in main
-          assert 'local function lightBand()' in main
-          assert 'edgeGradient.Rotation=0' in main
-          assert 'PremiumBlackShadow' not in main
-          assert 'PremiumOuterAura' not in main
-          assert 'PremiumTopbarDivider' not in main
-          assert 'PremiumDividerGradient' not in main
-          assert 'PremiumOuterAura' not in main
-          assert 'PremiumAuraSoftness' not in main
-          assert 'PremiumCrimsonGrade' in main
-          assert 'PremiumGradeFalloff' in main
-          assert 'ambientLight.BackgroundTransparency=0.89-0.115*settings.Intensity' in main
-          assert 'TabBackgroundActiveTransparency = 1' in main
-          assert 'ElementBackgroundTransparency = 0.06' in main
-          window_src = Path('src/components/window/Init.lua').read_text()
-          assert 'rbxassetid://120997033468887' in window_src
-          assert 'Visible = false, -- permanently hide the old gray resize arc' not in window_src
-          assert 'Size = UDim2.fromOffset(28, 28)' in window_src
-          assert 'Position = UDim2.new(1, -22, 1, -22)' in window_src
-          assert 'ZIndex = 100' in window_src
-          assert '\t\tFullScreenBlur,\n\t\tResizeHandle,' in window_src
-          assert '\t\t\tBottomDragFrame,\n\t\t\tResizeHandle,' not in window_src
-          assert 'ImageTransparency = 1, -- rest during load, 0.8 after open' in window_src
-          assert 'ThemeTag = { ImageColor3 = "Primary" }' in window_src
-          assert 'Creator.AddSignal(ResizeHandle.InputBegan' in window_src
-          assert 'Creator.AddSignal(UserInputService.InputChanged' in window_src
-          assert 'Tween(ResizeHandle.ImageLabel, 0.1, { ImageTransparency = 0.35 }):Play()' in window_src
-          assert 'Tween(ResizeHandle.ImageLabel, 0.17, { ImageTransparency = 0.8 }):Play()' in window_src
-          assert 'math.clamp(newSize.X.Offset, Window.MinSize.X, Window.MaxSize.X)' in window_src
-          assert 'math.clamp(newSize.Y.Offset, Window.MinSize.Y, Window.MaxSize.Y)' in window_src
-          tabs = Path('src/components/window/Tab.lua').read_text()
-          assert 'PremiumMovingPill' in tabs
-          assert 'PremiumActiveCrimson' in tabs
-          assert 'TabModule.SelectedTab==TabIndex' in tabs
-          assert 'ImageColor3 = "Text"' in tabs
-          toggle = Path('src/components/ui/Toggle.lua').read_text()
-          assert 'PremiumTrackAura' in toggle and 'PremiumKnobAura' in toggle
-          button = Path('src/components/ui/Button.lua').read_text()
-          assert 'PremiumButtonGlass' in button
-          assert 'Scale=0.97' in button
-          assert 'PremiumCardGlass' in Path('src/components/window/Element.lua').read_text()
-          assert 'PremiumRoundThumbGlow' in Path('src/elements/Slider.lua').read_text()
-          assert 'PremiumCountdownGradient' in Path('src/components/Notification.lua').read_text()
-          element = Path('src/components/window/Element.lua').read_text()
-          notification = Path('src/components/Notification.lua').read_text()
-          slider = Path('src/elements/Slider.lua').read_text()
-          assert 'PremiumCardEdge' not in element
-          assert 'PremiumNotificationEdge' not in notification
-          assert 'PremiumEdgeGradient' not in notification
-          assert 'PremiumThumbAura' not in slider
-          assert 'HoverOutline' in element and 'HoverGradient' in element
-          assert 'PremiumIconScale' in notification
-          assert 'PremiumCountdownGradient' in notification
-          assert 'PremiumSliderGradient' in slider
-          tab = Path('src/components/window/Tab.lua').read_text()
-          fallbacks = Path('src/themes/Fallbacks.lua').read_text()
-          assert 'TextColor3 = "TabTitleActive"' in tab
-          assert 'TextColor3 = "TabTitle"' in tab
-          assert 'TabTitleActive = "Text"' in fallbacks
-          assert 'PremiumSweeps' in main
-          assert 'Vanta Void' in main
-          assert 'VantaTest:SetReduceMotion(v)' in example
-          assert 'VantaTest:SetParticleDensity(v/100)' in example
 
           assert 'ChatTab' not in example
           assert 'Vanta Chat' not in example

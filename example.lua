@@ -280,59 +280,8 @@ if not rightOk then
 end
 add(NameplateTab, "Paragraph", {
     Title = "Your owl image",
-    Desc = "Loads the actual PNG via executor file APIs; otherwise enter the Roblox asset ID below. The fallback is a monochrome white V in a ring.",
+    Desc = "Uses your PNG stored in VantaTest GitHub. Executors with getcustomasset show the actual white owl on both sides; otherwise an owl emoji appears so nothing is blank.",
 })
-local owlStatusView = add(NameplateTab, "Paragraph", {
-    Title = "Owl asset status",
-    Desc = NameplateController and NameplateController:GetOwlStatus()
-        or ("module unavailable: "..tostring(nameplateError)),
-})
-local function showOwlStatus(message)
-    if owlStatusView and owlStatusView.ParagraphFrame
-        and type(owlStatusView.ParagraphFrame.SetDesc)=="function" then
-        owlStatusView.ParagraphFrame:SetDesc(tostring(message))
-    end
-end
-if NameplateController and type(NameplateController.OnOwlStatus)=="function" then
-    NameplateController:OnOwlStatus(showOwlStatus)
-end
-local owlImageConfig
-local owlInputInitialized=false
-local owlImageInput=add(NameplateTab,"Input",{
-    Title="Roblox owl image ID",
-    Desc="Paste digits or rbxassetid://digits; applies instantly and saves to config",
-    Placeholder="rbxassetid://1234567890",
-    Value="",
-    Callback=function(value)
-        if not owlInputInitialized then
-            owlInputInitialized=true
-            if tostring(value or "")=="" then return end
-        end
-        local raw=tostring(value or ""):match("^%s*(.-)%s*$")
-        if raw~="" and not raw:match("^%d+$") and not raw:match("^rbxassetid://%d+$") then
-            showOwlStatus("invalid Roblox owl image ID")
-            return
-        end
-        updateNameplate("SetOwlImage",raw)
-        if owlImageConfig then
-            local ok,err=pcall(function()owlImageConfig:Save()end)
-            if not ok then showOwlStatus("config save failed: "..tostring(err)) end
-        end
-    end,
-})
-if owlImageInput and type(Window.ConfigManager)=="table" then
-    local ok,cfg=pcall(function()
-        return Window.ConfigManager:CreateConfig("owl_image",true)
-    end)
-    if ok and type(cfg)=="table" then
-        owlImageConfig=cfg
-        cfg:Register("RobloxOwlImage",owlImageInput)
-        -- Load explicitly as well as supporting config-manager autoload.
-        pcall(function()cfg:Load()end)
-    else
-        warn("[VantaTest LAB / Nameplate] Config manager unavailable: "..tostring(cfg))
-    end
-end
 add(NameplateTab, "Slider", {
     Title = "Nameplate size",
     Desc = "Scale the complete card without changing your character",
@@ -356,7 +305,7 @@ add(NameplateTab, "Slider", {
 })
 add(NameplateTab, "Paragraph", {
     Title = "Local-only display",
-    Desc = "Only YOUR character gets the owl plate. Missing executor asset APIs show a white V in a ring. The Roblox image ID above is the reliable alternative.",
+    Desc = "Only YOUR character gets the owl plate. Previous all-player Vanta Owl nameplates are cleaned up. Exact PNG rendering needs getcustomasset/getsynasset or a Roblox image ID.",
 })
 
 -- BUTTONS --------------------------------------------------------------------
@@ -550,7 +499,6 @@ for _, item in ipairs({
     { "Vanta Dark", "moon" },
     { "Vanta AMOLED", "circle-dot" },
     { "Vanta Violet", "wand-sparkles" },
-    { "Vanta Void", "orbit" },
 }) do
     local themeName, iconName = item[1], item[2]
     add(Themes, "Button", {
@@ -561,32 +509,6 @@ for _, item in ipairs({
         end,
     })
 end
-add(Themes,"Divider",{})
-add(Themes,"Section",{
-    Title="Visuals",
-    Desc="Live premium effects, tuned for your executor and frame rate.",
-    Icon="sparkles",
-})
-add(Themes,"Slider",{
-    Title="Glow / animation intensity",
-    Desc="Reduces border aura, breathing light and ambient brightness",
-    Value={Min=0,Max=100,Default=80},
-    Step=5,
-    Callback=function(v) VantaTest:SetVisualIntensity(v/100) end,
-})
-add(Themes,"Slider",{
-    Title="Particle density",
-    Desc="Adjusts the existing 50-element pool; no new particles are allocated",
-    Value={Min=0,Max=100,Default=100},
-    Step=5,
-    Callback=function(v) VantaTest:SetParticleDensity(v/100) end,
-})
-add(Themes,"Toggle",{
-    Title="Reduce motion",
-    Desc="Stops decorative rotation, shine and ambient particles for low FPS",
-    Value=false,
-    Callback=function(v) VantaTest:SetReduceMotion(v) end,
-})
 add(Themes, "Divider", {})
 add(Themes, "Section", { Title = "Sound system" })
 add(Themes, "Toggle", {

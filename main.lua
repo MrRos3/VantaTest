@@ -1,5 +1,5 @@
 --[[
-    VantaUI v0.4.0
+    VantaUI v0.3.8
     Roblox UI library by MrRos3.
 
     Public production loader.
@@ -9,7 +9,7 @@
     - Notification open/close sounds are disabled by default.
 ]]
 
-local PROJECT_VERSION = "0.4.0"
+local PROJECT_VERSION = "0.3.8"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua?v=" .. CACHE_BUSTER
 local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
@@ -87,17 +87,16 @@ VantaUI.Assets = {
 local VantaThemes = {
     {
         Name = "Salty Special",
-        Accent = Color3.fromHex("#A1162F"),
-        VisualAccent = Color3.fromHex("#FF3355"),
+        Accent = Color3.fromHex("#12070A"),
         Dialog = Color3.fromHex("#0A0709"),
         Outline = Color3.fromHex("#5A1824"),
         Text = Color3.fromHex("#FFFFFF"),
         Placeholder = Color3.fromHex("#9A9AA3"),
         Background = Color3.fromHex("#000000"),
-        Button = Color3.fromHex("#4B1C2B"),
+        Button = Color3.fromHex("#251016"),
         Icon = Color3.fromHex("#E2DDE0"),
-        Toggle = Color3.fromHex("#FF3355"),
-        Slider = Color3.fromHex("#FF3355"),
+        Toggle = Color3.fromHex("#A1162F"),
+        Slider = Color3.fromHex("#A1162F"),
         Checkbox = Color3.fromHex("#D23A57"),
         Primary = Color3.fromHex("#A1162F"),
         SliderIcon = Color3.fromHex("#F1E3E7"),
@@ -105,22 +104,17 @@ local VantaThemes = {
         PanelBackgroundTransparency = 0.42,
         LabelBackground = Color3.fromHex("#0A080A"),
         LabelBackgroundTransparency = 0.08,
-        ElementBackground = Color3.fromHex("#311522"),
-        ElementBackgroundTransparency = 0.06,
+        ElementBackground = Color3.fromHex("#151116"),
+        ElementBackgroundTransparency = 0.16,
         -- Let the Crimson01 artwork show through; selection fades away to the right.
         TabBackgroundActive = Color3.fromHex("#0B0A0C"),
         TabBackgroundActiveTransparency = 1,
         TabBackgroundHover = Color3.fromHex("#151013"),
         TabBackgroundHoverTransparency = 0.82,
         TabSelectionFade = Color3.fromHex("#4A1C2B"),
-        TabTitle = Color3.fromHex("#D8D2D5"),
-        TabTitleActive = Color3.fromHex("#FFFFFF"),
-        TabTextTransparency = 0,
-        TabTextTransparencyActive = 0,
     },
     {
         Name = "Vanta Smoked",
-        VisualAccent = Color3.fromHex("#B5BAC7"),
         Accent = Color3.fromHex("#171A20"),
         Dialog = Color3.fromHex("#121419"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -140,13 +134,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.16,
         ElementBackground = Color3.fromHex("#1C2027"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Dark",
-        VisualAccent = Color3.fromHex("#879CFF"),
         Accent = Color3.fromHex("#151923"),
         Dialog = Color3.fromHex("#11141C"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -166,13 +156,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.82,
         ElementBackground = Color3.fromHex("#171C27"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta AMOLED",
-        VisualAccent = Color3.fromHex("#5DE7FF"),
         Accent = Color3.fromHex("#0A0A0D"),
         Dialog = Color3.fromHex("#08090C"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -192,13 +178,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#0D0F14"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Violet",
-        VisualAccent = Color3.fromHex("#B991FF"),
         Accent = Color3.fromHex("#211B35"),
         Dialog = Color3.fromHex("#171323"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -218,35 +200,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#1B1628"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
-    },
-    {
-        Name = "Vanta Void",
-        Accent = Color3.fromHex("#07323A"),
-        VisualAccent = Color3.fromHex("#5DE7FF"),
-        Dialog = Color3.fromHex("#061116"),
-        Outline = Color3.fromHex("#12616E"),
-        Text = Color3.fromHex("#ECFBFF"),
-        Placeholder = Color3.fromHex("#799BA5"),
-        Background = Color3.fromHex("#000000"),
-        Button = Color3.fromHex("#081B21"),
-        Icon = Color3.fromHex("#9AEFFF"),
-        Toggle = Color3.fromHex("#18AFC9"),
-        Slider = Color3.fromHex("#38CDE8"),
-        Checkbox = Color3.fromHex("#5DE7FF"),
-        Primary = Color3.fromHex("#5DE7FF"),
-        SliderIcon = Color3.fromHex("#C7F7FF"),
-        PanelBackground = Color3.fromHex("#03090C"),
-        PanelBackgroundTransparency = 0.32,
-        LabelBackground = Color3.fromHex("#071014"),
-        LabelBackgroundTransparency = 0.08,
-        ElementBackground = Color3.fromHex("#09171B"),
-        ElementBackgroundTransparency = 0.13,
-        TabBackgroundActive = Color3.fromHex("#051D24"),
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#0C697C"),
     },
 }
 
@@ -291,47 +244,6 @@ end
 -- One throttled RenderStepped connection per window; never animate the wallpaper.
 local RunService = game:GetService("RunService")
 local CRIMSON_AMBIENT_FPS = 30
-local VisualDefaults = {Intensity=0.8,Density=1,ReduceMotion=false}
-if VantaUI.Creator then VantaUI.Creator.PremiumReduceMotion=false end
-local THEME_ACCENTS = {
-    ["Salty Special"]=Color3.fromHex("#FF3355"),
-    ["Vanta Smoked"]=Color3.fromHex("#B5BAC7"),
-    ["Vanta Dark"]=Color3.fromHex("#879CFF"),
-    ["Vanta AMOLED"]=Color3.fromHex("#5DE7FF"),
-    ["Vanta Violet"]=Color3.fromHex("#B991FF"),
-    ["Vanta Void"]=Color3.fromHex("#5DE7FF"),
-}
-local function themeAccent(name)
-    return THEME_ACCENTS[name] or THEME_ACCENTS["Salty Special"]
-end
--- Five-stop chrome: only the narrow ice-white band and its faint tail
--- have contrast. Theme changes touch the tail, never the steel base.
-local function visualGradient()
-    return ColorSequence.new(Color3.fromRGB(234,246,255))
-end
-local function lightBand()
-    return NumberSequence.new({
-        NumberSequenceKeypoint.new(0,1),
-        NumberSequenceKeypoint.new(0.43,1),
-        NumberSequenceKeypoint.new(0.50,0),
-        NumberSequenceKeypoint.new(0.57,1),
-        NumberSequenceKeypoint.new(1,1),
-    })
-end
--- White is the resting title color. Only a narrow red/white band crosses
--- the text during each existing 1.4-second shine, then parks offscreen.
-local function premiumTitleGradient(red)
-    local white=Color3.fromRGB(255,255,255)
-    return ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00,white),
-        ColorSequenceKeypoint.new(0.39,white),
-        ColorSequenceKeypoint.new(0.45,red),
-        ColorSequenceKeypoint.new(0.50,white),
-        ColorSequenceKeypoint.new(0.55,red),
-        ColorSequenceKeypoint.new(0.61,white),
-        ColorSequenceKeypoint.new(1.00,white),
-    })
-end
 local CRIMSON_PARTICLE_COUNTS = {
     Petal = 18,
     Ember = 17,
@@ -363,31 +275,7 @@ local function attachCrimsonAmbient(window)
     corner.CornerRadius = UDim.new(0, 16)
     corner.Parent = overlay
 
-    local ambientLight = Instance.new("Frame")
-    ambientLight.Name="CrimsonBreath"
-    ambientLight.Size=UDim2.fromScale(0.68,0.84)
-    ambientLight.AnchorPoint=Vector2.new(0.5,0.5)
-    ambientLight.Position=UDim2.fromScale(0.58,0.48)
-    ambientLight.BackgroundColor3=themeAccent(window._VantaTheme)
-    ambientLight.BackgroundTransparency=0.88
-    ambientLight.BorderSizePixel=0
-    ambientLight.Active=false
-    ambientLight.ZIndex=overlay.ZIndex
-    ambientLight.Parent=overlay
-    local breathingMask=Instance.new("UIGradient")
-    breathingMask.Name="BreathingMask"
-    breathingMask.Transparency=NumberSequence.new({
-        NumberSequenceKeypoint.new(0,1),
-        NumberSequenceKeypoint.new(0.25,0.9),
-        NumberSequenceKeypoint.new(0.5,0.55),
-        NumberSequenceKeypoint.new(0.75,0.9),
-        NumberSequenceKeypoint.new(1,1),
-    })
-    breathingMask.Parent=ambientLight
-    window._VantaAmbientLight=ambientLight
     local particles = {}
-    window._VantaAmbientParticles=particles
-    local slowFrames=0
     local elapsed = 0
     local frameAccumulator = 0
 
@@ -411,7 +299,7 @@ local function attachCrimsonAmbient(window)
         particle.Parent = overlay
 
         local p = {
-            item = particle, kind = kind, index = index,
+            item = particle, kind = kind,
             phase = b, x = -0.035 + 1.07 * a, y = c,
             drift = ((index % 2 == 0) and 1 or -1) * (0.07 + b * 0.16),
             sway = 0.007 + 0.016 * c,
@@ -423,12 +311,12 @@ local function attachCrimsonAmbient(window)
         if kind == "Petal" then
             -- Different depths: near petals are larger, brighter and a little faster.
             local near = index % 4 == 0
-            local w = near and (10 + index % 3) or (4 + index % 5)
-            local h = near and (6 + index % 3) or (3 + index % 3)
+            local w = near and (8 + index % 4) or (4 + index % 5)
+            local h = near and (5 + index % 3) or (3 + index % 3)
             particle.Size = UDim2.fromOffset(w, h)
             particle.BackgroundColor3 = near
                 and Color3.fromRGB(213, 38, 63) or Color3.fromRGB(164, 24, 47)
-            p.alpha = near and 0.13 or 0.38
+            p.alpha = near and 0.27 or 0.49
             p.rate = near and (0.047 + b * 0.028) or (0.028 + b * 0.020)
             p.sway = 0.012 + c * 0.027
             local shape = Instance.new("UICorner")
@@ -446,7 +334,7 @@ local function attachCrimsonAmbient(window)
             particle.Size = UDim2.fromOffset(bright and 3 or 2, bright and 4 or 3)
             particle.BackgroundColor3 = bright
                 and Color3.fromRGB(255, 112, 75) or Color3.fromRGB(228, 46, 65)
-            p.alpha = bright and 0.10 or 0.33
+            p.alpha = bright and 0.22 or 0.44
             p.rate = 0.065 + b * 0.060
             p.sway = 0.004 + c * 0.015
             local shape = Instance.new("UICorner")
@@ -507,42 +395,19 @@ local function attachCrimsonAmbient(window)
             if overlay.Parent then overlay:Destroy() end
             return
         end
-        local settings=window._VantaVisuals or VisualDefaults
-        if window.Closed or not main.Visible or settings.ReduceMotion or window._VantaLowFPS or settings.Density<=0 then
+        if window.Closed or not main.Visible then
             overlay.Visible = false
             frameAccumulator = 0
             return
         end
         overlay.Visible = true
-        if tonumber(dt) and dt>0.08 then
-            slowFrames=math.min(40,slowFrames+1)
-        else
-            slowFrames=math.max(0,slowFrames-1)
-        end
-        local lowFPS=slowFrames>=24
-        if lowFPS~=window._VantaLowFPS then
-            window._VantaLowFPS=lowFPS
-            if window._VantaPremium then window._VantaPremium:Refresh() end
-            if lowFPS then
-                local creator=VantaUI.Creator
-                for _,desc in ipairs((window.UIElements.Main):GetDescendants()) do
-                    if desc.Name=="PremiumProgressSweep" then
-                        desc.Enabled=false
-                        local t=creator and creator.PremiumSweeps and creator.PremiumSweeps[desc]
-                        if t then t:Cancel() end
-                    end
-                end
-            end
-        end
         -- Hold particles in place during minimize; never jump ahead on reopening.
         frameAccumulator = frameAccumulator + math.min(tonumber(dt) or 1 / 60, 0.075)
         if frameAccumulator < (1 / CRIMSON_AMBIENT_FPS) then return end
         elapsed = elapsed + frameAccumulator
         frameAccumulator = 0
-        ambientLight.BackgroundTransparency=0.89-0.115*settings.Intensity*
-            (0.5+0.5*math.sin(elapsed*0.75))
+
         for _, p in ipairs(particles) do
-            p.item.Visible=p.index<=math.ceil(CRIMSON_PARTICLE_COUNTS[p.kind]*settings.Density)
             local t = elapsed
             local positionX, positionY, alpha
             if p.kind == "Petal" then
@@ -552,8 +417,8 @@ local function attachCrimsonAmbient(window)
                 positionY = -0.10 + 1.19 * progress
                 -- Fade at the very top and bottom to prevent popping.
                 alpha = math.min(0.94, p.alpha +
-                    0.25 * math.abs(2 * progress - 1) +
-                    0.06 * math.sin(t * p.pulse + p.phase * 11))
+                    0.32 * math.abs(2 * progress - 1) +
+                    0.08 * math.sin(t * p.pulse + p.phase * 11))
                 p.item.Rotation = (t * p.rotation + p.phase * 360) % 360
             elseif p.kind == "Ember" then
                 local progress = (t * p.rate + p.phase) % 1
@@ -561,8 +426,8 @@ local function attachCrimsonAmbient(window)
                     + p.sway * math.sin(t * 1.8 + p.phase * 8)
                 positionY = 1.08 - 1.18 * progress
                 alpha = math.min(0.94, p.alpha +
-                    0.33 * math.abs(2 * progress - 1) +
-                    0.06 * math.sin(t * p.pulse + p.phase * 7))
+                    0.45 * math.abs(2 * progress - 1) +
+                    0.08 * math.sin(t * p.pulse + p.phase * 7))
                 p.item.Rotation = 12 * math.sin(t * 1.3 + p.phase * 8)
             elseif p.kind == "Mote" then
                 positionX = p.x + p.sway * math.sin(t * p.rate + p.phase * 6)
@@ -577,349 +442,21 @@ local function attachCrimsonAmbient(window)
                 local pulse = math.max(0, math.sin(t * p.pulse + p.phase * 16))
                 alpha = 0.96 - 0.43 * pulse * pulse
             end
-            if p.kind=="Ember" and p.index==3 then
-                local streak=elapsed%19
-                if streak<0.4 then
-                    p.item.Size=UDim2.fromOffset(2,17)
-                    p.item.Rotation=-42
-                    positionX=0.22+streak*0.75
-                    positionY=0.7-streak*0.82
-                    alpha=0.2
-                else
-                    p.item.Size=UDim2.fromOffset(3,4)
-                end
-            end
             p.item.Position = UDim2.fromScale(positionX, positionY)
-            p.item.BackgroundTransparency = math.clamp(1-(1-alpha)*settings.Intensity,0.05,0.99)
+            p.item.BackgroundTransparency = math.clamp(alpha, 0.05, 0.99)
         end
     end)
     return overlay
 end
 
-
--- Shared premium window decorations. Every animation is a TweenService tween,
--- not another per-frame connection; ambient owns the only 30 FPS visual loop.
-local VfxTweenService=game:GetService("TweenService")
-local function attachPremiumWindow(window,theme)
-    local root=window and window.UIElements and window.UIElements.Main
-    local body=root and root:FindFirstChild("Main")
-    local topbar=body and body:FindFirstChild("Topbar")
-    if not root or not topbar then return nil end
-    local settings=window._VantaVisuals
-    local alive=true
-    local active=setmetatable({},{__mode="k"})
-    local function add(class,name,parent,props)
-        local obj=Instance.new(class)
-        obj.Name=name
-        for k,v in pairs(props or {}) do obj[k]=v end
-        if obj:IsA("GuiObject") then obj.Active=false end
-        obj.Parent=parent
-        return obj
-    end
-    local function play(obj,duration,goal,easing)
-        local t=VfxTweenService:Create(obj,
-            TweenInfo.new(duration,easing or Enum.EasingStyle.Sine,Enum.EasingDirection.Out),goal)
-        if active[obj] then active[obj]:Cancel() end
-        active[obj]=t
-        t:Play()
-        return t
-    end
-    -- Native squircle-outline image follows the window Background shape.
-    -- It replaces both the square-corner UIStroke and detached halo.
-    local edge=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle-Outline",{
-        Name="PremiumWindowOutline",Size=UDim2.fromScale(1,1),
-        Parent=root,ZIndex=98,ImageColor3=Color3.fromRGB(255,255,255),
-        ImageTransparency=0.20,Active=false,
-    })
-    local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
-        Color=visualGradient(),Transparency=lightBand(),Rotation=0,
-    })
-    local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
-    local glass=add("Frame","PremiumTopbarGlass",topbar,{
-        Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(8,5,10),
-        BackgroundTransparency=0.35,BorderSizePixel=0,ZIndex=topbar.ZIndex-1,
-    })
-    add("UIGradient","PremiumGlassGradient",glass,{
-        Rotation=90,Transparency=NumberSequence.new({
-            NumberSequenceKeypoint.new(0,0.17),
-            NumberSequenceKeypoint.new(1,0.90),
-        }),
-    })
-    local wallpaper=root:FindFirstChild("Background")
-    local premiumClip,grade
-    if wallpaper then
-        -- Confine decorations to their own rounded clip; the original
-        -- Background and its overhanging resize handle remain untouched.
-        premiumClip=add("Frame","PremiumWallpaperClip",wallpaper,{
-            Size=UDim2.fromScale(1,1),BackgroundTransparency=1,
-            BorderSizePixel=0,ClipsDescendants=true,ZIndex=wallpaper.ZIndex+1,
-        })
-        add("UICorner","PremiumClipCorner",premiumClip,{
-            CornerRadius=UDim.new(0,window.UICorner),
-        })
-        local vignette=add("Frame","PremiumWallpaperVignette",premiumClip,{
-            Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(0,0,0),
-            BackgroundTransparency=0,BorderSizePixel=0,ZIndex=premiumClip.ZIndex,
-        })
-        add("UICorner","PremiumVignetteCorner",vignette,{
-            CornerRadius=UDim.new(0,window.UICorner),
-        })
-        add("UIGradient","PremiumVerticalVignette",vignette,{
-            Rotation=90,Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0,0.50),
-                NumberSequenceKeypoint.new(0.5,0.89),
-                NumberSequenceKeypoint.new(1,0.19),
-            }),
-        })
-        grade=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle",{
-            Name="PremiumCrimsonGrade",Parent=premiumClip,
-            Size=UDim2.fromScale(1,1),ImageColor3=themeAccent(theme),
-            ImageTransparency=0.62,Active=false,ZIndex=premiumClip.ZIndex+1,
-        })
-        add("UIGradient","PremiumGradeFalloff",grade,{
-            Rotation=0,
-            Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0,1),
-                NumberSequenceKeypoint.new(0.26,0.84),
-                NumberSequenceKeypoint.new(0.53,0.53),
-                NumberSequenceKeypoint.new(0.82,0.90),
-                NumberSequenceKeypoint.new(1,1),
-            }),
-        })
-        local scrim=add("Frame","PremiumSidebarScrim",premiumClip,{
-            Position=UDim2.fromOffset(0,window.Topbar.Height or 44),
-            Size=UDim2.new(0,(window.SideBarWidth or 200)+40,1,-(window.Topbar.Height or 44)),
-            BackgroundColor3=Color3.fromRGB(0,0,0),
-            BackgroundTransparency=0,BorderSizePixel=0,
-            ZIndex=premiumClip.ZIndex+2,
-        })
-        add("UICorner","PremiumScrimCorner",scrim,{
-            CornerRadius=UDim.new(0,window.UICorner),
-        })
-        add("UIGradient","SidebarContrastFade",scrim,{
-            Rotation=0,
-            Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0.00,0.25),
-                NumberSequenceKeypoint.new(0.25,0.62),
-                NumberSequenceKeypoint.new(0.50,0.85),
-                NumberSequenceKeypoint.new(0.75,0.97),
-                NumberSequenceKeypoint.new(1.00,1.00),
-            }),
-        })
-    end
-    -- One static, rounded 28px fade over the scrolling content viewport.
-    -- Existing tab containers and scrolling remain completely interactive.
-    local contentBottomFade
-    local contentArea=window.UIElements and window.UIElements.MainBar
-    if contentArea then
-        contentBottomFade=VantaUI.Creator.NewRoundFrame(window.UICorner,"Squircle",{
-            Name="PremiumContentBottomFade",Parent=contentArea,
-            Size=UDim2.new(1,0,0,28),Position=UDim2.new(0,0,1,-28),
-            ImageColor3=Color3.fromRGB(0,0,0),ImageTransparency=0,
-            ZIndex=contentArea.ZIndex+15,Active=false,
-        })
-        add("UIGradient","PremiumBottomDissolve",contentBottomFade,{
-            Rotation=90,
-            Transparency=NumberSequence.new({
-                NumberSequenceKeypoint.new(0.00,1.00),
-                NumberSequenceKeypoint.new(0.35,0.92),
-                NumberSequenceKeypoint.new(0.70,0.50),
-                NumberSequenceKeypoint.new(1.00,0.08),
-            }),
-        })
-    end
-    local title
-    -- Left.Title is a Frame; prefer its actual TextLabel child.
-    local left=topbar:FindFirstChild("Left")
-    local holder=left and left:FindFirstChild("Title")
-    local candidate=holder and holder:FindFirstChildWhichIsA("TextLabel")
-    if not candidate then
-        candidate=holder and holder:FindFirstChildWhichIsA("TextLabel",true)
-    end
-    if candidate and candidate:IsA("TextLabel") then title=candidate end
-    local nameGradient
-    local titleStroke
-    if title then
-        local fontOK=pcall(function()
-            title.FontFace=Font.new("rbxasset://fonts/families/Michroma.json")
-        end)
-        if not fontOK then pcall(function() title.Font=Enum.Font.Michroma end) end
-        title.TextSize=14
-        title.TextScaled=false
-        title.TextColor3=Color3.fromRGB(255,255,255)
-        title.TextStrokeTransparency=1
-        title.ZIndex=math.max(title.ZIndex,glass.ZIndex+2)
-        titleStroke=add("UIStroke","PremiumTitleOutline",title,{
-            Color=Color3.fromRGB(26,0,8),Thickness=1,Transparency=0,
-            ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,
-        })
-        nameGradient=add("UIGradient","PremiumTitleShine",title,{
-            Color=premiumTitleGradient(themeAccent(theme)),
-            Offset=Vector2.new(-1,0),Rotation=0,
-        })
-    end
-    local rotationTween,shineTween
-    local function refresh()
-        if not alive then return end
-        if rotationTween then rotationTween:Cancel();rotationTween=nil end
-        if shineTween then shineTween:Cancel();shineTween=nil end
-        if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
-        local motion=not settings.ReduceMotion and not window._VantaLowFPS
-            and settings.Intensity>0
-        edge.ImageTransparency=motion and (0.08+0.12*(1-settings.Intensity)) or 1
-        if grade then grade.ImageTransparency=0.84-0.30*settings.Intensity end
-        if motion then
-            rotationTween=VfxTweenService:Create(edgeGradient,
-                TweenInfo.new(6,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
-                {Rotation=360})
-            edgeGradient.Offset=Vector2.new(0,0)
-            edgeGradient.Rotation=0
-            rotationTween:Play()
-        else
-            edgeGradient.Rotation=0
-            edgeGradient.Offset=Vector2.new(0,0)
-            if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
-        end
-    end
-    local controller={}
-    function controller:Refresh() refresh() end
-    function controller:UpdateTheme(nextTheme)
-        local tint=themeAccent(nextTheme)
-        -- Chrome light remains ice white across themes.
-        edgeGradient.Color=visualGradient()
-        if grade then grade.ImageColor3=tint end
-        if nameGradient then
-            title.TextColor3=Color3.fromRGB(255,255,255)
-            nameGradient.Color=premiumTitleGradient(tint)
-        end
-        if window._VantaAmbientLight then window._VantaAmbientLight.BackgroundColor3=tint end
-        for _,p in ipairs(window._VantaAmbientParticles or {}) do
-            if p.item.Parent then
-                p.item.BackgroundColor3=tint
-                if p.core then p.core.BackgroundColor3=tint end
-            end
-        end
-        refresh()
-    end
-    function controller:Cleanup()
-        if not alive then return end
-        alive=false
-        if rotationTween then rotationTween:Cancel() end
-        if shineTween then shineTween:Cancel() end
-        for _,t in pairs(active) do pcall(function() t:Cancel() end) end
-        for _,object in ipairs({edge,glass,scale,premiumClip,contentBottomFade}) do
-            if object and object.Parent then object:Destroy() end
-        end
-        if nameGradient and nameGradient.Parent then nameGradient:Destroy() end
-        if titleStroke and titleStroke.Parent then titleStroke:Destroy() end
-    end
-    task.spawn(function()
-        while alive and not window.Destroyed do
-            if nameGradient and not settings.ReduceMotion and not window._VantaLowFPS and not window.Closed then
-                nameGradient.Offset=Vector2.new(-1,0)
-                shineTween=VfxTweenService:Create(nameGradient,
-                    TweenInfo.new(1.4,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut),
-                    {Offset=Vector2.new(1,0)})
-                shineTween:Play()
-                task.wait(1.4)
-                if shineTween then shineTween:Cancel();shineTween=nil end
-                if alive then nameGradient.Offset=Vector2.new(-1,0) end
-                task.wait(2.5)
-            else task.wait(0.3) end
-        end
-    end)
-    local oldOpen,oldClose,oldDestroy=window.Open,window.Close,window.Destroy
-    function window:Open(...)
-        local result=oldOpen(self,...)
-        if alive then
-            if not settings.ReduceMotion and not window._VantaLowFPS then
-                scale.Scale=0.95
-                play(scale,0.32,{Scale=1.023},Enum.EasingStyle.Back)
-                task.delay(0.33,function()
-                    if alive and not window.Closed then
-                        play(scale,0.16,{Scale=1},Enum.EasingStyle.Sine)
-                    end
-                end)
-            else scale.Scale=1 end
-            refresh()
-        end
-        return result
-    end
-    function window:Close(...)
-        if shineTween then shineTween:Cancel();shineTween=nil end
-        if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
-        if alive and not settings.ReduceMotion then
-            play(scale,0.22,{Scale=0.96},Enum.EasingStyle.Sine)
-        end
-        return oldClose(self,...)
-    end
-    function window:Destroy(...)
-        controller:Cleanup()
-        return oldDestroy(self,...)
-    end
-    window._VantaPremium=controller
-    controller:UpdateTheme(theme)
-    if not settings.ReduceMotion then
-        scale.Scale=0.96
-        play(scale,0.38,{Scale=1},Enum.EasingStyle.Back)
-    end
-    return controller
-end
-
 local ActiveWindows = setmetatable({}, { __mode = "k" })
-function VantaUI:SetVisualIntensity(value)
-    VisualDefaults.Intensity=math.clamp(tonumber(value) or 0.8,0,1)
-    for window in pairs(ActiveWindows) do
-        window._VantaVisuals.Intensity=VisualDefaults.Intensity
-        if window._VantaPremium then window._VantaPremium:Refresh() end
-    end
-end
-function VantaUI:SetParticleDensity(value)
-    VisualDefaults.Density=math.clamp(tonumber(value) or 1,0,1)
-    for window in pairs(ActiveWindows) do window._VantaVisuals.Density=VisualDefaults.Density end
-end
-function VantaUI:SetReduceMotion(value)
-    VisualDefaults.ReduceMotion=value==true
-    if VantaUI.Creator then
-        VantaUI.Creator.PremiumReduceMotion=VisualDefaults.ReduceMotion
-        for gradient,t in pairs(VantaUI.Creator.PremiumSweeps or {}) do
-            if VisualDefaults.ReduceMotion then
-                t:Cancel()
-                if gradient.Parent then gradient.Enabled=false end
-            else
-                if gradient.Parent then
-                    gradient.Enabled=true
-                    t:Play()
-                end
-            end
-        end
-    end
-    for window in pairs(ActiveWindows) do
-        window._VantaVisuals.ReduceMotion=VisualDefaults.ReduceMotion
-        if window._VantaPremium then window._VantaPremium:Refresh() end
-        local root=window.UIElements and window.UIElements.Main
-        if root then
-            for _,desc in ipairs(root:GetDescendants()) do
-                if desc.Name=="PremiumProgressSweep" and desc:IsA("UIGradient") then
-                    desc.Enabled=not VisualDefaults.ReduceMotion
-                end
-            end
-        end
-    end
-end
-function VantaUI:GetVisualSettings()
-    return {Intensity=VisualDefaults.Intensity,Density=VisualDefaults.Density,
-        ReduceMotion=VisualDefaults.ReduceMotion}
-end
 
 local function applyThemeWallpaper(window, themeName)
     if not window or window.Destroyed or not window._UsesVantaThemeWallpaper then
         return
     end
 
-    local transparency = themeName=="Salty Special"
-        and SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
-        or themeName=="Vanta Void" and 0.68 or 0.50
+    local transparency = SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
     if type(window.SetBackgroundImageTransparency) == "function" then
         window:SetBackgroundImageTransparency(transparency)
     end
@@ -932,8 +469,6 @@ if type(BaseSetTheme) == "function" then
         if theme then
             for window in pairs(ActiveWindows) do
                 applyThemeWallpaper(window, themeName)
-                window._VantaTheme=themeName
-                if window._VantaPremium then window._VantaPremium:UpdateTheme(themeName) end
             end
         end
         return theme
@@ -1091,15 +626,6 @@ function VantaUI:CreateWindow(config)
     end
 
     local window = BaseCreateWindow(self, config)
-    local visualSettings=type(config.Visuals)=="table" and config.Visuals or {}
-    window._VantaVisuals={
-        Intensity=math.clamp(tonumber(visualSettings.Intensity) or VisualDefaults.Intensity,0,1),
-        Density=math.clamp(tonumber(visualSettings.Density) or VisualDefaults.Density,0,1),
-        ReduceMotion=visualSettings.ReduceMotion==nil and VisualDefaults.ReduceMotion
-            or visualSettings.ReduceMotion==true,
-    }
-    window._VantaTheme=config.Theme
-    window._VantaLowFPS=false
     window._UsesVantaThemeWallpaper = usesThemeWallpaper
     ActiveWindows[window] = true
     applyThemeWallpaper(window, config.Theme)
@@ -1116,7 +642,6 @@ function VantaUI:CreateWindow(config)
         end
     end
 
-    attachPremiumWindow(window,config.Theme)
     local BaseTab = window.Tab
     local startupTabSelected = false
 
@@ -1161,7 +686,7 @@ if type(BaseNotify) == "function" then
 end
 
 function VantaUI:GetVantaThemes()
-    return { "Salty Special", "Vanta Smoked", "Vanta Dark", "Vanta AMOLED", "Vanta Violet", "Vanta Void" }
+    return { "Salty Special", "Vanta Smoked", "Vanta Dark", "Vanta AMOLED", "Vanta Violet" }
 end
 
 function VantaUI:GetGuiThemes()
