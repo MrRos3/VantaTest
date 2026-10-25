@@ -2404,11 +2404,13 @@ ImageTransparency=0,
 d("UIGradient",{
 Name="PremiumCountdownGradient",Parent=m,
 Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.fromRGB(90,10,28)),
-ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,51,85)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(90,10,28)),
+ColorSequenceKeypoint.new(0,Color3.fromRGB(56,56,56)),
+ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(56,56,56)),
 },
 })
+
+b.AddThemeObject(m,{ImageColor3="Primary"})
 local p=d("Frame",{
 Size=UDim2.new(1,h.Icon and-28-f.UIPadding or 0,1,0),
 Position=UDim2.new(1,0,0,0),
@@ -8443,8 +8445,13 @@ ColorSequenceKeypoint.new(1,Color3.fromRGB(174,174,174)),
 local aq=game:GetService"TweenService":Create(ap,
 TweenInfo.new(2.2,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,false),
 {Offset=Vector2.new(1,0)})
+aa.PremiumSweeps=aa.PremiumSweeps or setmetatable({},{__mode="k"})
+aa.PremiumSweeps[ap]=aq
 if not aa.PremiumReduceMotion then aq:Play()else ap.Enabled=false end
-aa.AddSignal(ao.UIElements.Fill.Destroying,function()aq:Cancel()end)
+aa.AddSignal(ao.UIElements.Fill.Destroying,function()
+aq:Cancel()
+aa.PremiumSweeps[ap]=nil
+end)
 ao.UIElements.Bar=aa.NewRoundFrame(99,"Squircle",{
 Name="Bar",
 Size=UDim2.new(1,ao.ShowValue and-(ao.ValueWidth+8)or 0,0,6),
