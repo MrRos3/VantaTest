@@ -139,8 +139,13 @@ function Element:New(Config)
 	local SweepTween=game:GetService("TweenService"):Create(SweepGradient,
 		TweenInfo.new(2.2,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,false),
 		{Offset=Vector2.new(1,0)})
+	Creator.PremiumSweeps=Creator.PremiumSweeps or setmetatable({},{__mode="k"})
+	Creator.PremiumSweeps[SweepGradient]=SweepTween
 	if not Creator.PremiumReduceMotion then SweepTween:Play() else SweepGradient.Enabled=false end
-	Creator.AddSignal(ProgressBar.UIElements.Fill.Destroying,function() SweepTween:Cancel() end)
+	Creator.AddSignal(ProgressBar.UIElements.Fill.Destroying,function()
+		SweepTween:Cancel()
+		Creator.PremiumSweeps[SweepGradient]=nil
+	end)
 	ProgressBar.UIElements.Bar = Creator.NewRoundFrame(99, "Squircle", {
 		Name = "Bar",
 		Size = UDim2.new(1, ProgressBar.ShowValue and -(ProgressBar.ValueWidth + 8) or 0, 0, 6),
