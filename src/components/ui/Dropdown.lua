@@ -598,10 +598,14 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 			Dropdown.UIElements.MenuCanvas.Visible = true
 			Dropdown.UIElements.MenuCanvas.Active = true
 			Dropdown.UIElements.Menu.Size = UDim2.new(1, 0, 0, 0)
-			Tween(Dropdown.UIElements.Menu, 0.1, {
+			if not Creator.PremiumReduceMotion then
+				Dropdown.UIElements.Menu.ImageTransparency=0.86
+			end
+			Tween(Dropdown.UIElements.Menu, Creator.PremiumReduceMotion and 0.08 or 0.23, {
 				Size = UDim2.new(1, 0, 1, 0),
 				ImageTransparency = 0,
-			}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+			}, Creator.PremiumReduceMotion and Enum.EasingStyle.Quart or Enum.EasingStyle.Back,
+				Enum.EasingDirection.Out):Play()
 
 			task.spawn(function()
 				task.wait(0.1)
