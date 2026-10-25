@@ -2523,6 +2523,14 @@ BorderSizePixel=0,Active=false,Parent=r,
 ThemeTag={BackgroundColor3="Primary"},
 })
 d("UICorner",{CornerRadius=UDim.new(1,0),Parent=u})
+d("UIGradient",{
+Name="PremiumEdgeGradient",Parent=u,Rotation=90,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(110,110,110)),
+ColorSequenceKeypoint.new(0.5,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(110,110,110)),
+},
+})
 local v
 if i then v=d("UIScale",{Name="PremiumIconScale",Scale=0.75,Parent=i})end
 local x=d("Frame",{
