@@ -662,7 +662,9 @@ local function attachPremiumWindow(window,theme)
         if not alive then return end
         if rotationTween then rotationTween:Cancel();rotationTween=nil end
         if shineTween then shineTween:Cancel();shineTween=nil end
+        if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         local motion=not settings.ReduceMotion and not window._VantaLowFPS
+            and settings.Intensity>0
         haloBorder.Transparency=motion and (0.98-0.12*settings.Intensity) or 1
         edge.Transparency=0.13+0.30*(1-settings.Intensity)
         if motion then
@@ -809,7 +811,9 @@ local function applyThemeWallpaper(window, themeName)
         return
     end
 
-    local transparency = SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
+    local transparency = themeName=="Salty Special"
+        and SALTY_SPECIAL_WALLPAPER_TRANSPARENCY
+        or themeName=="Vanta Void" and 0.68 or 0.50
     if type(window.SetBackgroundImageTransparency) == "function" then
         window:SetBackgroundImageTransparency(transparency)
     end
@@ -989,6 +993,7 @@ function VantaUI:CreateWindow(config)
             or visualSettings.ReduceMotion==true,
     }
     window._VantaTheme=config.Theme
+    window._VantaLowFPS=false
     window._UsesVantaThemeWallpaper = usesThemeWallpaper
     ActiveWindows[window] = true
     applyThemeWallpaper(window, config.Theme)
