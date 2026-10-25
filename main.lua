@@ -108,11 +108,11 @@ local VantaThemes = {
         ElementBackground = Color3.fromHex("#311522"),
         ElementBackgroundTransparency = 0.06,
         -- Let the Crimson01 artwork show through; selection fades away to the right.
-        TabBackgroundActive = Color3.fromHex("#A1162F"),
-        TabBackgroundActiveTransparency = 0.05,
+        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
+        TabBackgroundActiveTransparency = 1,
         TabBackgroundHover = Color3.fromHex("#151013"),
         TabBackgroundHoverTransparency = 0.82,
-        TabSelectionFade = Color3.fromHex("#A1162F"),
+        TabSelectionFade = Color3.fromHex("#4A1C2B"),
         TabTitle = Color3.fromHex("#D8D2D5"),
         TabTitleActive = Color3.fromHex("#FFFFFF"),
         TabTextTransparency = 0,
@@ -140,6 +140,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.16,
         ElementBackground = Color3.fromHex("#1C2027"),
         ElementBackgroundTransparency = 0,
+        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
+        TabBackgroundActiveTransparency = 1,
+        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Dark",
@@ -163,6 +166,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.82,
         ElementBackground = Color3.fromHex("#171C27"),
         ElementBackgroundTransparency = 0,
+        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
+        TabBackgroundActiveTransparency = 1,
+        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta AMOLED",
@@ -186,6 +192,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#0D0F14"),
         ElementBackgroundTransparency = 0,
+        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
+        TabBackgroundActiveTransparency = 1,
+        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Violet",
@@ -209,6 +218,9 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#1B1628"),
         ElementBackgroundTransparency = 0,
+        TabBackgroundActive = Color3.fromHex("#0B0A0C"),
+        TabBackgroundActiveTransparency = 1,
+        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Void",
@@ -233,7 +245,7 @@ local VantaThemes = {
         ElementBackground = Color3.fromHex("#09171B"),
         ElementBackgroundTransparency = 0.13,
         TabBackgroundActive = Color3.fromHex("#051D24"),
-        TabBackgroundActiveTransparency = 0.92,
+        TabBackgroundActiveTransparency = 1,
         TabSelectionFade = Color3.fromHex("#0C697C"),
     },
 }
@@ -294,15 +306,16 @@ local function themeAccent(name)
 end
 -- Five-stop chrome: only the narrow ice-white band and its faint tail
 -- have contrast. Theme changes touch the tail, never the steel base.
-local function visualGradient(accent)
-    local steel=Color3.fromRGB(35,37,45) -- #23252D
-    local ice=Color3.fromRGB(234,246,255) -- #EAF6FF
-    return ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00,steel),
-        ColorSequenceKeypoint.new(0.44,steel),
-        ColorSequenceKeypoint.new(0.50,ice),
-        ColorSequenceKeypoint.new(0.56,steel:Lerp(accent,0.14)),
-        ColorSequenceKeypoint.new(1.00,steel),
+local function visualGradient()
+    return ColorSequence.new(Color3.fromRGB(234,246,255))
+end
+local function lightBand()
+    return NumberSequence.new({
+        NumberSequenceKeypoint.new(0,1),
+        NumberSequenceKeypoint.new(0.43,1),
+        NumberSequenceKeypoint.new(0.50,0),
+        NumberSequenceKeypoint.new(0.57,1),
+        NumberSequenceKeypoint.new(1,1),
     })
 end
 -- White is the resting title color. Only a narrow red/white band crosses
@@ -619,14 +632,7 @@ local function attachPremiumWindow(window,theme)
         ImageTransparency=0.20,Active=false,
     })
     local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
-        Color=visualGradient(themeAccent(theme)),Rotation=0,
-    })
-    -- One low-opacity black squircle behind the window, with no red aura.
-    local shadow=VantaUI.Creator.NewRoundFrame(window.UICorner+12,"Squircle",{
-        Name="PremiumBlackShadow",Parent=root,
-        Size=UDim2.new(1,28,1,28),Position=UDim2.fromScale(0.5,0.5),
-        AnchorPoint=Vector2.new(0.5,0.5),Active=false,ZIndex=0,
-        ImageTransparency=0.85,ImageColor3=Color3.fromRGB(0,0,0),
+        Color=visualGradient(),Transparency=lightBand(),Rotation=0,
     })
     local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
     local glass=add("Frame","PremiumTopbarGlass",topbar,{
@@ -760,9 +766,7 @@ local function attachPremiumWindow(window,theme)
         if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         local motion=not settings.ReduceMotion and not window._VantaLowFPS
             and settings.Intensity>0
-        edge.ImageTransparency=0.20+0.10*(1-settings.Intensity)
-        -- Shadow is static, so reduced motion never makes it disappear.
-        shadow.ImageTransparency=0.85
+        edge.ImageTransparency=motion and (0.08+0.12*(1-settings.Intensity)) or 1
         if grade then grade.ImageTransparency=0.84-0.30*settings.Intensity end
         if motion then
             rotationTween=VfxTweenService:Create(edgeGradient,
@@ -772,9 +776,8 @@ local function attachPremiumWindow(window,theme)
             edgeGradient.Rotation=0
             rotationTween:Play()
         else
-            -- Park the narrow ice-white highlight toward the top-left corner.
-            edgeGradient.Rotation=45
-            edgeGradient.Offset=Vector2.new(-0.35,0)
+            edgeGradient.Rotation=0
+            edgeGradient.Offset=Vector2.new(0,0)
             if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         end
     end
@@ -782,8 +785,8 @@ local function attachPremiumWindow(window,theme)
     function controller:Refresh() refresh() end
     function controller:UpdateTheme(nextTheme)
         local tint=themeAccent(nextTheme)
-        -- Steel and ice-white never recolor; only the subtle tail picks up tint.
-        edgeGradient.Color=visualGradient(tint)
+        -- Chrome light remains ice white across themes.
+        edgeGradient.Color=visualGradient()
         if grade then grade.ImageColor3=tint end
         if nameGradient then
             title.TextColor3=Color3.fromRGB(255,255,255)
@@ -804,7 +807,7 @@ local function attachPremiumWindow(window,theme)
         if rotationTween then rotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
         for _,t in pairs(active) do pcall(function() t:Cancel() end) end
-        for _,object in ipairs({edge,shadow,glass,scale,premiumClip,contentBottomFade}) do
+        for _,object in ipairs({edge,glass,scale,premiumClip,contentBottomFade}) do
             if object and object.Parent then object:Destroy() end
         end
         if nameGradient and nameGradient.Parent then nameGradient:Destroy() end
