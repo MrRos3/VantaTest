@@ -8068,6 +8068,7 @@ ColorSequenceKeypoint.new(1,Color3.fromRGB(190,76,108)),
 },
 })
 local ax=al.UIElements.SliderIcon.Frame.Thumb
+ax.ZIndex=math.max(2,ax.ZIndex)
 ae.NewRoundFrame(999,"Squircle",{
 Name="PremiumRoundThumbGlow",Parent=al.UIElements.SliderIcon.Frame,
 Position=UDim2.new(1,0,0.5,0),
