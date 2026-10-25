@@ -499,6 +499,7 @@ for _, item in ipairs({
     { "Vanta Dark", "moon" },
     { "Vanta AMOLED", "circle-dot" },
     { "Vanta Violet", "wand-sparkles" },
+    { "Vanta Void", "orbit" },
 }) do
     local themeName, iconName = item[1], item[2]
     add(Themes, "Button", {
@@ -509,6 +510,32 @@ for _, item in ipairs({
         end,
     })
 end
+add(Themes,"Divider",{})
+add(Themes,"Section",{
+    Title="Visuals",
+    Desc="Live premium effects, tuned for your executor and frame rate.",
+    Icon="sparkles",
+})
+add(Themes,"Slider",{
+    Title="Glow / animation intensity",
+    Desc="Reduces border aura, breathing light and ambient brightness",
+    Value={Min=0,Max=100,Default=80},
+    Step=5,
+    Callback=function(v) VantaTest:SetVisualIntensity(v/100) end,
+})
+add(Themes,"Slider",{
+    Title="Particle density",
+    Desc="Adjusts the existing 50-element pool; no new particles are allocated",
+    Value={Min=0,Max=100,Default=100},
+    Step=5,
+    Callback=function(v) VantaTest:SetParticleDensity(v/100) end,
+})
+add(Themes,"Toggle",{
+    Title="Reduce motion",
+    Desc="Stops decorative rotation, shine and ambient particles for low FPS",
+    Value=false,
+    Callback=function(v) VantaTest:SetReduceMotion(v) end,
+})
 add(Themes, "Divider", {})
 add(Themes, "Section", { Title = "Sound system" })
 add(Themes, "Toggle", {
