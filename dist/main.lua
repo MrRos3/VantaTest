@@ -12665,10 +12665,27 @@ end
 ao:SelectTab(as)
 end
 end)
+local aw=ar.UIElements.Main.Frame.Position
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
 if not ar.Locked then
 ak.PlaySound"Hover"
+if not ar.Selected then
+ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
+{TextColor3="Text"},0.12)
+local ax=aw
+ak.Tween(ar.UIElements.Main.Frame,0.13,{
+Position=UDim2.new(ax.X.Scale,ax.X.Offset+2,ax.Y.Scale,ax.Y.Offset),
+},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 end
+end
+end)
+ak.AddSignal(ar.UIElements.Main.MouseLeave,function()
+if not ar.Selected then
+ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
+{TextColor3="TabTitle"},0.13)
+end
+ak.Tween(ar.UIElements.Main.Frame,0.13,{Position=aw},
+Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 end)
 
 if Window.ScrollBarEnabled then
@@ -12681,30 +12698,30 @@ WindUI
 )
 end
 
-local aw
 local ax
 local ay
-local az=false
+local az
+local aA=false
 
 
 if ar.Desc then
 ak.AddSignal(ar.UIElements.Main.InputBegan,function()
-az=true
-ax=task.spawn(function()
+aA=true
+ay=task.spawn(function()
 task.wait(0.35)
-if az and not aw then
-aw=am(ar.Desc,ao.ToolTipParent,true)
-aw.Container.AnchorPoint=Vector2.new(0.5,0.5)
+if aA and not ax then
+ax=am(ar.Desc,ao.ToolTipParent,true)
+ax.Container.AnchorPoint=Vector2.new(0.5,0.5)
 
 local function updatePosition()
-if aw then
-aw.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
+if ax then
+ax.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
 end
 end
 
 updatePosition()
-ay=ai.Move:Connect(updatePosition)
-aw:Open()
+az=ai.Move:Connect(updatePosition)
+ax:Open()
 end
 end)
 end)
@@ -12720,18 +12737,18 @@ end
 end)
 ak.AddSignal(ar.UIElements.Main.InputEnded,function()
 if ar.Desc then
-az=false
-if ax then
-task.cancel(ax)
-ax=nil
-end
+aA=false
 if ay then
-ay:Disconnect()
+task.cancel(ay)
 ay=nil
 end
-if aw then
-aw:Close()
-aw=nil
+if az then
+az:Disconnect()
+az=nil
+end
+if ax then
+ax:Close()
+ax=nil
 end
 end
 
@@ -12742,13 +12759,13 @@ ImageTransparency="TabBorderTransparency",
 end
 end)
 
-function ar.ScrollToTheElement(aA,aB)
+function ar.ScrollToTheElement(aB,b)
 ar.UIElements.ContainerFrame.ScrollingEnabled=false
 
 ak.Tween(ar.UIElements.ContainerFrame,0.45,{
 CanvasPosition=Vector2.new(
 0,
-ar.Elements[aB].ElementFrame.AbsolutePosition.Y
+ar.Elements[b].ElementFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.UIPadding.PaddingTop.Offset
 ),
@@ -12757,8 +12774,8 @@ ar.Elements[aB].ElementFrame.AbsolutePosition.Y
 task.spawn(function()
 task.wait(0.48)
 
-if ar.Elements[aB].Highlight then
-ar.Elements[aB]:Highlight()
+if ar.Elements[b].Highlight then
+ar.Elements[b]:Highlight()
 end
 ar.UIElements.ContainerFrame.ScrollingEnabled=true
 end)
@@ -12768,72 +12785,72 @@ end
 
 
 
-local aA=a.load'aa'
+local aB=a.load'aa'
 
-aA.Load(
+aB.Load(
 ar,
 ar.UIElements.ContainerFrame,
-aA.Elements,
+aB.Elements,
 Window,
 WindUI,
 nil,
-aA,
+aB,
 aq,
 ar
 )
 
-function ar.LockAll(aB)
-
-for b,d in next,Window.AllElements do
-if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Lock then
-d:Lock()
-end
-end
-end
-function ar.UnlockAll(aB)
-for b,d in next,Window.AllElements do
-if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Unlock then
-d:Unlock()
-end
-end
-end
-function ar.GetLocked(aB)
-local b={}
+function ar.LockAll(b)
 
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==true then
-table.insert(b,f)
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Lock then
+f:Lock()
 end
 end
-
-return b
 end
-function ar.GetUnlocked(aB)
-local b={}
-
+function ar.UnlockAll(b)
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==false then
-table.insert(b,f)
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Unlock then
+f:Unlock()
+end
+end
+end
+function ar.GetLocked(b)
+local d={}
+
+for f,g in next,Window.AllElements do
+if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==true then
+table.insert(d,g)
 end
 end
 
-return b
+return d
+end
+function ar.GetUnlocked(b)
+local d={}
+
+for f,g in next,Window.AllElements do
+if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==false then
+table.insert(d,g)
+end
 end
 
-function ar.Select(aB)
+return d
+end
+
+function ar.Select(b)
 return ao:SelectTab(ar.Index)
 end
 
 task.spawn(function()
-local aB
+local b
 if ar.CustomEmptyPage.Icon then
-aB=
+b=
 ak.Image(ar.CustomEmptyPage.Icon,ar.CustomEmptyPage.Icon,0,"Temp","EmptyPage",true)
-aB.Size=
+b.Size=
 UDim2.fromOffset(ar.CustomEmptyPage.IconSize or 48,ar.CustomEmptyPage.IconSize or 48)
 end
 
-local b=al("Frame",{
+local d=al("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,-Window.UIElements.Main.Main.Topbar.AbsoluteSize.Y),
 Parent=ar.UIElements.ContainerFrame,
@@ -12856,7 +12873,7 @@ FillDirection="Vertical",
 
 
 
-aB,
+b,
 ar.CustomEmptyPage.Title and al("TextLabel",{
 AutomaticSize="XY",
 Text=ar.CustomEmptyPage.Title,
@@ -12885,10 +12902,10 @@ FontFace=Font.new(ak.Font,Enum.FontWeight.Regular),
 
 
 
-local d
-d=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
-b.Visible=false
-d:Disconnect()
+local f
+f=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
+d.Visible=false
+f:Disconnect()
 end)
 end)
 
