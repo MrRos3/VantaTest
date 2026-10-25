@@ -204,7 +204,8 @@ return function(Config)
 		New("ImageLabel", {
 			Size = UDim2.new(0, 48 * 2, 0, 48 * 2),
 			BackgroundTransparency = 1,
-			Image = "rbxassetid://120997033468887",
+			Image = "",
+			Visible = false, -- permanently hide the old gray resize arc
 			Position = UDim2.new(0.5, -16, 0.5, -16),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			ImageTransparency = 1, -- .8; .35
