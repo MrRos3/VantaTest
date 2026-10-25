@@ -1,5 +1,5 @@
 --[[
-    VantaUI v0.3.8
+    VantaUI v0.4.0
     Roblox UI library by MrRos3.
 
     Public production loader.
@@ -9,7 +9,7 @@
     - Notification open/close sounds are disabled by default.
 ]]
 
-local PROJECT_VERSION = "0.3.8"
+local PROJECT_VERSION = "0.4.0"
 local CACHE_BUSTER = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local RUNTIME_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua?v=" .. CACHE_BUSTER
 local BRAND_IMAGE_URL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
@@ -87,7 +87,8 @@ VantaUI.Assets = {
 local VantaThemes = {
     {
         Name = "Salty Special",
-        Accent = Color3.fromHex("#12070A"),
+        Accent = Color3.fromHex("#A1162F"),
+        VisualAccent = Color3.fromHex("#FF3355"),
         Dialog = Color3.fromHex("#0A0709"),
         Outline = Color3.fromHex("#5A1824"),
         Text = Color3.fromHex("#FFFFFF"),
@@ -115,6 +116,7 @@ local VantaThemes = {
     },
     {
         Name = "Vanta Smoked",
+        VisualAccent = Color3.fromHex("#B5BAC7"),
         Accent = Color3.fromHex("#171A20"),
         Dialog = Color3.fromHex("#121419"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -137,6 +139,7 @@ local VantaThemes = {
     },
     {
         Name = "Vanta Dark",
+        VisualAccent = Color3.fromHex("#879CFF"),
         Accent = Color3.fromHex("#151923"),
         Dialog = Color3.fromHex("#11141C"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -159,6 +162,7 @@ local VantaThemes = {
     },
     {
         Name = "Vanta AMOLED",
+        VisualAccent = Color3.fromHex("#5DE7FF"),
         Accent = Color3.fromHex("#0A0A0D"),
         Dialog = Color3.fromHex("#08090C"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -181,6 +185,7 @@ local VantaThemes = {
     },
     {
         Name = "Vanta Violet",
+        VisualAccent = Color3.fromHex("#B991FF"),
         Accent = Color3.fromHex("#211B35"),
         Dialog = Color3.fromHex("#171323"),
         Outline = Color3.fromHex("#FFFFFF"),
@@ -200,6 +205,32 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#1B1628"),
         ElementBackgroundTransparency = 0,
+    },
+    {
+        Name = "Vanta Void",
+        Accent = Color3.fromHex("#07323A"),
+        VisualAccent = Color3.fromHex("#5DE7FF"),
+        Dialog = Color3.fromHex("#061116"),
+        Outline = Color3.fromHex("#12616E"),
+        Text = Color3.fromHex("#ECFBFF"),
+        Placeholder = Color3.fromHex("#799BA5"),
+        Background = Color3.fromHex("#000000"),
+        Button = Color3.fromHex("#081B21"),
+        Icon = Color3.fromHex("#9AEFFF"),
+        Toggle = Color3.fromHex("#18AFC9"),
+        Slider = Color3.fromHex("#38CDE8"),
+        Checkbox = Color3.fromHex("#5DE7FF"),
+        Primary = Color3.fromHex("#5DE7FF"),
+        SliderIcon = Color3.fromHex("#C7F7FF"),
+        PanelBackground = Color3.fromHex("#03090C"),
+        PanelBackgroundTransparency = 0.32,
+        LabelBackground = Color3.fromHex("#071014"),
+        LabelBackgroundTransparency = 0.08,
+        ElementBackground = Color3.fromHex("#09171B"),
+        ElementBackgroundTransparency = 0.13,
+        TabBackgroundActive = Color3.fromHex("#051D24"),
+        TabBackgroundActiveTransparency = 0.92,
+        TabSelectionFade = Color3.fromHex("#0C697C"),
     },
 }
 
@@ -244,6 +275,27 @@ end
 -- One throttled RenderStepped connection per window; never animate the wallpaper.
 local RunService = game:GetService("RunService")
 local CRIMSON_AMBIENT_FPS = 30
+local VisualDefaults = {Intensity=0.8,Density=1,ReduceMotion=false}
+local THEME_ACCENTS = {
+    ["Salty Special"]=Color3.fromHex("#FF3355"),
+    ["Vanta Smoked"]=Color3.fromHex("#B5BAC7"),
+    ["Vanta Dark"]=Color3.fromHex("#879CFF"),
+    ["Vanta AMOLED"]=Color3.fromHex("#5DE7FF"),
+    ["Vanta Violet"]=Color3.fromHex("#B991FF"),
+    ["Vanta Void"]=Color3.fromHex("#5DE7FF"),
+}
+local function themeAccent(name)
+    return THEME_ACCENTS[name] or THEME_ACCENTS["Salty Special"]
+end
+local function visualGradient(low,high)
+    return ColorSequence.new({
+        ColorSequenceKeypoint.new(0,low),
+        ColorSequenceKeypoint.new(0.4,low),
+        ColorSequenceKeypoint.new(0.5,high),
+        ColorSequenceKeypoint.new(0.6,low),
+        ColorSequenceKeypoint.new(1,low),
+    })
+end
 local CRIMSON_PARTICLE_COUNTS = {
     Petal = 18,
     Ember = 17,
@@ -275,7 +327,31 @@ local function attachCrimsonAmbient(window)
     corner.CornerRadius = UDim.new(0, 16)
     corner.Parent = overlay
 
+    local ambientLight = Instance.new("Frame")
+    ambientLight.Name="CrimsonBreath"
+    ambientLight.Size=UDim2.fromScale(0.68,0.84)
+    ambientLight.AnchorPoint=Vector2.new(0.5,0.5)
+    ambientLight.Position=UDim2.fromScale(0.58,0.48)
+    ambientLight.BackgroundColor3=themeAccent(window._VantaTheme)
+    ambientLight.BackgroundTransparency=0.97
+    ambientLight.BorderSizePixel=0
+    ambientLight.Active=false
+    ambientLight.ZIndex=overlay.ZIndex
+    ambientLight.Parent=overlay
+    local breathingMask=Instance.new("UIGradient")
+    breathingMask.Name="BreathingMask"
+    breathingMask.Transparency=NumberSequence.new({
+        NumberSequenceKeypoint.new(0,1),
+        NumberSequenceKeypoint.new(0.25,0.9),
+        NumberSequenceKeypoint.new(0.5,0.55),
+        NumberSequenceKeypoint.new(0.75,0.9),
+        NumberSequenceKeypoint.new(1,1),
+    })
+    breathingMask.Parent=ambientLight
+    window._VantaAmbientLight=ambientLight
     local particles = {}
+    window._VantaAmbientParticles=particles
+    local slowFrames=0
     local elapsed = 0
     local frameAccumulator = 0
 
@@ -299,7 +375,7 @@ local function attachCrimsonAmbient(window)
         particle.Parent = overlay
 
         local p = {
-            item = particle, kind = kind,
+            item = particle, kind = kind, index = index,
             phase = b, x = -0.035 + 1.07 * a, y = c,
             drift = ((index % 2 == 0) and 1 or -1) * (0.07 + b * 0.16),
             sway = 0.007 + 0.016 * c,
@@ -395,19 +471,28 @@ local function attachCrimsonAmbient(window)
             if overlay.Parent then overlay:Destroy() end
             return
         end
-        if window.Closed or not main.Visible then
+        local settings=window._VantaVisuals or VisualDefaults
+        if window.Closed or not main.Visible or settings.ReduceMotion or window._VantaLowFPS or settings.Density<=0 then
             overlay.Visible = false
             frameAccumulator = 0
             return
         end
         overlay.Visible = true
+        if tonumber(dt) and dt>0.08 then
+            slowFrames=math.min(40,slowFrames+1)
+        else
+            slowFrames=math.max(0,slowFrames-1)
+        end
+        window._VantaLowFPS=slowFrames>=24
         -- Hold particles in place during minimize; never jump ahead on reopening.
         frameAccumulator = frameAccumulator + math.min(tonumber(dt) or 1 / 60, 0.075)
         if frameAccumulator < (1 / CRIMSON_AMBIENT_FPS) then return end
         elapsed = elapsed + frameAccumulator
         frameAccumulator = 0
-
+        ambientLight.BackgroundTransparency=0.95-0.032*settings.Intensity*
+            (0.5+0.5*math.sin(elapsed*0.75))
         for _, p in ipairs(particles) do
+            p.item.Visible=p.index<=math.ceil(CRIMSON_PARTICLE_COUNTS[p.kind]*settings.Density)
             local t = elapsed
             local positionX, positionY, alpha
             if p.kind == "Petal" then
@@ -442,14 +527,48 @@ local function attachCrimsonAmbient(window)
                 local pulse = math.max(0, math.sin(t * p.pulse + p.phase * 16))
                 alpha = 0.96 - 0.43 * pulse * pulse
             end
+            if p.kind=="Ember" and p.index==3 then
+                local streak=elapsed%19
+                if streak<0.4 then
+                    p.item.Size=UDim2.fromOffset(2,17)
+                    p.item.Rotation=-42
+                    positionX=0.22+streak*0.75
+                    positionY=0.7-streak*0.82
+                    alpha=0.2
+                else
+                    p.item.Size=UDim2.fromOffset(3,4)
+                end
+            end
             p.item.Position = UDim2.fromScale(positionX, positionY)
-            p.item.BackgroundTransparency = math.clamp(alpha, 0.05, 0.99)
+            p.item.BackgroundTransparency = math.clamp(1-(1-alpha)*settings.Intensity,0.05,0.99)
         end
     end)
     return overlay
 end
 
 local ActiveWindows = setmetatable({}, { __mode = "k" })
+function VantaUI:SetVisualIntensity(value)
+    VisualDefaults.Intensity=math.clamp(tonumber(value) or 0.8,0,1)
+    for window in pairs(ActiveWindows) do
+        window._VantaVisuals.Intensity=VisualDefaults.Intensity
+        if window._VantaPremium then window._VantaPremium:Refresh() end
+    end
+end
+function VantaUI:SetParticleDensity(value)
+    VisualDefaults.Density=math.clamp(tonumber(value) or 1,0,1)
+    for window in pairs(ActiveWindows) do window._VantaVisuals.Density=VisualDefaults.Density end
+end
+function VantaUI:SetReduceMotion(value)
+    VisualDefaults.ReduceMotion=value==true
+    for window in pairs(ActiveWindows) do
+        window._VantaVisuals.ReduceMotion=VisualDefaults.ReduceMotion
+        if window._VantaPremium then window._VantaPremium:Refresh() end
+    end
+end
+function VantaUI:GetVisualSettings()
+    return {Intensity=VisualDefaults.Intensity,Density=VisualDefaults.Density,
+        ReduceMotion=VisualDefaults.ReduceMotion}
+end
 
 local function applyThemeWallpaper(window, themeName)
     if not window or window.Destroyed or not window._UsesVantaThemeWallpaper then
@@ -469,6 +588,8 @@ if type(BaseSetTheme) == "function" then
         if theme then
             for window in pairs(ActiveWindows) do
                 applyThemeWallpaper(window, themeName)
+                window._VantaTheme=themeName
+                if window._VantaPremium then window._VantaPremium:UpdateTheme(themeName) end
             end
         end
         return theme
@@ -626,6 +747,14 @@ function VantaUI:CreateWindow(config)
     end
 
     local window = BaseCreateWindow(self, config)
+    local visualSettings=type(config.Visuals)=="table" and config.Visuals or {}
+    window._VantaVisuals={
+        Intensity=math.clamp(tonumber(visualSettings.Intensity) or VisualDefaults.Intensity,0,1),
+        Density=math.clamp(tonumber(visualSettings.Density) or VisualDefaults.Density,0,1),
+        ReduceMotion=visualSettings.ReduceMotion==nil and VisualDefaults.ReduceMotion
+            or visualSettings.ReduceMotion==true,
+    }
+    window._VantaTheme=config.Theme
     window._UsesVantaThemeWallpaper = usesThemeWallpaper
     ActiveWindows[window] = true
     applyThemeWallpaper(window, config.Theme)
@@ -686,7 +815,7 @@ if type(BaseNotify) == "function" then
 end
 
 function VantaUI:GetVantaThemes()
-    return { "Salty Special", "Vanta Smoked", "Vanta Dark", "Vanta AMOLED", "Vanta Violet" }
+    return { "Salty Special", "Vanta Smoked", "Vanta Dark", "Vanta AMOLED", "Vanta Violet", "Vanta Void" }
 end
 
 function VantaUI:GetGuiThemes()
