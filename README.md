@@ -1,5 +1,11 @@
 # VantaTest 🧪
 
+## High-contrast visual refresh (v0.4.x)
+
+Salty Special now uses a high-contrast, **four-second rotating crimson squircle outline** and a larger rounded red aura. The wallpaper has stronger dark edges, a warm crimson color grade, and breathing backlight. Active sidebar tabs are filled gradient pills with one shared sliding highlight. Glass element cards have moving rounded light sheens; ON toggles show crimson tracks and white knobs with halos; sliders and buttons use brighter themed gradients. OLED notifications retain the full-height gradient countdown, icon pop, and slide-in overshoot without any left-edge stripe.
+
+The obsolete topbar divider and gray resize arc are removed while the resize hitbox, public APIs, 50 pooled ambient particles, reduce-motion behavior, and performance rules stay intact. Source of truth is src/ and the GitHub Actions npm build automatically commits dist/main.lua. The existing example.lua showcase includes all ten tabs and theme controls. Interactive Roblox rendering still requires a live client check.
+
 ## v0.4.0 • Salty Special: Nightfall Edition
 
 The laboratory now introduces a premium motion system without changing the public element APIs. The Salty Special shell has a themed rotating 2px crimson border, soft aura, glass topbar, animated Michroma title shine, wallpaper vignette and spring-style open/close scale. Active tabs gain a luminous accent strip, while element hover outlines, press-scale buttons, animated toggles, slider gradients/value bubbles, progress sweeps, dropdown transitions and OLED notification accents add tactile detail.
