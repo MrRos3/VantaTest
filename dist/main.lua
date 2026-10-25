@@ -12385,6 +12385,7 @@ SelectedTab=nil,
 TabCount=0,
 ToolTipParent=nil,
 TabHighlight=nil,
+PremiumMovingPill=nil,
 
 OnChangeFunc=function(ao)end,
 }
@@ -12394,6 +12395,21 @@ Window=ap
 WindUI=aq
 ao.ToolTipParent=ar
 ao.TabHighlight=as
+ao.PremiumMovingPill=nil
+
+local at=ap.UIElements and ap.UIElements.SideBar
+if at then
+ak.AddSignal(at:GetPropertyChangedSignal"CanvasPosition",function()
+local au=ao.Tabs[ao.SelectedTab]
+local av=ao.PremiumMovingPill
+if au and av and av.Parent then
+local aw=au.UIElements.Main
+av.Position=UDim2.fromOffset(
+aw.AbsolutePosition.X-at.AbsolutePosition.X,
+aw.AbsolutePosition.Y-at.AbsolutePosition.Y)
+end
+end)
+end
 return ao
 end
 
@@ -12555,6 +12571,16 @@ NumberSequenceKeypoint.new(1.00,1.00),
 },
 }),
 })
+
+al("UIGradient",{
+Name="PremiumActiveCrimson",Parent=ar.UIElements.Main,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(0.55,Color3.fromRGB(186,140,159)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(89,67,87)),
+},
+})
+ar.UIElements.Main.ZIndex=2
 ar.UIElements.PremiumAccent=al("Frame",{
 Name="PremiumAccent",Parent=ar.UIElements.Main,
 Size=UDim2.new(0,3,0.63,0),
@@ -12758,6 +12784,10 @@ local aw=ar.UIElements.Main.Frame.Position
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
 if not ar.Locked then
 ak.PlaySound"Hover"
+if not ar.Selected then
+ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
+{TextColor3="Text",TextTransparency="TabTextTransparencyActive"},0.13)
+end
 if ar.UIElements.Icon and not ar.IconColor then
 ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,
 {ImageColor3="Primary"},0.13)
@@ -12771,6 +12801,10 @@ end
 end
 end)
 ak.AddSignal(ar.UIElements.Main.MouseLeave,function()
+if not ar.Selected then
+ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
+{TextColor3="TabTitle",TextTransparency="TabTextTransparency"},0.14)
+end
 if ar.UIElements.Icon and not ar.IconColor then
 ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,
 {ImageColor3=ar.Selected and"Primary"or"TabIcon"},0.14)
@@ -13011,37 +13045,78 @@ function ao.SelectTab(ap,aq)
 if not ao.Tabs[aq].Locked then
 ao.SelectedTab=aq
 
-for ar,as in next,ao.Tabs do
-if not as.Locked then
-ak.SetThemeTag(as.UIElements.Main,{
+
+local ar=Window.UIElements and Window.UIElements.SideBar
+local as=ao.Tabs[aq].UIElements.Main
+if ar and as then
+local at=ao.PremiumMovingPill
+if not at or not at.Parent then
+at=ak.NewRoundFrame(ao.Tabs[aq].UICorner,"Squircle",{
+Name="PremiumMovingPill",Parent=ar,
+Size=UDim2.fromOffset(math.max(as.AbsoluteSize.X,1),math.max(as.AbsoluteSize.Y,1)),
+ImageTransparency=0.62,Active=false,ZIndex=1,
+ThemeTag={ImageColor3="Primary"},
+})
+al("UIGradient",{
+Name="PremiumMovingTint",Parent=at,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(75,38,50)),
+},
+})
+ao.PremiumMovingPill=at
+end
+local function setPill(au)
+if not at.Parent or not as.Parent then return end
+local av=UDim2.fromOffset(
+as.AbsolutePosition.X-ar.AbsolutePosition.X,
+as.AbsolutePosition.Y-ar.AbsolutePosition.Y)
+local aw=UDim2.fromOffset(as.AbsoluteSize.X,as.AbsoluteSize.Y)
+if au and not ak.PremiumReduceMotion then
+ak.Tween(at,0.28,{Position=av,Size=aw},
+Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+else
+at.Position=av
+at.Size=aw
+end
+end
+setPill(at.AbsoluteSize.X>1)
+task.defer(function()
+if ao.SelectedTab==aq then setPill(false)end
+end)
+end
+
+for at,au in next,ao.Tabs do
+if not au.Locked then
+ak.SetThemeTag(au.UIElements.Main,{
 ImageColor3="TabBackground",
 ImageTransparency="TabBorderTransparency",
 },0.15)
-ak.Tween(as.UIElements.PremiumAccent,0.15,{
+ak.Tween(au.UIElements.PremiumAccent,0.15,{
 BackgroundTransparency=1,
 },Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-ak.Tween(as.UIElements.SelectionFade,0.16,{
+ak.Tween(au.UIElements.SelectionFade,0.16,{
 BackgroundTransparency=1,
 },Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
-ak.SetThemeTag(as.UIElements.Main.Frame,{
+ak.SetThemeTag(au.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
-if as.Border then
-ak.SetThemeTag(as.UIElements.Main.Outline,{
+if au.Border then
+ak.SetThemeTag(au.UIElements.Main.Outline,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
 end
-ak.SetThemeTag(as.UIElements.Main.Frame.TextLabel,{
+ak.SetThemeTag(au.UIElements.Main.Frame.TextLabel,{
 TextColor3="TabTitle",
 TextTransparency="TabTextTransparency",
 },0.15)
-if as.UIElements.Icon and not as.IconColor then
-ak.SetThemeTag(as.UIElements.Icon.ImageLabel,{
+if au.UIElements.Icon and not au.IconColor then
+ak.SetThemeTag(au.UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparency",
 ImageColor3="TabIcon",
 },0.15)
 end
-as.Selected=false
+au.Selected=false
 end
 end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main,{
@@ -13069,24 +13144,24 @@ TextTransparency="TabTextTransparencyActive",
 if ao.Tabs[aq].UIElements.Icon and not ao.Tabs[aq].IconColor then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparencyActive",
-ImageColor3="Primary",
+ImageColor3="Text",
 },0.15)
 end
 ao.Tabs[aq].Selected=true
 
 task.spawn(function()
-for ar,as in next,ao.Containers do
-as.AnchorPoint=Vector2.new(0,0.05)
-as.Visible=false
+for at,au in next,ao.Containers do
+au.AnchorPoint=Vector2.new(0,0.05)
+au.Visible=false
 end
 ao.Containers[aq].Visible=true
-local ar=game:GetService"TweenService"
+local at=game:GetService"TweenService"
 
-local as=TweenInfo.new(0.15,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
-local at=ar:Create(ao.Containers[aq],as,{
+local au=TweenInfo.new(0.15,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local av=at:Create(ao.Containers[aq],au,{
 AnchorPoint=Vector2.new(0,0),
 })
-at:Play()
+av:Play()
 end)
 
 ao.OnChangeFunc(aq)
