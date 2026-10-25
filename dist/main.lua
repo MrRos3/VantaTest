@@ -511,6 +511,7 @@ TabText="Text",
 TabTextTransparency=0.3,
 TabTextTransparencyActive=0,
 TabTitle="Text",
+TabTitleActive="Text",
 TabIcon="Icon",
 TabIconTransparency=0.4,
 TabIconTransparencyActive=0.1,
@@ -12543,7 +12544,8 @@ Text=ar.Title,
 ThemeTag={
 TextColor3="TabTitle",
 },
-TextTransparency=not ar.Locked and 0.4 or 0.7,
+TextTransparency=not ar.Locked and
+(ak.Theme and ak.Theme.Name=="Salty Special"and 0 or 0.4)or 0.7,
 TextSize=15,
 Size=UDim2.new(1,0,0,0),
 FontFace=Font.new(ak.Font,Enum.FontWeight.Medium),
@@ -13074,6 +13076,7 @@ ImageTransparency="TabBorderTransparency",
 },0.15)
 end
 ak.SetThemeTag(as.UIElements.Main.Frame.TextLabel,{
+TextColor3="TabTitle",
 TextTransparency="TabTextTransparency",
 },0.15)
 if as.UIElements.Icon and not as.IconColor then
@@ -13104,6 +13107,7 @@ ImageTransparency="TabBorderTransparencyActive",
 },0.15)
 end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame.TextLabel,{
+TextColor3="TabTitleActive",
 TextTransparency="TabTextTransparencyActive",
 },0.15)
 if ao.Tabs[aq].UIElements.Icon and not ao.Tabs[aq].IconColor then
