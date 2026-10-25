@@ -9533,10 +9533,14 @@ ap.UIElements.Menu.Visible=true
 ap.UIElements.MenuCanvas.Visible=true
 ap.UIElements.MenuCanvas.Active=true
 ap.UIElements.Menu.Size=UDim2.new(1,0,0,0)
-am(ap.UIElements.Menu,0.1,{
+if not ak.PremiumReduceMotion then
+ap.UIElements.Menu.ImageTransparency=0.86
+end
+am(ap.UIElements.Menu,ak.PremiumReduceMotion and 0.08 or 0.23,{
 Size=UDim2.new(1,0,1,0),
 ImageTransparency=0,
-},Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
+},ak.PremiumReduceMotion and Enum.EasingStyle.Quart or Enum.EasingStyle.Back,
+Enum.EasingDirection.Out):Play()
 
 task.spawn(function()
 task.wait(0.1)
