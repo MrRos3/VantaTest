@@ -139,7 +139,8 @@ function TabModule.New(Config, UIScale)
 				ThemeTag = {
 					TextColor3 = "TabTitle",
 				},
-				TextTransparency = not Tab.Locked and 0.4 or 0.7,
+				TextTransparency = not Tab.Locked and
+				(Creator.Theme and Creator.Theme.Name == "Salty Special" and 0 or 0.4) or 0.7,
 				TextSize = 15,
 				Size = UDim2.new(1, 0, 0, 0),
 				FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
@@ -670,6 +671,7 @@ function TabModule:SelectTab(TabIndex)
 					}, 0.15)
 				end
 				Creator.SetThemeTag(TabObject.UIElements.Main.Frame.TextLabel, {
+					TextColor3 = "TabTitle",
 					TextTransparency = "TabTextTransparency",
 				}, 0.15)
 				if TabObject.UIElements.Icon and not TabObject.IconColor then
@@ -700,6 +702,7 @@ function TabModule:SelectTab(TabIndex)
 			}, 0.15)
 		end
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame.TextLabel, {
+			TextColor3 = "TabTitleActive",
 			TextTransparency = "TabTextTransparencyActive",
 		}, 0.15)
 		if TabModule.Tabs[TabIndex].UIElements.Icon and not TabModule.Tabs[TabIndex].IconColor then

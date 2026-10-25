@@ -113,6 +113,10 @@ local VantaThemes = {
         TabBackgroundHover = Color3.fromHex("#151013"),
         TabBackgroundHoverTransparency = 0.82,
         TabSelectionFade = Color3.fromHex("#4A1C2B"),
+        TabTitle = Color3.fromHex("#D8D2D5"),
+        TabTitleActive = Color3.fromHex("#FFFFFF"),
+        TabTextTransparency = 0,
+        TabTextTransparencyActive = 0,
     },
     {
         Name = "Vanta Smoked",
@@ -295,6 +299,20 @@ local function visualGradient(low,high)
         ColorSequenceKeypoint.new(0.5,high),
         ColorSequenceKeypoint.new(0.6,low),
         ColorSequenceKeypoint.new(1,low),
+    })
+end
+-- White is the resting title color. Only a narrow red/white band crosses
+-- the text during each existing 1.4-second shine, then parks offscreen.
+local function premiumTitleGradient(red)
+    local white=Color3.fromRGB(255,255,255)
+    return ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00,white),
+        ColorSequenceKeypoint.new(0.39,white),
+        ColorSequenceKeypoint.new(0.45,red),
+        ColorSequenceKeypoint.new(0.50,white),
+        ColorSequenceKeypoint.new(0.55,red),
+        ColorSequenceKeypoint.new(0.61,white),
+        ColorSequenceKeypoint.new(1.00,white),
     })
 end
 local CRIMSON_PARTICLE_COUNTS = {
@@ -593,24 +611,34 @@ local function attachPremiumWindow(window,theme)
         Thickness=2,Color=Color3.new(1,1,1),Transparency=0.13,
         ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
     })
-    add("UICorner","PremiumRoundWindow",root,{CornerRadius=UDim.new(0,16)})
+    add("UICorner","PremiumRoundWindow",root,{
+        CornerRadius=UDim.new(0,window.UICorner or 16),
+    })
     local edgeGradient=add("UIGradient","PremiumEdgeMotion",edge,{
         Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),Rotation=0,
     })
+    -- The old 10px / +10px halo created a detached gray arc at corners.
+    -- Keep the subtle aura, but use the *exact* window geometry and gradient.
     local halo=add("Frame","PremiumHalo",root,{
-        Size=UDim2.new(1,10,1,10),Position=UDim2.fromScale(0.5,0.5),
+        Size=UDim2.fromScale(1,1),Position=UDim2.fromScale(0.5,0.5),
         AnchorPoint=Vector2.new(0.5,0.5),BackgroundTransparency=1,
         BorderSizePixel=0,ZIndex=0,
     })
-    add("UICorner","PremiumHaloCorner",halo,{CornerRadius=UDim.new(0,19)})
+    add("UICorner","PremiumHaloCorner",halo,{
+        CornerRadius=UDim.new(0,window.UICorner or 16),
+    })
     local haloBorder=add("UIStroke","PremiumHaloStroke",halo,{
-        Thickness=10,Transparency=0.90,Color=themeAccent(theme),
+        Thickness=2,Transparency=0.90,Color=Color3.fromRGB(255,255,255),
         ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+    })
+    local haloGradient=add("UIGradient","PremiumHaloGradient",haloBorder,{
+        Color=visualGradient(Color3.fromRGB(90,10,28),themeAccent(theme)),
+        Rotation=0,
     })
     local scale=add("UIScale","PremiumMotionScale",root,{Scale=1})
     local glass=add("Frame","PremiumTopbarGlass",topbar,{
         Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.fromRGB(8,5,10),
-        BackgroundTransparency=0.35,BorderSizePixel=0,ZIndex=topbar.ZIndex,
+        BackgroundTransparency=0.35,BorderSizePixel=0,ZIndex=topbar.ZIndex-1,
     })
     add("UIGradient","PremiumGlassGradient",glass,{
         Rotation=90,Transparency=NumberSequence.new({
@@ -640,6 +668,22 @@ local function attachPremiumWindow(window,theme)
                 NumberSequenceKeypoint.new(1,0.40),
             }),
         })
+        -- Wallpaper-level scrim is behind the interactive sidebar tabs.
+        -- Left: 25%-transparent black; right: fully clear at content edge.
+        local scrim=add("Frame","PremiumSidebarScrim",wallpaper,{
+            Position=UDim2.fromOffset(0,window.Topbar.Height or 44),
+            Size=UDim2.new(0,window.SideBarWidth or 200,1,-(window.Topbar.Height or 44)),
+            BackgroundColor3=Color3.fromRGB(0,0,0),
+            BackgroundTransparency=0,BorderSizePixel=0,
+            ZIndex=wallpaper.ZIndex+2,
+        })
+        add("UIGradient","SidebarContrastFade",scrim,{
+            Rotation=0,
+            Transparency=NumberSequence.new({
+                NumberSequenceKeypoint.new(0.00,0.25),
+                NumberSequenceKeypoint.new(1.00,1.00),
+            }),
+        })
     end
     local title
     local left=topbar:FindFirstChild("Left")
@@ -649,18 +693,26 @@ local function attachPremiumWindow(window,theme)
         if candidate and candidate:IsA("TextLabel") then title=candidate end
     end
     local nameGradient
+    local titleStroke
     if title then
         pcall(function() title.Font=Enum.Font.Michroma end)
-        title.TextColor3=Color3.new(1,1,1)
+        title.TextColor3=Color3.fromRGB(255,255,255)
+        title.TextStrokeTransparency=1
+        title.ZIndex=math.max(title.ZIndex,glass.ZIndex+2)
+        titleStroke=add("UIStroke","PremiumTitleOutline",title,{
+            Color=Color3.fromRGB(26,0,8),Thickness=1,Transparency=0,
+            ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,
+        })
         nameGradient=add("UIGradient","PremiumTitleShine",title,{
-            Color=visualGradient(themeAccent(theme),Color3.new(1,1,1)),
+            Color=premiumTitleGradient(themeAccent(theme)),
             Offset=Vector2.new(-1,0),Rotation=0,
         })
     end
-    local rotationTween,shineTween
+    local rotationTween,haloRotationTween,shineTween
     local function refresh()
         if not alive then return end
         if rotationTween then rotationTween:Cancel();rotationTween=nil end
+        if haloRotationTween then haloRotationTween:Cancel();haloRotationTween=nil end
         if shineTween then shineTween:Cancel();shineTween=nil end
         if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         local motion=not settings.ReduceMotion and not window._VantaLowFPS
@@ -671,8 +723,13 @@ local function attachPremiumWindow(window,theme)
             rotationTween=VfxTweenService:Create(edgeGradient,
                 TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
                 {Rotation=360})
+            haloRotationTween=VfxTweenService:Create(haloGradient,
+                TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
+                {Rotation=360})
             rotationTween:Play()
+            haloRotationTween:Play()
         else
+            haloGradient.Rotation=0
             edgeGradient.Rotation=0
             if nameGradient then nameGradient.Offset=Vector2.new(-1,0) end
         end
@@ -681,12 +738,13 @@ local function attachPremiumWindow(window,theme)
     function controller:Refresh() refresh() end
     function controller:UpdateTheme(nextTheme)
         local tint=themeAccent(nextTheme)
-        edgeGradient.Color=visualGradient(tint:Lerp(Color3.new(0,0,0),0.80),tint)
+        local strokeColors=visualGradient(tint:Lerp(Color3.new(0,0,0),0.80),tint)
+        edgeGradient.Color=strokeColors
+        haloGradient.Color=strokeColors
         dividerGradient.Color=ColorSequence.new(Color3.fromRGB(15,3,7),tint)
-        haloBorder.Color=tint
         if nameGradient then
-            title.TextColor3=Color3.new(1,1,1)
-            nameGradient.Color=visualGradient(tint,Color3.new(1,1,1))
+            title.TextColor3=Color3.fromRGB(255,255,255)
+            nameGradient.Color=premiumTitleGradient(tint)
         end
         if window._VantaAmbientLight then window._VantaAmbientLight.BackgroundColor3=tint end
         for _,p in ipairs(window._VantaAmbientParticles or {}) do
@@ -701,11 +759,17 @@ local function attachPremiumWindow(window,theme)
         if not alive then return end
         alive=false
         if rotationTween then rotationTween:Cancel() end
+        if haloRotationTween then haloRotationTween:Cancel() end
         if shineTween then shineTween:Cancel() end
         for _,t in pairs(active) do pcall(function() t:Cancel() end) end
         for _,object in ipairs({edge,halo,glass,divider,scale,vignette}) do
             if object and object.Parent then object:Destroy() end
         end
+        local wallpaperBackground=root:FindFirstChild("Background")
+        local scrim=wallpaperBackground and wallpaperBackground:FindFirstChild("PremiumSidebarScrim")
+        if scrim then scrim:Destroy() end
+        if nameGradient and nameGradient.Parent then nameGradient:Destroy() end
+        if titleStroke and titleStroke.Parent then titleStroke:Destroy() end
     end
     task.spawn(function()
         while alive and not window.Destroyed do
