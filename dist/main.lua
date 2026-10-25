@@ -14162,7 +14162,7 @@ Size=UDim2.fromOffset(32,32),
 Position=UDim2.new(1,-22,1,-22),
 AnchorPoint=Vector2.new(0.5,0.5),
 BackgroundTransparency=1,
-ZIndex=99,
+ZIndex=100,
 Active=true,
 },{
 ao("ImageLabel",{
@@ -14765,7 +14765,6 @@ ImageColor3="WindowBackground",
 },{
 v,
 G,
-g,
 }),
 
 
@@ -14774,6 +14773,7 @@ g,
 f,
 h,
 i,
+g,
 ao("Frame",{
 Size=UDim2.new(1,0,1,0),
 BackgroundTransparency=1,
