@@ -31,12 +31,12 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 	}, {
 		Creator.NewRoundFrame(Radius, "Squircle", {
 			ThemeTag = {
-				ImageColor3 = Variant ~= "White" and "Button" or nil,
+				ImageColor3 = Variant == "Primary" and "Primary" or Variant ~= "White" and "Button" or nil,
 			},
 			ImageColor3 = Variant == "White" and Color3.new(1, 1, 1) or nil,
 			Size = UDim2.new(1, 0, 1, 0),
 			Name = "Squircle",
-			ImageTransparency = Variant == "Primary" and 0 or Variant == "White" and 0 or 0.9,
+			ImageTransparency = Variant == "Primary" and 0.03 or Variant == "White" and 0 or 0.26,
 		}),
 
 		Creator.NewRoundFrame(Radius, "Squircle", {
@@ -93,7 +93,7 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 			Size = UDim2.new(1, 0, 1, 0),
 			Name = "Frame",
 			ThemeTag = {
-				ImageColor3 = Variant ~= "White" and "Text" or nil,
+				ImageColor3 = Variant ~= "White" and "Primary" or nil,
 			},
 			ImageColor3 = Variant == "White" and Color3.new(0, 0, 0) or nil,
 			ImageTransparency = 1, -- .95
@@ -125,6 +125,14 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		}),
 	})
 
+	New("UIGradient",{
+		Name="PremiumButtonGlass",Parent=ButtonFrame.Squircle,Rotation=18,
+		Color=ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+			ColorSequenceKeypoint.new(0.55,Color3.fromRGB(245,165,187)),
+			ColorSequenceKeypoint.new(1,Color3.fromRGB(138,47,74)),
+		}),
+	})
 	local PressScale=New("UIScale",{Name="PremiumPressScale",Scale=1,Parent=ButtonFrame})
 	Creator.AddSignal(ButtonFrame.MouseEnter, function()
 		Creator.PlaySound("Hover")
