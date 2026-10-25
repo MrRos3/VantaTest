@@ -163,6 +163,21 @@ function Element:New(Config)
 			ColorSequenceKeypoint.new(1,Color3.fromRGB(220,220,220)),
 		}),
 	})
+	local PremiumThumb=Slider.UIElements.SliderIcon.Frame.Thumb
+	local ThumbAura=New("UIStroke",{
+		Name="PremiumThumbAura",Parent=PremiumThumb,
+		Thickness=2,Transparency=0.54,
+		ApplyStrokeMode=Enum.ApplyStrokeMode.Border,
+		ThemeTag={Color="Primary"},
+	})
+	Creator.AddSignal(PremiumThumb.MouseEnter,function()
+		if not Creator.PremiumReduceMotion then
+			Tween(ThumbAura,0.12,{Transparency=0.17}):Play()
+		end
+	end)
+	Creator.AddSignal(PremiumThumb.MouseLeave,function()
+		Tween(ThumbAura,0.16,{Transparency=0.54}):Play()
+	end)
 	Slider.UIElements.SliderContainer = New("Frame", {
 		Size = UDim2.new(Slider.Title == nil and 1 or 0, Slider.Title == nil and 0 or Slider.Width, 0, 0),
 		AutomaticSize = "Y",
