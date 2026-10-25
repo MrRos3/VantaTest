@@ -24,6 +24,7 @@ local TabModule = {
 	TabCount = 0,
 	ToolTipParent = nil,
 	TabHighlight = nil,
+	PremiumMovingPill = nil,
 
 	OnChangeFunc = function(v) end,
 }
@@ -33,6 +34,21 @@ function TabModule.Init(WindowTable, WindUITable, ToolTipParent, TabHighlight)
 	WindUI = WindUITable
 	TabModule.ToolTipParent = ToolTipParent
 	TabModule.TabHighlight = TabHighlight
+	TabModule.PremiumMovingPill = nil
+	-- Keep the single sliding pill aligned when the sidebar scrolls.
+	local sidebar=WindowTable.UIElements and WindowTable.UIElements.SideBar
+	if sidebar then
+		Creator.AddSignal(sidebar:GetPropertyChangedSignal("CanvasPosition"),function()
+			local selected=TabModule.Tabs[TabModule.SelectedTab]
+			local pill=TabModule.PremiumMovingPill
+			if selected and pill and pill.Parent then
+				local target=selected.UIElements.Main
+				pill.Position=UDim2.fromOffset(
+					target.AbsolutePosition.X-sidebar.AbsolutePosition.X,
+					target.AbsolutePosition.Y-sidebar.AbsolutePosition.Y)
+			end
+		end)
+	end
 	return TabModule
 end
 
@@ -167,7 +183,7 @@ function TabModule.New(Config, UIScale)
 		}),
 	}, true)
 
-	-- Active tab: a soft left-to-right tint that disappears into the wallpaper.
+	-- A strong, rounded crimson pill is always visible under active labels.
 	-- Render underneath the tab's icons and text so content stays sharp.
 	Tab.UIElements.SelectionFade = New("Frame", {
 		Name = "SelectionFade",
@@ -194,6 +210,16 @@ function TabModule.New(Config, UIScale)
 			}),
 		}),
 	})
+	-- Neutral gradient multiplies the selected theme's accent image color.
+	New("UIGradient",{
+		Name="PremiumActiveCrimson",Parent=Tab.UIElements.Main,
+		Color=ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+			ColorSequenceKeypoint.new(0.55,Color3.fromRGB(186,140,159)),
+			ColorSequenceKeypoint.new(1,Color3.fromRGB(89,67,87)),
+		}),
+	})
+	Tab.UIElements.Main.ZIndex=2
 	Tab.UIElements.PremiumAccent = New("Frame",{
 		Name="PremiumAccent",Parent=Tab.UIElements.Main,
 		Size=UDim2.new(0,3,0.63,0),
@@ -397,6 +423,10 @@ function TabModule.New(Config, UIScale)
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter,function()
 		if not Tab.Locked then
 			Creator.PlaySound("Hover")
+			if not Tab.Selected then
+				Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
+					{TextColor3="Text",TextTransparency="TabTextTransparencyActive"},0.13)
+			end
 			if Tab.UIElements.Icon and not Tab.IconColor then
 				Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,
 					{ImageColor3="Primary"},0.13)
@@ -410,6 +440,10 @@ function TabModule.New(Config, UIScale)
 		end
 	end)
 	Creator.AddSignal(Tab.UIElements.Main.MouseLeave,function()
+		if not Tab.Selected then
+			Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
+				{TextColor3="TabTitle",TextTransparency="TabTextTransparency"},0.14)
+		end
 		if Tab.UIElements.Icon and not Tab.IconColor then
 			Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,
 				{ImageColor3=Tab.Selected and "Primary" or "TabIcon"},0.14)
@@ -649,6 +683,47 @@ end
 function TabModule:SelectTab(TabIndex)
 	if not TabModule.Tabs[TabIndex].Locked then
 		TabModule.SelectedTab = TabIndex
+		-- The one shared underlay slides between rows without creating per-tab
+		-- tweens or drawing any square stroke. It follows sidebar scroll.
+		local sidebar=Window.UIElements and Window.UIElements.SideBar
+		local item=TabModule.Tabs[TabIndex].UIElements.Main
+		if sidebar and item then
+			local moving=TabModule.PremiumMovingPill
+			if not moving or not moving.Parent then
+				moving=Creator.NewRoundFrame(TabModule.Tabs[TabIndex].UICorner,"Squircle",{
+					Name="PremiumMovingPill",Parent=sidebar,
+					Size=UDim2.fromOffset(math.max(item.AbsoluteSize.X,1),math.max(item.AbsoluteSize.Y,1)),
+					ImageTransparency=0.62,Active=false,ZIndex=1,
+					ThemeTag={ImageColor3="Primary"},
+				})
+				New("UIGradient",{
+					Name="PremiumMovingTint",Parent=moving,
+					Color=ColorSequence.new({
+						ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+						ColorSequenceKeypoint.new(1,Color3.fromRGB(75,38,50)),
+					}),
+				})
+				TabModule.PremiumMovingPill=moving
+			end
+			local function setPill(animate)
+				if not moving.Parent or not item.Parent then return end
+				local dest=UDim2.fromOffset(
+					item.AbsolutePosition.X-sidebar.AbsolutePosition.X,
+					item.AbsolutePosition.Y-sidebar.AbsolutePosition.Y)
+				local size=UDim2.fromOffset(item.AbsoluteSize.X,item.AbsoluteSize.Y)
+				if animate and not Creator.PremiumReduceMotion then
+					Creator.Tween(moving,0.28,{Position=dest,Size=size},
+						Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+				else
+					moving.Position=dest
+					moving.Size=size
+				end
+			end
+			setPill(moving.AbsoluteSize.X>1)
+			task.defer(function()
+				if TabModule.SelectedTab==TabIndex then setPill(false) end
+			end)
+		end
 
 		for _, TabObject in next, TabModule.Tabs do
 			if not TabObject.Locked then
@@ -708,7 +783,7 @@ function TabModule:SelectTab(TabIndex)
 		if TabModule.Tabs[TabIndex].UIElements.Icon and not TabModule.Tabs[TabIndex].IconColor then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Icon.ImageLabel, {
 				ImageTransparency = "TabIconTransparencyActive",
-				ImageColor3 = "Primary",
+				ImageColor3 = "Text",
 			}, 0.15)
 		end
 		TabModule.Tabs[TabIndex].Selected = true
