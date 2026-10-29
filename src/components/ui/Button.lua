@@ -31,12 +31,12 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 	}, {
 		Creator.NewRoundFrame(Radius, "Squircle", {
 			ThemeTag = {
-				ImageColor3 = Variant ~= "White" and "Button" or nil,
+				ImageColor3 = Variant == "Primary" and "Primary" or Variant ~= "White" and "Button" or nil,
 			},
 			ImageColor3 = Variant == "White" and Color3.new(1, 1, 1) or nil,
 			Size = UDim2.new(1, 0, 1, 0),
 			Name = "Squircle",
-			ImageTransparency = Variant == "Primary" and 0 or Variant == "White" and 0 or 0.9,
+			ImageTransparency = Variant == "Primary" and 0.03 or Variant == "White" and 0 or 0.26,
 		}),
 
 		Creator.NewRoundFrame(Radius, "Squircle", {
@@ -125,6 +125,17 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		}),
 	})
 
+	if Variant ~= "White" then
+		New("UIGradient",{
+			Name="PremiumButtonGlass",Parent=ButtonFrame.Squircle,Rotation=18,
+			Color=ColorSequence.new({
+				ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
+				ColorSequenceKeypoint.new(0.55,Color3.fromRGB(245,165,187)),
+				ColorSequenceKeypoint.new(1,Color3.fromRGB(138,47,74)),
+			}),
+		})
+	end
+	local PressScale=New("UIScale",{Name="PremiumPressScale",Scale=1,Parent=ButtonFrame})
 	Creator.AddSignal(ButtonFrame.MouseEnter, function()
 		Creator.PlaySound("Hover")
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 0.95 }):Play()
@@ -133,6 +144,16 @@ function Button.New(Title, Icon, Callback, Variant, Parent, Dialog, FullRounded,
 		Tween(ButtonFrame.Frame, 0.047, { ImageTransparency = 1 }):Play()
 	end)
 	Creator.AddSignal(ButtonFrame.MouseButton1Click, function()
+		if not Creator.PremiumReduceMotion then
+			Tween(PressScale,0.08,{Scale=0.97},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
+			Tween(ButtonFrame.Frame,0.07,{ImageTransparency=0.45}):Play()
+			task.delay(0.09,function()
+				if PressScale and PressScale.Parent then
+					Tween(PressScale,0.16,{Scale=1},Enum.EasingStyle.Back,Enum.EasingDirection.Out):Play()
+					Tween(ButtonFrame.Frame,0.14,{ImageTransparency=1}):Play()
+				end
+			end)
+		end
 		Creator.PlaySound("Click")
 		if Dialog then --idk
 			Dialog:Close()()
