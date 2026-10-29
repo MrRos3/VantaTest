@@ -35,6 +35,13 @@ jobs:
 
           main = Path('main.lua').read_text()
           example = Path('example.lua').read_text()
+          assert 'clearPreviousVantaTestUI()' in main
+          assert 'environment.__VANTATEST_UI_CLEANUP' in main
+          assert '["VantaTest"] = true' in main
+          assert '["VantaTest/Notifications"] = true' in main
+          assert 'config.ShadowTransparency = 1' in main
+          assert 'PremiumTopbarDivider' not in main
+          assert 'DesignerTopbarAccentLine' not in main
           assert 'function window:Close(...)' in main
           close_body = main.split('function window:Close(...)',1)[1].split('end',1)[0]
           assert close_body.index('ambient.Visible = false') < close_body.index('closeOriginal(self, ...)')
