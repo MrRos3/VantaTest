@@ -6,11 +6,25 @@ on:
     paths:
       - "main.lua"
       - "example.lua"
+      - "src/components/window/Tab.lua"
+      - "src/components/window/Element.lua"
+      - "src/components/Notification.lua"
+      - "src/components/ui/Toggle.lua"
+      - "src/components/ui/Button.lua"
+      - "src/elements/Slider.lua"
+      - "src/themes/Fallbacks.lua"
       - ".github/workflows/check-window-minimize.yml"
   pull_request:
     paths:
       - "main.lua"
       - "example.lua"
+      - "src/components/window/Tab.lua"
+      - "src/components/window/Element.lua"
+      - "src/components/Notification.lua"
+      - "src/components/ui/Toggle.lua"
+      - "src/components/ui/Button.lua"
+      - "src/elements/Slider.lua"
+      - "src/themes/Fallbacks.lua"
       - ".github/workflows/check-window-minimize.yml"
 
 permissions:
@@ -40,6 +54,26 @@ jobs:
           assert '["VantaTest"] = true' in main
           assert '["VantaTest/Notifications"] = true' in main
           assert 'config.ShadowTransparency = 1' in main
+          assert 'TabBackgroundActiveTransparency = 1' in main
+          assert 'TabTitleActive = Color3.fromHex("#FFFFFF")' in main
+          assert 'TabSelectionFade = Color3.fromHex("#4A1C2B")' in main
+          assert 'ElementBackground = Color3.fromHex("#311522")' in main
+          tab=Path('src/components/window/Tab.lua').read_text()
+          notification=Path('src/components/Notification.lua').read_text()
+          element=Path('src/components/window/Element.lua').read_text()
+          toggle=Path('src/components/ui/Toggle.lua').read_text()
+          button=Path('src/components/ui/Button.lua').read_text()
+          slider=Path('src/elements/Slider.lua').read_text()
+          fallback=Path('src/themes/Fallbacks.lua').read_text()
+          assert 'PremiumTabAccent' in tab and 'TabTitleActive' in tab
+          assert 'PremiumCountdownGradient' in notification
+          assert 'PremiumIconScale' in notification and 'Enum.EasingStyle.Back' in notification
+          assert 'PremiumNotificationEdge' not in notification
+          assert 'PremiumCardGlass' in element and 'PremiumCardEdge' not in element
+          assert 'PremiumTrackAura' in toggle and 'PremiumKnobAura' in toggle
+          assert 'PremiumButtonGlass' in button and 'Scale=0.97' in button
+          assert 'PremiumSliderGradient' in slider and 'PremiumRoundThumbGlow' in slider
+          assert 'TabTitleActive = "Text"' in fallback
           assert 'PremiumTopbarDivider' not in main
           assert 'DesignerTopbarAccentLine' not in main
           assert 'function window:Close(...)' in main
