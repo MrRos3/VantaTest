@@ -6870,38 +6870,20 @@ PaddingBottom=UDim.new(0,ah.UIPadding),
 
 ah.UIElements.Main=d
 ah.UIElements.Locked=av
-if not ah.Color then
-ab("UIGradient",{
-Name="PremiumCardGlass",Parent=d,Rotation=9,
-Color=ColorSequence.new{
-ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-ColorSequenceKeypoint.new(0.54,Color3.fromRGB(214,171,185)),
-ColorSequenceKeypoint.new(1,Color3.fromRGB(118,90,102)),
-},
-})
-end
-if ah.Hover then
-
-aa.AddSignal(d.MouseMoved,function(g,h)
-if am and d.AbsoluteSize.X>0 then
-local i=Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
-aB.HoverGradient.Offset=i
-aA.HoverGradient.Offset=i
-end
-end)
-end
 
 if ah.Hover then
 aa.AddSignal(d.MouseEnter,function()
 if am then
 
-ad(aB,0.12,{ImageTransparency=0.78}):Play()
-ad(aA,0.12,{ImageTransparency=0.55}):Play()
-end
+ad(aB,0.12,{ImageTransparency=0.9}):Play()
+ad(aA,0.12,{ImageTransparency=0.8}):Play()
+aa.AddSignal(d.MouseMoved,function(g,h)
+aB.HoverGradient.Offset=
+Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
+aA.HoverGradient.Offset=
+Vector2.new(((g-d.AbsolutePosition.X)/d.AbsoluteSize.X)-0.5,0)
 end)
-aa.AddSignal(d.MouseLeave,function()
-ad(aB,0.14,{ImageTransparency=1}):Play()
-ad(aA,0.14,{ImageTransparency=1}):Play()
+end
 end)
 aa.AddSignal(d.InputEnded,function()
 if am then
@@ -12526,8 +12508,7 @@ Text=ar.Title,
 ThemeTag={
 TextColor3="TabTitle",
 },
-TextTransparency=not ar.Locked and
-(ak.Theme and ak.Theme.Name=="Salty Special"and 0 or 0.4)or 0.7,
+TextTransparency=not ar.Locked and 0.4 or 0.7,
 TextSize=15,
 Size=UDim2.new(1,0,0,0),
 FontFace=Font.new(ak.Font,Enum.FontWeight.Medium),
@@ -12581,14 +12562,6 @@ NumberSequenceKeypoint.new(1.00,1.00),
 },
 }),
 })
-
-ar.UIElements.Accent=al("Frame",{
-Name="PremiumTabAccent",Parent=ar.UIElements.Main,
-Size=UDim2.new(0,3,0.64,0),Position=UDim2.new(0,2,0.5,0),
-AnchorPoint=Vector2.new(0,0.5),BackgroundTransparency=1,
-BorderSizePixel=0,Active=false,ZIndex=ar.UIElements.Main.ZIndex+2,
-ThemeTag={BackgroundColor3="Primary"},
-},{al("UICorner",{CornerRadius=UDim.new(1,0)})})
 ar.UIElements.Main.Frame.ZIndex=ar.UIElements.Main.ZIndex+1
 
 local at=0
@@ -12780,31 +12753,10 @@ end
 ao:SelectTab(as)
 end
 end)
-local aw=ar.UIElements.Main.Frame.Position
 ak.AddSignal(ar.UIElements.Main.MouseEnter,function()
 if not ar.Locked then
 ak.PlaySound"Hover"
-if not ar.Selected then
-ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
-{TextColor3="Text",TextTransparency="TabTextTransparencyActive"},0.12)
-if ar.UIElements.Icon and not ar.IconColor then
-ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,{ImageColor3="Primary"},0.12)
 end
-ak.Tween(ar.UIElements.Main.Frame,0.13,{
-Position=UDim2.new(aw.X.Scale,aw.X.Offset+2,aw.Y.Scale,aw.Y.Offset),
-},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-end
-end
-end)
-ak.AddSignal(ar.UIElements.Main.MouseLeave,function()
-if not ar.Selected then
-ak.SetThemeTag(ar.UIElements.Main.Frame.TextLabel,
-{TextColor3="TabTitle",TextTransparency="TabTextTransparency"},0.13)
-if ar.UIElements.Icon and not ar.IconColor then
-ak.SetThemeTag(ar.UIElements.Icon.ImageLabel,{ImageColor3="TabIcon"},0.13)
-end
-end
-ak.Tween(ar.UIElements.Main.Frame,0.13,{Position=aw},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 end)
 
 if Window.ScrollBarEnabled then
@@ -12817,30 +12769,30 @@ WindUI
 )
 end
 
+local aw
 local ax
 local ay
-local az
-local aA=false
+local az=false
 
 
 if ar.Desc then
 ak.AddSignal(ar.UIElements.Main.InputBegan,function()
-aA=true
-ay=task.spawn(function()
+az=true
+ax=task.spawn(function()
 task.wait(0.35)
-if aA and not ax then
-ax=am(ar.Desc,ao.ToolTipParent,true)
-ax.Container.AnchorPoint=Vector2.new(0.5,0.5)
+if az and not aw then
+aw=am(ar.Desc,ao.ToolTipParent,true)
+aw.Container.AnchorPoint=Vector2.new(0.5,0.5)
 
 local function updatePosition()
-if ax then
-ax.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
+if aw then
+aw.Container.Position=UDim2.new(0,ai.X,0,ai.Y-4)
 end
 end
 
 updatePosition()
-az=ai.Move:Connect(updatePosition)
-ax:Open()
+ay=ai.Move:Connect(updatePosition)
+aw:Open()
 end
 end)
 end)
@@ -12856,18 +12808,18 @@ end
 end)
 ak.AddSignal(ar.UIElements.Main.InputEnded,function()
 if ar.Desc then
-aA=false
+az=false
+if ax then
+task.cancel(ax)
+ax=nil
+end
 if ay then
-task.cancel(ay)
+ay:Disconnect()
 ay=nil
 end
-if az then
-az:Disconnect()
-az=nil
-end
-if ax then
-ax:Close()
-ax=nil
+if aw then
+aw:Close()
+aw=nil
 end
 end
 
@@ -12878,13 +12830,13 @@ ImageTransparency="TabBorderTransparency",
 end
 end)
 
-function ar.ScrollToTheElement(aB,b)
+function ar.ScrollToTheElement(aA,aB)
 ar.UIElements.ContainerFrame.ScrollingEnabled=false
 
 ak.Tween(ar.UIElements.ContainerFrame,0.45,{
 CanvasPosition=Vector2.new(
 0,
-ar.Elements[b].ElementFrame.AbsolutePosition.Y
+ar.Elements[aB].ElementFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.AbsolutePosition.Y
 -ar.UIElements.ContainerFrame.UIPadding.PaddingTop.Offset
 ),
@@ -12893,8 +12845,8 @@ ar.Elements[b].ElementFrame.AbsolutePosition.Y
 task.spawn(function()
 task.wait(0.48)
 
-if ar.Elements[b].Highlight then
-ar.Elements[b]:Highlight()
+if ar.Elements[aB].Highlight then
+ar.Elements[aB]:Highlight()
 end
 ar.UIElements.ContainerFrame.ScrollingEnabled=true
 end)
@@ -12904,72 +12856,72 @@ end
 
 
 
-local aB=a.load'aa'
+local aA=a.load'aa'
 
-aB.Load(
+aA.Load(
 ar,
 ar.UIElements.ContainerFrame,
-aB.Elements,
+aA.Elements,
 Window,
 WindUI,
 nil,
-aB,
+aA,
 aq,
 ar
 )
 
-function ar.LockAll(b)
+function ar.LockAll(aB)
+
+for b,d in next,Window.AllElements do
+if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Lock then
+d:Lock()
+end
+end
+end
+function ar.UnlockAll(aB)
+for b,d in next,Window.AllElements do
+if d.Tab and d.Tab.Index and d.Tab.Index==ar.Index and d.Unlock then
+d:Unlock()
+end
+end
+end
+function ar.GetLocked(aB)
+local b={}
 
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Lock then
-f:Lock()
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==true then
+table.insert(b,f)
 end
 end
+
+return b
 end
-function ar.UnlockAll(b)
+function ar.GetUnlocked(aB)
+local b={}
+
 for d,f in next,Window.AllElements do
-if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Unlock then
-f:Unlock()
-end
-end
-end
-function ar.GetLocked(b)
-local d={}
-
-for f,g in next,Window.AllElements do
-if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==true then
-table.insert(d,g)
+if f.Tab and f.Tab.Index and f.Tab.Index==ar.Index and f.Locked==false then
+table.insert(b,f)
 end
 end
 
-return d
-end
-function ar.GetUnlocked(b)
-local d={}
-
-for f,g in next,Window.AllElements do
-if g.Tab and g.Tab.Index and g.Tab.Index==ar.Index and g.Locked==false then
-table.insert(d,g)
-end
+return b
 end
 
-return d
-end
-
-function ar.Select(b)
+function ar.Select(aB)
 return ao:SelectTab(ar.Index)
 end
 
 task.spawn(function()
-local b
+local aB
 if ar.CustomEmptyPage.Icon then
-b=
+aB=
 ak.Image(ar.CustomEmptyPage.Icon,ar.CustomEmptyPage.Icon,0,"Temp","EmptyPage",true)
-b.Size=
+aB.Size=
 UDim2.fromOffset(ar.CustomEmptyPage.IconSize or 48,ar.CustomEmptyPage.IconSize or 48)
 end
 
-local d=al("Frame",{
+local b=al("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,1,-Window.UIElements.Main.Main.Topbar.AbsoluteSize.Y),
 Parent=ar.UIElements.ContainerFrame,
@@ -12992,7 +12944,7 @@ FillDirection="Vertical",
 
 
 
-b,
+aB,
 ar.CustomEmptyPage.Title and al("TextLabel",{
 AutomaticSize="XY",
 Text=ar.CustomEmptyPage.Title,
@@ -13021,10 +12973,10 @@ FontFace=Font.new(ak.Font,Enum.FontWeight.Regular),
 
 
 
-local f
-f=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
-d.Visible=false
-f:Disconnect()
+local d
+d=ak.AddSignal(ar.UIElements.ContainerFrame.ChildAdded,function()
+b.Visible=false
+d:Disconnect()
 end)
 end)
 
@@ -13048,8 +13000,6 @@ ImageTransparency="TabBorderTransparency",
 ak.Tween(as.UIElements.SelectionFade,0.16,{
 BackgroundTransparency=1,
 },Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
-ak.Tween(as.UIElements.Accent,0.16,{BackgroundTransparency=1},
-Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 ak.SetThemeTag(as.UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.15)
@@ -13059,13 +13009,11 @@ ImageTransparency="TabBorderTransparency",
 },0.15)
 end
 ak.SetThemeTag(as.UIElements.Main.Frame.TextLabel,{
-TextColor3="TabTitle",
 TextTransparency="TabTextTransparency",
 },0.15)
 if as.UIElements.Icon and not as.IconColor then
 ak.SetThemeTag(as.UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparency",
-ImageColor3="TabIcon",
 },0.15)
 end
 as.Selected=false
@@ -13078,8 +13026,6 @@ ImageTransparency="TabBackgroundActiveTransparency",
 ak.Tween(ao.Tabs[aq].UIElements.SelectionFade,0.18,{
 BackgroundTransparency=0,
 },Enum.EasingStyle.Quart,Enum.EasingDirection.Out):Play()
-ak.Tween(ao.Tabs[aq].UIElements.Accent,0.18,{BackgroundTransparency=0.05},
-Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame,{
 ImageTransparency="TabBorderTransparency",
 },0.12)
@@ -13089,13 +13035,11 @@ ImageTransparency="TabBorderTransparencyActive",
 },0.15)
 end
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Main.Frame.TextLabel,{
-TextColor3="TabTitleActive",
 TextTransparency="TabTextTransparencyActive",
 },0.15)
 if ao.Tabs[aq].UIElements.Icon and not ao.Tabs[aq].IconColor then
 ak.SetThemeTag(ao.Tabs[aq].UIElements.Icon.ImageLabel,{
 ImageTransparency="TabIconTransparencyActive",
-ImageColor3="Text",
 },0.15)
 end
 ao.Tabs[aq].Selected=true
