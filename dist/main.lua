@@ -2401,6 +2401,16 @@ ImageColor3=Color3.fromHex"#251016",
 ImageTransparency=0,
 })
 
+
+d("UIGradient",{
+Name="PremiumCountdownGradient",Parent=m,
+Color=ColorSequence.new{
+ColorSequenceKeypoint.new(0,Color3.fromRGB(105,105,105)),
+ColorSequenceKeypoint.new(0.45,Color3.new(1,1,1)),
+ColorSequenceKeypoint.new(1,Color3.fromRGB(145,145,145)),
+},
+})
+b.AddThemeObject(m,{ImageColor3="Primary"})
 local p=d("Frame",{
 Size=UDim2.new(1,h.Icon and-28-f.UIPadding or 0,1,0),
 Position=UDim2.new(1,0,0,0),
@@ -2506,7 +2516,9 @@ i,
 l,
 })
 
-local u=d("Frame",{
+local u
+if i then u=d("UIScale",{Name="PremiumIconScale",Scale=0.75,Parent=i})end
+local v=d("Frame",{
 BackgroundTransparency=1,
 Size=UDim2.new(1,0,0,0),
 Parent=g.Holder,
@@ -2514,11 +2526,11 @@ Parent=g.Holder,
 r,
 })
 
-function h.Close(v)
+function h.Close(x)
 if not h.Closed then
 h.Closed=true
 e(
-u,
+v,
 0.45,
 {Size=UDim2.new(1,0,0,-8)},
 Enum.EasingStyle.Quint,
@@ -2526,20 +2538,30 @@ Enum.EasingDirection.Out
 ):Play()
 e(r,0.55,{Position=UDim2.new(2,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 task.wait(0.45)
-u:Destroy()
+v:Destroy()
 end
 end
 
 task.spawn(function()
 task.wait()
 e(
-u,
+v,
 0.45,
 {Size=UDim2.new(1,0,0,r.AbsoluteSize.Y)},
 Enum.EasingStyle.Quint,
 Enum.EasingDirection.Out
 ):Play()
-e(r,0.45,{Position=UDim2.new(0,0,1,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+e(r,b.PremiumReduceMotion and 0.12 or 0.55,
+{Position=UDim2.new(0,0,1,0)},
+b.PremiumReduceMotion and Enum.EasingStyle.Sine or Enum.EasingStyle.Back,
+Enum.EasingDirection.Out):Play()
+if u then
+if b.PremiumReduceMotion then u.Scale=1
+else
+e(u,0.42,{Scale=1},Enum.EasingStyle.Back,
+Enum.EasingDirection.Out):Play()
+end
+end
 if h.Duration then
 m.Size=UDim2.new(0,r.DurationFrame.AbsoluteSize.X,1,0)
 e(
