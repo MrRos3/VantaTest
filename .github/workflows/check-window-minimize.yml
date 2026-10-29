@@ -71,9 +71,14 @@ jobs:
           assert 'PremiumIconScale' in notification and 'Enum.EasingStyle.Back' in notification
           assert 'PremiumNotificationEdge' not in notification
           assert 'PremiumCardGlass' not in element and 'PremiumCardEdge' not in element
-          assert 'PremiumTrackAura' in toggle and 'PremiumKnobAura' in toggle
-          assert 'PremiumButtonGlass' in button and 'Scale=0.97' in button
-          assert 'PremiumSliderGradient' in slider and 'PremiumRoundThumbGlow' in slider
+          # Preserve VantaUI's original button/slider/toggle visuals, no premium overlays.
+          assert 'PremiumTrackAura' not in toggle and 'PremiumKnobAura' not in toggle
+          assert 'PremiumTrackGradient' not in toggle
+          assert 'PremiumButtonGlass' not in button and 'PremiumPressScale' not in button
+          assert 'PremiumSliderGradient' not in slider and 'PremiumRoundThumbGlow' not in slider
+          assert 'Button = Color3.fromHex("#251016")' in main
+          assert 'Toggle = Color3.fromHex("#A1162F")' in main
+          assert 'Slider = Color3.fromHex("#A1162F")' in main
           assert 'TabTitleActive = "Text"' in fallback
           assert 'TabBackgroundActiveTransparency = 1' in main
           assert 'config.ShadowTransparency = 1' in main

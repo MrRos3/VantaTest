@@ -30,8 +30,11 @@ function Element:New(Config)
 		IsFocusing = false,
 
 		Width = Config.Width or 130,
-		TextBoxWidth = Config.Window.NewElements and 40 or 30,
+		-- Leave enough width for decimal values and the slider handle at Min.
+		TextBoxWidth = Config.Window.NewElements and 48 or 38,
 		ThumbSize = 16,
+		ThumbClearance = 10,
+		ValueGap = Config.Window.NewElements and 16 or 12,
 		IconSize = 26,
 	}
 	if Slider.Icons == {} then
@@ -119,8 +122,14 @@ function Element:New(Config)
 	})
 
 	Slider.UIElements.SliderIcon = Creator.NewRoundFrame(99, "Squircle", {
-		ImageTransparency = 0.62,
-		Size = UDim2.new(1, not Slider.IsTextbox and -TotalSliderWidth or (-Slider.TextBoxWidth - 8), 0, 3),
+		ImageTransparency = 0.88,
+		-- The thumb is centered on the track, so it extends beyond both ends.
+		-- Reserve the value label + full left-side clearance and right thumb radius.
+		Size = UDim2.new(1,
+			Slider.IsTextbox
+				and -(Slider.TextBoxWidth + Slider.ValueGap + Slider.ThumbClearance)
+				or -(TotalSliderWidth + Slider.ThumbClearance),
+			0, 3),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
 		Name = "Frame",
@@ -155,24 +164,6 @@ function Element:New(Config)
 		}),
 	})
 
-	New("UIGradient",{
-		Name="PremiumSliderGradient",Parent=Slider.UIElements.SliderIcon.Frame,
-		Color=ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(1,1,1)),
-			ColorSequenceKeypoint.new(0.58,Color3.fromRGB(255,185,202)),
-			ColorSequenceKeypoint.new(1,Color3.fromRGB(190,76,108)),
-		}),
-	})
-	local Thumb=Slider.UIElements.SliderIcon.Frame.Thumb
-	Thumb.ZIndex=math.max(2,Thumb.ZIndex)
-	Creator.NewRoundFrame(999,"Squircle",{
-		Name="PremiumRoundThumbGlow",Parent=Slider.UIElements.SliderIcon.Frame,
-		Position=UDim2.new(1,0,0.5,0),
-		AnchorPoint=Vector2.new(0.5,0.5),
-		Size=UDim2.fromOffset(Slider.ThumbSize+11,Slider.ThumbSize+11),
-		ImageTransparency=0.47,Active=false,ZIndex=Thumb.ZIndex-1,
-		ThemeTag={ImageColor3="Slider"},
-	})
 	Slider.UIElements.SliderContainer = New("Frame", {
 		Size = UDim2.new(Slider.Title == nil and 1 or 0, Slider.Title == nil and 0 or Slider.Width, 0, 0),
 		AutomaticSize = "Y",
@@ -182,7 +173,7 @@ function Element:New(Config)
 		Parent = Slider.SliderFrame.UIElements.Main,
 	}, {
 		New("UIListLayout", {
-			Padding = UDim.new(0, Slider.Title ~= nil and 8 or 12),
+			Padding = UDim.new(0, Slider.Title ~= nil and Slider.ValueGap or 8),
 			FillDirection = "Horizontal",
 			VerticalAlignment = "Center",
 			HorizontalAlignment = Slider.Icons
@@ -194,14 +185,15 @@ function Element:New(Config)
 		IconTo,
 		New("TextBox", {
 			Size = UDim2.new(0, Slider.TextBoxWidth, 0, 0),
-			TextXAlignment = "Left",
+			TextXAlignment = "Right",
+			TextTruncate = Enum.TextTruncate.None,
 			Text = FormatValue(Value),
 			ThemeTag = {
 				TextColor3 = "Text",
 			},
 			TextTransparency = 0.4,
 			AutomaticSize = "Y",
-			TextSize = 15,
+			TextSize = 14,
 			FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
 			BackgroundTransparency = 1,
 			LayoutOrder = -1,
