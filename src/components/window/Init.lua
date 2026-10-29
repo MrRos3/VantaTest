@@ -94,7 +94,7 @@ return function(Config)
 
 		ToggleKey = Config.ToggleKey,
 		ElementsRadius = Config.ElementsRadius,
-		Radius = Config.Radius or 13,
+		Radius = Config.Radius or 16,
 		Transparent = Config.Transparent or false,
 		HideSearchBar = true, -- legacy search presentation retired
 		ScrollBarEnabled = Config.ScrollBarEnabled or false,
@@ -108,7 +108,7 @@ return function(Config)
 		DragFrameSize = 160,
 
 		Position = UDim2.new(0.5, 0, 0.5, 0),
-		UICorner = 13, -- Window.Radius (13)
+		UICorner = 16, -- Window.Radius (16)
 		UIPadding = 14,
 		UIElements = {},
 		CanDropdown = true,
@@ -149,7 +149,7 @@ return function(Config)
 
 	Window.ElementConfig = {
 		UIPadding = (Window.NewElements and 10 or 13),
-		UICorner = Window.ElementsRadius or (Window.NewElements and 15 or 16),
+		UICorner = Window.ElementsRadius or (Window.NewElements and 23 or 16),
 	}
 
 	local WindowSize = Window.Size or UDim2.fromOffset(620, 420)
@@ -193,51 +193,23 @@ return function(Config)
 		Window.AcrylicPaint = AcrylicPaint
 	end
 
-
 	local ResizeHandle = New("Frame", {
-		Size = UDim2.fromOffset(32, 32),
-		Position = UDim2.new(1, -21, 1, -21),
+		Size = UDim2.new(0, 32, 0, 32),
+		Position = UDim2.new(1, 0, 1, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
-		ZIndex = 100,
+		ZIndex = 99,
 		Active = true,
 	}, {
-		-- Keep the original fade driver for existing hover/drag tweens.
 		New("ImageLabel", {
-			Size = UDim2.fromOffset(26, 26),
-			Position = UDim2.fromScale(0.5, 0.5),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Image = "",
-			ImageTransparency = 1,
+			Size = UDim2.new(0, 48 * 2, 0, 48 * 2),
 			BackgroundTransparency = 1,
-			Active = false,
-			ZIndex = 101,
+			Image = "rbxassetid://120997033468887",
+			Position = UDim2.new(0.5, -16, 0.5, -16),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			ImageTransparency = 1, -- .8; .35
 		}),
 	})
-	local resizeDots = {}
-	for _, spot in ipairs({
-		{ 17, 3 }, { 12, 8 }, { 17, 8 },
-		{ 7, 13 }, { 12, 13 }, { 17, 13 },
-	}) do
-		local dot = New("Frame", {
-			Name = "ResizeDot",
-			Parent = ResizeHandle.ImageLabel,
-			Size = UDim2.fromOffset(3, 3),
-			Position = UDim2.fromOffset(spot[1], spot[2]),
-			BorderSizePixel = 0,
-			BackgroundTransparency = 1,
-			Active = false,
-			ZIndex = 102,
-			ThemeTag = { BackgroundColor3 = "Primary" },
-		}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-		resizeDots[#resizeDots + 1] = dot
-	end
-	Creator.AddSignal(ResizeHandle.ImageLabel:GetPropertyChangedSignal("ImageTransparency"), function()
-		for _, dot in ipairs(resizeDots) do
-			dot.BackgroundTransparency = ResizeHandle.ImageLabel.ImageTransparency
-		end
-	end)
-
 	local FullScreenIcon = Creator.NewRoundFrame(Window.UICorner, "Squircle", {
 		Size = UDim2.new(1, 0, 1, 0),
 		ImageTransparency = 1, -- .65
@@ -790,25 +762,15 @@ return function(Config)
 
 	local WindowTitle = New("TextLabel", {
 		Text = Window.Title,
-		FontFace = Font.new("rbxasset://fonts/families/Michroma.json", Enum.FontWeight.Regular),
+		FontFace = Font.new(Creator.Font, Enum.FontWeight.SemiBold),
 		BackgroundTransparency = 1,
 		AutomaticSize = "XY",
 		Name = "Title",
 		TextXAlignment = "Left",
-		TextSize = 14,
+		TextSize = 16,
 		ThemeTag = {
 			TextColor3 = "WindowTopbarTitle",
 		},
-	})
-
-	-- Static highlight on the real Michroma TextLabel, never a shine tween.
-	New("UIGradient", {
-		Name = "StaticMichromaTitleTint",
-		Parent = WindowTitle,
-		Color = ColorSequence.new(
-			Color3.fromRGB(255, 255, 255),
-			Color3.fromRGB(233, 236, 244)
-		),
 	})
 
 	Window.UIElements.Main = New("Frame", {
@@ -836,6 +798,7 @@ return function(Config)
 		}, {
 			BGImage,
 			BottomDragFrame,
+			ResizeHandle,
 		}),
 		--[[New("UIScale", {
 			Scale = 0.89,
@@ -844,7 +807,6 @@ return function(Config)
 		UICorner,
 		FullScreenIcon,
 		FullScreenBlur,
-		ResizeHandle,
 		New("Frame", {
 			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,

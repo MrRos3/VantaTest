@@ -6,17 +6,11 @@ on:
     paths:
       - "main.lua"
       - "example.lua"
-      - "src/components/window/Init.lua"
-      - "src/components/window/Tab.lua"
-      - "src/components/window/Element.lua"
       - ".github/workflows/check-window-minimize.yml"
   pull_request:
     paths:
       - "main.lua"
       - "example.lua"
-      - "src/components/window/Init.lua"
-      - "src/components/window/Tab.lua"
-      - "src/components/window/Element.lua"
       - ".github/workflows/check-window-minimize.yml"
 
 permissions:
@@ -45,33 +39,12 @@ jobs:
           close_body = main.split('function window:Close(...)',1)[1].split('end',1)[0]
           assert close_body.index('ambient.Visible = false') < close_body.index('closeOriginal(self, ...)')
           assert 'overlay.Visible = not window.Closed and main.Visible' in main
-          assert 'if window.Closed or not main.Visible or window._VantaReduceMotion then\n            overlay.Visible = false' in main
+          assert 'if window.Closed or not main.Visible then\n            overlay.Visible = false' in main
           assert 'overlay.Visible = true' in main
           assert 'RunService.RenderStepped:Connect' in main
           assert 'CRIMSON_AMBIENT_FPS = 30' in main
-          assert 'Petal = 30' in main and 'Ember = 28' in main
-          assert 'Mote = 15' in main and 'Glint = 7' in main
-          assert 'DesignerChromeBorder' in main
-          assert 'DesignerAccentGlow' in main and 'DesignerBlackShadow' in main
-          assert 'TweenInfo.new(7,Enum.EasingStyle.Linear' in main
-          assert 'DesignerSidebarScrim' in main and 'DesignerSidebarFade' in main
-          assert 'window.SideBarWidth+40' in main
-          assert 'DesignerWallpaperDarkening' in main
-          assert 'ImageTransparency=0.75' in main
-          assert 'DesignerTopbarAccentLine' in main
-          assert 'function VantaUI:SetReduceMotion(reduced)' in main
-          win=Path('src/components/window/Init.lua').read_text()
-          cards=Path('src/components/window/Element.lua').read_text()
-          tabs=Path('src/components/window/Tab.lua').read_text()
-          assert 'Radius = Config.Radius or 13' in win
-          assert 'Window.NewElements and 15 or 16' in win
-          assert 'StaticMichromaTitleTint' in win
-          assert 'ZIndex = 100' in win
-          assert 'ResizeDot' in win
-          assert 'FullScreenBlur,\n\t\tResizeHandle,' in win
-          assert 'GlassCardOutline' in cards
-          assert 'PremiumCardEdge' not in cards
-          assert 'pos.X.Offset + 2' in tabs
+          assert 'Petal = 18' in main and 'Ember = 17' in main
+          assert 'Mote = 10' in main and 'Glint = 5' in main
           assert 'local function spawn(kind, index)' in main
           assert "for _, kind in ipairs({ \"Petal\", \"Ember\", \"Mote\", \"Glint\" }) do" in main
           assert 'frameAccumulator = 0' in main

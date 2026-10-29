@@ -423,15 +423,20 @@ return function(Config)
 	local Main, MainTable = NewRoundFrame(Element.UICorner, "Squircle", {
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = "Y",
-		ImageTransparency = Element.Color and 0.05 or 0.94,
+		ImageTransparency = Element.Color and 0.05 or (not Config.Window.NewElements and 0.93 or nil),
 		--Text = "",
 		--TextTransparency = 1,
 		--AutoButtonColor = false,
 		Parent = Config.Parent,
-
+		ThemeTag = {
+			ImageColor3 = not Element.Color and (Config.Window.NewElements and "ElementBackground" or "Text") or nil,
+			ImageTransparency = not Element.Color
+					and (Config.Window.NewElements and "ElementBackgroundTransparency" or nil)
+				or nil,
+		},
 		ImageColor3 = Element.Color and (typeof(Element.Color) == "string" and Color3.fromHex(
 			Creator.Colors[Element.Color]
-		) or typeof(Element.Color) == "Color3" and Element.Color) or Color3.fromRGB(255, 255, 255),
+		) or typeof(Element.Color) == "Color3" and Element.Color) or nil,
 	}, {
 		Element.UIElements.Container,
 		ElementFullFrame,
@@ -445,25 +450,6 @@ return function(Config)
 
 	Element.UIElements.Main = Main
 	Element.UIElements.Locked = Locked
-	if not Element.Color then
-		local glassOutline = NewRoundFrame(Element.UICorner, "Squircle-Outline", {
-			Name = "GlassCardOutline",
-			Parent = Main,
-			Size = UDim2.fromScale(1, 1),
-			ImageColor3 = Color3.fromRGB(235, 235, 242),
-			ImageTransparency = 0.78,
-			Active = false,
-			ZIndex = Main.ZIndex + 1,
-		})
-		New("UIGradient", {
-			Name = "GlassEdgeGradient", Parent = glassOutline,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.26),
-				NumberSequenceKeypoint.new(0.5, 0.52),
-				NumberSequenceKeypoint.new(1, 0.83),
-			}),
-		})
-	end
 
 	if Element.Hover then
 		Creator.AddSignal(Main.MouseEnter, function()

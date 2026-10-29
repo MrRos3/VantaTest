@@ -87,7 +87,7 @@ VantaUI.Assets = {
 local VantaThemes = {
     {
         Name = "Salty Special",
-        Accent = Color3.fromHex("#A1162F"),
+        Accent = Color3.fromHex("#12070A"),
         Dialog = Color3.fromHex("#0A0709"),
         Outline = Color3.fromHex("#5A1824"),
         Text = Color3.fromHex("#FFFFFF"),
@@ -97,7 +97,7 @@ local VantaThemes = {
         Icon = Color3.fromHex("#E2DDE0"),
         Toggle = Color3.fromHex("#A1162F"),
         Slider = Color3.fromHex("#A1162F"),
-        Checkbox = Color3.fromHex("#A1162F"),
+        Checkbox = Color3.fromHex("#D23A57"),
         Primary = Color3.fromHex("#A1162F"),
         SliderIcon = Color3.fromHex("#F1E3E7"),
         PanelBackground = Color3.fromHex("#050406"),
@@ -111,7 +111,7 @@ local VantaThemes = {
         TabBackgroundActiveTransparency = 1,
         TabBackgroundHover = Color3.fromHex("#151013"),
         TabBackgroundHoverTransparency = 0.82,
-        TabSelectionFade = Color3.fromHex("#A1162F"),
+        TabSelectionFade = Color3.fromHex("#4A1C2B"),
     },
     {
         Name = "Vanta Smoked",
@@ -134,8 +134,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.16,
         ElementBackground = Color3.fromHex("#1C2027"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#929AA7"),
     },
     {
         Name = "Vanta Dark",
@@ -158,8 +156,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.82,
         ElementBackground = Color3.fromHex("#171C27"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#7C8CFF"),
     },
     {
         Name = "Vanta AMOLED",
@@ -182,8 +178,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#0D0F14"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#5DE7FF"),
     },
     {
         Name = "Vanta Violet",
@@ -206,8 +200,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#1B1628"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#A98BFF"),
     },
 }
 
@@ -248,15 +240,15 @@ if type(VantaUI.SetSoundForEvent) == "function" then
 end
 
 -- Crimson01 ambient scene: a SHARP static wallpaper with lightweight native motion.
--- 80 pooled particles: falling petals, embers, drifting glows and glints.
+-- 50 layered particles: falling petals, rising embers, drifting glows and soft glints.
 -- One throttled RenderStepped connection per window; never animate the wallpaper.
 local RunService = game:GetService("RunService")
 local CRIMSON_AMBIENT_FPS = 30
 local CRIMSON_PARTICLE_COUNTS = {
-    Petal = 30,
-    Ember = 28,
-    Mote = 15,
-    Glint = 7,
+    Petal = 18,
+    Ember = 17,
+    Mote = 10,
+    Glint = 5,
 }
 
 local function attachCrimsonAmbient(window)
@@ -280,12 +272,10 @@ local function attachCrimsonAmbient(window)
     overlay.Parent = backdrop
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, window.UICorner)
+    corner.CornerRadius = UDim.new(0, 16)
     corner.Parent = overlay
 
     local particles = {}
-    window._VantaAmbientParticles = particles
-    window._VantaAmbientOverlay = overlay
     local elapsed = 0
     local frameAccumulator = 0
 
@@ -388,8 +378,6 @@ local function attachCrimsonAmbient(window)
 
         -- Scatter the initial frame; no stacked particles at the origin.
         particle.Position = UDim2.fromScale(p.x, p.y)
-        particle.BackgroundColor3 = window._VantaAccent or Color3.fromHex("#A1162F")
-        if p.core then p.core.BackgroundColor3 = particle.BackgroundColor3 end
         particles[#particles + 1] = p
     end
 
@@ -407,7 +395,7 @@ local function attachCrimsonAmbient(window)
             if overlay.Parent then overlay:Destroy() end
             return
         end
-        if window.Closed or not main.Visible or window._VantaReduceMotion then
+        if window.Closed or not main.Visible then
             overlay.Visible = false
             frameAccumulator = 0
             return
@@ -461,168 +449,7 @@ local function attachCrimsonAmbient(window)
     return overlay
 end
 
-
--- The designer's static glass/shadow layers and only one TweenService border
--- animation per window. No new RenderStepped connections or per-frame Instances.
-local DesignerTweens = game:GetService("TweenService")
-local function designerAccent(themeName)
-    for _, theme in ipairs(VantaThemes) do
-        if theme.Name == themeName then return theme.Primary end
-    end
-    return Color3.fromHex("#A1162F")
-end
-local function designerBorderColors()
-    local steel = Color3.fromRGB(35,37,45)
-    local ice = Color3.fromRGB(234,246,255)
-    return ColorSequence.new({
-        ColorSequenceKeypoint.new(0,steel),
-        ColorSequenceKeypoint.new(0.43,steel),
-        ColorSequenceKeypoint.new(0.50,ice),
-        ColorSequenceKeypoint.new(0.57,steel),
-        ColorSequenceKeypoint.new(1,steel),
-    })
-end
-local function attachDesignerWindow(window,themeName)
-    local creator=VantaUI.Creator
-    local root=window and window.UIElements and window.UIElements.Main
-    local body=root and root:FindFirstChild("Main")
-    local topbar=body and body:FindFirstChild("Topbar")
-    if not creator or not root or not topbar then return end
-    if root:FindFirstChild("DesignerChromeBorder") then return end
-    local alive=true
-    local accent=designerAccent(themeName)
-    local function rounded(kind,name,parent,radius,settings)
-        settings.Name=name
-        settings.Parent=parent
-        settings.Active=false
-        return creator.NewRoundFrame(radius,kind,settings)
-    end
-    local shadow=rounded("Squircle","DesignerBlackShadow",root,window.UICorner+12,{
-        Size=UDim2.new(1,28,1,28),Position=UDim2.fromScale(0.5,0.5),
-        AnchorPoint=Vector2.new(0.5,0.5),ImageTransparency=0.85,
-        ImageColor3=Color3.fromRGB(0,0,0),ZIndex=0,
-    })
-    local glow=rounded("Squircle","DesignerAccentGlow",root,window.UICorner+2,{
-        Size=UDim2.new(1,4,1,4),Position=UDim2.fromScale(0.5,0.5),
-        AnchorPoint=Vector2.new(0.5,0.5),ImageTransparency=0.95,
-        ImageColor3=accent,ZIndex=0,
-    })
-    local ring=rounded("Squircle-Outline","DesignerChromeBorder",root,window.UICorner,{
-        Size=UDim2.fromScale(1,1),ImageColor3=Color3.fromRGB(255,255,255),
-        ImageTransparency=0.10,ZIndex=98,
-    })
-    local gradient=Instance.new("UIGradient")
-    gradient.Name="DesignerTravelingIce"
-    gradient.Color=designerBorderColors()
-    gradient.Rotation=0
-    gradient.Parent=ring
-    local divider=Instance.new("Frame")
-    divider.Name="DesignerTopbarAccentLine"
-    divider.Size=UDim2.new(1,0,0,1)
-    divider.Position=UDim2.new(0,0,1,-1)
-    divider.BorderSizePixel=0
-    divider.Active=false
-    divider.BackgroundColor3=accent
-    divider.ZIndex=topbar.ZIndex+1
-    divider.Parent=topbar
-
-    local backdrop=root:FindFirstChild("Background")
-    local clip,shade
-    if backdrop then
-        clip=Instance.new("Frame")
-        clip.Name="DesignerClippedDecorations"
-        clip.Size=UDim2.fromScale(1,1)
-        clip.BackgroundTransparency=1
-        clip.BorderSizePixel=0
-        clip.ClipsDescendants=true
-        clip.Active=false
-        clip.ZIndex=backdrop.ZIndex+1
-        clip.Parent=backdrop
-        local corner=Instance.new("UICorner")
-        corner.CornerRadius=UDim.new(0,window.UICorner)
-        corner.Parent=clip
-        shade=rounded("Squircle","DesignerWallpaperDarkening",clip,window.UICorner,{
-            Size=UDim2.fromScale(1,1),ImageColor3=Color3.fromRGB(0,0,0),
-            ImageTransparency=0.75,ZIndex=clip.ZIndex,
-        })
-        local scrim=Instance.new("Frame")
-        scrim.Name="DesignerSidebarScrim"
-        scrim.Position=UDim2.fromOffset(0,window.Topbar.Height)
-        scrim.Size=UDim2.new(0,window.SideBarWidth+40,1,-window.Topbar.Height)
-        scrim.BackgroundColor3=Color3.fromRGB(0,0,0)
-        scrim.BackgroundTransparency=0
-        scrim.BorderSizePixel=0
-        scrim.Active=false
-        scrim.ZIndex=clip.ZIndex+1
-        scrim.Parent=clip
-        local scrimCorner=Instance.new("UICorner")
-        scrimCorner.CornerRadius=UDim.new(0,window.UICorner)
-        scrimCorner.Parent=scrim
-        local fade=Instance.new("UIGradient")
-        fade.Name="DesignerSidebarFade"
-        fade.Rotation=0
-        fade.Transparency=NumberSequence.new({
-            NumberSequenceKeypoint.new(0,0.4),
-            NumberSequenceKeypoint.new(0.28,0.61),
-            NumberSequenceKeypoint.new(0.58,0.84),
-            NumberSequenceKeypoint.new(0.82,0.96),
-            NumberSequenceKeypoint.new(1,1),
-        })
-        fade.Parent=scrim
-    end
-    local spin
-    local function refresh()
-        if spin then spin:Cancel();spin=nil end
-        gradient.Rotation=0
-        if not window._VantaReduceMotion and alive then
-            spin=DesignerTweens:Create(gradient,
-                TweenInfo.new(7,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,-1,false),
-                {Rotation=360})
-            spin:Play()
-        end
-    end
-    local ctrl={}
-    function ctrl:Refresh() refresh() end
-    function ctrl:Theme(nextName)
-        accent=designerAccent(nextName)
-        glow.ImageColor3=accent
-        divider.BackgroundColor3=accent
-        window._VantaAccent=accent
-        for _,p in ipairs(window._VantaAmbientParticles or {}) do
-            if p.item and p.item.Parent then p.item.BackgroundColor3=accent end
-            if p.core and p.core.Parent then p.core.BackgroundColor3=accent end
-        end
-        refresh()
-    end
-    function ctrl:Destroy()
-        if not alive then return end
-        alive=false
-        if spin then spin:Cancel();spin=nil end
-        for _,v in ipairs({ring,shadow,glow,divider,clip}) do
-            if v and v.Parent then v:Destroy() end
-        end
-    end
-    local baseDestroy=window.Destroy
-    function window:Destroy(...)
-        ctrl:Destroy()
-        return baseDestroy(self,...)
-    end
-    window._VantaDesigner=ctrl
-    ctrl:Theme(themeName)
-    return ctrl
-end
-
 local ActiveWindows = setmetatable({}, { __mode = "k" })
-function VantaUI:SetReduceMotion(reduced)
-    self._VantaReduceMotion = reduced==true
-    for window in pairs(ActiveWindows) do
-        window._VantaReduceMotion=self._VantaReduceMotion
-        if window._VantaReduceMotion and window._VantaAmbientOverlay then
-            window._VantaAmbientOverlay.Visible=false
-        end
-        if window._VantaDesigner then window._VantaDesigner:Refresh() end
-    end
-end
 
 local function applyThemeWallpaper(window, themeName)
     if not window or window.Destroyed or not window._UsesVantaThemeWallpaper then
@@ -642,7 +469,6 @@ if type(BaseSetTheme) == "function" then
         if theme then
             for window in pairs(ActiveWindows) do
                 applyThemeWallpaper(window, themeName)
-                if window._VantaDesigner then window._VantaDesigner:Theme(themeName) end
             end
         end
         return theme
@@ -800,8 +626,6 @@ function VantaUI:CreateWindow(config)
     end
 
     local window = BaseCreateWindow(self, config)
-    window._VantaAccent=designerAccent(config.Theme)
-    window._VantaReduceMotion=self._VantaReduceMotion==true
     window._UsesVantaThemeWallpaper = usesThemeWallpaper
     ActiveWindows[window] = true
     applyThemeWallpaper(window, config.Theme)
@@ -818,7 +642,6 @@ function VantaUI:CreateWindow(config)
         end
     end
 
-    attachDesignerWindow(window,config.Theme)
     local BaseTab = window.Tab
     local startupTabSelected = false
 
