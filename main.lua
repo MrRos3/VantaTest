@@ -148,18 +148,14 @@ local VantaThemes = {
         PanelBackgroundTransparency = 0.42,
         LabelBackground = Color3.fromHex("#0A080A"),
         LabelBackgroundTransparency = 0.08,
-        ElementBackground = Color3.fromHex("#311522"),
-        ElementBackgroundTransparency = 0.06,
+        ElementBackground = Color3.fromHex("#151116"),
+        ElementBackgroundTransparency = 0.16,
         -- Let the Crimson01 artwork show through; selection fades away to the right.
         TabBackgroundActive = Color3.fromHex("#0B0A0C"),
         TabBackgroundActiveTransparency = 1,
         TabBackgroundHover = Color3.fromHex("#151013"),
         TabBackgroundHoverTransparency = 0.82,
         TabSelectionFade = Color3.fromHex("#4A1C2B"),
-        TabTitle = Color3.fromHex("#D8D2D5"),
-        TabTitleActive = Color3.fromHex("#FFFFFF"),
-        TabTextTransparency = 0,
-        TabTextTransparencyActive = 0,
     },
     {
         Name = "Vanta Smoked",
@@ -182,8 +178,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.16,
         ElementBackground = Color3.fromHex("#1C2027"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Dark",
@@ -206,8 +200,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.82,
         ElementBackground = Color3.fromHex("#171C27"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta AMOLED",
@@ -230,8 +222,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#0D0F14"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#202532"),
     },
     {
         Name = "Vanta Violet",
@@ -254,8 +244,6 @@ local VantaThemes = {
         LabelBackgroundTransparency = 0.12,
         ElementBackground = Color3.fromHex("#1B1628"),
         ElementBackgroundTransparency = 0,
-        TabBackgroundActiveTransparency = 1,
-        TabSelectionFade = Color3.fromHex("#342449"),
     },
 }
 

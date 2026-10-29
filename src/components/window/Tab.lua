@@ -139,8 +139,7 @@ function TabModule.New(Config, UIScale)
 				ThemeTag = {
 					TextColor3 = "TabTitle",
 				},
-				TextTransparency = not Tab.Locked and
-				(Creator.Theme and Creator.Theme.Name == "Salty Special" and 0 or 0.4) or 0.7,
+				TextTransparency = not Tab.Locked and 0.4 or 0.7,
 				TextSize = 15,
 				Size = UDim2.new(1, 0, 0, 0),
 				FontFace = Font.new(Creator.Font, Enum.FontWeight.Medium),
@@ -194,14 +193,6 @@ function TabModule.New(Config, UIScale)
 			}),
 		}),
 	})
-	-- Rounded crimson indicator and transparent active tab, never a solid block.
-	Tab.UIElements.Accent=New("Frame",{
-		Name="PremiumTabAccent",Parent=Tab.UIElements.Main,
-		Size=UDim2.new(0,3,0.64,0),Position=UDim2.new(0,2,0.5,0),
-		AnchorPoint=Vector2.new(0,0.5),BackgroundTransparency=1,
-		BorderSizePixel=0,Active=false,ZIndex=Tab.UIElements.Main.ZIndex+2,
-		ThemeTag={BackgroundColor3="Primary"},
-	},{New("UICorner",{CornerRadius=UDim.new(1,0)})})
 	Tab.UIElements.Main.Frame.ZIndex = Tab.UIElements.Main.ZIndex + 1
 
 	local TextOffset = 0
@@ -393,31 +384,10 @@ function TabModule.New(Config, UIScale)
 			TabModule:SelectTab(TabIndex)
 		end
 	end)
-	local home=Tab.UIElements.Main.Frame.Position
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
 		if not Tab.Locked then
 			Creator.PlaySound("Hover")
-			if not Tab.Selected then
-				Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
-					{TextColor3="Text",TextTransparency="TabTextTransparencyActive"},0.12)
-				if Tab.UIElements.Icon and not Tab.IconColor then
-					Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,{ImageColor3="Primary"},0.12)
-				end
-				Creator.Tween(Tab.UIElements.Main.Frame,0.13,{
-					Position=UDim2.new(home.X.Scale,home.X.Offset+2,home.Y.Scale,home.Y.Offset),
-				},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
-			end
 		end
-	end)
-	Creator.AddSignal(Tab.UIElements.Main.MouseLeave,function()
-		if not Tab.Selected then
-			Creator.SetThemeTag(Tab.UIElements.Main.Frame.TextLabel,
-				{TextColor3="TabTitle",TextTransparency="TabTextTransparency"},0.13)
-			if Tab.UIElements.Icon and not Tab.IconColor then
-				Creator.SetThemeTag(Tab.UIElements.Icon.ImageLabel,{ImageColor3="TabIcon"},0.13)
-			end
-		end
-		Creator.Tween(Tab.UIElements.Main.Frame,0.13,{Position=home},Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 	end)
 
 	if Window.ScrollBarEnabled then
@@ -661,8 +631,6 @@ function TabModule:SelectTab(TabIndex)
 				Creator.Tween(TabObject.UIElements.SelectionFade, 0.16, {
 					BackgroundTransparency = 1,
 				}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
-			Creator.Tween(TabObject.UIElements.Accent,0.16,{BackgroundTransparency=1},
-				Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 				Creator.SetThemeTag(TabObject.UIElements.Main.Frame, {
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
@@ -672,13 +640,11 @@ function TabModule:SelectTab(TabIndex)
 					}, 0.15)
 				end
 				Creator.SetThemeTag(TabObject.UIElements.Main.Frame.TextLabel, {
-					TextColor3 = "TabTitle",
 					TextTransparency = "TabTextTransparency",
 				}, 0.15)
 				if TabObject.UIElements.Icon and not TabObject.IconColor then
 					Creator.SetThemeTag(TabObject.UIElements.Icon.ImageLabel, {
 						ImageTransparency = "TabIconTransparency",
-					ImageColor3 = "TabIcon",
 					}, 0.15)
 				end
 				TabObject.Selected = false
@@ -691,8 +657,6 @@ function TabModule:SelectTab(TabIndex)
 		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.SelectionFade, 0.18, {
 			BackgroundTransparency = 0,
 		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
-		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.Accent,0.18,{BackgroundTransparency=0.05},
-			Enum.EasingStyle.Sine,Enum.EasingDirection.Out):Play()
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame, {
 			ImageTransparency = "TabBorderTransparency",
 		}, 0.12)
@@ -702,13 +666,11 @@ function TabModule:SelectTab(TabIndex)
 			}, 0.15)
 		end
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame.TextLabel, {
-			TextColor3 = "TabTitleActive",
 			TextTransparency = "TabTextTransparencyActive",
 		}, 0.15)
 		if TabModule.Tabs[TabIndex].UIElements.Icon and not TabModule.Tabs[TabIndex].IconColor then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Icon.ImageLabel, {
 				ImageTransparency = "TabIconTransparencyActive",
-				ImageColor3 = "Text",
 			}, 0.15)
 		end
 		TabModule.Tabs[TabIndex].Selected = true
