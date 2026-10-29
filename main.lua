@@ -51,6 +51,50 @@ if not loader then
 end
 assert(loader, "[VantaUI] Failed to compile the current runtime: " .. tostring(loadError))
 
+-- Re-executing the showcase used to stack ScreenGuis from older VantaTest
+-- builds. Those older windows could still draw the red topbar divider and
+-- dark frame even after the repository had reverted them.
+-- Only clean up GUIs owned by VantaTest; never touch production VantaUI.
+local function clearPreviousVantaTestUI()
+    local environment
+    if type(getgenv) == "function" then
+        local ok, result = pcall(getgenv)
+        if ok and type(result) == "table" then environment = result end
+    end
+    if environment and type(environment.__VANTATEST_UI_CLEANUP) == "function" then
+        pcall(environment.__VANTATEST_UI_CLEANUP)
+        environment.__VANTATEST_UI_CLEANUP = nil
+    end
+
+    local owners = {}
+    if type(gethui) == "function" then
+        local ok, result = pcall(gethui)
+        if ok and result then owners[#owners + 1] = result end
+    end
+    local players = game:GetService("Players")
+    local localPlayer = players and players.LocalPlayer
+    local playerGui = localPlayer and localPlayer:FindFirstChildOfClass("PlayerGui")
+    if playerGui then owners[#owners + 1] = playerGui end
+    local seen = {}
+    local names = {
+        ["VantaTest"] = true,
+        ["VantaTest/Notifications"] = true,
+        ["VantaTest/Dropdowns"] = true,
+        ["VantaTest/Tooltips"] = true,
+    }
+    for _, owner in ipairs(owners) do
+        if not seen[owner] then
+            seen[owner] = true
+            for _, child in ipairs(owner:GetChildren()) do
+                if child:IsA("ScreenGui") and names[child.Name] then
+                    child:Destroy()
+                end
+            end
+        end
+    end
+end
+clearPreviousVantaTestUI()
+
 local runtimeOk, VantaUI = pcall(loader)
 assert(runtimeOk and type(VantaUI) == "table", "[VantaUI] Current runtime returned an invalid value: " .. tostring(VantaUI))
 
@@ -450,6 +494,20 @@ local function attachCrimsonAmbient(window)
 end
 
 local ActiveWindows = setmetatable({}, { __mode = "k" })
+-- Allow subsequent reloads to destroy windows normally (disconnecting their
+-- signals and ambient loop) before removing any legacy ScreenGui leftovers.
+if type(getgenv) == "function" then
+    local ok, environment = pcall(getgenv)
+    if ok and type(environment) == "table" then
+        environment.__VANTATEST_UI_CLEANUP = function()
+            for window in pairs(ActiveWindows) do
+                if window and not window.Destroyed and type(window.Destroy) == "function" then
+                    pcall(window.Destroy, window)
+                end
+            end
+        end
+    end
+end
 
 local function applyThemeWallpaper(window, themeName)
     if not window or window.Destroyed or not window._UsesVantaThemeWallpaper then
@@ -601,6 +659,11 @@ function VantaUI:CreateWindow(config)
     config.HideSearchBar = true
     if config.Size == nil then
         config.Size = UDim2.fromOffset(620, 420)
+    end
+    -- The default shadow image is the thick dark rim visible against bright
+    -- backgrounds. Keep VantaTest borderless; production VantaUI is untouched.
+    if config.ShadowTransparency == nil then
+        config.ShadowTransparency = 1
     end
 
     applyDefaultBranding(config)
