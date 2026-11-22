@@ -1,9 +1,5 @@
 local RunService = game:GetService("RunService")
---[[
 
-    WindUI Example (wip)
-    
-]]
 
 local cloneref = (cloneref or clonereference or function(instance)
 	return instance
