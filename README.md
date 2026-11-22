@@ -5,13 +5,13 @@ Roblox UI library by **MrRos3 (salty)**.
 ## Loadstring
 
 ```lua
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua"))()
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
 ```
 
 ## Quick start
 
 ```lua
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua"))()
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
 
 local Window = WindUI:CreateWindow({
     Title = "salty hub",
