@@ -154,7 +154,7 @@ function Element:New(Config: ConfigType)
 		if Viewport.Interactive then
 			if Input.UserInputType == Enum.UserInputType.MouseWheel then
 				local ZoomAmount = Input.Position.Z * 2
-				Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * ZoomAmount
+				Viewport.Camera.CFrame = Viewport.Camera.CFrame + Viewport.Camera.CFrame.LookVector * ZoomAmount
 			end
 		end
 	end)
@@ -173,7 +173,7 @@ function Element:New(Config: ConfigType)
 					local currentDist = (touchPositions[1] - touchPositions[2]).Magnitude
 					local delta = (currentDist - LastPinchDist) * 0.03
 					LastPinchDist = currentDist
-					Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * delta
+					Viewport.Camera.CFrame = Viewport.Camera.CFrame + Viewport.Camera.CFrame.LookVector * delta
 				end
 			elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
 				Pinching = false

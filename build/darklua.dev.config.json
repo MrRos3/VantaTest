@@ -1,5 +1,12 @@
 {
     "bundle": {
         "require_mode": "path"
+    },
+    "rules": [
+        "remove_types"
+    ],
+    "generator": {
+        "name": "dense",
+        "column_span": 120
     }
 }
