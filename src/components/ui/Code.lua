@@ -48,7 +48,6 @@ function Code.New(Code, Window, Parent, Callback, UIScale)
 		TextLabel,
 	})
 
-	local CopyIconData = Creator.Icon("copy")
 	local CopyButton = Code.CanCopied
 			and New("TextButton", {
 				BackgroundTransparency = 1,
@@ -72,9 +71,9 @@ function Code.New(Code, Window, Parent, Callback, UIScale)
 						Scale = 1, -- .9
 					}),
 					New("ImageLabel", {
-						Image = CopyIconData and CopyIconData[1],
-						ImageRectSize = CopyIconData and CopyIconData[2] and CopyIconData[2].ImageRectSize,
-						ImageRectOffset = CopyIconData and CopyIconData[2] and CopyIconData[2].ImageRectPosition,
+						Image = Creator.Icon("copy")[1],
+						ImageRectSize = Creator.Icon("copy")[2].ImageRectSize,
+						ImageRectOffset = Creator.Icon("copy")[2].ImageRectPosition,
 						BackgroundTransparency = 1,
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -219,19 +218,15 @@ function Code.New(Code, Window, Parent, Callback, UIScale)
 			if Callback then
 				Callback()
 				local CheckIcon = Creator.Icon("check")
-				if CheckIcon then
-					CopyButton.Button.ImageLabel.Image = CheckIcon[1]
-					CopyButton.Button.ImageLabel.ImageRectSize = CheckIcon[2].ImageRectSize
-					CopyButton.Button.ImageLabel.ImageRectOffset = CheckIcon[2].ImageRectPosition
-				end
+				CopyButton.Button.ImageLabel.Image = CheckIcon[1]
+				CopyButton.Button.ImageLabel.ImageRectSize = CheckIcon[2].ImageRectSize
+				CopyButton.Button.ImageLabel.ImageRectOffset = CheckIcon[2].ImageRectPosition
 
 				task.delay(1, function()
 					local CopyIcon = Creator.Icon("copy")
-					if CopyIcon then
-						CopyButton.Button.ImageLabel.Image = CopyIcon[1]
-						CopyButton.Button.ImageLabel.ImageRectSize = CopyIcon[2].ImageRectSize
-						CopyButton.Button.ImageLabel.ImageRectOffset = CopyIcon[2].ImageRectPosition
-					end
+					CopyButton.Button.ImageLabel.Image = CopyIcon[1]
+					CopyButton.Button.ImageLabel.ImageRectSize = CopyIcon[2].ImageRectSize
+					CopyButton.Button.ImageLabel.ImageRectOffset = CopyIcon[2].ImageRectPosition
 				end)
 			end
 		end)

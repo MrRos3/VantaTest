@@ -32,7 +32,7 @@ function Element:New(Config)
         VStackFrame, 
         ElementsModule.Elements,
         Config.Window, 
-        Config.SaltyUI,
+        Config.WindUI,
         -- function(CurrentElement, AllElements)
         --     local Gap = Config.Tab and Config.Tab.Gap or (Config.Window.NewElements and 1 or 6)
             

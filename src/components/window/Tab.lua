@@ -13,11 +13,11 @@ local New = Creator.New
 local CreateToolTip = require("../ui/Tooltip").New
 local CreateScrollSlider = require("../ui/ScrollSlider").New
 
-local Window, SaltyUI, UIScale
+local Window, WindUI, UIScale
 
 local TabModule = {
 	--Window = nil,
-	--SaltyUI = nil,
+	--WindUI = nil,
 	Tabs = {},
 	Containers = {},
 	SelectedTab = nil,
@@ -28,9 +28,9 @@ local TabModule = {
 	OnChangeFunc = function(v) end,
 }
 
-function TabModule.Init(WindowTable, SaltyUITable, ToolTipParent, TabHighlight)
+function TabModule.Init(WindowTable, WindUITable, ToolTipParent, TabHighlight)
 	Window = WindowTable
-	SaltyUI = SaltyUITable
+	WindUI = WindUITable
 	TabModule.ToolTipParent = ToolTipParent
 	TabModule.TabHighlight = TabHighlight
 	return TabModule
@@ -165,6 +165,35 @@ function TabModule.New(Config, UIScale)
 			}),
 		}),
 	}, true)
+
+	-- Active tab: a soft left-to-right tint that disappears into the wallpaper.
+	-- Render underneath the tab's icons and text so content stays sharp.
+	Tab.UIElements.SelectionFade = New("Frame", {
+		Name = "SelectionFade",
+		Parent = Tab.UIElements.Main,
+		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromScale(0, 0),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Active = false,
+		ZIndex = Tab.UIElements.Main.ZIndex,
+		ThemeTag = { BackgroundColor3 = "TabSelectionFade" },
+	}, {
+		New("UICorner", {
+			CornerRadius = UDim.new(0, Tab.UICorner),
+		}),
+		New("UIGradient", {
+			Rotation = 0,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 0.40),
+				NumberSequenceKeypoint.new(0.22, 0.58),
+				NumberSequenceKeypoint.new(0.50, 0.84),
+				NumberSequenceKeypoint.new(0.82, 1.00),
+				NumberSequenceKeypoint.new(1.00, 1.00),
+			}),
+		}),
+	})
+	Tab.UIElements.Main.Frame.ZIndex = Tab.UIElements.Main.ZIndex + 1
 
 	local TextOffset = 0
 	local Icon
@@ -349,7 +378,15 @@ function TabModule.New(Config, UIScale)
 
 	Creator.AddSignal(Tab.UIElements.Main.MouseButton1Click, function()
 		if not Tab.Locked then
+			if TabModule.SelectedTab ~= TabIndex then
+				Creator.PlaySound("Tab")
+			end
 			TabModule:SelectTab(TabIndex)
+		end
+	end)
+	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
+		if not Tab.Locked then
+			Creator.PlaySound("Hover")
 		end
 	end)
 
@@ -359,7 +396,7 @@ function TabModule.New(Config, UIScale)
 			Tab.UIElements.ContainerFrameCanvas.ScrollSliderHolder,
 			Window,
 			4,
-			SaltyUI
+			WindUI
 		)
 	end
 
@@ -393,7 +430,7 @@ function TabModule.New(Config, UIScale)
 	end
 
 	Creator.AddSignal(Tab.UIElements.Main.MouseEnter, function()
-		if not Tab.Locked then
+		if not Tab.Locked and not Tab.Selected then
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBackgroundHoverTransparency",
 				ImageColor3 = "TabBackgroundHover",
@@ -417,7 +454,7 @@ function TabModule.New(Config, UIScale)
 			end
 		end
 
-		if not Tab.Locked then
+		if not Tab.Locked and not Tab.Selected then
 			Creator.SetThemeTag(Tab.UIElements.Main.Frame, {
 				ImageTransparency = "TabBorderTransparency",
 			}, 0.1)
@@ -457,7 +494,7 @@ function TabModule.New(Config, UIScale)
 		Tab.UIElements.ContainerFrame,
 		ElementsModule.Elements,
 		Window,
-		SaltyUI,
+		WindUI,
 		nil,
 		ElementsModule,
 		UIScale,
@@ -588,6 +625,13 @@ function TabModule:SelectTab(TabIndex)
 		for _, TabObject in next, TabModule.Tabs do
 			if not TabObject.Locked then
 				Creator.SetThemeTag(TabObject.UIElements.Main, {
+					ImageColor3 = "TabBackground",
+					ImageTransparency = "TabBorderTransparency",
+				}, 0.15)
+				Creator.Tween(TabObject.UIElements.SelectionFade, 0.16, {
+					BackgroundTransparency = 1,
+				}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+				Creator.SetThemeTag(TabObject.UIElements.Main.Frame, {
 					ImageTransparency = "TabBorderTransparency",
 				}, 0.15)
 				if TabObject.Border then
@@ -609,7 +653,13 @@ function TabModule:SelectTab(TabIndex)
 		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main, {
 			ImageColor3 = "TabBackgroundActive",
 			ImageTransparency = "TabBackgroundActiveTransparency",
-		}, 0.15)
+		}, 0.16)
+		Creator.Tween(TabModule.Tabs[TabIndex].UIElements.SelectionFade, 0.18, {
+			BackgroundTransparency = 0,
+		}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out):Play()
+		Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Frame, {
+			ImageTransparency = "TabBorderTransparency",
+		}, 0.12)
 		if TabModule.Tabs[TabIndex].Border then
 			Creator.SetThemeTag(TabModule.Tabs[TabIndex].UIElements.Main.Outline, {
 				ImageTransparency = "TabBorderTransparencyActive",

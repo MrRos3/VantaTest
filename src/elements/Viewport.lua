@@ -17,7 +17,7 @@ type ConfigType = {
 	Focused: boolean,
 
 	Window: any, -- later
-	SaltyUI: any, -- later
+	WindUI: any, -- later
 	Tab: any, -- later
 	Parent: Instance,
 }
@@ -73,7 +73,7 @@ function Element:New(Config: ConfigType)
 			and Position.Y <= AbsPos.Y + Size.Y
 	end
 
-	local CurInput = Config.SaltyUI.GenerateGUID()
+	local CurInput = Config.WindUI.GenerateGUID()
 
 	Creator.AddSignal(Main.CanvasGroup.Viewport.MouseEnter, function()
 		if Viewport.Interactive then
@@ -96,11 +96,11 @@ function Element:New(Config: ConfigType)
 				(Input.UserInputType == Enum.UserInputType.MouseButton1)
 				or (Input.UserInputType == Enum.UserInputType.Touch and not Pinching)
 			then
-				if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
+				if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
 					return
 				end
 
-				Config.SaltyUI.CurrentInput = CurInput
+				Config.WindUI.CurrentInput = CurInput
 
 				Dragging = true
 				LastMousePos = Input.Position
@@ -114,11 +114,11 @@ function Element:New(Config: ConfigType)
 				Input.UserInputType == Enum.UserInputType.MouseButton1
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
-				if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
+				if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
 					return
 				end
 
-				Config.SaltyUI.CurrentInput = nil
+				Config.WindUI.CurrentInput = nil
 
 				Dragging = false
 			end
@@ -154,7 +154,7 @@ function Element:New(Config: ConfigType)
 		if Viewport.Interactive then
 			if Input.UserInputType == Enum.UserInputType.MouseWheel then
 				local ZoomAmount = Input.Position.Z * 2
-				Viewport.Camera.CFrame = Viewport.Camera.CFrame + Viewport.Camera.CFrame.LookVector * ZoomAmount
+				Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * ZoomAmount
 			end
 		end
 	end)
@@ -173,7 +173,7 @@ function Element:New(Config: ConfigType)
 					local currentDist = (touchPositions[1] - touchPositions[2]).Magnitude
 					local delta = (currentDist - LastPinchDist) * 0.03
 					LastPinchDist = currentDist
-					Viewport.Camera.CFrame = Viewport.Camera.CFrame + Viewport.Camera.CFrame.LookVector * delta
+					Viewport.Camera.CFrame += Viewport.Camera.CFrame.LookVector * delta
 				end
 			elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
 				Pinching = false

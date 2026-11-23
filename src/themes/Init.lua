@@ -1,4 +1,4 @@
-return function(SaltyUI, Creator)
+return function(WindUI, Creator)
 	return {
 		Dark = {
 			Name = "Dark",
@@ -169,51 +169,51 @@ return function(SaltyUI, Creator)
 		Amber = {
 			Name = "Amber",
 
-			Accent = SaltyUI:Gradient({
+			Accent = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#b45309"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#d97706"), Transparency = 0 },
 			}, { Rotation = 45 }),
 
-			Dialog = SaltyUI:Gradient({
+			Dialog = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#451a03"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#6b2e05"), Transparency = 0 },
 			}, { Rotation = 90 }),
 
-			--Outline = SaltyUI:Gradient({
+			--Outline = WindUI:Gradient({
 			--	["0"] = { Color = Color3.fromHex("#fde68a"), Transparency = 0 },
 			--	["100"] = { Color = Color3.fromHex("#fcd34d"), Transparency = 0 },
 			--}, { Rotation = 45 }),
 
-			Text = SaltyUI:Gradient({
+			Text = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#fffbeb"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#fff7ed"), Transparency = 0 },
 			}, { Rotation = 45 }),
 
-			Placeholder = SaltyUI:Gradient({
+			Placeholder = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#d1a326"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#fbbf24"), Transparency = 0 },
 			}, { Rotation = 45 }),
 
-			Background = SaltyUI:Gradient({
+			Background = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#1c1003"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#3f210d"), Transparency = 0 },
 			}, { Rotation = 90 }),
 
-			Button = SaltyUI:Gradient({
+			Button = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#d97706"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#f59e0b"), Transparency = 0 },
 			}, { Rotation = 45 }),
 
 			Icon = Color3.fromHex("#f59e0b"),
 
-			Toggle = SaltyUI:Gradient({
+			Toggle = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#d97706"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#f59e0b"), Transparency = 0 },
 			}, { Rotation = 45 }),
 
 			Slider = Color3.fromHex("#d97706"),
 
-			Checkbox = SaltyUI:Gradient({
+			Checkbox = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#d97706"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#fbbf24"), Transparency = 0 },
 			}, { Rotation = 45 }),
@@ -338,14 +338,14 @@ return function(SaltyUI, Creator)
 		Rainbow = {
 			Name = "Rainbow",
 
-			Accent = SaltyUI:Gradient({
+			Accent = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#00ff41"), Transparency = 0 },
 				["33"] = { Color = Color3.fromHex("#00ffff"), Transparency = 0 },
 				["66"] = { Color = Color3.fromHex("#0080ff"), Transparency = 0 },
 				["100"] = { Color = Color3.fromHex("#8000ff"), Transparency = 0 },
 			}, { Rotation = 45 }),
 
-			Dialog = SaltyUI:Gradient({
+			Dialog = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#ff0080"), Transparency = 0 },
 				["25"] = { Color = Color3.fromHex("#8000ff"), Transparency = 0 },
 				["50"] = { Color = Color3.fromHex("#0080ff"), Transparency = 0 },
@@ -357,7 +357,7 @@ return function(SaltyUI, Creator)
 			Text = Color3.fromHex("#ffffff"),
 			Placeholder = Color3.fromHex("#00ff80"),
 
-			Background = SaltyUI:Gradient({
+			Background = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#ff0040"), Transparency = 0 },
 				["20"] = { Color = Color3.fromHex("#ff4000"), Transparency = 0 },
 				["40"] = { Color = Color3.fromHex("#ffff00"), Transparency = 0 },
@@ -366,7 +366,7 @@ return function(SaltyUI, Creator)
 				["100"] = { Color = Color3.fromHex("#4000ff"), Transparency = 0 },
 			}, { Rotation = 90 }),
 
-			Button = SaltyUI:Gradient({
+			Button = WindUI:Gradient({
 				["0"] = { Color = Color3.fromHex("#ff0080"), Transparency = 0 },
 				["25"] = { Color = Color3.fromHex("#ff8000"), Transparency = 0 },
 				["50"] = { Color = Color3.fromHex("#ffff00"), Transparency = 0 },

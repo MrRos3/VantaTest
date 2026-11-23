@@ -1,10 +1,10 @@
 {
-    "name": "SaltyUI",
+    "name": "VantaUI",
     "tree": {
         "$className": "DataModel",
 
         "ReplicatedStorage": {
-            "SaltyUI": {
+            "VantaUI": {
                 "$path": "src/"
             },
             "build": {

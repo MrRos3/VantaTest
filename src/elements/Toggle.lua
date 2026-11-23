@@ -16,7 +16,7 @@ function Element:New(Config)
 		LockedTitle = Config.LockedTitle,
 		Value = Config.Value,
 		Icon = Config.Icon or nil,
-		IconSize = Config.IconSize or 23, -- from 26 to 0
+		IconSize = Config.IconSize or 23,
 		Type = Config.Type or "Toggle",
 		Callback = Config.Callback or function() end,
 		UIElements = {},
@@ -24,13 +24,10 @@ function Element:New(Config)
 	Toggle.ToggleFrame = require("../components/window/Element")({
 		Title = Toggle.Title,
 		Desc = Toggle.Desc,
-		-- Image = Config.Image,
-		-- ImageSize = Config.ImageSize,
-		-- Thumbnail = Config.Thumbnail,
-		-- ThumbnailSize = Config.ThumbnailSize,
 		Window = Config.Window,
 		Parent = Config.Parent,
-		TextOffset = (24 + 24 + 4),
+		-- Compact state label + 44px capsule group.
+		TextOffset = Config.Window.NewElements and 74 or 70,
 		Hover = false,
 		Tab = Config.Tab,
 		Index = Config.Index,
@@ -91,15 +88,19 @@ function Element:New(Config)
 
 	function Toggle:Set(v, isCallback, isAnim)
 		if CanCallback then
+			local changed = Toggle.Value ~= v
 			ToggleFunc:Set(v, isCallback, isAnim or false)
 			Toggled = v
 			Toggle.Value = v
+			if changed and isCallback ~= false then
+				Creator.PlaySound(v and "ToggleOn" or "ToggleOff")
+			end
 		end
 	end
 
 	Toggle:Set(Toggled, false, Config.Window.NewElements)
 
-	local CurInput = Config.SaltyUI.GenerateGUID()
+	local CurInput = Config.WindUI.GenerateGUID()
 
 	if Config.Window.NewElements and ToggleFunc.Animate then
 		if Toggle.Type == "Toggle" then
@@ -111,20 +112,15 @@ function Element:New(Config)
 						or Input.UserInputType == Enum.UserInputType.Touch
 					)
 				then
-					if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
+					if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
 						return
 					end
 
-					Config.SaltyUI.CurrentInput = CurInput
+					Config.WindUI.CurrentInput = CurInput
 					ToggleFunc:Animate(Input, Toggle)
 				end
 			end)
 		end
-		-- Creator.AddSignal(Toggle.ToggleFrame.UIElements.Main.InputEnded, function(input)
-		--     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		--         ToggleFunc:Animate(input, true, Toggle)
-		--     end
-		-- end)
 	else
 		if Toggle.Type == "Toggle" then
 			Creator.AddSignal(ToggleFrame.ToggleFrame.Hitbox.MouseButton1Click, function()

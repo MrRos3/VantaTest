@@ -18,7 +18,7 @@ function PopupModule.new(PopupConfig, Parent)
     }
     
     local DialogInit = require("../window/Dialog")
-    local Dialog = DialogInit.Create(true, "Popup", PopupConfig.SaltyUI.Window, PopupConfig.SaltyUI, Parent)
+    local Dialog = DialogInit.Create(true, "Popup", PopupConfig.WindUI.Window, PopupConfig.WindUI, Parent)
     
     local ThumbnailSize = 200
     
@@ -39,7 +39,7 @@ function PopupModule.new(PopupConfig, Parent)
             Popup.Icon,
             Popup.Title .. ":" .. Popup.Icon,
             0,
-            PopupConfig.SaltyUI.Window,
+            PopupConfig.WindUI.Window,
             "Popup",
             true,
             PopupConfig.IconThemed,

@@ -44,6 +44,7 @@ return function(Creator)
 		TabBorderTransparency = 1,
 		TabBorderTransparencyActive = 0.75,
 		TabBorder = "White",
+		TabSelectionFade = "TabBackgroundActive",
 
 		ElementBackground = "Text",
 		ElementBackgroundTransparency = 0.93,

@@ -10,6 +10,7 @@ function Element:New(Config)
 		Title = Config.Title or "Section",
 		Desc = Config.Desc,
 		Icon = Config.Icon,
+		IconColor = Config.IconColor,
 		IconThemed = Config.IconThemed,
 		TextXAlignment = Config.TextXAlignment or "Left",
 		TextSize = Config.TextSize or 19,
@@ -46,15 +47,17 @@ function Element:New(Config)
 				0,
 				Config.Window.Folder,
 				Section.__type,
-				true,
+				Section.IconColor == nil,
 				Section.IconThemed,
 				"SectionIcon"
 			)
+			if Section.IconColor and Icon.ImageLabel then
+				Icon.ImageLabel.ImageColor3 = Section.IconColor
+			end
 			Icon.Size = UDim2.new(0, Section.IconSize, 0, Section.IconSize)
 		end
 	end
 
-	local ChevronIconData = Creator.Icon("chevron-down")
 	local ChevronIconFrame = New("Frame", {
 		Size = UDim2.new(0, Section.IconSize, 0, Section.IconSize),
 		BackgroundTransparency = 1,
@@ -63,9 +66,9 @@ function Element:New(Config)
 		New("ImageLabel", {
 			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,
-			Image = ChevronIconData and ChevronIconData[1],
-			ImageRectSize = ChevronIconData and ChevronIconData[2] and ChevronIconData[2].ImageRectSize,
-			ImageRectOffset = ChevronIconData and ChevronIconData[2] and ChevronIconData[2].ImageRectPosition,
+			Image = Creator.Icon("chevron-down")[1],
+			ImageRectSize = Creator.Icon("chevron-down")[2].ImageRectSize,
+			ImageRectOffset = Creator.Icon("chevron-down")[2].ImageRectPosition,
 			ThemeTag = {
 				ImageTransparency = "SectionExpandIconTransparency",
 				ImageColor3 = "SectionExpandIcon",
@@ -227,7 +230,7 @@ function Element:New(Config)
 
 	local ElementsModule = Config.ElementsModule
 
-	ElementsModule.Load(Section, Main.Outline.Content, ElementsModule.Elements, Config.Window, Config.SaltyUI, function()
+	ElementsModule.Load(Section, Main.Outline.Content, ElementsModule.Elements, Config.Window, Config.WindUI, function()
 		if not Section.Expandable then
 			Section.Expandable = true
 			ChevronIconFrame.Visible = true

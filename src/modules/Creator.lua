@@ -12,13 +12,20 @@ local DynamicShapeModule = require("./DynamicShape")
 
 local RenderStepped = RunService.Heartbeat
 
-local IconsURL = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/src/Icons/Main-v2.lua"
+local IconsURL = "https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"
 
-local Icons = require("../Icons/Main-v2")
+local Icons
+if RunService:IsStudio() or not writefile then
+	Icons = require("./Icons")
+else
+	Icons = loadstring(
+		game.HttpGet and game:HttpGet(IconsURL) or HttpService:GetAsync(IconsURL) --studio
+	)()
+end
 
 Icons.SetIconsType("lucide")
 
-local SaltyUI
+local WindUI
 
 local Creator
 Creator = {
@@ -27,6 +34,7 @@ Creator = {
 	CanDraggable = true,
 	Theme = nil,
 	Themes = nil,
+	SoundManager = nil,
 	Icons = Icons,
 	Signals = {},
 	Objects = {},
@@ -126,14 +134,22 @@ Creator = {
 	ThemeChangeCallbacks = {},
 }
 
-function Creator.Init(SaltyUITable)
-	SaltyUI = SaltyUITable
+function Creator.Init(WindUITable)
+	WindUI = WindUITable
+	Creator.SoundManager = WindUITable.SoundManager
 
 	Creator.ThemeFallbacks = require("../themes/Fallbacks")(Creator)
 
-	Creator.UIScale = SaltyUITable.UIScale
+	Creator.UIScale = WindUITable.UIScale
 
 	DynamicShapeModule:Init(Creator)
+end
+
+function Creator.PlaySound(eventName, options)
+	if Creator.SoundManager then
+		return Creator.SoundManager:Play(eventName, options)
+	end
+	return false
 end
 
 function Creator.AddSignal(Signal, Function)
@@ -156,12 +172,12 @@ function Creator.SafeCallback(Function, ...)
 
 	local Success, Event = pcall(Function, ...)
 	if not Success then
-		if SaltyUI and SaltyUI.Window and SaltyUI.Window.Debug then
+		if WindUI and WindUI.Window and WindUI.Window.Debug then
 			local _, i = Event:find(":%d+: ")
 
-			warn("[ SaltyUI: DEBUG Mode ] " .. Event)
+			warn("[ WindUI: DEBUG Mode ] " .. Event)
 
-			return SaltyUI:Notify({
+			return WindUI:Notify({
 				Title = "DEBUG Mode: Error",
 				Content = not i and Event or Event:sub(i + 1),
 				Duration = 8,
@@ -171,8 +187,8 @@ function Creator.SafeCallback(Function, ...)
 end
 
 function Creator.Gradient(stops, props)
-	if SaltyUI and SaltyUI.Gradient then
-		return SaltyUI:Gradient(stops, props)
+	if WindUI and WindUI.Gradient then
+		return WindUI:Gradient(stops, props)
 	end
 
 	local colorSequence = {}
@@ -489,17 +505,7 @@ function Creator.SetLanguage(lang)
 end
 
 function Creator.Icon(Icon, formatdefault)
-	local IconData = Icons.Icon2(Icon, nil, formatdefault ~= false)
-	if IconData == nil then
-		return {
-			"",
-			{
-				ImageRectPosition = Vector2.new(0, 0),
-				ImageRectSize = Vector2.new(0, 0),
-			},
-		}
-	end
-	return IconData
+	return Icons.Icon2(Icon, nil, formatdefault ~= false)
 end
 
 function Creator.AddIcons(packName, iconsData)
@@ -628,7 +634,7 @@ function Creator.SetDraggable(can)
 end
 
 function Creator.Drag(mainFrame, dragFrames, ondrag)
-	local CurInput = SaltyUI.GenerateGUID()
+	local CurInput = WindUI.GenerateGUID()
 
 	local currentDragFrame = nil
 	local dragging = false
@@ -669,11 +675,11 @@ function Creator.Drag(mainFrame, dragFrames, ondrag)
 				input.UserInputType == Enum.UserInputType.MouseButton1
 				or input.UserInputType == Enum.UserInputType.Touch
 			then
-				if SaltyUI and SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
+				if WindUI and WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
 					return
 				end
 
-				SaltyUI.CurrentInput = CurInput
+				WindUI.CurrentInput = CurInput
 
 				dragging = true
 				activeInput = input
@@ -692,7 +698,7 @@ function Creator.Drag(mainFrame, dragFrames, ondrag)
 		if not dragging then
 			return
 		end
-		if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
+		if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
 			return
 		end
 
@@ -708,7 +714,7 @@ function Creator.Drag(mainFrame, dragFrames, ondrag)
 	end)
 
 	UserInputService.InputEnded:Connect(function(input)
-		if not dragging or SaltyUI.CurrentInput ~= CurInput then
+		if not dragging or WindUI.CurrentInput ~= CurInput then
 			return
 		end
 
@@ -719,7 +725,7 @@ function Creator.Drag(mainFrame, dragFrames, ondrag)
 				and input.UserInputType == Enum.UserInputType.MouseButton1
 			)
 		then
-			SaltyUI.CurrentInput = nil
+			WindUI.CurrentInput = nil
 			dragging = false
 			activeInput = nil
 			currentDragFrame = nil
@@ -753,9 +759,107 @@ function Creator.SanitizeFilename(url)
 	return filename
 end
 
+local function GetImageExtension(url)
+	local cleanUrl = tostring(url):match("^([^?#]+)") or tostring(url)
+	local extension = cleanUrl:match("%.([%w]+)$")
+
+	if extension then
+		extension = string.lower(extension)
+		if extension == "jpg" or extension == "jpeg" or extension == "png" or extension == "webp" then
+			return "." .. extension
+		end
+	end
+
+	return ".png"
+end
+
+local function EnsureFolder(path)
+	if not makefolder then
+		return
+	end
+
+	local current = ""
+	for part in string.gmatch(path, "[^/]+") do
+		current = current == "" and part or current .. "/" .. part
+		if not isfolder or not isfolder(current) then
+			pcall(makefolder, current)
+		end
+	end
+end
+
+local function Download(url)
+	local errors = {}
+
+	if game.HttpGet then
+		local success, body = pcall(function()
+			return game:HttpGet(url)
+		end)
+		if success and typeof(body) == "string" and #body > 0 then
+			return body
+		end
+		table.insert(errors, tostring(body))
+	end
+
+	if Creator.Request then
+		local success, response = pcall(function()
+			return Creator.Request({
+				Url = url,
+				Method = "GET",
+				Headers = { ["User-Agent"] = "Roblox/Executor" },
+			})
+		end)
+
+		local body
+		if success and typeof(response) == "table" then
+			body = response.Body or response.body
+		elseif success and typeof(response) == "string" then
+			body = response
+		end
+		if typeof(body) == "string" and #body > 0 then
+			return body
+		end
+		table.insert(errors, tostring(response))
+	end
+
+	error("Unable to download image: " .. table.concat(errors, "; "))
+end
+
+function Creator.LoadRemoteImage(url, folder)
+	assert(typeof(url) == "string" and string.match(url, "^https?://"), "A valid image URL is required")
+	assert(writefile, "This executor does not support writefile")
+
+	local getAsset = getcustomasset or getsynasset
+	assert(getAsset, "This executor does not support getcustomasset")
+
+	folder = folder or "Temp"
+	local assetFolder = "WindUI/" .. folder .. "/assets"
+	-- Include the query in the cache key so updated brand files are not stuck on old local copies.
+	local cacheKey = Creator.SanitizeFilename(url)
+	local query = url:match("%?([^#]+)")
+	if query and query ~= "" then
+		cacheKey = cacheKey .. "_" .. Creator.SanitizeFilename(query)
+	end
+	local fileName = assetFolder .. "/.RemoteImage-" .. cacheKey .. GetImageExtension(url)
+
+	EnsureFolder(assetFolder)
+
+	if not isfile or not isfile(fileName) then
+		writefile(fileName, Download(url))
+	end
+
+	local success, asset = pcall(getAsset, fileName)
+	if not success then
+		writefile(fileName, Download(url))
+		asset = getAsset(fileName)
+	end
+
+	return asset, fileName
+end
+
 function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, ThemeTagName)
 	Folder = Folder or "Temp"
 	Name = Creator.SanitizeFilename(Name)
+	Corner = Corner or 0
 
 	local ImageFrame = New("Frame", {
 		Size = UDim2.new(0, 0, 0, 0),
@@ -765,7 +869,7 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, Them
 			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,
 			ScaleType = "Crop",
-			ThemeTag = (Icons.Icon2(Img) or Themed) and {
+			ThemeTag = (Creator.Icon(Img) or Themed) and {
 				ImageColor3 = IsThemeTag and (ThemeTagName or "Icon") or nil,
 			} or nil,
 		}, {
@@ -774,7 +878,8 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, Them
 			}),
 		}),
 	})
-	if Icons.Icon2(Img) then
+	local IconData = Creator.Icon(Img)
+	if IconData then
 		ImageFrame.ImageLabel:Destroy()
 
 		local IconLabel = Icons.Image({
@@ -786,47 +891,18 @@ function Creator.Image(Img, Name, Corner, Folder, Type, IsThemeTag, Themed, Them
 			},
 		}).IconFrame
 		IconLabel.Parent = ImageFrame
-	elseif string.find(Img, "http") and not string.find(Img, "roblox.com") then
-		local FileName = "WindUI/" .. Folder .. "/assets/." .. Type .. "-" .. Name .. ".png"
-		local success, response = pcall(function()
-			task.spawn(function()
-				local response = Creator.Request
-						and Creator.Request({
-							Url = Img,
-							Method = "GET",
-						}).Body
-					or {}
-
-				if not RunService:IsStudio() and writefile then
-					writefile(FileName, response)
+	elseif typeof(Img) == "string" and string.match(Img, "^https?://") and not string.find(Img, "roblox.com") then
+		local imageLabel = ImageFrame.ImageLabel
+		task.spawn(function()
+			local success, asset = pcall(Creator.LoadRemoteImage, Img, Folder)
+			if success and imageLabel.Parent then
+				imageLabel.Image = asset
+			else
+				if not success then
+					warn(string.format("[ WindUI.Creator ] Failed to load remote image '%s': %s", Img, tostring(asset)))
 				end
-				--ImageFrame.ImageLabel.Image = getcustomasset(FileName)
-
-				local assetSuccess, asset = pcall(getcustomasset, FileName)
-				if assetSuccess then
-					ImageFrame.ImageLabel.Image = asset
-				else
-					warn(
-						string.format(
-							"[ SaltyUI.Creator ] Failed to load custom asset '%s': %s",
-							FileName,
-							tostring(asset)
-						)
-					)
-					ImageFrame:Destroy()
-
-					return
-				end
-			end)
+			end
 		end)
-		if not success then
-			warn(
-				"[ SaltyUI.Creator ]  '" .. identifyexecutor()
-					or "Studio" .. "' doesnt support the URL Images. Error: " .. response
-			)
-
-			ImageFrame:Destroy()
-		end
 	elseif Img == "" then
 		ImageFrame.Visible = false
 	else

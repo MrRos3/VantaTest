@@ -96,17 +96,17 @@ ConfigManager = {
 
 function ConfigManager:Init(WindowTable)
     if not WindowTable.Folder then
-        warn("[ SaltyUI.ConfigManager ] Window.Folder is not specified.")
+        warn("[ Gui.ConfigManager ] Window.Folder is not specified.")
         return false
     end
     if RunService:IsStudio() or not writefile then
-        warn("[ SaltyUI.ConfigManager ] The config system doesn't work in the studio.")
+        warn("[ Gui.ConfigManager ] The config system doesn't work in the studio.")
         return false
     end
     
     Window = WindowTable
     ConfigManager.Folder = Window.Folder
-    ConfigManager.Path = "WindUI/" .. tostring(ConfigManager.Folder) .. "/config/"
+    ConfigManager.Path = "Gui/" .. tostring(ConfigManager.Folder) .. "/config/"
     
     if not isfolder(ConfigManager.Path) then
         makefolder(ConfigManager.Path)
@@ -125,7 +125,7 @@ end
 
 function ConfigManager:SetPath(customPath)
     if not customPath then
-        warn("[ SaltyUI.ConfigManager ] Custom path is not specified.")
+        warn("[ Gui.ConfigManager ] Custom path is not specified.")
         return false
     end
     
@@ -209,7 +209,7 @@ function ConfigManager:CreateConfig(configFilename, autoload)
         
         local success, loadData = pcall(function()
             local readfile = readfile or function() 
-                warn("[ SaltyUI.ConfigManager ] The config system doesn't work in the studio.")
+                warn("[ Gui.ConfigManager ] The config system doesn't work in the studio.")
                 return nil 
             end
             return HttpService:JSONDecode(readfile(ConfigModule.Path))
@@ -296,9 +296,9 @@ function ConfigManager:CreateConfig(configFilename, autoload)
                     return ConfigModule:Load()
                 end)
                 if success then
-                    if Window.Debug then print("[ SaltyUI.ConfigManager ] AutoLoaded config: " .. configFilename) end
+                    if Window.Debug then print("[ Gui.ConfigManager ] AutoLoaded config: " .. configFilename) end
                 else
-                    warn("[ SaltyUI.ConfigManager ] Failed to AutoLoad config: " .. configFilename .. " - " .. tostring(result))
+                    warn("[ Gui.ConfigManager ] Failed to AutoLoad config: " .. configFilename .. " - " .. tostring(result))
                 end
             end)
         end

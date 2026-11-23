@@ -7,12 +7,11 @@ local Tween = Creator.Tween
 function Label.New(Text, Icon, Parent, IsPlaceholder, Radius, RemoveGlass)
 	local Radius = Radius or 10
 	local IconLabelFrame
-	local IconData = Creator.Icon(Icon)
-	if Icon and Icon ~= "" and IconData then
+	if Icon and Icon ~= "" then
 		IconLabelFrame = New("ImageLabel", {
-			Image = IconData[1],
-			ImageRectSize = IconData[2].ImageRectSize,
-			ImageRectOffset = IconData[2].ImageRectPosition,
+			Image = Creator.Icon(Icon)[1],
+			ImageRectSize = Creator.Icon(Icon)[2].ImageRectSize,
+			ImageRectOffset = Creator.Icon(Icon)[2].ImageRectPosition,
 			Size = UDim2.new(0, 24 - 3, 0, 24 - 3),
 			BackgroundTransparency = 1,
 			ThemeTag = {

@@ -49,7 +49,7 @@ function Element:New(Config)
 				end
 			end)
 			if not success then
-				Config.SaltyUI:Notify({
+				Config.WindUI:Notify({
 					Title = "Error",
 					Content = "The " .. NewTitle .. " is not copied. Error: " .. result,
 					Icon = "x",
@@ -57,7 +57,7 @@ function Element:New(Config)
 				})
 			end
 		end
-	end, Config.SaltyUI.UIScale)
+	end, Config.WindUI.UIScale)
 
 	function Code:SetCode(code)
 		CodeElement.Set(code)

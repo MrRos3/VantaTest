@@ -27,21 +27,46 @@ local ConfigManager = require("../../config/Init")
 local Notified = false
 
 return function(Config)
+	local Branding = typeof(Config.Branding) == "table" and Config.Branding or {}
+	local BrandImage = Branding.Image
+	local WindowIcon = Config.Icon
+	local WindowIconIsBrand = false
+
+	if BrandImage and Branding.UseAsWindowIcon ~= false then
+		WindowIcon = Branding.WindowIcon or BrandImage
+		WindowIconIsBrand = true
+	end
+
+	local OpenButtonConfig = Config.OpenButton
+	if typeof(OpenButtonConfig) == "table" then
+		local copiedConfig = {}
+		for key, value in next, OpenButtonConfig do
+			copiedConfig[key] = value
+		end
+		OpenButtonConfig = copiedConfig
+
+		if BrandImage and Branding.UseAsOpenButtonIcon ~= false and OpenButtonConfig.Icon == nil then
+			OpenButtonConfig.Icon = Branding.OpenButtonIcon or BrandImage
+		end
+	end
+
 	local Window = {
-		Title = Config.Title or "SaltyUI",
+		Title = Config.Title or "UI Library",
 		Author = Config.Author,
-		Icon = Config.Icon,
-		IconSize = Config.IconSize or 22,
-		IconThemed = Config.IconThemed,
-		IconRadius = Config.IconRadius or 0,
+		Icon = WindowIcon,
+		IconSize = Branding.IconSize or Config.IconSize or 22,
+		IconThemed = WindowIconIsBrand and false or Config.IconThemed,
+		IconRadius = WindowIconIsBrand and (Branding.IconRadius or Config.IconRadius or 7) or (Config.IconRadius or 0),
+		Branding = Branding,
+		BrandImage = BrandImage,
 		Folder = Config.Folder,
 		Resizable = Config.Resizable ~= false,
-		Background = Config.Background,
-		BackgroundImageTransparency = Config.BackgroundImageTransparency or 0,
+		Background = Config.Background or "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/crimson01-hq.jpg?v=crimson01-hq-native-20261021",
+		BackgroundImageTransparency = Config.BackgroundImageTransparency or 0.32,
 		ShadowTransparency = Config.ShadowTransparency or 0.6,
 		User = Config.User or {},
 		Footer = Config.Footer or {},
-		Topbar = Config.Topbar or { Height = 52, ButtonsType = "Default" }, -- Default or Mac
+		Topbar = { Height = (typeof(Config.Topbar) == "table" and Config.Topbar.Height) or 44, ButtonsType = "Mac" }, -- modern style
 
 		Size = Config.Size,
 
@@ -54,15 +79,15 @@ return function(Config)
 		ElementsRadius = Config.ElementsRadius,
 		Radius = Config.Radius or 16,
 		Transparent = Config.Transparent or false,
-		HideSearchBar = Config.HideSearchBar ~= false,
+		HideSearchBar = true, -- legacy search presentation retired
 		ScrollBarEnabled = Config.ScrollBarEnabled or false,
 		SideBarWidth = Config.SideBarWidth or 200,
 		Acrylic = Config.Acrylic or false,
-		NewElements = Config.NewElements or false,
+		NewElements = true, -- legacy flat cards retired
 		IgnoreAlerts = Config.IgnoreAlerts or false,
 		HidePanelBackground = Config.HidePanelBackground or false,
 		AutoScale = Config.AutoScale ~= false,
-		OpenButton = Config.OpenButton,
+		OpenButton = OpenButtonConfig,
 		DragFrameSize = 160,
 
 		Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -110,7 +135,7 @@ return function(Config)
 		UICorner = Window.ElementsRadius or (Window.NewElements and 23 or 16),
 	}
 
-	local WindowSize = Window.Size or UDim2.new(0, 580, 0, 460)
+	local WindowSize = Window.Size or UDim2.fromOffset(601, 403)
 	Window.Size = UDim2.new(
 		WindowSize.X.Scale,
 		math.clamp(WindowSize.X.Offset, Window.MinSize.X, Window.MaxSize.X),
@@ -119,7 +144,7 @@ return function(Config)
 	)
 
 	if Window.Topbar == {} then
-		Window.Topbar = { Height = 52, ButtonsType = "Default" }
+		Window.Topbar = { Height = 44, ButtonsType = "Mac" }
 	end
 
 	if not RunService:IsStudio() and Window.Folder and writefile then
@@ -168,7 +193,6 @@ return function(Config)
 			ImageTransparency = 1, -- .8; .35
 		}),
 	})
-	local FullScreenIconData = Creator.Icon("expand")
 	local FullScreenIcon = Creator.NewRoundFrame(Window.UICorner, "Squircle", {
 		Size = UDim2.new(1, 0, 1, 0),
 		ImageTransparency = 1, -- .65
@@ -178,9 +202,9 @@ return function(Config)
 	}, {
 		New("ImageLabel", {
 			Size = UDim2.new(0, 70, 0, 70),
-			Image = FullScreenIconData and FullScreenIconData[1],
-			ImageRectOffset = FullScreenIconData and FullScreenIconData[2] and FullScreenIconData[2].ImageRectPosition,
-			ImageRectSize = FullScreenIconData and FullScreenIconData[2] and FullScreenIconData[2].ImageRectSize,
+			Image = Creator.Icon("expand")[1],
+			ImageRectOffset = Creator.Icon("expand")[2].ImageRectPosition,
+			ImageRectSize = Creator.Icon("expand")[2].ImageRectSize,
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -275,7 +299,7 @@ return function(Config)
 			Window.UIElements.SideBarContainer.Content,
 			Window,
 			3,
-			Config.SaltyUI
+			Config.WindUI
 		)
 	end
 
@@ -491,6 +515,7 @@ return function(Config)
 
 		if Window.User.Callback then
 			Creator.AddSignal(UserIcon.MouseButton1Click, function()
+				Creator.PlaySound("Click")
 				Window.User.Callback()
 			end)
 			Creator.AddSignal(UserIcon.MouseEnter, function()
@@ -522,23 +547,6 @@ return function(Config)
 			and string.match(Window.Background, "^rbxassetid://%d+")
 		or nil
 
-	local function GetImageExtension(url)
-		if not url or typeof(url) ~= "string" then
-			return ".png"
-		end
-		local cleanUrl = url:match("^([^?#]+)") or url
-		local ext = cleanUrl:match("%.(%w+)$")
-		if ext then
-			ext = ext:lower()
-			if ext == "jpg" or ext == "jpeg" or ext == "png" or ext == "webp" then
-				return "." .. ext
-			end
-		end
-		return ".png"
-	end
-
-	--print(GetImageExtension(BGImageUrl))
-
 	if typeof(Window.Background) == "string" and BGVideo then
 		IsVideoBG = true
 
@@ -561,7 +569,7 @@ return function(Config)
 					writefile(videoPath, response)
 				end)
 				if not success then
-					warn("[ SaltyUI.Window.Background ] Failed to download video: " .. tostring(result))
+					warn("[ WindUI.Window.Background ] Failed to download video: " .. tostring(result))
 				end
 			end
 
@@ -569,9 +577,9 @@ return function(Config)
 				return getcustomasset(videoPath)
 			end)
 			if not success then
-				warn("[ SaltyUI.Window.Background ] Failed to load custom asset: " .. tostring(customAsset))
+				warn("[ WindUI.Window.Background ] Failed to load custom asset: " .. tostring(customAsset))
 			end
-			warn("[ SaltyUI.Window.Background ] VideoFrame may not work with custom video")
+			warn("[ WindUI.Window.Background ] VideoFrame may not work with custom video")
 			BGVideo = customAsset
 		end
 
@@ -588,34 +596,11 @@ return function(Config)
 		})
 		BGImage:Play()
 	elseif BGHttpImage then
-		local imagePath = (Window.Folder or "Temp")
-			.. "/assets/."
-			.. Creator.SanitizeFilename(BGHttpImage)
-			.. GetImageExtension(BGHttpImage)
-
-		if isfile and not isfile(imagePath) then
-			local success, result = pcall(function()
-				local response = game.HttpGet and game:HttpGet(BGHttpImage)
-					or Creator.Request({
-						Url = BGHttpImage,
-						Method = "GET",
-						Headers = { ["User-Agent"] = "Roblox/Exploit" },
-					}).Body
-
-				writefile(imagePath, response)
-			end)
-
-			if not success then
-				warn("[ Window.Background ] Failed to download image: " .. tostring(result))
-			end
-		end
-
-		local success, customAsset = pcall(function()
-			return getcustomasset(imagePath)
-		end)
+		local success, customAsset = pcall(Creator.LoadRemoteImage, BGHttpImage, Window.Folder or "Temp")
 
 		if not success then
 			warn("[ Window.Background ] Failed to load custom asset: " .. tostring(customAsset))
+			customAsset = ""
 		end
 
 		BGImage = New("ImageLabel", {
@@ -720,11 +705,11 @@ return function(Config)
 		Active = true,
 		--GroupTransparency = 1,
 	}, {
-		Config.SaltyUI.UIScaleObj,
+		Config.WindUI.UIScaleObj,
 		Window.AcrylicPaint and Window.AcrylicPaint.Frame or nil,
 		Blur,
 		Creator.NewRoundFrame(Window.UICorner, "Squircle", {
-			ImageTransparency = 1, --  Window.Transparent and Config.SaltyUI.TransparencyValue or 0,
+			ImageTransparency = 1, --  Window.Transparent and Config.WindUI.TransparencyValue or 0,
 			Size = UDim2.new(1, 0, 1, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -843,8 +828,8 @@ return function(Config)
 				New("Frame", { -- Topbar Right Side -- Window.UIElements.Main.Main.Topbar.Right
 					AutomaticSize = "XY",
 					BackgroundTransparency = 1,
-					Position = UDim2.new(Window.Topbar.ButtonsType == "Default" and 1 or 0, 0, 0.5, 0),
-					AnchorPoint = Vector2.new(Window.Topbar.ButtonsType == "Default" and 1 or 0, 0.5),
+					Position = UDim2.new(1, 0, 0.5, 0),
+					AnchorPoint = Vector2.new(1, 0.5),
 					Name = "Right",
 				}, {
 					New("UIListLayout", {
@@ -869,35 +854,22 @@ return function(Config)
 	Creator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal("AbsoluteSize"), function()
 		local LeftWidth = 0
 		local RightWidth = Window.UIElements.Main.Main.Topbar.Right.UIListLayout.AbsoluteContentSize.X
-			/ Config.SaltyUI.UIScale
+			/ Config.WindUI.UIScale
 
-		LeftWidth = Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X / Config.SaltyUI.UIScale
-		if Window.Topbar.ButtonsType ~= "Default" then
-			LeftWidth = LeftWidth + RightWidth + Window.UIPadding - 4
-		end
+		LeftWidth = Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X / Config.WindUI.UIScale
 
 		Window.UIElements.Main.Main.Topbar.Center.Position =
-			UDim2.new(0, LeftWidth + (Window.UIPadding / Config.SaltyUI.UIScale), 0.5, 0)
+			UDim2.new(0, LeftWidth + (Window.UIPadding / Config.WindUI.UIScale), 0.5, 0)
 		Window.UIElements.Main.Main.Topbar.Center.Size = UDim2.new(
 			1,
 			-LeftWidth
-				- (Window.UIPadding / Config.SaltyUI.UIScale)
-				- (Window.Topbar.ButtonsType == "Default" and RightWidth + Window.UIPadding or 0),
+				- (Window.UIPadding / Config.WindUI.UIScale)
+				- (RightWidth + Window.UIPadding),
 			1,
 			0
 		)
 	end)
 
-	if Window.Topbar.ButtonsType ~= "Default" then
-		Creator.AddSignal(Window.UIElements.Main.Main.Topbar.Right:GetPropertyChangedSignal("AbsoluteSize"), function()
-			Window.UIElements.Main.Main.Topbar.Left.Position = UDim2.new(
-				0,
-				(Window.UIElements.Main.Main.Topbar.Right.AbsoluteSize.X / Config.SaltyUI.UIScale) + Window.UIPadding - 4,
-				0,
-				0
-			)
-		end)
-	end
 
 	function Window:CreateTopbarButton(Name, Icon, Callback, LayoutOrder, IconThemed, Color, IconSize)
 		local IconFrame = Creator.Image(
@@ -961,6 +933,29 @@ return function(Config)
 			true
 		)
 
+		-- Keep the original working topbar button object, but replace only the
+		-- visible Mac fill with a native circular frame. This preserves every
+		-- original callback/hover/init path while making the dots truly round.
+		if Window.Topbar.ButtonsType ~= "Default" then
+			Button.ImageTransparency = 1
+			local CircleFill = New("Frame", {
+				Name = "CircleFill",
+				Size = UDim2.fromScale(1, 1),
+				Position = UDim2.fromScale(0.5, 0.5),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundColor3 = Color or Color3.fromHex("#ff3030"),
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				ZIndex = Button.ZIndex,
+				Active = false,
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+				New("UIAspectRatioConstraint", { AspectRatio = 1 }),
+			})
+			CircleFill.Parent = Button
+			IconFrame.ZIndex = Button.ZIndex + 1
+		end
+
 		local ButtonContainer = New("Frame", {
 			Size = Window.Topbar.ButtonsType ~= "Default" and UDim2.new(0, 24, 0, 24)
 				or UDim2.new(0, Window.Topbar.Height - 16, 0, Window.Topbar.Height - 16),
@@ -980,6 +975,7 @@ return function(Config)
 
 		Creator.AddSignal(Button.MouseButton1Click, function()
 			if Callback then
+				Creator.PlaySound("Click")
 				Callback()
 			end
 		end)
@@ -1090,7 +1086,7 @@ return function(Config)
 		Window.UIElements.BackgroundGradient = Creator.NewRoundFrame(Window.UICorner, "Squircle", {
 			Size = UDim2.new(1, 0, 1, 0),
 			Parent = Window.UIElements.Main.Background,
-			ImageTransparency = Window.Transparent and Config.SaltyUI.TransparencyValue or 0,
+			ImageTransparency = Window.Transparent and Config.WindUI.TransparencyValue or 0,
 		}, {
 			BackgroundGradient,
 		})
@@ -1114,7 +1110,7 @@ return function(Config)
 	task.spawn(function()
 		if Window.Icon then
 			local WindowIconContainer = New("Frame", {
-				Size = UDim2.new(0, 22, 0, 22),
+				Size = UDim2.new(0, Window.IconSize, 0, Window.IconSize),
 				BackgroundTransparency = 1,
 				Parent = Window.UIElements.Main.Main.Topbar.Left,
 			})
@@ -1190,7 +1186,7 @@ return function(Config)
 
 	function Window:SetBackgroundTransparency(v)
 		local rounded = math.floor(tonumber(v) * 10 + 0.5) / 10
-		Config.SaltyUI.TransparencyValue = rounded
+		Config.WindUI.TransparencyValue = rounded
 		Window:ToggleTransparency(rounded > 0)
 	end
 
@@ -1205,7 +1201,7 @@ return function(Config)
 		function()
 			Window:ToggleFullscreen()
 		end,
-		(Window.Topbar.ButtonsType == "Default" and 998 or 999),
+		(Window.Topbar.ButtonsType == "Default" and 998 or 997),
 		true,
 		Color3.fromHex("#60C762"),
 		Window.Topbar.ButtonsType == "Mac" and 9 or nil
@@ -1215,9 +1211,9 @@ return function(Config)
 		Tween(Window.UIElements.Main, 0.45, {
 			Size = not Window.IsFullscreen and CurrentSize or UDim2.new(
 				0,
-				(Config.SaltyUI.ScreenGui.AbsoluteSize.X - 20) / Config.SaltyUI.UIScale,
+				(Config.WindUI.ScreenGui.AbsoluteSize.X - 20) / Config.WindUI.UIScale,
 				0,
-				(Config.SaltyUI.ScreenGui.AbsoluteSize.Y - 20 - 52) / Config.SaltyUI.UIScale
+				(Config.WindUI.ScreenGui.AbsoluteSize.Y - 20 - 52) / Config.WindUI.UIScale
 			),
 		}, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 
@@ -1251,7 +1247,7 @@ return function(Config)
 		SetSize(true)
 	end
 
-	Creator.AddSignal(Config.SaltyUI.ScreenGui:GetPropertyChangedSignal("AbsoluteSize"), function()
+	Creator.AddSignal(Config.WindUI.ScreenGui:GetPropertyChangedSignal("AbsoluteSize"), function()
 		if Window.IsFullscreen then
 			SetSize()
 		end
@@ -1276,7 +1272,7 @@ return function(Config)
 		-- end
 		-- if not Notified then
 		--     Notified = not Notified
-		--     Config.SaltyUI:Notify({
+		--     Config.WindUI:Notify({
 		--         Title = "Minimize",
 		--         Content = "You've closed the Window. " .. NotifiedText,
 		--         Icon = "eye-off",
@@ -1295,7 +1291,7 @@ return function(Config)
 		Window.OnDestroyCallback = func
 	end
 
-	if Config.SaltyUI.UseAcrylic then
+	if Config.WindUI.UseAcrylic then
 		Window.AcrylicPaint.AddParent(Window.UIElements.Main)
 	end
 
@@ -1318,6 +1314,7 @@ return function(Config)
 		if Window.Destroyed then
 			return
 		end
+		Creator.PlaySound("WindowOpen")
 		task.spawn(function()
 			if Window.OnOpenCallback then
 				task.spawn(function()
@@ -1344,7 +1341,7 @@ return function(Config)
 			Window.UIElements.Main.Background.ImageTransparency = 1
 			Tween(Window.UIElements.Main.Background, 0.4, {
 				--Size = UDim2.new(1, 0, 1, 0),
-				ImageTransparency = Window.Transparent and Config.SaltyUI.TransparencyValue or 0,
+				ImageTransparency = Window.Transparent and Config.WindUI.TransparencyValue or 0,
 			}, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out):Play()
 
 			if BGImage then
@@ -1361,11 +1358,11 @@ return function(Config)
 				Window.OpenButtonMain:Visible(false)
 			end
 
-			--[[Config.SaltyUI.UIScaleObj.Scale -= 1 - 0.85
+			--[[Config.WindUI.UIScaleObj.Scale -= 1 - 0.85
 			Tween(
-				Config.SaltyUI.UIScaleObj,
+				Config.WindUI.UIScaleObj,
 				0.33,
-				{ Scale = Config.SaltyUI.UIScale },
+				{ Scale = Config.WindUI.UIScale },
 				Enum.EasingStyle.Back,
 				Enum.EasingDirection.Out
 			):Play()]]
@@ -1407,13 +1404,16 @@ return function(Config)
 
 			Window.UIElements.Main:WaitForChild("Main").Visible = true
 
-			Config.SaltyUI:ToggleAcrylic(true)
+			Config.WindUI:ToggleAcrylic(true)
 			--end)
 		end)
 	end
 	function Window:Close()
 		if Window.Destroyed then
 			return
+		end
+		if not Window.Closed then
+			Creator.PlaySound("WindowClose")
 		end
 
 		local Close = {}
@@ -1424,7 +1424,7 @@ return function(Config)
 			end)
 		end
 
-		Config.SaltyUI:ToggleAcrylic(false)
+		Config.WindUI:ToggleAcrylic(false)
 
 		if Window.UIElements.Main and Window.UIElements.Main:WaitForChild("Main") then
 			Window.UIElements.Main.Main.Visible = false
@@ -1449,9 +1449,9 @@ return function(Config)
 		}, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut):Play()
 
 		--[[Tween(
-			Config.SaltyUI.UIScaleObj,
+			Config.WindUI.UIScaleObj,
 			0.28,
-			{ Scale = Config.SaltyUI.UIScale - (1 - 0.85) },
+			{ Scale = Config.WindUI.UIScale - (1 - 0.85) },
 			Enum.EasingStyle.Quint,
 			Enum.EasingDirection.Out
 		):Play()]]
@@ -1516,10 +1516,10 @@ return function(Config)
 
 				task.wait(0.4)
 
-				Config.SaltyUI.ScreenGui:Destroy()
-				Config.SaltyUI.NotificationGui:Destroy()
-				Config.SaltyUI.DropdownGui:Destroy()
-				Config.SaltyUI.TooltipGui:Destroy()
+				Config.WindUI.ScreenGui:Destroy()
+				Config.WindUI.NotificationGui:Destroy()
+				Config.WindUI.DropdownGui:Destroy()
+				Config.WindUI.TooltipGui:Destroy()
 
 				Creator.DisconnectAll()
 
@@ -1543,10 +1543,10 @@ return function(Config)
 	function Window:ToggleTransparency(Value)
 		-- Config.Transparent = Value
 		Window.Transparent = Value
-		Config.SaltyUI.Transparent = Value
+		Config.WindUI.Transparent = Value
 
-		Window.UIElements.Main.Background.ImageTransparency = Value and Config.SaltyUI.TransparencyValue or 0
-		-- Window.UIElements.Main.Background.ImageLabel.ImageTransparency = Value and Config.SaltyUI.TransparencyValue or 0
+		Window.UIElements.Main.Background.ImageTransparency = Value and Config.WindUI.TransparencyValue or 0
+		-- Window.UIElements.Main.Background.ImageLabel.ImageTransparency = Value and Config.WindUI.TransparencyValue or 0
 		--Window.UIElements.MainBar.Background.ImageTransparency = Value and 0.97 or 0.95
 	end
 
@@ -1588,12 +1588,12 @@ return function(Config)
 	end
 
 	function Window:GetUIScale(v)
-		return Config.SaltyUI.UIScale
+		return Config.WindUI.UIScale
 	end
 
 	function Window:SetUIScale(v)
-		Config.SaltyUI.UIScale = v
-		Tween(Config.SaltyUI.UIScaleObj, 0.2, { Scale = v }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+		Config.WindUI.UIScale = v
+		Tween(Config.WindUI.UIScaleObj, 0.2, { Scale = v }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 		return Window
 	end
 
@@ -1640,7 +1640,7 @@ return function(Config)
 		end
 	end
 
-	if Window.OpenButtonMain and Window.OpenButtonMain.Button then
+	if Window.OpenButtonMain and Window.OpenButtonMain.Button and not Window.OpenButtonMain.Hitbox then
 		Creator.AddSignal(Window.OpenButtonMain.Button.TextButton.MouseButton1Click, function()
 			-- OpenButtonContainer.Visible = false
 			--Window.OpenButtonMain:Visible(false)
@@ -1675,7 +1675,7 @@ return function(Config)
 
 	local TabModuleMain = require("./Tab")
 	local SectionModule = require("./Section")
-	local TabModule = TabModuleMain.Init(Window, Config.SaltyUI, Config.SaltyUI.TooltipGui)
+	local TabModule = TabModuleMain.Init(Window, Config.WindUI, Config.WindUI.TooltipGui)
 	TabModule:OnChange(function(t)
 		Window.CurrentTab = t
 	end)
@@ -1684,7 +1684,7 @@ return function(Config)
 
 	function Window:Tab(TabConfig)
 		TabConfig.Parent = Window.UIElements.SideBar.Frame
-		return TabModule.New(TabConfig, Config.SaltyUI.UIScale)
+		return TabModule.New(TabConfig, Config.WindUI.UIScale)
 	end
 
 	function Window:SelectTab(Tab)
@@ -1696,7 +1696,7 @@ return function(Config)
 			SectionConfig,
 			Window.UIElements.SideBar.Frame,
 			Window.Folder,
-			Config.SaltyUI.UIScale,
+			Config.WindUI.UIScale,
 			Window
 		)
 	end
@@ -1758,7 +1758,7 @@ return function(Config)
 
 			TextPadding = 14,
 		}
-		local Dialog = DialogModule.Create(false, "Dialog", Window, Config.SaltyUI, Window.UIElements.Main.Main)
+		local Dialog = DialogModule.Create(false, "Dialog", Window, Config.WindUI, Window.UIElements.Main.Main)
 
 		Dialog.UIElements.Main.Size = UDim2.new(0, DialogTable.Width, 0, 0)
 
@@ -1908,8 +1908,8 @@ return function(Config)
 
 			wait()
 
-			local totalWidth = ButtonsLayout.AbsoluteContentSize.X / Config.SaltyUI.UIScale
-			local parentWidth = ButtonsContent.AbsoluteSize.X / Config.SaltyUI.UIScale
+			local totalWidth = ButtonsLayout.AbsoluteContentSize.X / Config.WindUI.UIScale
+			local parentWidth = ButtonsContent.AbsoluteSize.X / Config.WindUI.UIScale
 
 			if totalWidth > parentWidth then
 				ButtonsLayout.FillDirection = Enum.FillDirection.Vertical
@@ -1928,7 +1928,7 @@ return function(Config)
 					local smallestWidth = math.huge
 
 					for _, button in ipairs(Buttons) do
-						local buttonWidth = button.AbsoluteSize.X / Config.SaltyUI.UIScale
+						local buttonWidth = button.AbsoluteSize.X / Config.WindUI.UIScale
 						if buttonWidth < smallestWidth then
 							smallestWidth = buttonWidth
 							smallestButton = button
@@ -1987,7 +1987,7 @@ return function(Config)
 				Window:Destroy()
 			end
 		end
-	end, (Window.Topbar.ButtonsType == "Default" and 999 or 997), nil, Color3.fromHex("#F4695F"))
+	end, 999, nil, Color3.fromHex("#F4695F"))
 
 	function Window:Tag(TagConfig)
 		if Window.UIElements.Main.Main.Topbar.Center.Visible == false then
@@ -1997,7 +1997,7 @@ return function(Config)
 		return Tag:New(TagConfig, Window.UIElements.Main.Main.Topbar.Center.Holder)
 	end
 
-	local CurResizeInput = Config.SaltyUI.GenerateGUID()
+	local CurResizeInput = Config.WindUI.GenerateGUID()
 
 	local function startResizing(input)
 		if Window.CanResize then
@@ -2011,11 +2011,11 @@ return function(Config)
 
 			Creator.AddSignal(input.Changed, function()
 				if input.UserInputState == Enum.UserInputState.End then
-					if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurResizeInput then
+					if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurResizeInput then
 						return
 					end
 
-					Config.SaltyUI.CurrentInput = nil
+					Config.WindUI.CurrentInput = nil
 
 					isResizing = false
 					FullScreenIcon.Active = false
@@ -2032,10 +2032,10 @@ return function(Config)
 			input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch
 		then
-			if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurResizeInput then
+			if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurResizeInput then
 				return
 			end
-			Config.SaltyUI.CurrentInput = CurResizeInput
+			Config.WindUI.CurrentInput = CurResizeInput
 
 			if Window.CanResize then
 				startResizing(input)
@@ -2069,7 +2069,7 @@ return function(Config)
 	end)
 
 	Creator.AddSignal(ResizeHandle.MouseEnter, function()
-		if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurResizeInput then
+		if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurResizeInput then
 			return
 		end
 		if not isResizing then
@@ -2077,7 +2077,7 @@ return function(Config)
 		end
 	end)
 	Creator.AddSignal(ResizeHandle.MouseLeave, function()
-		if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurResizeInput then
+		if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurResizeInput then
 			return
 		end
 		if not isResizing then
@@ -2162,6 +2162,7 @@ return function(Config)
 			if IsOpen then
 				return
 			end
+			Creator.PlaySound("Click")
 
 			SearchBar.new(Window.TabModule, Window.UIElements.Main, function()
 				-- OnClose

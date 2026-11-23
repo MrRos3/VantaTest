@@ -82,7 +82,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 		Visible = false,
 		Active = false,
 		--GroupTransparency = 1, -- 0
-		Parent = Config.SaltyUI.DropdownGui,
+		Parent = Config.WindUI.DropdownGui,
 		AnchorPoint = Vector2.new(1, 0),
 	}, {
 		Dropdown.UIElements.Menu,
@@ -98,7 +98,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 	end
 
 	local function RecalculateListSize()
-		local MaxHeight = Config.SaltyUI.DropdownGui.AbsoluteSize.Y
+		local MaxHeight = Config.WindUI.DropdownGui.AbsoluteSize.Y
 
 		local ContentY = Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y / Config.UIScale
 		local SearchBarOffset = Dropdown.SearchBarEnabled and (Element.SearchBarHeight + (Element.MenuPadding * 3))
@@ -525,6 +525,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 							end
 							Dropdown.Value = TabMain.Original
 						end
+						Creator.PlaySound("Select")
 						Callback()
 					end)
 				elseif Type == "Menu" then
@@ -540,6 +541,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 						if Dropdown.Locked or TabMain.Locked then
 							return
 						end
+						Creator.PlaySound("Select")
 						Callback(Tab.Callback or function() end)
 					end)
 				end
@@ -591,6 +593,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 
 	function DropdownModule:Open()
 		if not Dropdown.Locked then
+			Creator.PlaySound("DropdownOpen")
 			Dropdown.UIElements.Menu.Visible = true
 			Dropdown.UIElements.MenuCanvas.Visible = true
 			Dropdown.UIElements.MenuCanvas.Active = true
@@ -613,6 +616,9 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 	end
 
 	function DropdownModule:Close()
+		if Dropdown.Opened or Dropdown.UIElements.MenuCanvas.Visible then
+			Creator.PlaySound("DropdownClose")
+		end
 		Dropdown.Opened = false
 
 		Tween(Dropdown.UIElements.Menu, 0.25, {

@@ -8,7 +8,7 @@ local UserInputService = cloneref(game:GetService("UserInputService"))
 local Creator = require("../../modules/Creator")
 local New = Creator.New
 
-function ScrollSlider.New(ScrollingFrame, Parent, Window, Thickness, SaltyUI)
+function ScrollSlider.New(ScrollingFrame, Parent, Window, Thickness, WindUI)
 	local Slider = New("Frame", {
 		Size = UDim2.new(0, Thickness, 1, 0),
 		BackgroundTransparency = 1,
@@ -66,8 +66,8 @@ function ScrollSlider.New(ScrollingFrame, Parent, Window, Thickness, SaltyUI)
 	end
 
 	local function StopDrag()
-		if SaltyUI.CurrentInput == ScrollSliderActionId then
-			SaltyUI.CurrentInput = nil
+		if WindUI.CurrentInput == ScrollSliderActionId then
+			WindUI.CurrentInput = nil
 		end
 		isDragging = false
 		ScrollingFrame.ScrollingEnabled = true
@@ -89,11 +89,11 @@ function ScrollSlider.New(ScrollingFrame, Parent, Window, Thickness, SaltyUI)
 		if isDragging then
 			return
 		end
-		if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= ScrollSliderActionId then
+		if WindUI.CurrentInput and WindUI.CurrentInput ~= ScrollSliderActionId then
 			return
 		end
 
-		SaltyUI.CurrentInput = ScrollSliderActionId
+		WindUI.CurrentInput = ScrollSliderActionId
 
 		isDragging = true
 		ScrollingFrame.ScrollingEnabled = false
@@ -125,11 +125,11 @@ function ScrollSlider.New(ScrollingFrame, Parent, Window, Thickness, SaltyUI)
 
 		connectionEnd = UserInputService.InputEnded:Connect(function(endInput)
 			if endInput.UserInputType == input.UserInputType then
-				if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= ScrollSliderActionId then
+				if WindUI.CurrentInput and WindUI.CurrentInput ~= ScrollSliderActionId then
 					return
 				end
 
-				SaltyUI.CurrentInput = nil
+				WindUI.CurrentInput = nil
 
 				StopDrag()
 			end

@@ -1,13 +1,15 @@
-local SaltyUI = {
+local WindUI = {
+	Name = "VantaUI",
 	Window = nil,
 	Theme = nil,
 	Creator = require("./modules/Creator"),
+	SoundManager = require("./modules/SoundManager"),
 	LocalizationModule = require("./modules/Localization"),
 	NotificationModule = require("./components/Notification"),
 	Themes = nil,
 	Transparent = false,
 
-	TransparencyValue = 0.15,
+	TransparencyValue = 0.12,
 
 	UIScale = 1,
 
@@ -30,7 +32,7 @@ local cloneref = (cloneref or clonereference or function(instance)
 	return instance
 end)
 
-SaltyUI.cloneref = cloneref
+WindUI.cloneref = cloneref
 
 local HttpService = cloneref(game:GetService("HttpService"))
 local Players = cloneref(game:GetService("Players"))
@@ -38,11 +40,11 @@ local CoreGui = cloneref(game:GetService("CoreGui"))
 local RunService = cloneref(game:GetService("RunService"))
 local UserInputService = cloneref(game:GetService("UserInputService"))
 
-function SaltyUI.GenerateGUID()
+function WindUI.GenerateGUID()
 	return HttpService:GenerateGUID(false)
 end
 
-local CurInput = SaltyUI.GenerateGUID()
+local CurInput = WindUI.GenerateGUID()
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessed)
 	--[[if GameProcessed then
@@ -54,23 +56,23 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessed)
 			Input.UserInputType == Enum.UserInputType.MouseButton1
 			or Input.UserInputType == Enum.UserInputType.Touch
 		then
-			if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
+			if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
 				return
 			end
 
-			SaltyUI.CurrentInput = CurInput
+			WindUI.CurrentInput = CurInput
 			--print(CurInput)
-			--SaltyUI.InputStartedOnUI = false
+			--WindUI.InputStartedOnUI = false
 		end
 	end)
 end)
 UserInputService.InputEnded:Connect(function(Input, GameProcessed)
 	if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-		if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
+		if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
 			return
 		end
 
-		SaltyUI.CurrentInput = nil
+		WindUI.CurrentInput = nil
 	end
 end)
 
@@ -78,17 +80,17 @@ local LocalPlayer = Players.LocalPlayer or nil
 
 local Package = HttpService:JSONDecode(require("../build/package"))
 if Package then
-	SaltyUI.Version = Package.version
+	WindUI.Version = Package.version
 end
 
 local KeySystem = require("./components/KeySystem")
 
-local Creator = SaltyUI.Creator
+local Creator = WindUI.Creator
 
 local New = Creator.New
 
 --local Tween = Creator.Tween
---local ServicesModule = SaltyUI.Services
+--local ServicesModule = WindUI.Services
 
 local Acrylic = require("./utils/Acrylic/Init")
 
@@ -96,18 +98,29 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
 local GUIParent = gethui and gethui() or (CoreGui or LocalPlayer:WaitForChild("PlayerGui"))
 
+local TOP_DISPLAY_ORDER = 1000000
+local SetHiddenProperty = sethiddenproperty or sethiddenprop
+
+local function KeepScreenGuiOnTop(ScreenGui, DisplayOrder)
+	ScreenGui.DisplayOrder = DisplayOrder
+
+	if SetHiddenProperty then
+		pcall(SetHiddenProperty, ScreenGui, "OnTopOfCoreBlur", true)
+	end
+end
+
 local UIScaleObj = New("UIScale", {
-	Scale = SaltyUI.UIScale,
+	Scale = WindUI.UIScale,
 })
 
-SaltyUI.UIScaleObj = UIScaleObj
+WindUI.UIScaleObj = UIScaleObj
 
-SaltyUI.ScreenGui = New("ScreenGui", {
-	Name = "SaltyUI",
+WindUI.ScreenGui = New("ScreenGui", {
+	Name = "VantaUI",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	ScreenInsets = "None",
-	DisplayOrder = -99999,
+	DisplayOrder = TOP_DISPLAY_ORDER,
 }, {
 
 	New("Folder", {
@@ -130,111 +143,176 @@ SaltyUI.ScreenGui = New("ScreenGui", {
 	}),
 })
 
-SaltyUI.NotificationGui = New("ScreenGui", {
-	Name = "SaltyUI/Notifications",
+WindUI.NotificationGui = New("ScreenGui", {
+	Name = "VantaUI/Notifications",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
+	DisplayOrder = TOP_DISPLAY_ORDER + 3,
 })
-SaltyUI.DropdownGui = New("ScreenGui", {
-	Name = "SaltyUI/Dropdowns",
+WindUI.DropdownGui = New("ScreenGui", {
+	Name = "VantaUI/Dropdowns",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
+	DisplayOrder = TOP_DISPLAY_ORDER + 2,
 })
-SaltyUI.TooltipGui = New("ScreenGui", {
-	Name = "SaltyUI/Tooltips",
+WindUI.TooltipGui = New("ScreenGui", {
+	Name = "VantaUI/Tooltips",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
+	DisplayOrder = TOP_DISPLAY_ORDER + 1,
 })
-ProtectGui(SaltyUI.ScreenGui)
-ProtectGui(SaltyUI.NotificationGui)
-ProtectGui(SaltyUI.DropdownGui)
-ProtectGui(SaltyUI.TooltipGui)
+ProtectGui(WindUI.ScreenGui)
+ProtectGui(WindUI.NotificationGui)
+ProtectGui(WindUI.DropdownGui)
+ProtectGui(WindUI.TooltipGui)
 
-Creator.Init(SaltyUI)
+KeepScreenGuiOnTop(WindUI.ScreenGui, TOP_DISPLAY_ORDER)
+KeepScreenGuiOnTop(WindUI.NotificationGui, TOP_DISPLAY_ORDER + 3)
+KeepScreenGuiOnTop(WindUI.DropdownGui, TOP_DISPLAY_ORDER + 2)
+KeepScreenGuiOnTop(WindUI.TooltipGui, TOP_DISPLAY_ORDER + 1)
 
-function SaltyUI:SetParent(parent)
-	if SaltyUI.ScreenGui then
-		SaltyUI.ScreenGui.Parent = parent
+WindUI.SoundManager:Init(WindUI)
+Creator.Init(WindUI)
+
+function WindUI:SetParent(parent)
+	if WindUI.ScreenGui then
+		WindUI.ScreenGui.Parent = parent
 	end
-	if SaltyUI.NotificationGui then
-		SaltyUI.NotificationGui.Parent = parent
+	if WindUI.NotificationGui then
+		WindUI.NotificationGui.Parent = parent
 	end
-	if SaltyUI.DropdownGui then
-		SaltyUI.DropdownGui.Parent = parent
+	if WindUI.DropdownGui then
+		WindUI.DropdownGui.Parent = parent
 	end
-	if SaltyUI.TooltipGui then
-		SaltyUI.TooltipGui.Parent = parent
+	if WindUI.TooltipGui then
+		WindUI.TooltipGui.Parent = parent
 	end
 end
-math.clamp(SaltyUI.TransparencyValue, 0, 1)
+math.clamp(WindUI.TransparencyValue, 0, 1)
 
-local Holder = SaltyUI.NotificationModule.Init(SaltyUI.NotificationGui)
+local Holder = WindUI.NotificationModule.Init(WindUI.NotificationGui)
 
-function SaltyUI:Notify(Config)
+function WindUI:Notify(Config)
 	Config.Holder = Holder.Frame
-	Config.Window = SaltyUI.Window
-	--Config.SaltyUI = SaltyUI
-	return SaltyUI.NotificationModule.New(Config)
+	Config.Window = WindUI.Window
+	--Config.WindUI = WindUI
+	return WindUI.NotificationModule.New(Config)
 end
 
-function SaltyUI:SetNotificationLower(Val)
+function WindUI:SetNotificationLower(Val)
 	Holder.SetLower(Val)
 end
 
-function SaltyUI:SetFont(FontId)
+function WindUI:ConfigureSounds(Config)
+	return WindUI.SoundManager:Configure(Config)
+end
+
+function WindUI:SetSoundEnabled(Value)
+	return WindUI.SoundManager:SetEnabled(Value)
+end
+
+function WindUI:SetSoundPreset(Name)
+	return WindUI.SoundManager:SetPreset(Name)
+end
+
+function WindUI:SetSoundVolume(Value)
+	return WindUI.SoundManager:SetVolume(Value)
+end
+
+function WindUI:SetSoundPitch(Value)
+	return WindUI.SoundManager:SetPitch(Value)
+end
+
+function WindUI:SetSoundForEvent(EventName, Sound, Options)
+	return WindUI.SoundManager:SetSoundForEvent(EventName, Sound, Options)
+end
+
+function WindUI:ClearSoundOverride(EventName)
+	return WindUI.SoundManager:ClearSoundOverride(EventName)
+end
+
+function WindUI:ClearSoundOverrides()
+	return WindUI.SoundManager:ClearSoundOverrides()
+end
+
+function WindUI:PlaySound(EventName, Options)
+	return WindUI.SoundManager:Play(EventName, Options)
+end
+
+function WindUI:PreviewSound(SoundName, Options)
+	return WindUI.SoundManager:Preview(SoundName, Options)
+end
+
+function WindUI:GetSoundConfig()
+	return WindUI.SoundManager:GetConfig()
+end
+
+function WindUI:GetSoundEvents()
+	return WindUI.SoundManager:GetEvents()
+end
+
+function WindUI:GetSoundPresets()
+	return WindUI.SoundManager:GetPresetNames()
+end
+
+function WindUI:GetSoundNames()
+	return WindUI.SoundManager:GetSoundNames()
+end
+
+function WindUI:SetFont(FontId)
 	Creator.UpdateFont(FontId)
 end
 
-function SaltyUI:OnThemeChange(func)
-	SaltyUI.OnThemeChangeFunction = func
+function WindUI:OnThemeChange(func)
+	WindUI.OnThemeChangeFunction = func
 end
 
-function SaltyUI:AddTheme(LTheme)
-	SaltyUI.Themes[LTheme.Name] = LTheme
+function WindUI:AddTheme(LTheme)
+	WindUI.Themes[LTheme.Name] = LTheme
 	return LTheme
 end
 
-function SaltyUI:SetTheme(Value)
-	if SaltyUI.Themes[Value] then
-		SaltyUI.Theme = SaltyUI.Themes[Value]
-		Creator.SetTheme(SaltyUI.Themes[Value])
+function WindUI:SetTheme(Value)
+	if WindUI.Themes[Value] then
+		WindUI.Theme = WindUI.Themes[Value]
+		Creator.SetTheme(WindUI.Themes[Value])
 
-		if SaltyUI.OnThemeChangeFunction then
-			SaltyUI.OnThemeChangeFunction(Value)
+		if WindUI.OnThemeChangeFunction then
+			WindUI.OnThemeChangeFunction(Value)
 		end
 
-		return SaltyUI.Themes[Value]
+		return WindUI.Themes[Value]
 	end
 	return nil
 end
 
-function SaltyUI:GetThemes()
-	return SaltyUI.Themes
+function WindUI:GetThemes()
+	return WindUI.Themes
 end
-function SaltyUI:GetCurrentTheme()
-	return SaltyUI.Theme.Name
+function WindUI:GetCurrentTheme()
+	return WindUI.Theme.Name
 end
-function SaltyUI:GetTransparency()
-	return SaltyUI.Transparent or false
+function WindUI:GetTransparency()
+	return WindUI.Transparent or false
 end
-function SaltyUI:GetWindowSize()
-	return SaltyUI.Window.UIElements.Main.Size
+function WindUI:GetWindowSize()
+	return WindUI.Window.UIElements.Main.Size
 end
-function SaltyUI:Localization(LocalizationConfig)
-	return SaltyUI.LocalizationModule:New(LocalizationConfig, Creator)
+function WindUI:Localization(LocalizationConfig)
+	return WindUI.LocalizationModule:New(LocalizationConfig, Creator)
 end
 
-function SaltyUI:SetLanguage(Value)
+function WindUI:SetLanguage(Value)
 	if Creator.Localization then
 		return Creator.SetLanguage(Value)
 	end
 	return false
 end
 
-function SaltyUI:ToggleAcrylic(Value)
-	if SaltyUI.Window and SaltyUI.Window.AcrylicPaint and SaltyUI.Window.AcrylicPaint.Model then
-		SaltyUI.Window.Acrylic = Value
-		SaltyUI.Window.AcrylicPaint.Model.Transparency = Value and 0.98 or 1
+function WindUI:ToggleAcrylic(Value)
+	if WindUI.Window and WindUI.Window.AcrylicPaint and WindUI.Window.AcrylicPaint.Model then
+		WindUI.Window.Acrylic = Value
+		WindUI.Window.AcrylicPaint.Model.Transparency = Value and 0.98 or 1
 		if Value then
 			Acrylic.Enable()
 		else
@@ -243,7 +321,7 @@ function SaltyUI:ToggleAcrylic(Value)
 	end
 end
 
-function SaltyUI:Gradient(stops, props)
+function WindUI:Gradient(stops, props)
 	local colorSequence = {}
 	local transparencySequence = {}
 
@@ -290,24 +368,129 @@ function SaltyUI:Gradient(stops, props)
 	return gradientData
 end
 
-function SaltyUI:Popup(PopupConfig)
-	PopupConfig.SaltyUI = SaltyUI
-	return require("./components/popup/Init").new(PopupConfig, SaltyUI.ScreenGui.Popups)
+function WindUI:Popup(PopupConfig)
+	PopupConfig.WindUI = WindUI
+	return require("./components/popup/Init").new(PopupConfig, WindUI.ScreenGui.Popups)
 end
 
-SaltyUI.Themes = require("./themes/Init")(SaltyUI, Creator)
+WindUI.Themes = require("./themes/Init")(WindUI, Creator)
 
-Creator.Themes = SaltyUI.Themes
+WindUI.Themes["Salty Special"] = {
+	Name = "Salty Special",
+	Accent = Color3.fromHex("#A1162F"),
+	Dialog = Color3.fromHex("#0A0709"),
+	Outline = Color3.fromHex("#5A1824"),
+	Text = Color3.fromHex("#FFFFFF"),
+	Placeholder = Color3.fromHex("#9A9AA3"),
+	Background = Color3.fromHex("#000000"),
+	Button = Color3.fromHex("#251016"),
+	Icon = Color3.fromHex("#E2DDE0"),
+	Toggle = Color3.fromHex("#A1162F"),
+	Slider = Color3.fromHex("#A1162F"),
+	Checkbox = Color3.fromHex("#A1162F"),
+	Primary = Color3.fromHex("#A1162F"),
+	SliderIcon = Color3.fromHex("#F1E3E7"),
+	PanelBackground = Color3.fromHex("#050406"),
+	PanelBackgroundTransparency = 0.42,
+	LabelBackground = Color3.fromHex("#0A080A"),
+	LabelBackgroundTransparency = 0.08,
+	ElementBackground = Color3.fromHex("#151116"),
+	ElementBackgroundTransparency = 0.16,
+	-- Let the Crimson01 artwork show through; selection fades away to the right.
+	TabBackgroundActive = Color3.fromHex("#0B0A0C"),
+	TabBackgroundActiveTransparency = 1,
+	TabBackgroundHover = Color3.fromHex("#151013"),
+	TabBackgroundHoverTransparency = 0.82,
+	TabSelectionFade = Color3.fromHex("#4A1C2B"),
+}
 
-SaltyUI:SetTheme("Dark")
-SaltyUI:SetLanguage(Creator.Language)
 
-function SaltyUI:CreateWindow(Config)
+WindUI.Themes["Gui Dark"] = {
+	Name = "Gui Dark",
+	Accent = Color3.fromHex("#151923"),
+	Dialog = Color3.fromHex("#11141C"),
+	Outline = Color3.fromHex("#FFFFFF"),
+	Text = Color3.fromHex("#F7F9FF"),
+	Placeholder = Color3.fromHex("#98A1B3"),
+	Background = Color3.fromHex("#0B0E14"),
+	Button = Color3.fromHex("#242B3A"),
+	Icon = Color3.fromHex("#AEB7C8"),
+	Toggle = Color3.fromHex("#5DE7FF"),
+	Slider = Color3.fromHex("#7C8CFF"),
+	Checkbox = Color3.fromHex("#7C8CFF"),
+	Primary = Color3.fromHex("#7C8CFF"),
+	SliderIcon = Color3.fromHex("#A9B2C4"),
+	PanelBackground = Color3.fromHex("#FFFFFF"),
+	PanelBackgroundTransparency = 0.96,
+	LabelBackground = Color3.fromHex("#000000"),
+	LabelBackgroundTransparency = 0.82,
+	ElementBackground = Color3.fromHex("#171C27"),
+	ElementBackgroundTransparency = 0,
+}
+
+WindUI.Themes["Gui AMOLED"] = {
+	Name = "Gui AMOLED",
+	Accent = Color3.fromHex("#0A0A0D"),
+	Dialog = Color3.fromHex("#08090C"),
+	Outline = Color3.fromHex("#FFFFFF"),
+	Text = Color3.fromHex("#FFFFFF"),
+	Placeholder = Color3.fromHex("#858B98"),
+	Background = Color3.fromHex("#000000"),
+	Button = Color3.fromHex("#17191F"),
+	Icon = Color3.fromHex("#A8AFBC"),
+	Toggle = Color3.fromHex("#55F1D6"),
+	Slider = Color3.fromHex("#5DE7FF"),
+	Checkbox = Color3.fromHex("#5DE7FF"),
+	Primary = Color3.fromHex("#5DE7FF"),
+	SliderIcon = Color3.fromHex("#C4CAD4"),
+	PanelBackground = Color3.fromHex("#FFFFFF"),
+	PanelBackgroundTransparency = 0.975,
+	LabelBackground = Color3.fromHex("#090A0C"),
+	LabelBackgroundTransparency = 0.12,
+	ElementBackground = Color3.fromHex("#0D0F14"),
+	ElementBackgroundTransparency = 0,
+}
+
+WindUI.Themes["Gui Violet"] = {
+	Name = "Gui Violet",
+	Accent = Color3.fromHex("#211B35"),
+	Dialog = Color3.fromHex("#171323"),
+	Outline = Color3.fromHex("#FFFFFF"),
+	Text = Color3.fromHex("#FCF9FF"),
+	Placeholder = Color3.fromHex("#A49AB5"),
+	Background = Color3.fromHex("#0D0A13"),
+	Button = Color3.fromHex("#2C2440"),
+	Icon = Color3.fromHex("#C5B8D8"),
+	Toggle = Color3.fromHex("#A98BFF"),
+	Slider = Color3.fromHex("#A98BFF"),
+	Checkbox = Color3.fromHex("#D47CFF"),
+	Primary = Color3.fromHex("#A98BFF"),
+	SliderIcon = Color3.fromHex("#D7CCEA"),
+	PanelBackground = Color3.fromHex("#FFFFFF"),
+	PanelBackgroundTransparency = 0.965,
+	LabelBackground = Color3.fromHex("#120E1B"),
+	LabelBackgroundTransparency = 0.12,
+	ElementBackground = Color3.fromHex("#1B1628"),
+	ElementBackgroundTransparency = 0,
+}
+
+Creator.Themes = WindUI.Themes
+
+WindUI:SetTheme("Salty Special")
+WindUI:SetLanguage(Creator.Language)
+
+function WindUI:CreateWindow(Config)
+	Config = Config or {}
 	local CreateWindow = require("./components/window/Init")
+	if Config.Branding == nil then
+		local brand = "https://raw.githubusercontent.com/MrRos3/VantaTest/main/assets/vanta-brand-v2-original.jpeg?v=original-valid-20261015"
+		Config.Branding = { Name = "VANTA", Image = brand, WindowIcon = brand, OpenButtonIcon = brand,
+			IconSize = 24, IconRadius = 7, OpenButtonIconRadius = 8 }
+	end
 
 	if not RunService:IsStudio() and writefile then
-		if not isfolder("WindUI") then
-			makefolder("WindUI")
+		if not isfolder("Gui") then
+			makefolder("Gui")
 		end
 		if Config.Folder then
 			makefolder(Config.Folder)
@@ -316,20 +499,29 @@ function SaltyUI:CreateWindow(Config)
 		end
 	end
 
-	Config.SaltyUI = SaltyUI
-	Config.Window = SaltyUI.Window
-	Config.Parent = SaltyUI.ScreenGui.Window
+	Config.WindUI = WindUI
+	Config.Window = WindUI.Window
+	Config.Parent = WindUI.ScreenGui.Window
 
-	if SaltyUI.Window then
-		warn("You cannot create more than one window")
+	if WindUI.Window then
+		warn("[Gui] You cannot create more than one window")
 		return
 	end
 
+	local SoundConfig = Config.Sounds
+	if SoundConfig == nil then
+		SoundConfig = {}
+	end
+	if typeof(SoundConfig) == "table" and SoundConfig.Folder == nil then
+		SoundConfig.Folder = Config.Folder or Config.Title or "VantaUI"
+	end
+	WindUI:ConfigureSounds(SoundConfig)
+
 	local CanLoadWindow = true
 
-	local Theme = SaltyUI.Themes[Config.Theme or "Dark"]
+	local Theme = WindUI.Themes[Config.Theme or "Salty Special"] or WindUI.Theme
 
-	--SaltyUI.Theme = Theme
+	--WindUI.Theme = Theme
 	Creator.SetTheme(Theme)
 
 	local hwid = gethwid or function()
@@ -382,7 +574,7 @@ function SaltyUI:CreateWindow(Config)
 				local isSuccess = false
 
 				for _, i in next, Config.KeySystem.API do
-					local serviceData = SaltyUI.Services[i.Type]
+					local serviceData = WindUI.Services[i.Type]
 					if serviceData then
 						local args = {}
 						for _, argName in next, serviceData.Args do
@@ -414,19 +606,19 @@ function SaltyUI:CreateWindow(Config)
 
 	local Window = CreateWindow(Config)
 
-	SaltyUI.Transparent = Config.Transparent
-	SaltyUI.Window = Window
+	WindUI.Transparent = Config.Transparent
+	WindUI.Window = Window
 
 	if Config.Acrylic then
 		Acrylic.init()
 	end
 
 	-- function Window:ToggleTransparency(Value)
-	--     SaltyUI.Transparent = Value
-	--     SaltyUI.Window.Transparent = Value
+	--     WindUI.Transparent = Value
+	--     WindUI.Window.Transparent = Value
 
-	--     Window.UIElements.Main.Background.BackgroundTransparency = Value and SaltyUI.TransparencyValue or 0
-	--     Window.UIElements.Main.Background.ImageLabel.ImageTransparency = Value and SaltyUI.TransparencyValue or 0
+	--     Window.UIElements.Main.Background.BackgroundTransparency = Value and WindUI.TransparencyValue or 0
+	--     Window.UIElements.Main.Background.ImageLabel.ImageTransparency = Value and WindUI.TransparencyValue or 0
 	--     Window.UIElements.Main.Gradient.UIGradient.Transparency = NumberSequence.new{
 	--         NumberSequenceKeypoint.new(0, 1),
 	--         NumberSequenceKeypoint.new(1, Value and 0.85 or 0.7),
@@ -436,4 +628,4 @@ function SaltyUI:CreateWindow(Config)
 	return Window
 end
 
-return SaltyUI
+return WindUI

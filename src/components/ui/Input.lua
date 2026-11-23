@@ -8,12 +8,11 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius, 
 	Type = Type or "Input"
 	local Radius = Radius or 10
 	local IconInputFrame
-	local IconData = Creator.Icon(Icon)
-	if Icon and Icon ~= "" and IconData then
+	if Icon and Icon ~= "" then
 		IconInputFrame = New("ImageLabel", {
-			Image = IconData[1],
-			ImageRectSize = IconData[2].ImageRectSize,
-			ImageRectOffset = IconData[2].ImageRectPosition,
+			Image = Creator.Icon(Icon)[1],
+			ImageRectSize = Creator.Icon(Icon)[2].ImageRectSize,
+			ImageRectOffset = Creator.Icon(Icon)[2].ImageRectPosition,
 			Size = UDim2.new(0, 24 - 3, 0, 24 - 3),
 			BackgroundTransparency = 1,
 			ThemeTag = {
@@ -95,6 +94,13 @@ function Input.New(Placeholder, Icon, Parent, Type, Callback, OnChange, Radius, 
 			}),
 		}),
 	})
+
+	Creator.AddSignal(TextBox.Focused, function()
+		Creator.PlaySound("InputFocus")
+	end)
+	Creator.AddSignal(TextBox.FocusLost, function()
+		Creator.PlaySound("InputSubmit")
+	end)
 
 	-- InputFrame:GetPropertyChangedSignal("AbsoluteSize"), function()
 	--     TextBox.Size = UDim2.new(

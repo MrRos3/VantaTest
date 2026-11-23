@@ -20,7 +20,7 @@ return {
 		Viewport = require("./Viewport"),
 		--Video       = require("./Video"),
 	},
-	Load = function(tbl, Container, Elements, Window, SaltyUI, OnElementCreateFunction, ElementsModule, UIScale, Tab)
+	Load = function(tbl, Container, Elements, Window, WindUI, OnElementCreateFunction, ElementsModule, UIScale, Tab)
 		for name, module in next, Elements do
 			tbl[name] = function(self, config)
 				config = config or {}
@@ -31,7 +31,7 @@ return {
 				config.GlobalIndex = #Window.AllElements + 1
 				config.Parent = Container
 				config.Window = Window
-				config.SaltyUI = SaltyUI
+				config.WindUI = WindUI
 				config.UIScale = UIScale
 				config.ElementsModule = ElementsModule
 
@@ -55,7 +55,7 @@ return {
 										Window.PendingConfigData[config.Flag] = nil
 									else
 										warn(
-											"[ SaltyUI ] Failed to apply pending config for '"
+											"[ WindUI ] Failed to apply pending config for '"
 												.. config.Flag
 												.. "': "
 												.. tostring(err)
