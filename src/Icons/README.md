@@ -49,15 +49,15 @@ local houseIcon = Icons.Image({
 
 ```
 
-#### With WindUI `Creator` module (Themes support)
+#### With SaltyUI `Creator` module (Themes support)
 
 ```lua
 -- Load Icons
 local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/MrRos3/vantatest/main/src/Icons/Main-v2.lua"))()
 
--- WindUI 'Creator' module
-local WindUI = loadstring(game:HttpGet(--[[Paste WindUI Library]]))()
-local New = WindUI.Creator.New
+-- SaltyUI 'Creator' module
+local SaltyUI = loadstring(game:HttpGet(--[[Paste SaltyUI Library]]))()
+local New = SaltyUI.Creator.New
 
 Icons.Init(New, "Icon") -- Second arg is default 'theme tag' Color
 

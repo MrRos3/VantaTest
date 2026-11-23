@@ -25,7 +25,7 @@ local Element = {
 
 local ActiveSlider = nil
 
-function Element:Colorpicker(Config, Window, WindUI, OnApply)
+function Element:Colorpicker(Config, Window, SaltyUI, OnApply)
 	local Colorpicker = {
 		__type = "Colorpicker",
 		Title = Config.Title,
@@ -51,7 +51,7 @@ function Element:Colorpicker(Config, Window, WindUI, OnApply)
 	Colorpicker:SetHSVFromRGB(Colorpicker.Default)
 
 	local ColorpickerModule = require("../components/window/Dialog")
-	local ColorpickerFrame = ColorpickerModule.Create(nil, "Dialog", Window, WindUI, Window.UIElements.Main.Main)
+	local ColorpickerFrame = ColorpickerModule.Create(nil, "Dialog", Window, SaltyUI, Window.UIElements.Main.Main)
 
 	Colorpicker.ColorpickerFrame = ColorpickerFrame
 
@@ -658,7 +658,7 @@ function Element:Colorpicker(Config, Window, WindUI, OnApply)
 		Colorpicker:Update()
 	end
 
-	local CurInput = WindUI.GenerateGUID()
+	local CurInput = SaltyUI.GenerateGUID()
 
 	table.insert(
 		Connections,
@@ -690,10 +690,10 @@ function Element:Colorpicker(Config, Window, WindUI, OnApply)
 				return
 			end
 
-			if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
+			if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
 				return
 			end
-			WindUI.CurrentInput = CurInput
+			SaltyUI.CurrentInput = CurInput
 
 			if ActiveSlider and ActiveSlider ~= "SatVib" then
 				return
@@ -715,10 +715,10 @@ function Element:Colorpicker(Config, Window, WindUI, OnApply)
 				return
 			end
 
-			if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
+			if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
 				return
 			end
-			WindUI.CurrentInput = CurInput
+			SaltyUI.CurrentInput = CurInput
 
 			if ActiveSlider and ActiveSlider ~= "Hue" then
 				return
@@ -741,10 +741,10 @@ function Element:Colorpicker(Config, Window, WindUI, OnApply)
 					return
 				end
 
-				if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
+				if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
 					return
 				end
-				WindUI.CurrentInput = CurInput
+				SaltyUI.CurrentInput = CurInput
 
 				if ActiveSlider and ActiveSlider ~= "Transparency" then
 					return
@@ -762,10 +762,10 @@ function Element:Colorpicker(Config, Window, WindUI, OnApply)
 		UserInputService.InputEnded:Connect(function(input)
 			ActiveSlider = nil
 
-			if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
+			if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
 				return
 			end
-			WindUI.CurrentInput = nil
+			SaltyUI.CurrentInput = nil
 		end)
 	)
 
@@ -858,7 +858,7 @@ function Element:New(Config)
 		if CanCallback and not Colorpicker.IsShowed then
 			Colorpicker.IsShowed = true
 
-			Element:Colorpicker(Colorpicker, Config.Window, Config.WindUI, function(color, transparency)
+			Element:Colorpicker(Colorpicker, Config.Window, Config.SaltyUI, function(color, transparency)
 				Colorpicker:Update(color, transparency)
 				Colorpicker.Default = color
 				Colorpicker.Transparency = transparency

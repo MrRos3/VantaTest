@@ -1,5 +1,5 @@
 --[[
-    WindUI Example 2
+    SaltyUI Example 2
 ]]
 
 local cloneref = (cloneref or clonereference or function(instance)
@@ -8,7 +8,7 @@ end)
 local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
 local RunService = cloneref(game:GetService("RunService"))
 
-local WindUI
+local SaltyUI
 
 do
 	local ok, result = pcall(function()
@@ -16,22 +16,22 @@ do
 	end)
 
 	if ok then
-		WindUI = result
+		SaltyUI = result
 	else
 		if RunService:IsStudio() or not writefile then
-			WindUI = require(ReplicatedStorage:WaitForChild("WindUI"):WaitForChild("Init"))
+			SaltyUI = require(ReplicatedStorage:WaitForChild("SaltyUI"):WaitForChild("Init"))
 		else
-			WindUI =
-				loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/vantatest/main/dist/main.lua"))()
+			SaltyUI =
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua"))()
 		end
 	end
 end
 
---WindUI.TransparencyValue = .9
+--SaltyUI.TransparencyValue = .9
 local ThemeName = "Dark"
 
-local Window = WindUI:CreateWindow({
-	Title = "WindUI Library",
+local Window = SaltyUI:CreateWindow({
+	Title = "SaltyUI Library",
 	Author = "by salty",
 	Icon = "solar:wind-bold",
 	Theme = ThemeName,
@@ -86,8 +86,8 @@ local InfoTab = Window:Tab({
 })
 
 InfoTab:Paragraph({
-	Title = "WindUI",
-	Desc = "WindUI is a open source UI library for Roblox Script Hubs",
+	Title = "SaltyUI",
+	Desc = "SaltyUI is a open source UI library for Roblox Script Hubs",
 	Buttons = {
 		{
 			Title = "GitHub",

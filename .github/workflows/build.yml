@@ -1,4 +1,4 @@
-name: Build WindUI (main)
+name: Build SaltyUI (main)
 
 on:
   push:

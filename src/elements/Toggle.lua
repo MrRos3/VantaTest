@@ -99,7 +99,7 @@ function Element:New(Config)
 
 	Toggle:Set(Toggled, false, Config.Window.NewElements)
 
-	local CurInput = Config.WindUI.GenerateGUID()
+	local CurInput = Config.SaltyUI.GenerateGUID()
 
 	if Config.Window.NewElements and ToggleFunc.Animate then
 		if Toggle.Type == "Toggle" then
@@ -111,11 +111,11 @@ function Element:New(Config)
 						or Input.UserInputType == Enum.UserInputType.Touch
 					)
 				then
-					if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
+					if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
 						return
 					end
 
-					Config.WindUI.CurrentInput = CurInput
+					Config.SaltyUI.CurrentInput = CurInput
 					ToggleFunc:Animate(Input, Toggle)
 				end
 			end)

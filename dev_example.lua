@@ -2,16 +2,16 @@
 -- This is just an example.
 -- old example
 
-local WindUI = require("./src/Init")
+local SaltyUI = require("./src/Init")
 
-local Localization = WindUI:Localization({
+local Localization = SaltyUI:Localization({
     Enabled = true,
     Prefix = "loc:",
     DefaultLanguage = "en",
     Translations = {
         ["en"] = {
-            ["WINDUI_EXAMPLE"] = "WindUI Example",
-            ["WELCOME"] = "Welcome to WindUI!",
+            ["SALTYUI_EXAMPLE"] = "SaltyUI Example",
+            ["WELCOME"] = "Welcome to SaltyUI!",
             ["LIB_DESC"] = "Beautiful UI library for Roblox",
             ["SETTINGS"] = "Settings",
             ["APPEARANCE"] = "Appearance",
@@ -29,8 +29,8 @@ local Localization = WindUI:Localization({
 })
 
 
-WindUI.TransparencyValue = 0.2
-WindUI:SetTheme("Dark")
+SaltyUI.TransparencyValue = 0.2
+SaltyUI:SetTheme("Dark")
 
 local function gradient(text, startColor, endColor)
     local result = ""
@@ -44,8 +44,8 @@ local function gradient(text, startColor, endColor)
     return result
 end
 
-WindUI:Popup({
-    Title = gradient("WindUI Demo", Color3.fromHex("#6A11CB"), Color3.fromHex("#2575FC")),
+SaltyUI:Popup({
+    Title = gradient("SaltyUI Demo", Color3.fromHex("#6A11CB"), Color3.fromHex("#2575FC")),
     Icon = "sparkles",
     Content = "loc:LIB_DESC",
     Buttons = {
@@ -61,7 +61,7 @@ WindUI:Popup({
 
 -- Add your service to get key 
 --[[
-WindUI.Services.mysuperservicetogetkey = {
+SaltyUI.Services.mysuperservicetogetkey = {
     Name = "My Super Service",
     Icon = "droplet", -- lucide or rbxassetid or raw link to img
     
@@ -98,17 +98,17 @@ WindUI.Services.mysuperservicetogetkey = {
 ]]
 
 
-local Window = WindUI:CreateWindow({
-    Title = "loc:WINDUI_EXAMPLE",
+local Window = SaltyUI:CreateWindow({
+    Title = "loc:SALTYUI_EXAMPLE",
     Icon = "geist:window",
     Author = "loc:WELCOME",
-    Folder = "WindUI_Example",
+    Folder = "SaltyUI_Example",
     Size = UDim2.fromOffset(580, 490),
     Theme = "Dark",
     
     HidePanelBackground = false,
     NewElements = false,
-    -- Background = WindUI:Gradient({
+    -- Background = SaltyUI:Gradient({
     --     ["0"] = { Color = Color3.fromHex("#0f0c29"), Transparency = 1 },
     --     ["100"] = { Color = Color3.fromHex("#302b63"), Transparency = 0.9 },
     -- }, {
@@ -121,7 +121,7 @@ local Window = WindUI:CreateWindow({
         Enabled = true,
         Anonymous = true,
         Callback = function()
-            WindUI:Notify({
+            SaltyUI:Notify({
                 Title = "User Profile",
                 Content = "User profile clicked!",
                 Duration = 3
@@ -151,7 +151,7 @@ local Window = WindUI:CreateWindow({
     -- KeySystem = { -- 
     --     -- Key = { "1234", "5678" },  
     --     Note = "Example Key System. With platoboost, etc.",
-    --     -- URL = "https://github.com/MrRos3/vantatest",
+    --     -- URL = "https://github.com/MrRos3/VantaTest",
     --     -- Thumbnail = {
     --     --     Image = "rbxassetid://",
     --     --     Title = "Thumbnail",
@@ -172,7 +172,7 @@ local Window = WindUI:CreateWindow({
     --             -- Icon = "rbxassetid://", -- optional
     
     --             Type = "pandadevelopment", -- type: platoboost, ...
-    --             ServiceId = "windui", -- service id
+    --             ServiceId = "saltyui", -- service id
     --         },
     --         {   
     --             Type = "luarmor",
@@ -220,7 +220,7 @@ local TimeTag = Window:Tag({
     Title = "--:--",
     Radius = 0,
     --Color = Color3.fromHex("#000000"),
-    Color = WindUI:Gradient({
+    Color = SaltyUI:Gradient({
         ["0"]   = { Color = Color3.fromHex("#FF0F7B"), Transparency = 0 },
         ["100"] = { Color = Color3.fromHex("#F89B29"), Transparency = 0 },
     }, {
@@ -250,10 +250,10 @@ end)
 
 
 Window:CreateTopbarButton("theme-switcher", "moon", function()
-    WindUI:SetTheme(WindUI:GetCurrentTheme() == "Dark" and "Light" or "Dark")
-    WindUI:Notify({
+    SaltyUI:SetTheme(SaltyUI:GetCurrentTheme() == "Dark" and "Light" or "Dark")
+    SaltyUI:Notify({
         Title = "Theme Changed",
-        Content = "Current theme: "..WindUI:GetCurrentTheme(),
+        Content = "Current theme: "..SaltyUI:GetCurrentTheme(),
         Duration = 2
     })
 end, 990)
@@ -277,7 +277,7 @@ local Tabs = {
 
 -- Tabs.Elements:Paragraph({
 --     Title = "Interactive Components",
---     Desc = "Explore WindUI's powerful elements",
+--     Desc = "Explore SaltyUI's powerful elements",
 --     Image = "component",
 --     ImageSize = 20,
 --     Color = Color3.fromHex("#30ff6a"),
@@ -289,7 +289,7 @@ Tabs.Elements:Section({
 })
 
 Tabs.Elements:Section({
-    Title = "Explore WindUI's powerful elements",
+    Title = "Explore SaltyUI's powerful elements",
     TextSize = 16,
     TextTransparency = .25,
 })
@@ -329,7 +329,7 @@ local featureToggle = ElementsSection:Toggle({
     Value = false,
     Callback = function(state) 
         toggleState = state
-        WindUI:Notify({
+        SaltyUI:Notify({
             Title = "Features",
             Content = state and "Features Enabled" or "Features Disabled",
             Icon = state and "check" or "x",
@@ -357,7 +357,7 @@ local values = {}
 local values2 = {}
 
 -- random lucide icons
-local icons = WindUI.Creator.Icons.Icons.lucide -- getting all lucide icons
+local icons = SaltyUI.Creator.Icons.Icons.lucide -- getting all lucide icons
 local iconNames = {}
 
 for name, _ in next, icons do
@@ -383,7 +383,7 @@ local testDropdown = ElementsSection:Dropdown({
     SearchBarEnabled = true,
     Value = "Test 1",
     Callback = function(option)
-        -- WindUI:Notify({
+        -- SaltyUI:Notify({
         --     Title = "Dropdown",
         --     Content = "Selected: "..option,
         --     Duration = 2
@@ -426,7 +426,7 @@ local testDropdown3 = ElementsSection:Dropdown({
     SearchBarEnabled = true,
     Value = "Test 1",
     Callback = function(option)
-        -- WindUI:Notify({
+        -- SaltyUI:Notify({
         --     Title = "Dropdown",
         --     Content = "Selected: "..option,
         --     Duration = 2
@@ -443,8 +443,8 @@ ElementsSection:Button({
     Title = "Show Notification",
     Icon = "bell",
     Callback = function()
-        WindUI:Notify({
-            Title = "Hello WindUI!",
+        SaltyUI:Notify({
+            Title = "Hello SaltyUI!",
             Content = "This is a sample notification",
             Icon = "bell",
             Duration = 3
@@ -458,7 +458,7 @@ ElementsSection:Colorpicker({
     Default = Color3.fromHex("#30ff6a"),
     Transparency = 0, -- enable transparency
     Callback = function(color, transparency)
-        WindUI:Notify({
+        SaltyUI:Notify({
             Title = "Color Changed",
             Content = "New color: "..color:ToHex().."\nTransparency: "..transparency,
             Duration = 2
@@ -483,7 +483,7 @@ Tabs.Appearance:Paragraph({
 })
 
 local themes = {}
-for themeName, _ in pairs(WindUI:GetThemes()) do
+for themeName, _ in pairs(SaltyUI:GetThemes()) do
     table.insert(themes, themeName)
 end
 table.sort(themes)
@@ -502,8 +502,8 @@ local themeDropdown = Tabs.Appearance:Dropdown({
     Value = "Dark",
     Callback = function(theme)
         canchangedropdown = false
-        WindUI:SetTheme(theme)
-        WindUI:Notify({
+        SaltyUI:SetTheme(theme)
+        SaltyUI:Notify({
             Title = "Theme Applied",
             Content = theme,
             Icon = "palette",
@@ -534,7 +534,7 @@ local ThemeToggle = Tabs.Appearance:Toggle({
     Value = true,
     Callback = function(state)
         if canchangetheme then
-            WindUI:SetTheme(state and "Dark" or "Light")
+            SaltyUI:SetTheme(state and "Dark" or "Light")
         end
         if canchangedropdown then
             themeDropdown:Select(state and "Dark" or "Light")
@@ -542,7 +542,7 @@ local ThemeToggle = Tabs.Appearance:Toggle({
     end
 })
 
-WindUI:OnThemeChange(function(theme)
+SaltyUI:OnThemeChange(function(theme)
     canchangetheme = false
     ThemeToggle:Set(theme == "Dark")
     canchangetheme = true
@@ -627,14 +627,14 @@ if ConfigManager then
             configFile:Set("lastSave", os.date("%Y-%m-%d %H:%M:%S"))
             
             if configFile:Save() then
-                WindUI:Notify({ 
+                SaltyUI:Notify({
                     Title = "loc:SAVE_CONFIG", 
                     Content = "Saved as: "..configName,
                     Icon = "check",
                     Duration = 3
                 })
             else
-                WindUI:Notify({ 
+                SaltyUI:Notify({
                     Title = "Error", 
                     Content = "Failed to save config",
                     Icon = "x",
@@ -663,7 +663,7 @@ if ConfigManager then
                 end
                 
                 local lastSave = loadedData.lastSave or "Unknown"
-                WindUI:Notify({ 
+                SaltyUI:Notify({
                     Title = "loc:LOAD_CONFIG", 
                     Content = "Loaded: "..configName.."\nLast save: "..lastSave,
                     Icon = "refresh-cw",
@@ -678,7 +678,7 @@ if ConfigManager then
                         table.concat(MyPlayerData.inventory, ", "))
                 })
             else
-                WindUI:Notify({ 
+                SaltyUI:Notify({
                     Title = "Error", 
                     Content = "Failed to load config",
                     Icon = "x",
@@ -701,10 +701,10 @@ else
 end
 
 
-local footerSection = Window:Section({ Title = "WindUI " .. WindUI.Version })
+local footerSection = Window:Section({ Title = "SaltyUI " .. SaltyUI.Version })
 Tabs.Config:Paragraph({
     Title = "Github Repository",
-    Desc = "github.com/MrRos3/vantatest",
+    Desc = "github.com/MrRos3/VantaTest",
     Image = "github",
     ImageSize = 20,
     Color = "Grey",
@@ -714,8 +714,8 @@ Tabs.Config:Paragraph({
             Icon = "copy",
             Variant = "Tertiary",
             Callback = function()
-                setclipboard("https://github.com/MrRos3/vantatest")
-                WindUI:Notify({
+                setclipboard("https://github.com/MrRos3/VantaTest")
+                SaltyUI:Notify({
                     Title = "Copied!",
                     Content = "GitHub link copied to clipboard",
                     Duration = 2
@@ -762,7 +762,7 @@ if Window:GetUnlocked() and #Window:GetUnlocked() > 0 then
     for _, lockedelement in next, Window:GetUnlocked() do
         local title = lockedelement.Title
         if string.find(title, Localization.Prefix) then
-            local translations = Localization.Translations[WindUI.Creator.Language] or Localization.Translations[Localization.DefaultLanguage]
+            local translations = Localization.Translations[SaltyUI.Creator.Language] or Localization.Translations[Localization.DefaultLanguage]
             title = translations[ title:gsub("^" .. Localization.Prefix, "") ]
         end
         print("- " .. (title or "Unknown"))

@@ -105,8 +105,7 @@ jobs:
                         \"url\": \"$URL\",
                         \"author\": {
                           \"name\": \"${{ github.repository }}\",
-                          \"url\": \"https://github.com/${{ github.repository }}\",
-                          \"icon_url\": \"https://raw.githubusercontent.com/MrRos3/vantatest/main/docs/logo.png\"
+                          \"url\": \"https://github.com/${{ github.repository }}\"
                         }
                       }]
                     }"

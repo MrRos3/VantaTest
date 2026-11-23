@@ -3,7 +3,7 @@ local New = Creator.New
 local Tween = Creator.Tween
 
 -- local Window
--- local WindUI
+-- local SaltyUI
 
 local DialogModule = {
 	Holder = nil,
@@ -11,13 +11,13 @@ local DialogModule = {
 	Parent = nil,
 }
 
-function DialogModule.Create(Key, Type, Window, WindUI, Parent)
+function DialogModule.Create(Key, Type, Window, SaltyUI, Parent)
 	local Dialog = {
 		UICorner = 28,
 		UIPadding = 12,
 
 		Window = Window,
-		WindUI = WindUI,
+		SaltyUI = SaltyUI,
 
 		UIElements = {},
 	}

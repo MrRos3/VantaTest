@@ -2,13 +2,13 @@
 
 return [[
 {
-    "name": "windui",
+    "name": "saltyui",
     "version": "1.6.66",
     "main": "./dist/main.lua",
-    "repository": "https://github.com/MrRos3/vantatest",
+    "repository": "https://github.com/MrRos3/VantaTest",
     "discord": "",
-    "author": "MrRos3",
-    "description": "Roblox UI Library for scripts",
+    "author": "Salty",
+    "description": "SaltyUI by Salty",
     "license": "MIT",
     "scripts": {
         "dev": "bash build/build.sh dev $INPUT_FILE",

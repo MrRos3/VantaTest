@@ -60,7 +60,12 @@ fi
 END=$(date +%s%N)
 TIME=$((($END - $START) / 1000000))
 
-echo "$HEADER" > "$OUTPUT"
+{
+    echo "$HEADER"
+    echo "--[=["
+    cat LICENSE THIRD_PARTY_NOTICES src/Icons/LICENSE
+    echo "]=]"
+} > "$OUTPUT"
 echo "" >> "$OUTPUT"
 cat dist/temp.lua >> "$OUTPUT"
 rm -f dist/temp.lua
@@ -70,7 +75,7 @@ SIZE=$(($(wc -c < "$OUTPUT") / 1024))
 echo ""
 echo -e "[ $(date '+%H:%M:%S') ]"
 echo -e "${P}[ ✓ ]${R} $PREFIX"
-echo -e "${P}[ > ]${R} WindUI Build completed successfully"
+echo -e "${P}[ > ]${R} SaltyUI Build completed successfully"
 echo -e "${P}[ > ]${R} Version: ${VER}"
 echo -e "${P}[ > ]${R} Time taken: ${TIME}ms"
 echo -e "${P}[ > ]${R} Size: ${SIZE}KB"

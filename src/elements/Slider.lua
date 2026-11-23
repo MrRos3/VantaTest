@@ -302,7 +302,7 @@ function Element:New(Config)
 							IsSliderHolding = false
 							ScrollingFrameParent.ScrollingEnabled = true
 
-							Config.WindUI.CurrentInput = nil
+							Config.SaltyUI.CurrentInput = nil
 
 							if Config.Window.NewElements then
 								Tween(Slider.UIElements.SliderIcon.Frame.Thumb, 0.2, {
@@ -382,7 +382,7 @@ function Element:New(Config)
 		end
 	end)
 
-	local CurInput = Config.WindUI.GenerateGUID()
+	local CurInput = Config.SaltyUI.GenerateGUID()
 
 	Creator.AddSignal(Slider.UIElements.SliderContainer.InputBegan, function(input)
 		if Slider.Locked or IsSliderHolding then
@@ -392,10 +392,10 @@ function Element:New(Config)
 			input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch
 		then
-			if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
+			if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
 				return
 			end
-			Config.WindUI.CurrentInput = CurInput
+			Config.SaltyUI.CurrentInput = CurInput
 
 			Slider:Set(Value, input)
 

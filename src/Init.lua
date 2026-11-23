@@ -1,4 +1,4 @@
-local WindUI = {
+local SaltyUI = {
 	Window = nil,
 	Theme = nil,
 	Creator = require("./modules/Creator"),
@@ -30,7 +30,7 @@ local cloneref = (cloneref or clonereference or function(instance)
 	return instance
 end)
 
-WindUI.cloneref = cloneref
+SaltyUI.cloneref = cloneref
 
 local HttpService = cloneref(game:GetService("HttpService"))
 local Players = cloneref(game:GetService("Players"))
@@ -38,11 +38,11 @@ local CoreGui = cloneref(game:GetService("CoreGui"))
 local RunService = cloneref(game:GetService("RunService"))
 local UserInputService = cloneref(game:GetService("UserInputService"))
 
-function WindUI.GenerateGUID()
+function SaltyUI.GenerateGUID()
 	return HttpService:GenerateGUID(false)
 end
 
-local CurInput = WindUI.GenerateGUID()
+local CurInput = SaltyUI.GenerateGUID()
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessed)
 	--[[if GameProcessed then
@@ -54,23 +54,23 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessed)
 			Input.UserInputType == Enum.UserInputType.MouseButton1
 			or Input.UserInputType == Enum.UserInputType.Touch
 		then
-			if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
+			if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
 				return
 			end
 
-			WindUI.CurrentInput = CurInput
+			SaltyUI.CurrentInput = CurInput
 			--print(CurInput)
-			--WindUI.InputStartedOnUI = false
+			--SaltyUI.InputStartedOnUI = false
 		end
 	end)
 end)
 UserInputService.InputEnded:Connect(function(Input, GameProcessed)
 	if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-		if WindUI.CurrentInput and WindUI.CurrentInput ~= CurInput then
+		if SaltyUI.CurrentInput and SaltyUI.CurrentInput ~= CurInput then
 			return
 		end
 
-		WindUI.CurrentInput = nil
+		SaltyUI.CurrentInput = nil
 	end
 end)
 
@@ -78,17 +78,17 @@ local LocalPlayer = Players.LocalPlayer or nil
 
 local Package = HttpService:JSONDecode(require("../build/package"))
 if Package then
-	WindUI.Version = Package.version
+	SaltyUI.Version = Package.version
 end
 
 local KeySystem = require("./components/KeySystem")
 
-local Creator = WindUI.Creator
+local Creator = SaltyUI.Creator
 
 local New = Creator.New
 
 --local Tween = Creator.Tween
---local ServicesModule = WindUI.Services
+--local ServicesModule = SaltyUI.Services
 
 local Acrylic = require("./utils/Acrylic/Init")
 
@@ -97,13 +97,13 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local GUIParent = gethui and gethui() or (CoreGui or LocalPlayer:WaitForChild("PlayerGui"))
 
 local UIScaleObj = New("UIScale", {
-	Scale = WindUI.UIScale,
+	Scale = SaltyUI.UIScale,
 })
 
-WindUI.UIScaleObj = UIScaleObj
+SaltyUI.UIScaleObj = UIScaleObj
 
-WindUI.ScreenGui = New("ScreenGui", {
-	Name = "WindUI",
+SaltyUI.ScreenGui = New("ScreenGui", {
+	Name = "SaltyUI",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 	ScreenInsets = "None",
@@ -130,111 +130,111 @@ WindUI.ScreenGui = New("ScreenGui", {
 	}),
 })
 
-WindUI.NotificationGui = New("ScreenGui", {
-	Name = "WindUI/Notifications",
+SaltyUI.NotificationGui = New("ScreenGui", {
+	Name = "SaltyUI/Notifications",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 })
-WindUI.DropdownGui = New("ScreenGui", {
-	Name = "WindUI/Dropdowns",
+SaltyUI.DropdownGui = New("ScreenGui", {
+	Name = "SaltyUI/Dropdowns",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 })
-WindUI.TooltipGui = New("ScreenGui", {
-	Name = "WindUI/Tooltips",
+SaltyUI.TooltipGui = New("ScreenGui", {
+	Name = "SaltyUI/Tooltips",
 	Parent = GUIParent,
 	IgnoreGuiInset = true,
 })
-ProtectGui(WindUI.ScreenGui)
-ProtectGui(WindUI.NotificationGui)
-ProtectGui(WindUI.DropdownGui)
-ProtectGui(WindUI.TooltipGui)
+ProtectGui(SaltyUI.ScreenGui)
+ProtectGui(SaltyUI.NotificationGui)
+ProtectGui(SaltyUI.DropdownGui)
+ProtectGui(SaltyUI.TooltipGui)
 
-Creator.Init(WindUI)
+Creator.Init(SaltyUI)
 
-function WindUI:SetParent(parent)
-	if WindUI.ScreenGui then
-		WindUI.ScreenGui.Parent = parent
+function SaltyUI:SetParent(parent)
+	if SaltyUI.ScreenGui then
+		SaltyUI.ScreenGui.Parent = parent
 	end
-	if WindUI.NotificationGui then
-		WindUI.NotificationGui.Parent = parent
+	if SaltyUI.NotificationGui then
+		SaltyUI.NotificationGui.Parent = parent
 	end
-	if WindUI.DropdownGui then
-		WindUI.DropdownGui.Parent = parent
+	if SaltyUI.DropdownGui then
+		SaltyUI.DropdownGui.Parent = parent
 	end
-	if WindUI.TooltipGui then
-		WindUI.TooltipGui.Parent = parent
+	if SaltyUI.TooltipGui then
+		SaltyUI.TooltipGui.Parent = parent
 	end
 end
-math.clamp(WindUI.TransparencyValue, 0, 1)
+math.clamp(SaltyUI.TransparencyValue, 0, 1)
 
-local Holder = WindUI.NotificationModule.Init(WindUI.NotificationGui)
+local Holder = SaltyUI.NotificationModule.Init(SaltyUI.NotificationGui)
 
-function WindUI:Notify(Config)
+function SaltyUI:Notify(Config)
 	Config.Holder = Holder.Frame
-	Config.Window = WindUI.Window
-	--Config.WindUI = WindUI
-	return WindUI.NotificationModule.New(Config)
+	Config.Window = SaltyUI.Window
+	--Config.SaltyUI = SaltyUI
+	return SaltyUI.NotificationModule.New(Config)
 end
 
-function WindUI:SetNotificationLower(Val)
+function SaltyUI:SetNotificationLower(Val)
 	Holder.SetLower(Val)
 end
 
-function WindUI:SetFont(FontId)
+function SaltyUI:SetFont(FontId)
 	Creator.UpdateFont(FontId)
 end
 
-function WindUI:OnThemeChange(func)
-	WindUI.OnThemeChangeFunction = func
+function SaltyUI:OnThemeChange(func)
+	SaltyUI.OnThemeChangeFunction = func
 end
 
-function WindUI:AddTheme(LTheme)
-	WindUI.Themes[LTheme.Name] = LTheme
+function SaltyUI:AddTheme(LTheme)
+	SaltyUI.Themes[LTheme.Name] = LTheme
 	return LTheme
 end
 
-function WindUI:SetTheme(Value)
-	if WindUI.Themes[Value] then
-		WindUI.Theme = WindUI.Themes[Value]
-		Creator.SetTheme(WindUI.Themes[Value])
+function SaltyUI:SetTheme(Value)
+	if SaltyUI.Themes[Value] then
+		SaltyUI.Theme = SaltyUI.Themes[Value]
+		Creator.SetTheme(SaltyUI.Themes[Value])
 
-		if WindUI.OnThemeChangeFunction then
-			WindUI.OnThemeChangeFunction(Value)
+		if SaltyUI.OnThemeChangeFunction then
+			SaltyUI.OnThemeChangeFunction(Value)
 		end
 
-		return WindUI.Themes[Value]
+		return SaltyUI.Themes[Value]
 	end
 	return nil
 end
 
-function WindUI:GetThemes()
-	return WindUI.Themes
+function SaltyUI:GetThemes()
+	return SaltyUI.Themes
 end
-function WindUI:GetCurrentTheme()
-	return WindUI.Theme.Name
+function SaltyUI:GetCurrentTheme()
+	return SaltyUI.Theme.Name
 end
-function WindUI:GetTransparency()
-	return WindUI.Transparent or false
+function SaltyUI:GetTransparency()
+	return SaltyUI.Transparent or false
 end
-function WindUI:GetWindowSize()
-	return WindUI.Window.UIElements.Main.Size
+function SaltyUI:GetWindowSize()
+	return SaltyUI.Window.UIElements.Main.Size
 end
-function WindUI:Localization(LocalizationConfig)
-	return WindUI.LocalizationModule:New(LocalizationConfig, Creator)
+function SaltyUI:Localization(LocalizationConfig)
+	return SaltyUI.LocalizationModule:New(LocalizationConfig, Creator)
 end
 
-function WindUI:SetLanguage(Value)
+function SaltyUI:SetLanguage(Value)
 	if Creator.Localization then
 		return Creator.SetLanguage(Value)
 	end
 	return false
 end
 
-function WindUI:ToggleAcrylic(Value)
-	if WindUI.Window and WindUI.Window.AcrylicPaint and WindUI.Window.AcrylicPaint.Model then
-		WindUI.Window.Acrylic = Value
-		WindUI.Window.AcrylicPaint.Model.Transparency = Value and 0.98 or 1
+function SaltyUI:ToggleAcrylic(Value)
+	if SaltyUI.Window and SaltyUI.Window.AcrylicPaint and SaltyUI.Window.AcrylicPaint.Model then
+		SaltyUI.Window.Acrylic = Value
+		SaltyUI.Window.AcrylicPaint.Model.Transparency = Value and 0.98 or 1
 		if Value then
 			Acrylic.Enable()
 		else
@@ -243,7 +243,7 @@ function WindUI:ToggleAcrylic(Value)
 	end
 end
 
-function WindUI:Gradient(stops, props)
+function SaltyUI:Gradient(stops, props)
 	local colorSequence = {}
 	local transparencySequence = {}
 
@@ -290,19 +290,19 @@ function WindUI:Gradient(stops, props)
 	return gradientData
 end
 
-function WindUI:Popup(PopupConfig)
-	PopupConfig.WindUI = WindUI
-	return require("./components/popup/Init").new(PopupConfig, WindUI.ScreenGui.Popups)
+function SaltyUI:Popup(PopupConfig)
+	PopupConfig.SaltyUI = SaltyUI
+	return require("./components/popup/Init").new(PopupConfig, SaltyUI.ScreenGui.Popups)
 end
 
-WindUI.Themes = require("./themes/Init")(WindUI, Creator)
+SaltyUI.Themes = require("./themes/Init")(SaltyUI, Creator)
 
-Creator.Themes = WindUI.Themes
+Creator.Themes = SaltyUI.Themes
 
-WindUI:SetTheme("Dark")
-WindUI:SetLanguage(Creator.Language)
+SaltyUI:SetTheme("Dark")
+SaltyUI:SetLanguage(Creator.Language)
 
-function WindUI:CreateWindow(Config)
+function SaltyUI:CreateWindow(Config)
 	local CreateWindow = require("./components/window/Init")
 
 	if not RunService:IsStudio() and writefile then
@@ -316,20 +316,20 @@ function WindUI:CreateWindow(Config)
 		end
 	end
 
-	Config.WindUI = WindUI
-	Config.Window = WindUI.Window
-	Config.Parent = WindUI.ScreenGui.Window
+	Config.SaltyUI = SaltyUI
+	Config.Window = SaltyUI.Window
+	Config.Parent = SaltyUI.ScreenGui.Window
 
-	if WindUI.Window then
+	if SaltyUI.Window then
 		warn("You cannot create more than one window")
 		return
 	end
 
 	local CanLoadWindow = true
 
-	local Theme = WindUI.Themes[Config.Theme or "Dark"]
+	local Theme = SaltyUI.Themes[Config.Theme or "Dark"]
 
-	--WindUI.Theme = Theme
+	--SaltyUI.Theme = Theme
 	Creator.SetTheme(Theme)
 
 	local hwid = gethwid or function()
@@ -382,7 +382,7 @@ function WindUI:CreateWindow(Config)
 				local isSuccess = false
 
 				for _, i in next, Config.KeySystem.API do
-					local serviceData = WindUI.Services[i.Type]
+					local serviceData = SaltyUI.Services[i.Type]
 					if serviceData then
 						local args = {}
 						for _, argName in next, serviceData.Args do
@@ -414,19 +414,19 @@ function WindUI:CreateWindow(Config)
 
 	local Window = CreateWindow(Config)
 
-	WindUI.Transparent = Config.Transparent
-	WindUI.Window = Window
+	SaltyUI.Transparent = Config.Transparent
+	SaltyUI.Window = Window
 
 	if Config.Acrylic then
 		Acrylic.init()
 	end
 
 	-- function Window:ToggleTransparency(Value)
-	--     WindUI.Transparent = Value
-	--     WindUI.Window.Transparent = Value
+	--     SaltyUI.Transparent = Value
+	--     SaltyUI.Window.Transparent = Value
 
-	--     Window.UIElements.Main.Background.BackgroundTransparency = Value and WindUI.TransparencyValue or 0
-	--     Window.UIElements.Main.Background.ImageLabel.ImageTransparency = Value and WindUI.TransparencyValue or 0
+	--     Window.UIElements.Main.Background.BackgroundTransparency = Value and SaltyUI.TransparencyValue or 0
+	--     Window.UIElements.Main.Background.ImageLabel.ImageTransparency = Value and SaltyUI.TransparencyValue or 0
 	--     Window.UIElements.Main.Gradient.UIGradient.Transparency = NumberSequence.new{
 	--         NumberSequenceKeypoint.new(0, 1),
 	--         NumberSequenceKeypoint.new(1, Value and 0.85 or 0.7),
@@ -436,4 +436,4 @@ function WindUI:CreateWindow(Config)
 	return Window
 end
 
-return WindUI
+return SaltyUI

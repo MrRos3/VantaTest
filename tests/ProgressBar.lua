@@ -1,6 +1,6 @@
-local WindUI = require("../src/Init")
+local SaltyUI = require("../src/Init")
 
-local Window = WindUI:CreateWindow({
+local Window = SaltyUI:CreateWindow({
 	Title = "ProgressBar Test",
 })
 

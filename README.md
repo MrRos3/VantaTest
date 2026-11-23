@@ -1,21 +1,21 @@
-# VantaTest
+# SaltyUI
 
-Roblox UI library by **MrRos3 (salty)**.
+Roblox UI library by **Salty**.
 
 ## Loadstring
 
 ```lua
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
+local SaltyUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
 ```
 
 ## Quick start
 
 ```lua
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
+local SaltyUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/main.lua"))()
 
-local Window = WindUI:CreateWindow({
+local Window = SaltyUI:CreateWindow({
     Title = "salty hub",
-    Author = "by MrRos3",
+    Author = "Salty",
     Folder = "saltyhub",
     Icon = "solar:folder-2-bold-duotone",
 })
@@ -28,7 +28,7 @@ local Tab = Window:Tab({
 Tab:Button({
     Title = "Click me",
     Callback = function()
-        WindUI:Notify({
+        SaltyUI:Notify({
             Title = "salty hub",
             Content = "Button clicked!",
         })
@@ -63,3 +63,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Licensing
+
+See the [project license](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES).

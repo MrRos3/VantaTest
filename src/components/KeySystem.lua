@@ -9,7 +9,7 @@ local CreateInput = require("./ui/Input").New
 
 function KeySystem.new(Config, Filename, func, keyValidator)
 	local KeyDialogInit = require("./window/Dialog")
-	local KeyDialog = KeyDialogInit.Create(true, "Popup", Config.Window, Config.WindUI, Config.WindUI.ScreenGui.KeySystem)
+	local KeyDialog = KeyDialogInit.Create(true, "Popup", Config.Window, Config.SaltyUI, Config.SaltyUI.ScreenGui.KeySystem)
 
 	local Services = {}
 
@@ -305,7 +305,7 @@ function KeySystem.new(Config, Filename, func, keyValidator)
 		})
 
 		for _, i in next, Config.KeySystem.API do
-			local serviceDef = Config.WindUI.Services[i.Type]
+			local serviceDef = Config.SaltyUI.Services[i.Type]
 			if serviceDef then
 				local args = {}
 				for _, argName in next, serviceDef.Args do
@@ -391,7 +391,7 @@ function KeySystem.new(Config, Filename, func, keyValidator)
 				end)
 				Creator.AddSignal(APIFrame.MouseButton1Click, function()
 					serviceInstance.Copy()
-					Config.WindUI:Notify({
+					Config.SaltyUI:Notify({
 						Title = "Key System",
 						Content = "Key link copied to clipboard.",
 						Image = "key",
@@ -447,7 +447,7 @@ function KeySystem.new(Config, Filename, func, keyValidator)
 					func(true)
 				end
 			else
-				Config.WindUI:Notify({
+				Config.SaltyUI:Notify({
 					Title = "Key System. Error",
 					Content = "Invalid key.",
 					Icon = "triangle-alert",
@@ -480,7 +480,7 @@ function KeySystem.new(Config, Filename, func, keyValidator)
 			if isSuccess then
 				handleSuccess(key)
 			else
-				Config.WindUI:Notify({
+				Config.SaltyUI:Notify({
 					Title = "Key System. Error",
 					Content = result,
 					Icon = "triangle-alert",

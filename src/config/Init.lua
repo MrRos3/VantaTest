@@ -96,11 +96,11 @@ ConfigManager = {
 
 function ConfigManager:Init(WindowTable)
     if not WindowTable.Folder then
-        warn("[ WindUI.ConfigManager ] Window.Folder is not specified.")
+        warn("[ SaltyUI.ConfigManager ] Window.Folder is not specified.")
         return false
     end
     if RunService:IsStudio() or not writefile then
-        warn("[ WindUI.ConfigManager ] The config system doesn't work in the studio.")
+        warn("[ SaltyUI.ConfigManager ] The config system doesn't work in the studio.")
         return false
     end
     
@@ -125,7 +125,7 @@ end
 
 function ConfigManager:SetPath(customPath)
     if not customPath then
-        warn("[ WindUI.ConfigManager ] Custom path is not specified.")
+        warn("[ SaltyUI.ConfigManager ] Custom path is not specified.")
         return false
     end
     
@@ -209,7 +209,7 @@ function ConfigManager:CreateConfig(configFilename, autoload)
         
         local success, loadData = pcall(function()
             local readfile = readfile or function() 
-                warn("[ WindUI.ConfigManager ] The config system doesn't work in the studio.") 
+                warn("[ SaltyUI.ConfigManager ] The config system doesn't work in the studio.")
                 return nil 
             end
             return HttpService:JSONDecode(readfile(ConfigModule.Path))
@@ -296,9 +296,9 @@ function ConfigManager:CreateConfig(configFilename, autoload)
                     return ConfigModule:Load()
                 end)
                 if success then
-                    if Window.Debug then print("[ WindUI.ConfigManager ] AutoLoaded config: " .. configFilename) end
+                    if Window.Debug then print("[ SaltyUI.ConfigManager ] AutoLoaded config: " .. configFilename) end
                 else
-                    warn("[ WindUI.ConfigManager ] Failed to AutoLoad config: " .. configFilename .. " - " .. tostring(result))
+                    warn("[ SaltyUI.ConfigManager ] Failed to AutoLoad config: " .. configFilename .. " - " .. tostring(result))
                 end
             end)
         end

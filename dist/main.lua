@@ -1,18 +1,81 @@
 --[[
-     _      ___         ____  ______
-    | | /| / (_)__  ___/ / / / /  _/
-    | |/ |/ / / _ \/ _  / /_/ // /  
-    |__/|__/_/_//_/\_,_/\____/___/
-    
-    v1.6.66  |  2026-11-22  |  Roblox UI Library for scripts
-    
-    To view the source code, see the `src/` folder on the official GitHub repository.
-    
-    Author: MrRos3 (salty)
-    Github: https://github.com/MrRos3/vantatest
-    Discord: 
+    SaltyUI by Salty
+    v1.6.66 | 2026-11-23
+    Source: https://github.com/MrRos3/VantaTest
     License: MIT
 ]]
+--[=[
+MIT License
+
+Copyright (c) 2026 MrRos3
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+THIRD-PARTY NOTICES
+
+SaltyUI includes code from WindUI 1.6.66.
+Upstream source: https://github.com/Footagesus/WindUI/releases/tag/1.6.66
+
+MIT License
+
+Copyright (c) 2026 Footages
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The separately vendored icon library retains its notices in src/Icons/LICENSE.
+MIT License
+
+Copyright (c) 2026 MrRos3
+Copyright (c) 2025 Footages
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.]=]
 
 local __DARKLUA_BUNDLE_MODULES __DARKLUA_BUNDLE_MODULES={cache={},load=function(m)if not __DARKLUA_BUNDLE_MODULES.cache[
 m]then __DARKLUA_BUNDLE_MODULES.cache[m]={c=__DARKLUA_BUNDLE_MODULES[m]()}end return __DARKLUA_BUNDLE_MODULES.cache[m].c
@@ -10236,8 +10299,8 @@ or function(instance)return instance end)local RunService=cloneref(game:GetServi
 cloneref(game:GetService('UserInputService'))local TweenService=cloneref(game:GetService('TweenService'))local
 LocalizationService=cloneref(game:GetService('LocalizationService'))local HttpService=cloneref(game:GetService(
 'HttpService'))local DynamicShapeModule=__DARKLUA_BUNDLE_MODULES.load('a')local RenderStepped=RunService.Heartbeat local
-IconsURL=[[https://raw.githubusercontent.com/MrRos3/vantatest/main/src/Icons/Main-v2.lua]]local Icons=
-__DARKLUA_BUNDLE_MODULES.load('h')Icons.SetIconsType('lucide')local WindUI local Creator Creator={Font=
+IconsURL=[[https://raw.githubusercontent.com/MrRos3/VantaTest/main/src/Icons/Main-v2.lua]]local Icons=
+__DARKLUA_BUNDLE_MODULES.load('h')Icons.SetIconsType('lucide')local SaltyUI local Creator Creator={Font=
 'rbxassetid://12187365364',Localization=nil,CanDraggable=true,Theme=nil,Themes=nil,Icons=Icons,Signals={},Objects={},
 LocalizationObjects={},UIScale=1,FontObjects={},Language=string.match(LocalizationService.SystemLocaleId,'^[a-z]+'),
 Request=http_request or(syn and syn.request)or request,DefaultProperties={ScreenGui={ResetOnSpawn=false,ZIndexBehavior=
@@ -10249,15 +10312,15 @@ false,TextColor3=Color3.new(1,1,1),TextSize=14},TextBox={BackgroundColor3=Color3
 BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0},ImageButton={BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,
 AutoButtonColor=false},UIListLayout={SortOrder='LayoutOrder'},ScrollingFrame={ScrollBarImageTransparency=1,
 BorderSizePixel=0},VideoFrame={BorderSizePixel=0}},Colors={Red='#e53935',Orange='#f57c00',Green='#43a047',Blue='#039be5'
-,White='#ffffff',Grey='#484848'},ThemeFallbacks=nil,ThemeChangeCallbacks={}}function Creator.Init(WindUITable)WindUI=
-WindUITable Creator.ThemeFallbacks=__DARKLUA_BUNDLE_MODULES.load('i')(Creator)Creator.UIScale=WindUITable.UIScale
+,White='#ffffff',Grey='#484848'},ThemeFallbacks=nil,ThemeChangeCallbacks={}}function Creator.Init(SaltyUITable)SaltyUI=
+SaltyUITable Creator.ThemeFallbacks=__DARKLUA_BUNDLE_MODULES.load('i')(Creator)Creator.UIScale=SaltyUITable.UIScale
 DynamicShapeModule:Init(Creator)end function Creator.AddSignal(Signal,Function)local conn=Signal:Connect(Function)table.
 insert(Creator.Signals,conn)return conn end function Creator.DisconnectAll()for idx,signal in next,Creator.Signals do
 local Connection=table.remove(Creator.Signals,idx)Connection:Disconnect()end end function Creator.SafeCallback(Function,
-...)if not Function then return end local Success,Event=pcall(Function,...)if not Success then if WindUI and WindUI.
-Window and WindUI.Window.Debug then local _,i=Event:find(':%d+: ')warn('[ WindUI: DEBUG Mode ] '..Event)return WindUI:
-Notify({Title='DEBUG Mode: Error',Content=not i and Event or Event:sub(i+1),Duration=8})end end end function Creator.
-Gradient(stops,props)if WindUI and WindUI.Gradient then return WindUI:Gradient(stops,props)end local colorSequence={}
+...)if not Function then return end local Success,Event=pcall(Function,...)if not Success then if SaltyUI and SaltyUI.
+Window and SaltyUI.Window.Debug then local _,i=Event:find(':%d+: ')warn('[ SaltyUI: DEBUG Mode ] '..Event)return SaltyUI
+:Notify({Title='DEBUG Mode: Error',Content=not i and Event or Event:sub(i+1),Duration=8})end end end function Creator.
+Gradient(stops,props)if SaltyUI and SaltyUI.Gradient then return SaltyUI:Gradient(stops,props)end local colorSequence={}
 local transparencySequence={}for posStr,stop in next,stops do local position=tonumber(posStr)if position then position=
 math.clamp(position/100,0,1)table.insert(colorSequence,ColorSequenceKeypoint.new(position,stop.Color))table.insert(
 transparencySequence,NumberSequenceKeypoint.new(position,stop.Transparency or 0))end end table.sort(colorSequence,
@@ -10332,100 +10395,100 @@ end return Object end function Creator.Tween(Object,Time,Properties,...)return T
 Time,...),Properties)end function Creator.NewRoundFrame(Radius,Type,Properties,Children,IsButton,ReturnTable)return
 DynamicShapeModule:New(Radius,Type,Properties,Children,IsButton,nil)end local New=Creator.New local Tween=Creator.Tween
 function Creator.SetDraggable(can)Creator.CanDraggable=can end function Creator.Drag(mainFrame,dragFrames,ondrag)local
-CurInput=WindUI.GenerateGUID()local currentDragFrame=nil local dragging=false local dragStart,startPos local activeInput
-=nil local DragModule={CanDraggable=true}if not dragFrames or typeof(dragFrames)~='table'then dragFrames={mainFrame}end
-local function update(input)if not dragging or not DragModule.CanDraggable then return end local delta=input.Position-
-dragStart Creator.Tween(mainFrame,0.02,{Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,
-startPos.Y.Offset+delta.Y)}):Play()end for _,dragFrame in pairs(dragFrames)do dragFrame.InputBegan:Connect(function(
-input)if not DragModule.CanDraggable or dragging then return end if input.UserInputType==Enum.UserInputType.MouseButton1
-or input.UserInputType==Enum.UserInputType.Touch then if WindUI and WindUI.CurrentInput and WindUI.CurrentInput~=
-CurInput then return end WindUI.CurrentInput=CurInput dragging=true activeInput=input currentDragFrame=dragFrame
-dragStart=input.Position startPos=mainFrame.Position if ondrag and typeof(ondrag)=='function'then ondrag(true,
-currentDragFrame)end end end)end UserInputService.InputChanged:Connect(function(input)if not dragging then return end if
-WindUI.CurrentInput and WindUI.CurrentInput~=CurInput then return end if activeInput.UserInputType==Enum.UserInputType.
-MouseButton1 then if input.UserInputType==Enum.UserInputType.MouseMovement then update(input)end elseif activeInput.
-UserInputType==Enum.UserInputType.Touch then if input==activeInput then update(input)end end end)UserInputService.
-InputEnded:Connect(function(input)if not dragging or WindUI.CurrentInput~=CurInput then return end if input==activeInput
-or(activeInput.UserInputType==Enum.UserInputType.MouseButton1 and input.UserInputType==Enum.UserInputType.MouseButton1)
-then WindUI.CurrentInput=nil dragging=false activeInput=nil currentDragFrame=nil if ondrag and typeof(ondrag)==
-'function'then ondrag(false,nil)end end end)function DragModule:Set(v)DragModule.CanDraggable=v end return DragModule
-end Icons.Init(New,'Icon')function Creator.SanitizeFilename(url)local filename=url:match('([^/]+)$')or url filename=
-filename:gsub('%.[^%.]+$','')filename=filename:gsub('[^%w%-_]','_')if#filename>50 then filename=filename:sub(1,50)end
-return filename end function Creator.Image(Img,Name,Corner,Folder,Type,IsThemeTag,Themed,ThemeTagName)Folder=Folder or
-'Temp'Name=Creator.SanitizeFilename(Name)local ImageFrame=New('Frame',{Size=UDim2.new(0,0,0,0),BackgroundTransparency=1}
-,{New('ImageLabel',{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,ScaleType='Crop',ThemeTag=(Icons.Icon2(Img)or
-Themed)and{ImageColor3=IsThemeTag and(ThemeTagName or'Icon')or nil}or nil},{New('UICorner',{CornerRadius=UDim.new(0,
-Corner)})})})if Icons.Icon2(Img)then ImageFrame.ImageLabel:Destroy()local IconLabel=Icons.Image({Icon=Img,Size=UDim2.
-new(1,0,1,0),Colors={(IsThemeTag and(ThemeTagName or'Icon')or false),'Button'}}).IconFrame IconLabel.Parent=ImageFrame
-elseif string.find(Img,'http')and not string.find(Img,'roblox.com')then local FileName='WindUI/'..Folder..'/assets/.'..
-Type..'-'..Name..'.png'local success,response=pcall(function()task.spawn(function()local response=Creator.Request and
-Creator.Request({Url=Img,Method='GET'}).Body or{}if not RunService:IsStudio()and writefile then writefile(FileName,
-response)end local assetSuccess,asset=pcall(getcustomasset,FileName)if assetSuccess then ImageFrame.ImageLabel.Image=
-asset else warn(string.format("[ WindUI.Creator ] Failed to load custom asset '%s': %s",FileName,tostring(asset)))
-ImageFrame:Destroy()return end end)end)if not success then warn("[ WindUI.Creator ]  '"..identifyexecutor()or'Studio'..
-"' doesnt support the URL Images. Error: "..response)ImageFrame:Destroy()end elseif Img==''then ImageFrame.Visible=false
-else ImageFrame.ImageLabel.Image=Img end return ImageFrame end function Creator.Color3ToHSB(color)local r,g,b=color.R,
-color.G,color.B local max=math.max(r,g,b)local min=math.min(r,g,b)local delta=max-min local h=0 if delta~=0 then if max
-==r then h=(g-b)/delta%6 elseif max==g then h=(b-r)/delta+2 else h=(r-g)/delta+4 end h=h*60 else h=0 end local s=(max==0
-)and 0 or(delta/max)local v=max return{h=math.floor(h+0.5),s=s,b=v}end function Creator.GetPerceivedBrightness(color)
-local r=color.R local g=color.G local b=color.B return 0.299*r+0.587*g+0.114*b end function Creator.GetTextColorForHSB(
-color,contrast)local hsb=Creator.Color3ToHSB(color)local h,s,b=hsb.h,hsb.s,hsb.b if Creator.GetPerceivedBrightness(color
-)>(contrast or 0.5)then return Color3.fromHSV(h/360,0,0.05)else return Color3.fromHSV(h/360,0,0.98)end end function
-Creator.GetAverageColor(gradient)local r,g,b=0,0,0 local keypoints=gradient.Color.Keypoints for _,k in ipairs(keypoints)
-do r=r+k.Value.R g=g+k.Value.G b=b+k.Value.B end local n=#keypoints return Color3.new(r/n,g/n,b/n)end function Creator:
-GenerateUniqueID()return HttpService:GenerateGUID(false)end function Creator:OnThemeChange(callback)if typeof(callback)
-~='function'then return end local id=HttpService:GenerateGUID(false)Creator.ThemeChangeCallbacks[id]=callback return{
-Disconnect=function()Creator.ThemeChangeCallbacks[id]=nil end}end function Creator:AddColor(base,add,weight)weight=math.
-clamp(weight or 1,0,1)if typeof(add)=='string'then add=Color3.fromHex(add)end return function(theme)local baseColor if
-typeof(base)=='string'and string.sub(base,1,1)~='#'then baseColor=Creator.GetThemeProperty(base,theme)elseif typeof(base
-)=='string'then baseColor=Color3.fromHex(base)else baseColor=base end if not baseColor or typeof(baseColor)~='Color3'
-then return nil end return Color3.new(math.clamp(baseColor.R+add.R*weight,0,1),math.clamp(baseColor.G+add.G*weight,0,1),
-math.clamp(baseColor.B+add.B*weight,0,1))end end function Creator:GetElementPosition(elements,targetIndex,isHStack)if
-type(targetIndex)~='number'or targetIndex~=math.floor(targetIndex)then return nil,1 end local maxIndex=#elements if
-maxIndex==0 or targetIndex<1 or targetIndex>maxIndex then return nil,2 end local function isDelimiter(el)if el==nil then
-return true end local t=el.__type return t=='Divider'or t=='Space'or t=='Section'end if isDelimiter(elements[targetIndex
-])then return nil,3 end local function calculate(pos,size)if size==1 then return'Squircle'end if pos==1 then return
-isHStack and'SquircleH-TL-TR'or'Squircle-TL-TR'end if pos==size then return isHStack and'SquircleH-BL-BR'or
-'Squircle-BL-BR'end return'Square'end local groupStart=1 local groupCount=0 for i=1,maxIndex do local el=elements[i]if
-isDelimiter(el)then if targetIndex>=groupStart and targetIndex<=i-1 then local pos=targetIndex-groupStart+1 return
-calculate(pos,groupCount)end groupStart=i+1 groupCount=0 else groupCount=groupCount+1 end end if targetIndex>=groupStart
-and targetIndex<=maxIndex then local pos=targetIndex-groupStart+1 return calculate(pos,groupCount)end return nil,4 end
-return Creator end function __DARKLUA_BUNDLE_MODULES.k()local Localization={}function Localization:New(
-LocalizationConfig,Creator)local LocalizationModule={Enabled=LocalizationConfig.Enabled or false,Translations=
-LocalizationConfig.Translations or{},Prefix=LocalizationConfig.Prefix or'loc:',DefaultLanguage=LocalizationConfig.
-DefaultLanguage or'en'}Creator.Localization=LocalizationModule return LocalizationModule end return Localization end
-function __DARKLUA_BUNDLE_MODULES.l()local Creator=__DARKLUA_BUNDLE_MODULES.load('j')local New=Creator.New local Tween=
-Creator.Tween local NotificationModule={Size=UDim2.new(0,300,1,-100-56),SizeLower=UDim2.new(0,300,1,-56),UICorner=18,
-UIPadding=14,Holder=nil,NotificationIndex=0,Notifications={}}function NotificationModule.Init(Parent)local NotModule={
-Lower=false}function NotModule.SetLower(val)NotModule.Lower=val NotModule.Frame.Size=val and NotificationModule.
-SizeLower or NotificationModule.Size end NotModule.Frame=New('Frame',{Position=UDim2.new(1,-116/4,0,56),AnchorPoint=
-Vector2.new(1,0),Size=NotificationModule.Size,Parent=Parent,BackgroundTransparency=1},{New('UIListLayout',{
-HorizontalAlignment='Center',SortOrder='LayoutOrder',VerticalAlignment='Bottom',Padding=UDim.new(0,8)}),New('UIPadding',
-{PaddingBottom=UDim.new(0,116/4)})})return NotModule end function NotificationModule.New(Config)local Notification={
-Title=Config.Title or'Notification',Content=Config.Content or nil,Icon=Config.Icon or nil,IconThemed=Config.IconThemed,
-Background=Config.Background,BackgroundImageTransparency=Config.BackgroundImageTransparency,Duration=Config.Duration or
-5,Buttons=Config.Buttons or{},CanClose=Config.CanClose~=false,UIElements={},Closed=false}NotificationModule.
-NotificationIndex=NotificationModule.NotificationIndex+1 NotificationModule.Notifications[NotificationModule.
-NotificationIndex]=Notification local Icon if Notification.Icon then Icon=Creator.Image(Notification.Icon,Notification.
-Title..':'..Notification.Icon,0,Config.Window,'Notification',Notification.IconThemed)Icon.Size=UDim2.new(0,26,0,26)Icon.
-Position=UDim2.new(0,NotificationModule.UIPadding,0,NotificationModule.UIPadding)end local CloseButton if Notification.
-CanClose then local CloseIconData=Creator.Icon('x')CloseButton=New('ImageButton',{Image=CloseIconData and CloseIconData[
-1],ImageRectSize=CloseIconData and CloseIconData[2]and CloseIconData[2].ImageRectSize,ImageRectOffset=CloseIconData and
-CloseIconData[2]and CloseIconData[2].ImageRectPosition,BackgroundTransparency=1,Size=UDim2.new(0,16,0,16),Position=UDim2
-.new(1,-NotificationModule.UIPadding,0,NotificationModule.UIPadding),AnchorPoint=Vector2.new(1,0),ThemeTag={ImageColor3=
-'Text'},ImageTransparency=0.4},{New('TextButton',{Size=UDim2.new(1,8,1,8),BackgroundTransparency=1,AnchorPoint=Vector2.
-new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),Text=''})})end local Duration=Creator.NewRoundFrame(NotificationModule.
-UICorner,'Squircle',{Size=UDim2.new(0,0,1,0),ThemeTag={ImageTransparency='NotificationDurationTransparency',ImageColor3=
-'NotificationDuration'}})local TextContainer=New('Frame',{Size=UDim2.new(1,Notification.Icon and-28-NotificationModule.
-UIPadding or 0,1,0),Position=UDim2.new(1,0,0,0),AnchorPoint=Vector2.new(1,0),BackgroundTransparency=1,AutomaticSize='Y'}
-,{New('UIPadding',{PaddingTop=UDim.new(0,NotificationModule.UIPadding),PaddingLeft=UDim.new(0,NotificationModule.
-UIPadding),PaddingRight=UDim.new(0,NotificationModule.UIPadding),PaddingBottom=UDim.new(0,NotificationModule.UIPadding)}
-),New('TextLabel',{AutomaticSize='Y',Size=UDim2.new(1,-30-NotificationModule.UIPadding,0,0),TextWrapped=true,
-TextXAlignment='Left',RichText=true,BackgroundTransparency=1,TextSize=18,ThemeTag={TextColor3='NotificationTitle',
-TextTransparency='NotificationTitleTransparency'},Text=Notification.Title,FontFace=Font.new(Creator.Font,Enum.FontWeight
-.SemiBold)}),New('UIListLayout',{Padding=UDim.new(0,NotificationModule.UIPadding/3)})})if Notification.Content then New(
-'TextLabel',{AutomaticSize='Y',Size=UDim2.new(1,0,0,0),TextWrapped=true,TextXAlignment='Left',RichText=true,
-BackgroundTransparency=1,TextSize=15,ThemeTag={TextColor3='NotificationContent',TextTransparency=
+CurInput=SaltyUI.GenerateGUID()local currentDragFrame=nil local dragging=false local dragStart,startPos local
+activeInput=nil local DragModule={CanDraggable=true}if not dragFrames or typeof(dragFrames)~='table'then dragFrames={
+mainFrame}end local function update(input)if not dragging or not DragModule.CanDraggable then return end local delta=
+input.Position-dragStart Creator.Tween(mainFrame,0.02,{Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,
+startPos.Y.Scale,startPos.Y.Offset+delta.Y)}):Play()end for _,dragFrame in pairs(dragFrames)do dragFrame.InputBegan:
+Connect(function(input)if not DragModule.CanDraggable or dragging then return end if input.UserInputType==Enum.
+UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then if SaltyUI and SaltyUI.CurrentInput and
+SaltyUI.CurrentInput~=CurInput then return end SaltyUI.CurrentInput=CurInput dragging=true activeInput=input
+currentDragFrame=dragFrame dragStart=input.Position startPos=mainFrame.Position if ondrag and typeof(ondrag)=='function'
+then ondrag(true,currentDragFrame)end end end)end UserInputService.InputChanged:Connect(function(input)if not dragging
+then return end if SaltyUI.CurrentInput and SaltyUI.CurrentInput~=CurInput then return end if activeInput.UserInputType
+==Enum.UserInputType.MouseButton1 then if input.UserInputType==Enum.UserInputType.MouseMovement then update(input)end
+elseif activeInput.UserInputType==Enum.UserInputType.Touch then if input==activeInput then update(input)end end end)
+UserInputService.InputEnded:Connect(function(input)if not dragging or SaltyUI.CurrentInput~=CurInput then return end if
+input==activeInput or(activeInput.UserInputType==Enum.UserInputType.MouseButton1 and input.UserInputType==Enum.
+UserInputType.MouseButton1)then SaltyUI.CurrentInput=nil dragging=false activeInput=nil currentDragFrame=nil if ondrag
+and typeof(ondrag)=='function'then ondrag(false,nil)end end end)function DragModule:Set(v)DragModule.CanDraggable=v end
+return DragModule end Icons.Init(New,'Icon')function Creator.SanitizeFilename(url)local filename=url:match('([^/]+)$')or
+url filename=filename:gsub('%.[^%.]+$','')filename=filename:gsub('[^%w%-_]','_')if#filename>50 then filename=filename:
+sub(1,50)end return filename end function Creator.Image(Img,Name,Corner,Folder,Type,IsThemeTag,Themed,ThemeTagName)
+Folder=Folder or'Temp'Name=Creator.SanitizeFilename(Name)local ImageFrame=New('Frame',{Size=UDim2.new(0,0,0,0),
+BackgroundTransparency=1},{New('ImageLabel',{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,ScaleType='Crop',ThemeTag=
+(Icons.Icon2(Img)or Themed)and{ImageColor3=IsThemeTag and(ThemeTagName or'Icon')or nil}or nil},{New('UICorner',{
+CornerRadius=UDim.new(0,Corner)})})})if Icons.Icon2(Img)then ImageFrame.ImageLabel:Destroy()local IconLabel=Icons.Image(
+{Icon=Img,Size=UDim2.new(1,0,1,0),Colors={(IsThemeTag and(ThemeTagName or'Icon')or false),'Button'}}).IconFrame
+IconLabel.Parent=ImageFrame elseif string.find(Img,'http')and not string.find(Img,'roblox.com')then local FileName=
+'WindUI/'..Folder..'/assets/.'..Type..'-'..Name..'.png'local success,response=pcall(function()task.spawn(function()local
+response=Creator.Request and Creator.Request({Url=Img,Method='GET'}).Body or{}if not RunService:IsStudio()and writefile
+then writefile(FileName,response)end local assetSuccess,asset=pcall(getcustomasset,FileName)if assetSuccess then
+ImageFrame.ImageLabel.Image=asset else warn(string.format("[ SaltyUI.Creator ] Failed to load custom asset '%s': %s",
+FileName,tostring(asset)))ImageFrame:Destroy()return end end)end)if not success then warn("[ SaltyUI.Creator ]  '"..
+identifyexecutor()or'Studio'.."' doesnt support the URL Images. Error: "..response)ImageFrame:Destroy()end elseif Img==
+''then ImageFrame.Visible=false else ImageFrame.ImageLabel.Image=Img end return ImageFrame end function Creator.
+Color3ToHSB(color)local r,g,b=color.R,color.G,color.B local max=math.max(r,g,b)local min=math.min(r,g,b)local delta=max-
+min local h=0 if delta~=0 then if max==r then h=(g-b)/delta%6 elseif max==g then h=(b-r)/delta+2 else h=(r-g)/delta+4
+end h=h*60 else h=0 end local s=(max==0)and 0 or(delta/max)local v=max return{h=math.floor(h+0.5),s=s,b=v}end function
+Creator.GetPerceivedBrightness(color)local r=color.R local g=color.G local b=color.B return 0.299*r+0.587*g+0.114*b end
+function Creator.GetTextColorForHSB(color,contrast)local hsb=Creator.Color3ToHSB(color)local h,s,b=hsb.h,hsb.s,hsb.b if
+Creator.GetPerceivedBrightness(color)>(contrast or 0.5)then return Color3.fromHSV(h/360,0,0.05)else return Color3.
+fromHSV(h/360,0,0.98)end end function Creator.GetAverageColor(gradient)local r,g,b=0,0,0 local keypoints=gradient.Color.
+Keypoints for _,k in ipairs(keypoints)do r=r+k.Value.R g=g+k.Value.G b=b+k.Value.B end local n=#keypoints return Color3.
+new(r/n,g/n,b/n)end function Creator:GenerateUniqueID()return HttpService:GenerateGUID(false)end function Creator:
+OnThemeChange(callback)if typeof(callback)~='function'then return end local id=HttpService:GenerateGUID(false)Creator.
+ThemeChangeCallbacks[id]=callback return{Disconnect=function()Creator.ThemeChangeCallbacks[id]=nil end}end function
+Creator:AddColor(base,add,weight)weight=math.clamp(weight or 1,0,1)if typeof(add)=='string'then add=Color3.fromHex(add)
+end return function(theme)local baseColor if typeof(base)=='string'and string.sub(base,1,1)~='#'then baseColor=Creator.
+GetThemeProperty(base,theme)elseif typeof(base)=='string'then baseColor=Color3.fromHex(base)else baseColor=base end if
+not baseColor or typeof(baseColor)~='Color3'then return nil end return Color3.new(math.clamp(baseColor.R+add.R*weight,0,
+1),math.clamp(baseColor.G+add.G*weight,0,1),math.clamp(baseColor.B+add.B*weight,0,1))end end function Creator:
+GetElementPosition(elements,targetIndex,isHStack)if type(targetIndex)~='number'or targetIndex~=math.floor(targetIndex)
+then return nil,1 end local maxIndex=#elements if maxIndex==0 or targetIndex<1 or targetIndex>maxIndex then return nil,2
+end local function isDelimiter(el)if el==nil then return true end local t=el.__type return t=='Divider'or t=='Space'or t
+=='Section'end if isDelimiter(elements[targetIndex])then return nil,3 end local function calculate(pos,size)if size==1
+then return'Squircle'end if pos==1 then return isHStack and'SquircleH-TL-TR'or'Squircle-TL-TR'end if pos==size then
+return isHStack and'SquircleH-BL-BR'or'Squircle-BL-BR'end return'Square'end local groupStart=1 local groupCount=0 for i=
+1,maxIndex do local el=elements[i]if isDelimiter(el)then if targetIndex>=groupStart and targetIndex<=i-1 then local pos=
+targetIndex-groupStart+1 return calculate(pos,groupCount)end groupStart=i+1 groupCount=0 else groupCount=groupCount+1
+end end if targetIndex>=groupStart and targetIndex<=maxIndex then local pos=targetIndex-groupStart+1 return calculate(
+pos,groupCount)end return nil,4 end return Creator end function __DARKLUA_BUNDLE_MODULES.k()local Localization={}
+function Localization:New(LocalizationConfig,Creator)local LocalizationModule={Enabled=LocalizationConfig.Enabled or
+false,Translations=LocalizationConfig.Translations or{},Prefix=LocalizationConfig.Prefix or'loc:',DefaultLanguage=
+LocalizationConfig.DefaultLanguage or'en'}Creator.Localization=LocalizationModule return LocalizationModule end return
+Localization end function __DARKLUA_BUNDLE_MODULES.l()local Creator=__DARKLUA_BUNDLE_MODULES.load('j')local New=Creator.
+New local Tween=Creator.Tween local NotificationModule={Size=UDim2.new(0,300,1,-100-56),SizeLower=UDim2.new(0,300,1,-56)
+,UICorner=18,UIPadding=14,Holder=nil,NotificationIndex=0,Notifications={}}function NotificationModule.Init(Parent)local
+NotModule={Lower=false}function NotModule.SetLower(val)NotModule.Lower=val NotModule.Frame.Size=val and
+NotificationModule.SizeLower or NotificationModule.Size end NotModule.Frame=New('Frame',{Position=UDim2.new(1,-116/4,0,
+56),AnchorPoint=Vector2.new(1,0),Size=NotificationModule.Size,Parent=Parent,BackgroundTransparency=1},{New(
+'UIListLayout',{HorizontalAlignment='Center',SortOrder='LayoutOrder',VerticalAlignment='Bottom',Padding=UDim.new(0,8)}),
+New('UIPadding',{PaddingBottom=UDim.new(0,116/4)})})return NotModule end function NotificationModule.New(Config)local
+Notification={Title=Config.Title or'Notification',Content=Config.Content or nil,Icon=Config.Icon or nil,IconThemed=
+Config.IconThemed,Background=Config.Background,BackgroundImageTransparency=Config.BackgroundImageTransparency,Duration=
+Config.Duration or 5,Buttons=Config.Buttons or{},CanClose=Config.CanClose~=false,UIElements={},Closed=false}
+NotificationModule.NotificationIndex=NotificationModule.NotificationIndex+1 NotificationModule.Notifications[
+NotificationModule.NotificationIndex]=Notification local Icon if Notification.Icon then Icon=Creator.Image(Notification.
+Icon,Notification.Title..':'..Notification.Icon,0,Config.Window,'Notification',Notification.IconThemed)Icon.Size=UDim2.
+new(0,26,0,26)Icon.Position=UDim2.new(0,NotificationModule.UIPadding,0,NotificationModule.UIPadding)end local
+CloseButton if Notification.CanClose then local CloseIconData=Creator.Icon('x')CloseButton=New('ImageButton',{Image=
+CloseIconData and CloseIconData[1],ImageRectSize=CloseIconData and CloseIconData[2]and CloseIconData[2].ImageRectSize,
+ImageRectOffset=CloseIconData and CloseIconData[2]and CloseIconData[2].ImageRectPosition,BackgroundTransparency=1,Size=
+UDim2.new(0,16,0,16),Position=UDim2.new(1,-NotificationModule.UIPadding,0,NotificationModule.UIPadding),AnchorPoint=
+Vector2.new(1,0),ThemeTag={ImageColor3='Text'},ImageTransparency=0.4},{New('TextButton',{Size=UDim2.new(1,8,1,8),
+BackgroundTransparency=1,AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),Text=''})})end local Duration=
+Creator.NewRoundFrame(NotificationModule.UICorner,'Squircle',{Size=UDim2.new(0,0,1,0),ThemeTag={ImageTransparency=
+'NotificationDurationTransparency',ImageColor3='NotificationDuration'}})local TextContainer=New('Frame',{Size=UDim2.new(
+1,Notification.Icon and-28-NotificationModule.UIPadding or 0,1,0),Position=UDim2.new(1,0,0,0),AnchorPoint=Vector2.new(1,
+0),BackgroundTransparency=1,AutomaticSize='Y'},{New('UIPadding',{PaddingTop=UDim.new(0,NotificationModule.UIPadding),
+PaddingLeft=UDim.new(0,NotificationModule.UIPadding),PaddingRight=UDim.new(0,NotificationModule.UIPadding),PaddingBottom
+=UDim.new(0,NotificationModule.UIPadding)}),New('TextLabel',{AutomaticSize='Y',Size=UDim2.new(1,-30-NotificationModule.
+UIPadding,0,0),TextWrapped=true,TextXAlignment='Left',RichText=true,BackgroundTransparency=1,TextSize=18,ThemeTag={
+TextColor3='NotificationTitle',TextTransparency='NotificationTitleTransparency'},Text=Notification.Title,FontFace=Font.
+new(Creator.Font,Enum.FontWeight.SemiBold)}),New('UIListLayout',{Padding=UDim.new(0,NotificationModule.UIPadding/3)})})
+if Notification.Content then New('TextLabel',{AutomaticSize='Y',Size=UDim2.new(1,0,0,0),TextWrapped=true,TextXAlignment=
+'Left',RichText=true,BackgroundTransparency=1,TextSize=15,ThemeTag={TextColor3='NotificationContent',TextTransparency=
 'NotificationContentTransparency'},Text=Notification.Content,FontFace=Font.new(Creator.Font,Enum.FontWeight.Medium),
 Parent=TextContainer})end local Main=Creator.NewRoundFrame(NotificationModule.UICorner,'Squircle',{Size=UDim2.new(1,0,0,
 0),Position=UDim2.new(2,0,1,0),AnchorPoint=Vector2.new(0,1),AutomaticSize='Y',ImageTransparency=0.05,ThemeTag={
@@ -10594,13 +10657,13 @@ Name='Panda Development',Icon='panda',Args={'ServiceId'},New=__DARKLUA_BUNDLE_MO
 junkiedevelopment={Name='Junkie Development',Icon='rbxassetid://106310347705078',Args={'ServiceId','ApiKey','Provider'},
 New=__DARKLUA_BUNDLE_MODULES.load('p').New}}end function __DARKLUA_BUNDLE_MODULES.r()return
 [[{
-    "name": "windui",
+    "name": "saltyui",
     "version": "1.6.66",
     "main": "./dist/main.lua",
-    "repository": "https://github.com/MrRos3/vantatest",
+    "repository": "https://github.com/MrRos3/VantaTest",
     "discord": "",
-    "author": "MrRos3",
-    "description": "Roblox UI Library for scripts",
+    "author": "Salty",
+    "description": "SaltyUI by Salty",
     "license": "MIT",
     "scripts": {
         "dev": "bash build/build.sh dev $INPUT_FILE",
@@ -10672,13 +10735,13 @@ GetPropertyChangedSignal('Text'),function()if Callback then Creator.SafeCallback
 Creator.AddSignal(TextBox.FocusLost,function()if Callback then Creator.SafeCallback(Callback,TextBox.Text)end end)end
 return InputFrame end return Input end function __DARKLUA_BUNDLE_MODULES.u()local Creator=__DARKLUA_BUNDLE_MODULES.load(
 'j')local New=Creator.New local Tween=Creator.Tween local DialogModule={Holder=nil,Parent=nil}function DialogModule.
-Create(Key,Type,Window,WindUI,Parent)local Dialog={UICorner=28,UIPadding=12,Window=Window,WindUI=WindUI,UIElements={}}if
-Key then Dialog.UIPadding=0 end if Key then Dialog.UICorner=26 end Type=Type or'Dialog'if not Key then Dialog.UIElements
-.FullScreen=New('Frame',{ZIndex=999,BackgroundTransparency=1,BackgroundColor3=Color3.fromHex('#000000'),Size=UDim2.new(1
-,0,1,0),Active=false,Visible=false,Parent=DialogModule.Parent or(Window and Window.UIElements and Window.UIElements.Main
-and Window.UIElements.Main.Main)},{New('UICorner',{CornerRadius=UDim.new(0,Window.UICorner)})})end local Blur=New(
-'ImageLabel',{Image='rbxassetid://8992230677',ThemeTag={ImageColor3='WindowShadow'},ImageTransparency=1,Size=UDim2.new(1
-,100,1,100),Position=UDim2.new(0,-100/2,0,-100/2),ScaleType='Slice',SliceCenter=Rect.new(99,99,99,99),
+Create(Key,Type,Window,SaltyUI,Parent)local Dialog={UICorner=28,UIPadding=12,Window=Window,SaltyUI=SaltyUI,UIElements={}
+}if Key then Dialog.UIPadding=0 end if Key then Dialog.UICorner=26 end Type=Type or'Dialog'if not Key then Dialog.
+UIElements.FullScreen=New('Frame',{ZIndex=999,BackgroundTransparency=1,BackgroundColor3=Color3.fromHex('#000000'),Size=
+UDim2.new(1,0,1,0),Active=false,Visible=false,Parent=DialogModule.Parent or(Window and Window.UIElements and Window.
+UIElements.Main and Window.UIElements.Main.Main)},{New('UICorner',{CornerRadius=UDim.new(0,Window.UICorner)})})end local
+Blur=New('ImageLabel',{Image='rbxassetid://8992230677',ThemeTag={ImageColor3='WindowShadow'},ImageTransparency=1,Size=
+UDim2.new(1,100,1,100),Position=UDim2.new(0,-100/2,0,-100/2),ScaleType='Slice',SliceCenter=Rect.new(99,99,99,99),
 BackgroundTransparency=1,ZIndex=-999999999999999,Name='Blur'})Dialog.UIElements.Main=New('Frame',{Size=UDim2.new(0,280,0
 ,0),ThemeTag={BackgroundColor3=Type..'Background'},AutomaticSize='Y',BackgroundTransparency=1,Visible=false,ZIndex=99999
 },{New('UIPadding',{PaddingTop=UDim.new(0,Dialog.UIPadding),PaddingLeft=UDim.new(0,Dialog.UIPadding),PaddingRight=UDim.
@@ -10698,7 +10761,7 @@ end end return Dialog end return DialogModule end function __DARKLUA_BUNDLE_MODU
 __DARKLUA_BUNDLE_MODULES.load('j')local New=Creator.New local Tween=Creator.Tween local CreateButton=
 __DARKLUA_BUNDLE_MODULES.load('s').New local CreateInput=__DARKLUA_BUNDLE_MODULES.load('t').New function KeySystem.new(
 Config,Filename,func,keyValidator)local KeyDialogInit=__DARKLUA_BUNDLE_MODULES.load('u')local KeyDialog=KeyDialogInit.
-Create(true,'Popup',Config.Window,Config.WindUI,Config.WindUI.ScreenGui.KeySystem)local Services={}local EnteredKey
+Create(true,'Popup',Config.Window,Config.SaltyUI,Config.SaltyUI.ScreenGui.KeySystem)local Services={}local EnteredKey
 local ThumbnailSize=(Config.KeySystem.Thumbnail and Config.KeySystem.Thumbnail.Width)or 200 local UISize=430 if Config.
 KeySystem.Thumbnail and Config.KeySystem.Thumbnail.Image then UISize=430+(ThumbnailSize/2)end KeyDialog.UIElements.Main.
 AutomaticSize='Y'KeyDialog.UIElements.Main.Size=UDim2.new(0,UISize,0,0)local IconFrame if Config.Icon then IconFrame=
@@ -10746,8 +10809,8 @@ ClipsDescendants=true,AnchorPoint=Vector2.new(1,0),Parent=ButtonFrame,Position=U
 ThemeTag={TextColor3='Text'},TextTransparency=0.2,TextSize=16,Size=UDim2.new(1,0,0,0),AutomaticSize='Y',TextWrapped=true
 ,TextXAlignment='Left',Parent=DropdownFrame},{New('UIPadding',{PaddingTop=UDim.new(0,10),PaddingLeft=UDim.new(0,10),
 PaddingRight=UDim.new(0,10),PaddingBottom=UDim.new(0,10)})})for _,i in next,Config.KeySystem.API do local serviceDef=
-Config.WindUI.Services[i.Type]if serviceDef then local args={}for _,argName in next,serviceDef.Args do table.insert(args
-,i[argName])end local serviceInstance=serviceDef.New(table.unpack(args))serviceInstance.Type=i.Type table.insert(
+Config.SaltyUI.Services[i.Type]if serviceDef then local args={}for _,argName in next,serviceDef.Args do table.insert(
+args,i[argName])end local serviceInstance=serviceDef.New(table.unpack(args))serviceInstance.Type=i.Type table.insert(
 Services,serviceInstance)local IconFrame=Creator.Image(i.Icon or serviceDef.Icon or Icons[i.Type]or'user',i.Icon or
 serviceDef.Icon or Icons[i.Type]or'user',0,'Temp','KeySystem',true)IconFrame.Size=UDim2.new(0,24,0,24)local APIFrame=
 Creator.NewRoundFrame(10,'Squircle',{Size=UDim2.new(1,0,0,0),ThemeTag={ImageColor3='Text'},ImageTransparency=1,Parent=
@@ -10762,7 +10825,7 @@ new(Creator.Font,Enum.FontWeight.Regular),ThemeTag={TextColor3='Text'},TextTrans
 ,0,0,0),AutomaticSize='Y',TextWrapped=true,Visible=i.Desc and true or false,TextXAlignment='Left'})})},true)Creator.
 AddSignal(APIFrame.MouseEnter,function()Tween(APIFrame,0.08,{ImageTransparency=0.95}):Play()end)Creator.AddSignal(
 APIFrame.InputEnded,function()Tween(APIFrame,0.08,{ImageTransparency=1}):Play()end)Creator.AddSignal(APIFrame.
-MouseButton1Click,function()serviceInstance.Copy()Config.WindUI:Notify({Title='Key System',Content=
+MouseButton1Click,function()serviceInstance.Copy()Config.SaltyUI:Notify({Title='Key System',Content=
 'Key link copied to clipboard.',Image='key'})end)end end Creator.AddSignal(ButtonFrame.MouseButton1Click,function()if
 not Opened then Tween(DropdownContainer,0.3,{Size=UDim2.new(0,Width,0,DropdownFrame.AbsoluteSize.Y+1)},Enum.EasingStyle.
 Quint,Enum.EasingDirection.Out):Play()Tween(ChevronDown,0.3,{Rotation=180},Enum.EasingStyle.Quint,Enum.EasingDirection.
@@ -10772,12 +10835,12 @@ Opened end)end local function handleSuccess(key)KeyDialog:Close()()writefile((Co
 '.key',tostring(key))task.wait(0.4)func(true)end local SubmitButton=CreateButton('Submit','arrow-right',function()local
 key=tostring(EnteredKey or'empty')local folder=Config.Folder or Config.Title if Config.KeySystem.KeyValidator then local
 isValid=Config.KeySystem.KeyValidator(key)if isValid then if Config.KeySystem.SaveKey then handleSuccess(key)else
-KeyDialog:Close()()task.wait(0.4)func(true)end else Config.WindUI:Notify({Title='Key System. Error',Content=
+KeyDialog:Close()()task.wait(0.4)func(true)end else Config.SaltyUI:Notify({Title='Key System. Error',Content=
 'Invalid key.',Icon='triangle-alert'})end elseif not Config.KeySystem.API then local isKey=type(Config.KeySystem.Key)==
 'table'and table.find(Config.KeySystem.Key,key)or Config.KeySystem.Key==key if isKey then if Config.KeySystem.SaveKey
 then handleSuccess(key)else KeyDialog:Close()()task.wait(0.4)func(true)end end else local isSuccess,result for _,service
 in next,Services do local success,res=service.Verify(key)if success then isSuccess,result=true,res break end result=res
-end if isSuccess then handleSuccess(key)else Config.WindUI:Notify({Title='Key System. Error',Content=result,Icon=
+end if isSuccess then handleSuccess(key)else Config.SaltyUI:Notify({Title='Key System. Error',Content=result,Icon=
 'triangle-alert'})end end end,'Primary',ButtonsContainer)SubmitButton.AnchorPoint=Vector2.new(1,0.5)SubmitButton.
 Position=UDim2.new(1,0,0.5,0)KeyDialog:Open()end return KeySystem end function __DARKLUA_BUNDLE_MODULES.w()local
 cloneref=(cloneref or clonereference or function(instance)return instance end)local function map(value,inMin,inMax,
@@ -10840,12 +10903,12 @@ Acrylic.Enable()end return Acrylic end function __DARKLUA_BUNDLE_MODULES.A()loca
 __DARKLUA_BUNDLE_MODULES.load('j')local New=Creator.New local Tween=Creator.Tween function PopupModule.new(PopupConfig,
 Parent)local Popup={Title=PopupConfig.Title or'Dialog',Content=PopupConfig.Content,Icon=PopupConfig.Icon,IconThemed=
 PopupConfig.IconThemed,Thumbnail=PopupConfig.Thumbnail,Buttons=PopupConfig.Buttons,IconSize=22}local DialogInit=
-__DARKLUA_BUNDLE_MODULES.load('u')local Dialog=DialogInit.Create(true,'Popup',PopupConfig.WindUI.Window,PopupConfig.
-WindUI,Parent)local ThumbnailSize=200 local UISize=430 if Popup.Thumbnail and Popup.Thumbnail.Image then UISize=430+(
+__DARKLUA_BUNDLE_MODULES.load('u')local Dialog=DialogInit.Create(true,'Popup',PopupConfig.SaltyUI.Window,PopupConfig.
+SaltyUI,Parent)local ThumbnailSize=200 local UISize=430 if Popup.Thumbnail and Popup.Thumbnail.Image then UISize=430+(
 ThumbnailSize/2)end Dialog.UIElements.Main.AutomaticSize='Y'Dialog.UIElements.Main.Size=UDim2.new(0,UISize,0,0)local
-IconFrame if Popup.Icon then IconFrame=Creator.Image(Popup.Icon,Popup.Title..':'..Popup.Icon,0,PopupConfig.WindUI.Window
-,'Popup',true,PopupConfig.IconThemed,'PopupIcon')IconFrame.Size=UDim2.new(0,Popup.IconSize,0,Popup.IconSize)IconFrame.
-LayoutOrder=-1 end local Title=New('TextLabel',{AutomaticSize='Y',BackgroundTransparency=1,Text=Popup.Title,
+IconFrame if Popup.Icon then IconFrame=Creator.Image(Popup.Icon,Popup.Title..':'..Popup.Icon,0,PopupConfig.SaltyUI.
+Window,'Popup',true,PopupConfig.IconThemed,'PopupIcon')IconFrame.Size=UDim2.new(0,Popup.IconSize,0,Popup.IconSize)
+IconFrame.LayoutOrder=-1 end local Title=New('TextLabel',{AutomaticSize='Y',BackgroundTransparency=1,Text=Popup.Title,
 TextXAlignment='Left',FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),ThemeTag={TextColor3='PopupTitle'},
 TextSize=20,TextWrapped=true,Size=UDim2.new(1,IconFrame and-Popup.IconSize-14 or 0,0,0)})local IconAndTitleContainer=
 New('Frame',{BackgroundTransparency=1,AutomaticSize='XY'},{New('UIListLayout',{Padding=UDim.new(0,14),FillDirection=
@@ -10867,7 +10930,7 @@ BackgroundTransparency=1,Parent=Dialog.UIElements.Main},{New('Frame',{Size=UDim2
 'UIPadding',{PaddingTop=UDim.new(0,16),PaddingLeft=UDim.new(0,16),PaddingRight=UDim.new(0,16),PaddingBottom=UDim.new(0,
 16)})})})local CreateButton=__DARKLUA_BUNDLE_MODULES.load('s').New for _,values in next,Popup.Buttons do CreateButton(
 values.Title,values.Icon,values.Callback,values.Variant,ButtonsContainer,Dialog)end Dialog:Open()return Popup end return
-PopupModule end function __DARKLUA_BUNDLE_MODULES.B()return function(WindUI,Creator)return{Dark={Name='Dark',Accent=
+PopupModule end function __DARKLUA_BUNDLE_MODULES.B()return function(SaltyUI,Creator)return{Dark={Name='Dark',Accent=
 Color3.fromHex('#18181b'),Dialog=Color3.fromHex('#1a1a1a'),Outline=Color3.fromHex('#FFFFFF'),Text=Color3.fromHex(
 '#FFFFFF'),Placeholder=Color3.fromHex('#a1a1a1'),Background=Color3.fromHex('#101010'),Button=Color3.fromHex('#52525b'),
 Icon=Color3.fromHex('#a1a1aa'),Toggle=Color3.fromHex('#33C759'),Slider=Color3.fromHex('#0091FF'),Checkbox=Color3.
@@ -10900,17 +10963,17 @@ Checkbox=Color3.fromHex('#00d4ff'),PanelBackground=Color3.fromHex('#0d3a47'),Pan
 ElementBackground=Color3.fromHex('#172E3B'),ElementBackgroundTransparency=0},Violet={Name='Violet',Accent=Color3.
 fromHex('#6d28d9'),Dialog=Color3.fromHex('#3c1361'),Text=Color3.fromHex('#faf5ff'),Placeholder=Color3.fromHex('#8f7ee0')
 ,Background=Color3.fromHex('#1e0a3e'),Button=Color3.fromHex('#7c3aed'),Icon=Color3.fromHex('#8b5cf6'),ElementBackground=
-Color3.fromHex('#342650'),ElementBackgroundTransparency=0},Amber={Name='Amber',Accent=WindUI:Gradient({['0']={Color=
+Color3.fromHex('#342650'),ElementBackgroundTransparency=0},Amber={Name='Amber',Accent=SaltyUI:Gradient({['0']={Color=
 Color3.fromHex('#b45309'),Transparency=0},['100']={Color=Color3.fromHex('#d97706'),Transparency=0}},{Rotation=45}),
-Dialog=WindUI:Gradient({['0']={Color=Color3.fromHex('#451a03'),Transparency=0},['100']={Color=Color3.fromHex('#6b2e05'),
-Transparency=0}},{Rotation=90}),Text=WindUI:Gradient({['0']={Color=Color3.fromHex('#fffbeb'),Transparency=0},['100']={
-Color=Color3.fromHex('#fff7ed'),Transparency=0}},{Rotation=45}),Placeholder=WindUI:Gradient({['0']={Color=Color3.
+Dialog=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#451a03'),Transparency=0},['100']={Color=Color3.fromHex('#6b2e05')
+,Transparency=0}},{Rotation=90}),Text=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#fffbeb'),Transparency=0},['100']={
+Color=Color3.fromHex('#fff7ed'),Transparency=0}},{Rotation=45}),Placeholder=SaltyUI:Gradient({['0']={Color=Color3.
 fromHex('#d1a326'),Transparency=0},['100']={Color=Color3.fromHex('#fbbf24'),Transparency=0}},{Rotation=45}),Background=
-WindUI:Gradient({['0']={Color=Color3.fromHex('#1c1003'),Transparency=0},['100']={Color=Color3.fromHex('#3f210d'),
-Transparency=0}},{Rotation=90}),Button=WindUI:Gradient({['0']={Color=Color3.fromHex('#d97706'),Transparency=0},['100']={
-Color=Color3.fromHex('#f59e0b'),Transparency=0}},{Rotation=45}),Icon=Color3.fromHex('#f59e0b'),Toggle=WindUI:Gradient({[
-'0']={Color=Color3.fromHex('#d97706'),Transparency=0},['100']={Color=Color3.fromHex('#f59e0b'),Transparency=0}},{
-Rotation=45}),Slider=Color3.fromHex('#d97706'),Checkbox=WindUI:Gradient({['0']={Color=Color3.fromHex('#d97706'),
+SaltyUI:Gradient({['0']={Color=Color3.fromHex('#1c1003'),Transparency=0},['100']={Color=Color3.fromHex('#3f210d'),
+Transparency=0}},{Rotation=90}),Button=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#d97706'),Transparency=0},['100']=
+{Color=Color3.fromHex('#f59e0b'),Transparency=0}},{Rotation=45}),Icon=Color3.fromHex('#f59e0b'),Toggle=SaltyUI:Gradient(
+{['0']={Color=Color3.fromHex('#d97706'),Transparency=0},['100']={Color=Color3.fromHex('#f59e0b'),Transparency=0}},{
+Rotation=45}),Slider=Color3.fromHex('#d97706'),Checkbox=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#d97706'),
 Transparency=0},['100']={Color=Color3.fromHex('#fbbf24'),Transparency=0}},{Rotation=45}),PanelBackground=Color3.fromHex(
 '#FFFFFF'),PanelBackgroundTransparency=0.95,ElementBackground=Color3.fromHex('#3A2E22'),ElementBackgroundTransparency=0}
 ,Emerald={Name='Emerald',Accent=Color3.fromHex('#047857'),Dialog=Color3.fromHex('#022c22'),Text=Color3.fromHex('#ecfdf5'
@@ -10932,19 +10995,19 @@ ElementBackgroundTransparency=0},Mellowsi={Name='Mellowsi',Accent=Color3.fromHex
 '#291C13'),Text=Color3.fromHex('#F5EBDD'),Placeholder=Color3.fromHex('#9C8A73'),Background=Color3.fromHex('#1C1002'),
 Button=Color3.fromHex('#342A1E'),Icon=Color3.fromHex('#C9B79C'),Toggle=Color3.fromHex('#a9873f'),Slider=Color3.fromHex(
 '#C9A24D'),Checkbox=Color3.fromHex('#C9A24D'),ElementBackground=Color3.fromHex('#33291E'),ElementBackgroundTransparency=
-0,Metadata={PullRequest=52}},Rainbow={Name='Rainbow',Accent=WindUI:Gradient({['0']={Color=Color3.fromHex('#00ff41'),
+0,Metadata={PullRequest=52}},Rainbow={Name='Rainbow',Accent=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#00ff41'),
 Transparency=0},['33']={Color=Color3.fromHex('#00ffff'),Transparency=0},['66']={Color=Color3.fromHex('#0080ff'),
-Transparency=0},['100']={Color=Color3.fromHex('#8000ff'),Transparency=0}},{Rotation=45}),Dialog=WindUI:Gradient({['0']={
-Color=Color3.fromHex('#ff0080'),Transparency=0},['25']={Color=Color3.fromHex('#8000ff'),Transparency=0},['50']={Color=
+Transparency=0},['100']={Color=Color3.fromHex('#8000ff'),Transparency=0}},{Rotation=45}),Dialog=SaltyUI:Gradient({['0']=
+{Color=Color3.fromHex('#ff0080'),Transparency=0},['25']={Color=Color3.fromHex('#8000ff'),Transparency=0},['50']={Color=
 Color3.fromHex('#0080ff'),Transparency=0},['75']={Color=Color3.fromHex('#00ff80'),Transparency=0},['100']={Color=Color3.
 fromHex('#ff8000'),Transparency=0}},{Rotation=135}),Text=Color3.fromHex('#ffffff'),Placeholder=Color3.fromHex('#00ff80')
-,Background=WindUI:Gradient({['0']={Color=Color3.fromHex('#ff0040'),Transparency=0},['20']={Color=Color3.fromHex(
+,Background=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#ff0040'),Transparency=0},['20']={Color=Color3.fromHex(
 '#ff4000'),Transparency=0},['40']={Color=Color3.fromHex('#ffff00'),Transparency=0},['60']={Color=Color3.fromHex(
 '#00ff40'),Transparency=0},['80']={Color=Color3.fromHex('#0040ff'),Transparency=0},['100']={Color=Color3.fromHex(
-'#4000ff'),Transparency=0}},{Rotation=90}),Button=WindUI:Gradient({['0']={Color=Color3.fromHex('#ff0080'),Transparency=0
-},['25']={Color=Color3.fromHex('#ff8000'),Transparency=0},['50']={Color=Color3.fromHex('#ffff00'),Transparency=0},['75']
-={Color=Color3.fromHex('#80ff00'),Transparency=0},['100']={Color=Color3.fromHex('#00ffff'),Transparency=0}},{Rotation=60
-}),Icon=Color3.fromHex('#ffffff')}}end end function __DARKLUA_BUNDLE_MODULES.C()local Label={}local Creator=
+'#4000ff'),Transparency=0}},{Rotation=90}),Button=SaltyUI:Gradient({['0']={Color=Color3.fromHex('#ff0080'),Transparency=
+0},['25']={Color=Color3.fromHex('#ff8000'),Transparency=0},['50']={Color=Color3.fromHex('#ffff00'),Transparency=0},['75'
+]={Color=Color3.fromHex('#80ff00'),Transparency=0},['100']={Color=Color3.fromHex('#00ffff'),Transparency=0}},{Rotation=
+60}),Icon=Color3.fromHex('#ffffff')}}end end function __DARKLUA_BUNDLE_MODULES.C()local Label={}local Creator=
 __DARKLUA_BUNDLE_MODULES.load('j')local New=Creator.New local Tween=Creator.Tween function Label.New(Text,Icon,Parent,
 IsPlaceholder,Radius,RemoveGlass)local Radius=Radius or 10 local IconLabelFrame local IconData=Creator.Icon(Icon)if Icon
 and Icon~=''and IconData then IconLabelFrame=New('ImageLabel',{Image=IconData[1],ImageRectSize=IconData[2].ImageRectSize
@@ -10962,9 +11025,9 @@ ImageTransparency='LabelBackgroundTransparency'}},{New('UIPadding',{PaddingLeft=
 HorizontalAlignment='Left'}),IconLabelFrame,TextLabel})})})return LabelFrame end return Label end function
 __DARKLUA_BUNDLE_MODULES.D()local ScrollSlider={}local cloneref=cloneref or clonereference or function(i)return i end
 local UserInputService=cloneref(game:GetService('UserInputService'))local Creator=__DARKLUA_BUNDLE_MODULES.load('j')
-local New=Creator.New function ScrollSlider.New(ScrollingFrame,Parent,Window,Thickness,WindUI)local Slider=New('Frame',{
-Size=UDim2.new(0,Thickness,1,0),BackgroundTransparency=1,Position=UDim2.new(1,0,0,0),AnchorPoint=Vector2.new(1,0),Parent
-=Parent,ZIndex=999,Active=true})local Thumb=Creator.NewRoundFrame(Thickness/2,'Squircle',{Size=UDim2.new(1,0,0,0),
+local New=Creator.New function ScrollSlider.New(ScrollingFrame,Parent,Window,Thickness,SaltyUI)local Slider=New('Frame',
+{Size=UDim2.new(0,Thickness,1,0),BackgroundTransparency=1,Position=UDim2.new(1,0,0,0),AnchorPoint=Vector2.new(1,0),
+Parent=Parent,ZIndex=999,Active=true})local Thumb=Creator.NewRoundFrame(Thickness/2,'Squircle',{Size=UDim2.new(1,0,0,0),
 ImageTransparency=0.85,ThemeTag={ImageColor3='Text'},Parent=Slider})local Hitbox=New('Frame',{Size=UDim2.new(1,12,1,12),
 Position=UDim2.new(0.5,0,0.5,0),AnchorPoint=Vector2.new(0.5,0.5),BackgroundTransparency=1,Active=true,ZIndex=999,Parent=
 Thumb})local ScrollSliderActionId=Creator:GenerateUniqueID()local isDragging=false local connectionMove,connectionEnd
@@ -10973,80 +11036,80 @@ AbsoluteWindowSize.Y if canvasY<=windowY then Thumb.Visible=false return end Thu
 clamp(windowY/canvasY,0.05,1)Thumb.Size=UDim2.new(1,0,sizeRatio,0)local maxScroll=canvasY-windowY local maxThumbScale=1-
 sizeRatio if maxScroll>0 then local scrollRatio=ScrollingFrame.CanvasPosition.Y/maxScroll Thumb.Position=UDim2.new(0,0,
 math.clamp(scrollRatio*maxThumbScale,0,maxThumbScale),0)else Thumb.Position=UDim2.new(0,0,0,0)end end local function
-StopDrag()if WindUI.CurrentInput==ScrollSliderActionId then WindUI.CurrentInput=nil end isDragging=false ScrollingFrame.
-ScrollingEnabled=true if connectionMove then connectionMove:Disconnect()end if connectionEnd then connectionEnd:
-Disconnect()end end Creator.AddSignal(Hitbox.InputBegan,function(input)if input.UserInputType~=Enum.UserInputType.
-MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end if isDragging then return end if WindUI.
-CurrentInput and WindUI.CurrentInput~=ScrollSliderActionId then return end WindUI.CurrentInput=ScrollSliderActionId
-isDragging=true ScrollingFrame.ScrollingEnabled=false local startY=input.Position.Y local startCanvasY=ScrollingFrame.
-CanvasPosition.Y connectionMove=UserInputService.InputChanged:Connect(function(moveInput)if moveInput.UserInputType==
-Enum.UserInputType.MouseMovement or moveInput.UserInputType==Enum.UserInputType.Touch then local deltaY=moveInput.
-Position.Y-startY local canvasY=ScrollingFrame.AbsoluteCanvasSize.Y local windowY=ScrollingFrame.AbsoluteWindowSize.Y
-local maxScroll=math.max(canvasY-windowY,0)local sliderPx=Slider.AbsoluteSize.Y local thumbPx=Thumb.AbsoluteSize.Y local
-maxThumbPx=math.max(sliderPx-thumbPx,1)local scrollDelta=deltaY*(maxScroll/maxThumbPx)ScrollingFrame.CanvasPosition=
-Vector2.new(ScrollingFrame.CanvasPosition.X,math.clamp(startCanvasY+scrollDelta,0,maxScroll))end end)connectionEnd=
-UserInputService.InputEnded:Connect(function(endInput)if endInput.UserInputType==input.UserInputType then if WindUI.
-CurrentInput and WindUI.CurrentInput~=ScrollSliderActionId then return end WindUI.CurrentInput=nil StopDrag()end end)end
-)Creator.AddSignal(ScrollingFrame:GetPropertyChangedSignal('AbsoluteWindowSize'),UpdateVisuals)Creator.AddSignal(
-ScrollingFrame:GetPropertyChangedSignal('AbsoluteCanvasSize'),UpdateVisuals)Creator.AddSignal(ScrollingFrame:
-GetPropertyChangedSignal('CanvasPosition'),UpdateVisuals)UpdateVisuals()return Slider end return ScrollSlider end
-function __DARKLUA_BUNDLE_MODULES.E()local Tag={}local Creator=__DARKLUA_BUNDLE_MODULES.load('j')local New=Creator.New
-local Tween=Creator.Tween function Tag:New(TagConfig,Parent)local TagModule={Title=TagConfig.Title or'Tag',Icon=
-TagConfig.Icon,Color=TagConfig.Color or Color3.fromHex('#315dff'),Radius=TagConfig.Radius or 999,Border=TagConfig.Border
-or false,TagFrame=nil,Height=26,Padding=10,TextSize=14,IconSize=16}local TagIcon if TagModule.Icon then TagIcon=Creator.
-Image(TagModule.Icon,TagModule.Icon,0,TagConfig.Window,'Tag',false)TagIcon.Size=UDim2.new(0,TagModule.IconSize,0,
-TagModule.IconSize)TagIcon.ImageLabel.ImageColor3=typeof(TagModule.Color)=='Color3'and Creator.GetTextColorForHSB(
-TagModule.Color)or typeof(TagModule.Color)=='string'and(Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.
-Color,Creator.Theme)))end local TagTitle=New('TextLabel',{BackgroundTransparency=1,AutomaticSize='XY',TextSize=TagModule
-.TextSize,FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),Text=TagModule.Title,TextColor3=typeof(TagModule.
-Color)=='Color3'and Creator.GetTextColorForHSB(TagModule.Color)or typeof(TagModule.Color)=='string'and(Creator.
-GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color,Creator.Theme))),LayoutOrder=9999})local BackgroundGradient
-if typeof(TagModule.Color)=='table'then BackgroundGradient=New('UIGradient')for key,value in next,TagModule.Color do
-BackgroundGradient[key]=value end TagTitle.TextColor3=Creator.GetTextColorForHSB(Creator.GetAverageColor(
-BackgroundGradient))if TagIcon then TagIcon.ImageLabel.ImageColor3=Creator.GetTextColorForHSB(Creator.GetAverageColor(
-BackgroundGradient))end end local TagFrame=Creator.NewRoundFrame(TagModule.Radius,'Squircle',{AutomaticSize='X',Size=
-UDim2.new(0,0,0,TagModule.Height),Parent=Parent,ImageColor3=typeof(TagModule.Color)=='Color3'and TagModule.Color or
-typeof(TagModule.Color)=='table'and Color3.new(1,1,1)or nil,ThemeTag=typeof(TagModule.Color)=='string'and{ImageColor3=
-TagModule.Color}},{BackgroundGradient,Creator.NewRoundFrame(TagModule.Radius+1,'SquircleGlass',{Size=UDim2.new(1,1,1,1),
-AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),ThemeTag={ImageColor3='White'},ImageTransparency=0.75})
-,New('Frame',{Size=UDim2.new(0,0,1,0),AutomaticSize='X',Name='Content',BackgroundTransparency=1},{TagIcon,TagTitle,New(
-'UIPadding',{PaddingLeft=UDim.new(0,TagModule.Padding),PaddingRight=UDim.new(0,TagModule.Padding)}),New('UIListLayout',{
-FillDirection='Horizontal',VerticalAlignment='Center',Padding=UDim.new(0,TagModule.Padding/1.5)})})})function TagModule:
-SetTitle(text)TagModule.Title=text TagTitle.Text=text return TagModule end function TagModule:SetColor(color)TagModule.
-Color=color if typeof(color)=='table'then local avgColor=Creator.GetAverageColor(color)Tween(TagTitle,0.06,{TextColor3=
-Creator.GetTextColorForHSB(avgColor)}):Play()local gradient=TagFrame:FindFirstChildOfClass('UIGradient')or New(
-'UIGradient',{Parent=TagFrame})for k,v in next,color do gradient[k]=v end Tween(TagFrame,0.06,{ImageColor3=Color3.new(1,
-1,1)}):Play()else if BackgroundGradient then BackgroundGradient:Destroy()end Tween(TagTitle,0.06,{TextColor3=Creator.
-GetTextColorForHSB(color)}):Play()if TagIcon then Tween(TagIcon.ImageLabel,0.06,{ImageColor3=Creator.GetTextColorForHSB(
-color)}):Play()end Tween(TagFrame,0.06,{ImageColor3=color}):Play()end return TagModule end function TagModule:SetIcon(
-icon)TagModule.Icon=icon if TagIcon then TagIcon:Destroy()TagIcon=nil end if icon then TagIcon=Creator.Image(icon,icon,0
-,TagConfig.Window,'Tag',false)TagIcon.Size=UDim2.new(0,TagModule.IconSize,0,TagModule.IconSize)TagIcon.Parent=TagFrame:
-FindFirstChild('Content')if typeof(TagModule.Color)=='Color3'then TagIcon.ImageLabel.ImageColor3=Creator.
-GetTextColorForHSB(TagModule.Color)elseif typeof(TagModule.Color)=='table'then TagIcon.ImageLabel.ImageColor3=Creator.
-GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient))end end return TagModule end function TagModule:Destroy()
-TagFrame:Destroy()return TagModule end Creator:OnThemeChange(function(NewTheme,OldTheme)TagTitle.TextColor3=Creator.
-GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color,Creator.Theme))TagIcon.ImageLabel.ImageColor3=Creator.
-GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color,Creator.Theme))end)return TagModule end return Tag end
-function __DARKLUA_BUNDLE_MODULES.F()local cloneref=(cloneref or clonereference or function(instance)return instance end
-)local RunService=cloneref(game:GetService('RunService'))local HttpService=cloneref(game:GetService('HttpService'))local
-Window local ConfigManager ConfigManager={Folder=nil,Path=nil,Configs={},Parser={Colorpicker={Save=function(obj)return{
-__type=obj.__type,value=obj.Default:ToHex(),transparency=obj.Transparency or nil}end,Load=function(element,data)if
-element and element.Update then element:Update(Color3.fromHex(data.value),data.transparency or nil)end end},Dropdown={
-Save=function(obj)return{__type=obj.__type,value=obj.Value}end,Load=function(element,data)if element and element.Select
-then element:Select(data.value)end end},Input={Save=function(obj)return{__type=obj.__type,value=obj.Value}end,Load=
-function(element,data)if element and element.Set then element:Set(data.value)end end},Keybind={Save=function(obj)return{
-__type=obj.__type,value=obj.Value}end,Load=function(element,data)if element and element.Set then element:Set(data.value)
-end end},Slider={Save=function(obj)return{__type=obj.__type,value=obj.Value.Default}end,Load=function(element,data)if
-element and element.Set then element:Set(tonumber(data.value))end end},Toggle={Save=function(obj)return{__type=obj.
-__type,value=obj.Value}end,Load=function(element,data)if element and element.Set then element:Set(data.value)end end}}}
-function ConfigManager:Init(WindowTable)if not WindowTable.Folder then warn(
-'[ WindUI.ConfigManager ] Window.Folder is not specified.')return false end if RunService:IsStudio()or not writefile
-then warn([[[ WindUI.ConfigManager ] The config system doesn't work in the studio.]])return false end Window=WindowTable
-ConfigManager.Folder=Window.Folder ConfigManager.Path='WindUI/'..tostring(ConfigManager.Folder)..'/config/'if not
-isfolder(ConfigManager.Path)then makefolder(ConfigManager.Path)end local files=ConfigManager:AllConfigs()for _,f in next
-,files do if isfile and readfile and isfile(f..'.json')then ConfigManager.Configs[f]=readfile(f..'.json')end end return
-ConfigManager end function ConfigManager:SetPath(customPath)if not customPath then warn(
-'[ WindUI.ConfigManager ] Custom path is not specified.')return false end ConfigManager.Path=customPath if not
+StopDrag()if SaltyUI.CurrentInput==ScrollSliderActionId then SaltyUI.CurrentInput=nil end isDragging=false
+ScrollingFrame.ScrollingEnabled=true if connectionMove then connectionMove:Disconnect()end if connectionEnd then
+connectionEnd:Disconnect()end end Creator.AddSignal(Hitbox.InputBegan,function(input)if input.UserInputType~=Enum.
+UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end if isDragging then return
+end if SaltyUI.CurrentInput and SaltyUI.CurrentInput~=ScrollSliderActionId then return end SaltyUI.CurrentInput=
+ScrollSliderActionId isDragging=true ScrollingFrame.ScrollingEnabled=false local startY=input.Position.Y local
+startCanvasY=ScrollingFrame.CanvasPosition.Y connectionMove=UserInputService.InputChanged:Connect(function(moveInput)if
+moveInput.UserInputType==Enum.UserInputType.MouseMovement or moveInput.UserInputType==Enum.UserInputType.Touch then
+local deltaY=moveInput.Position.Y-startY local canvasY=ScrollingFrame.AbsoluteCanvasSize.Y local windowY=ScrollingFrame.
+AbsoluteWindowSize.Y local maxScroll=math.max(canvasY-windowY,0)local sliderPx=Slider.AbsoluteSize.Y local thumbPx=Thumb
+.AbsoluteSize.Y local maxThumbPx=math.max(sliderPx-thumbPx,1)local scrollDelta=deltaY*(maxScroll/maxThumbPx)
+ScrollingFrame.CanvasPosition=Vector2.new(ScrollingFrame.CanvasPosition.X,math.clamp(startCanvasY+scrollDelta,0,
+maxScroll))end end)connectionEnd=UserInputService.InputEnded:Connect(function(endInput)if endInput.UserInputType==input.
+UserInputType then if SaltyUI.CurrentInput and SaltyUI.CurrentInput~=ScrollSliderActionId then return end SaltyUI.
+CurrentInput=nil StopDrag()end end)end)Creator.AddSignal(ScrollingFrame:GetPropertyChangedSignal('AbsoluteWindowSize'),
+UpdateVisuals)Creator.AddSignal(ScrollingFrame:GetPropertyChangedSignal('AbsoluteCanvasSize'),UpdateVisuals)Creator.
+AddSignal(ScrollingFrame:GetPropertyChangedSignal('CanvasPosition'),UpdateVisuals)UpdateVisuals()return Slider end
+return ScrollSlider end function __DARKLUA_BUNDLE_MODULES.E()local Tag={}local Creator=__DARKLUA_BUNDLE_MODULES.load('j'
+)local New=Creator.New local Tween=Creator.Tween function Tag:New(TagConfig,Parent)local TagModule={Title=TagConfig.
+Title or'Tag',Icon=TagConfig.Icon,Color=TagConfig.Color or Color3.fromHex('#315dff'),Radius=TagConfig.Radius or 999,
+Border=TagConfig.Border or false,TagFrame=nil,Height=26,Padding=10,TextSize=14,IconSize=16}local TagIcon if TagModule.
+Icon then TagIcon=Creator.Image(TagModule.Icon,TagModule.Icon,0,TagConfig.Window,'Tag',false)TagIcon.Size=UDim2.new(0,
+TagModule.IconSize,0,TagModule.IconSize)TagIcon.ImageLabel.ImageColor3=typeof(TagModule.Color)=='Color3'and Creator.
+GetTextColorForHSB(TagModule.Color)or typeof(TagModule.Color)=='string'and(Creator.GetTextColorForHSB(Creator.
+GetThemeProperty(TagModule.Color,Creator.Theme)))end local TagTitle=New('TextLabel',{BackgroundTransparency=1,
+AutomaticSize='XY',TextSize=TagModule.TextSize,FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),Text=TagModule.
+Title,TextColor3=typeof(TagModule.Color)=='Color3'and Creator.GetTextColorForHSB(TagModule.Color)or typeof(TagModule.
+Color)=='string'and(Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color,Creator.Theme))),LayoutOrder=
+9999})local BackgroundGradient if typeof(TagModule.Color)=='table'then BackgroundGradient=New('UIGradient')for key,value
+in next,TagModule.Color do BackgroundGradient[key]=value end TagTitle.TextColor3=Creator.GetTextColorForHSB(Creator.
+GetAverageColor(BackgroundGradient))if TagIcon then TagIcon.ImageLabel.ImageColor3=Creator.GetTextColorForHSB(Creator.
+GetAverageColor(BackgroundGradient))end end local TagFrame=Creator.NewRoundFrame(TagModule.Radius,'Squircle',{
+AutomaticSize='X',Size=UDim2.new(0,0,0,TagModule.Height),Parent=Parent,ImageColor3=typeof(TagModule.Color)=='Color3'and
+TagModule.Color or typeof(TagModule.Color)=='table'and Color3.new(1,1,1)or nil,ThemeTag=typeof(TagModule.Color)==
+'string'and{ImageColor3=TagModule.Color}},{BackgroundGradient,Creator.NewRoundFrame(TagModule.Radius+1,'SquircleGlass',{
+Size=UDim2.new(1,1,1,1),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),ThemeTag={ImageColor3='White'},
+ImageTransparency=0.75}),New('Frame',{Size=UDim2.new(0,0,1,0),AutomaticSize='X',Name='Content',BackgroundTransparency=1}
+,{TagIcon,TagTitle,New('UIPadding',{PaddingLeft=UDim.new(0,TagModule.Padding),PaddingRight=UDim.new(0,TagModule.Padding)
+}),New('UIListLayout',{FillDirection='Horizontal',VerticalAlignment='Center',Padding=UDim.new(0,TagModule.Padding/1.5)})
+})})function TagModule:SetTitle(text)TagModule.Title=text TagTitle.Text=text return TagModule end function TagModule:
+SetColor(color)TagModule.Color=color if typeof(color)=='table'then local avgColor=Creator.GetAverageColor(color)Tween(
+TagTitle,0.06,{TextColor3=Creator.GetTextColorForHSB(avgColor)}):Play()local gradient=TagFrame:FindFirstChildOfClass(
+'UIGradient')or New('UIGradient',{Parent=TagFrame})for k,v in next,color do gradient[k]=v end Tween(TagFrame,0.06,{
+ImageColor3=Color3.new(1,1,1)}):Play()else if BackgroundGradient then BackgroundGradient:Destroy()end Tween(TagTitle,
+0.06,{TextColor3=Creator.GetTextColorForHSB(color)}):Play()if TagIcon then Tween(TagIcon.ImageLabel,0.06,{ImageColor3=
+Creator.GetTextColorForHSB(color)}):Play()end Tween(TagFrame,0.06,{ImageColor3=color}):Play()end return TagModule end
+function TagModule:SetIcon(icon)TagModule.Icon=icon if TagIcon then TagIcon:Destroy()TagIcon=nil end if icon then
+TagIcon=Creator.Image(icon,icon,0,TagConfig.Window,'Tag',false)TagIcon.Size=UDim2.new(0,TagModule.IconSize,0,TagModule.
+IconSize)TagIcon.Parent=TagFrame:FindFirstChild('Content')if typeof(TagModule.Color)=='Color3'then TagIcon.ImageLabel.
+ImageColor3=Creator.GetTextColorForHSB(TagModule.Color)elseif typeof(TagModule.Color)=='table'then TagIcon.ImageLabel.
+ImageColor3=Creator.GetTextColorForHSB(Creator.GetAverageColor(BackgroundGradient))end end return TagModule end function
+TagModule:Destroy()TagFrame:Destroy()return TagModule end Creator:OnThemeChange(function(NewTheme,OldTheme)TagTitle.
+TextColor3=Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color,Creator.Theme))TagIcon.ImageLabel.
+ImageColor3=Creator.GetTextColorForHSB(Creator.GetThemeProperty(TagModule.Color,Creator.Theme))end)return TagModule end
+return Tag end function __DARKLUA_BUNDLE_MODULES.F()local cloneref=(cloneref or clonereference or function(instance)
+return instance end)local RunService=cloneref(game:GetService('RunService'))local HttpService=cloneref(game:GetService(
+'HttpService'))local Window local ConfigManager ConfigManager={Folder=nil,Path=nil,Configs={},Parser={Colorpicker={Save=
+function(obj)return{__type=obj.__type,value=obj.Default:ToHex(),transparency=obj.Transparency or nil}end,Load=function(
+element,data)if element and element.Update then element:Update(Color3.fromHex(data.value),data.transparency or nil)end
+end},Dropdown={Save=function(obj)return{__type=obj.__type,value=obj.Value}end,Load=function(element,data)if element and
+element.Select then element:Select(data.value)end end},Input={Save=function(obj)return{__type=obj.__type,value=obj.Value
+}end,Load=function(element,data)if element and element.Set then element:Set(data.value)end end},Keybind={Save=function(
+obj)return{__type=obj.__type,value=obj.Value}end,Load=function(element,data)if element and element.Set then element:Set(
+data.value)end end},Slider={Save=function(obj)return{__type=obj.__type,value=obj.Value.Default}end,Load=function(element
+,data)if element and element.Set then element:Set(tonumber(data.value))end end},Toggle={Save=function(obj)return{__type=
+obj.__type,value=obj.Value}end,Load=function(element,data)if element and element.Set then element:Set(data.value)end end
+}}}function ConfigManager:Init(WindowTable)if not WindowTable.Folder then warn(
+'[ SaltyUI.ConfigManager ] Window.Folder is not specified.')return false end if RunService:IsStudio()or not writefile
+then warn([[[ SaltyUI.ConfigManager ] The config system doesn't work in the studio.]])return false end Window=
+WindowTable ConfigManager.Folder=Window.Folder ConfigManager.Path='WindUI/'..tostring(ConfigManager.Folder)..'/config/'
+if not isfolder(ConfigManager.Path)then makefolder(ConfigManager.Path)end local files=ConfigManager:AllConfigs()for _,f
+in next,files do if isfile and readfile and isfile(f..'.json')then ConfigManager.Configs[f]=readfile(f..'.json')end end
+return ConfigManager end function ConfigManager:SetPath(customPath)if not customPath then warn(
+'[ SaltyUI.ConfigManager ] Custom path is not specified.')return false end ConfigManager.Path=customPath if not
 customPath:match('/$')then ConfigManager.Path=customPath..'/'end if not isfolder(ConfigManager.Path)then makefolder(
 ConfigManager.Path)end return true end function ConfigManager:CreateConfig(configFilename,autoload)local ConfigModule={
 Path=ConfigManager.Path..configFilename..'.json',Elements={},CustomData={},AutoLoad=autoload or false,Version=1.2}if not
@@ -11061,23 +11124,23 @@ __type]then saveData.__elements[tostring(name)]=ConfigManager.Parser[element.__t
 =HttpService:JSONEncode(saveData)if writefile then writefile(ConfigModule.Path,jsonData)end return saveData end function
 ConfigModule:Load()if isfile and not isfile(ConfigModule.Path)then return false,'Config file does not exist'end local
 success,loadData=pcall(function()local readfile=readfile or function()warn(
-[[[ WindUI.ConfigManager ] The config system doesn't work in the studio.]])return nil end return HttpService:JSONDecode(
-readfile(ConfigModule.Path))end)if not success then return false,'Failed to parse config file'end if not loadData.
-__version then local migratedData={__version=ConfigModule.Version,__elements=loadData,__custom={}}loadData=migratedData
-end if Window.PendingFlags then for flag,element in next,Window.PendingFlags do ConfigModule:Register(flag,element)end
-end for name,data in next,(loadData.__elements or{})do if ConfigModule.Elements[name]and ConfigManager.Parser[data.
-__type]then task.spawn(function()ConfigManager.Parser[data.__type].Load(ConfigModule.Elements[name],data)end)end end
-ConfigModule.CustomData=loadData.__custom or{}return ConfigModule.CustomData end function ConfigModule:Delete()if not
-delfile then return false,'delfile function is not available'end if not isfile(ConfigModule.Path)then return false,
-'Config file does not exist'end local success,err=pcall(function()delfile(ConfigModule.Path)end)if not success then
-return false,'Failed to delete config file: '..tostring(err)end ConfigManager.Configs[configFilename]=nil if Window.
-CurrentConfig==ConfigModule then Window.CurrentConfig=nil end return true,'Config deleted successfully'end function
+[[[ SaltyUI.ConfigManager ] The config system doesn't work in the studio.]])return nil end return HttpService:
+JSONDecode(readfile(ConfigModule.Path))end)if not success then return false,'Failed to parse config file'end if not
+loadData.__version then local migratedData={__version=ConfigModule.Version,__elements=loadData,__custom={}}loadData=
+migratedData end if Window.PendingFlags then for flag,element in next,Window.PendingFlags do ConfigModule:Register(flag,
+element)end end for name,data in next,(loadData.__elements or{})do if ConfigModule.Elements[name]and ConfigManager.
+Parser[data.__type]then task.spawn(function()ConfigManager.Parser[data.__type].Load(ConfigModule.Elements[name],data)end
+)end end ConfigModule.CustomData=loadData.__custom or{}return ConfigModule.CustomData end function ConfigModule:Delete()
+if not delfile then return false,'delfile function is not available'end if not isfile(ConfigModule.Path)then return
+false,'Config file does not exist'end local success,err=pcall(function()delfile(ConfigModule.Path)end)if not success
+then return false,'Failed to delete config file: '..tostring(err)end ConfigManager.Configs[configFilename]=nil if Window
+.CurrentConfig==ConfigModule then Window.CurrentConfig=nil end return true,'Config deleted successfully'end function
 ConfigModule:GetData()return{elements=ConfigModule.Elements,custom=ConfigModule.CustomData,autoload=ConfigModule.
 AutoLoad}end if isfile(ConfigModule.Path)then local success,configData=pcall(function()return HttpService:JSONDecode(
 readfile(ConfigModule.Path))end)if success and configData and configData.__autoload then ConfigModule.AutoLoad=true task
 .spawn(function()task.wait(0.5)local success,result=pcall(function()return ConfigModule:Load()end)if success then if
-Window.Debug then print('[ WindUI.ConfigManager ] AutoLoaded config: '..configFilename)end else warn(
-'[ WindUI.ConfigManager ] Failed to AutoLoad config: '..configFilename..' - '..tostring(result))end end)end end
+Window.Debug then print('[ SaltyUI.ConfigManager ] AutoLoaded config: '..configFilename)end else warn(
+'[ SaltyUI.ConfigManager ] Failed to AutoLoad config: '..configFilename..' - '..tostring(result))end end)end end
 ConfigModule:SetAsCurrent()ConfigManager.Configs[configFilename]=ConfigModule return ConfigModule end function
 ConfigManager:Config(configFilename,autoload)return ConfigManager:CreateConfig(configFilename,autoload)end function
 ConfigManager:GetAutoLoadConfigs()local autoloadConfigs={}for configName,configModule in pairs(ConfigManager.Configs)do
@@ -11404,7 +11467,7 @@ ToggleFrame.Frame.Bar.Highlight.Glass.ImageRectOffset=RectOffset Tween(ToggleFra
 endConnection=UserInputService.InputEnded:Connect(function(inputEnded)if not Config.Window.IsToggleDragging then return
 end if inputEnded.UserInputType~=Enum.UserInputType.MouseButton1 and inputEnded.UserInputType~=Enum.UserInputType.Touch
 then return end Config.Window.IsToggleDragging=false if dragConnection then dragConnection:Disconnect()dragConnection=
-nil end if endConnection then endConnection:Disconnect()endConnection=nil end Config.WindUI.CurrentInput=nil if
+nil end if endConnection then endConnection:Disconnect()endConnection=nil end Config.SaltyUI.CurrentInput=nil if
 isScrolling then return end if not hasDragged then ToggleObj:Set(not ToggleObj.Value,true,false)else local currentX=
 ToggleFrame.Frame.Position.X.Offset local barCenter=currentX+FrameWidth/2 local newValue=barCenter>ToggleWidth/2
 ToggleObj:Set(newValue,true,false)end Tween(ToggleFrame.Frame.Bar.UIScale,0.23,{Scale=1},Enum.EasingStyle.Quint,Enum.
@@ -11440,10 +11503,10 @@ Toggle.Type=='Checkbox'then ToggleFrame,ToggleFunc=CreateCheckbox(Toggled,Toggle
 AnchorPoint=Vector2.new(1,Config.Window.NewElements and 0 or 0.5)ToggleFrame.Position=UDim2.new(1,0,Config.Window.
 NewElements and 0 or 0.5,0)function Toggle:Set(v,isCallback,isAnim)if CanCallback then ToggleFunc:Set(v,isCallback,
 isAnim or false)Toggled=v Toggle.Value=v end end Toggle:Set(Toggled,false,Config.Window.NewElements)local CurInput=
-Config.WindUI.GenerateGUID()if Config.Window.NewElements and ToggleFunc.Animate then if Toggle.Type=='Toggle'then
+Config.SaltyUI.GenerateGUID()if Config.Window.NewElements and ToggleFunc.Animate then if Toggle.Type=='Toggle'then
 Creator.AddSignal(ToggleFrame.ToggleFrame.Hitbox.InputBegan,function(Input)if not Config.Window.IsToggleDragging and(
 Input.UserInputType==Enum.UserInputType.MouseButton1 or Input.UserInputType==Enum.UserInputType.Touch)then if Config.
-WindUI.CurrentInput and Config.WindUI.CurrentInput~=CurInput then return end Config.WindUI.CurrentInput=CurInput
+SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput~=CurInput then return end Config.SaltyUI.CurrentInput=CurInput
 ToggleFunc:Animate(Input,Toggle)end end)end else if Toggle.Type=='Toggle'then Creator.AddSignal(ToggleFrame.ToggleFrame.
 Hitbox.MouseButton1Click,function()Toggle:Set(not Toggle.Value,nil,Config.Window.NewElements)end)elseif Toggle.Type==
 'Checkbox'then Creator.AddSignal(ToggleFrame.MouseButton1Click,function()Toggle:Set(not Toggle.Value,nil,Config.Window.
@@ -11508,7 +11571,7 @@ Value.Max-Slider.Value.Min))if Value~=LastValue then Tween(Slider.UIElements.Sli
 FormatValue(Value))end end)releaseconnection=UserInputService.InputEnded:Connect(function(endInput)if(endInput.
 UserInputType==Enum.UserInputType.MouseButton1 or endInput.UserInputType==Enum.UserInputType.Touch)and input==endInput
 then moveconnection:Disconnect()releaseconnection:Disconnect()IsSliderHolding=false ScrollingFrameParent.
-ScrollingEnabled=true Config.WindUI.CurrentInput=nil if Config.Window.NewElements then Tween(Slider.UIElements.
+ScrollingEnabled=true Config.SaltyUI.CurrentInput=nil if Config.Window.NewElements then Tween(Slider.UIElements.
 SliderIcon.Frame.Thumb,0.2,{ImageTransparency=0,Size=UDim2.new(0,Config.Window.NewElements and(Slider.ThumbSize*2)or(
 Slider.ThumbSize+2),0,Config.Window.NewElements and(Slider.ThumbSize+4)or(Slider.ThumbSize+2))},Enum.EasingStyle.Quint,
 Enum.EasingDirection.InOut):Play()end if Tooltip then Tooltip:Close(false)end end end)else Value=math.clamp(Value,Slider
@@ -11526,10 +11589,10 @@ Value.Max or 100)-newMin),0,1)Tween(Slider.UIElements.SliderIcon.Frame,0.1,{Size
 end Creator.AddSignal(Slider.UIElements.SliderContainer.TextBox.FocusLost,function(enterPressed)local newValue=tonumber(
 Slider.UIElements.SliderContainer.TextBox.Text)if newValue then Slider:Set(newValue)else Slider.UIElements.
 SliderContainer.TextBox.Text=FormatValue(LastValue)if Tooltip then Tooltip.TitleFrame.Text=FormatValue(LastValue)end end
-end)local CurInput=Config.WindUI.GenerateGUID()Creator.AddSignal(Slider.UIElements.SliderContainer.InputBegan,function(
+end)local CurInput=Config.SaltyUI.GenerateGUID()Creator.AddSignal(Slider.UIElements.SliderContainer.InputBegan,function(
 input)if Slider.Locked or IsSliderHolding then return end if input.UserInputType==Enum.UserInputType.MouseButton1 or
-input.UserInputType==Enum.UserInputType.Touch then if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput~=
-CurInput then return end Config.WindUI.CurrentInput=CurInput Slider:Set(Value,input)if Config.Window.NewElements then
+input.UserInputType==Enum.UserInputType.Touch then if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput~=
+CurInput then return end Config.SaltyUI.CurrentInput=CurInput Slider:Set(Value,input)if Config.Window.NewElements then
 Tween(Slider.UIElements.SliderIcon.Frame.Thumb,0.24,{ImageTransparency=0.85,Size=UDim2.new(0,(Config.Window.NewElements
 and(Slider.ThumbSize*2)or Slider.ThumbSize)+8,0,Slider.ThumbSize+8)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):
 Play()end if Tooltip then Tooltip:Open()end end end)return Slider.__type,Slider end return Element end function
@@ -11669,11 +11732,11 @@ LayoutOrder=999,Name='Frame'},{New('UICorner',{CornerRadius=UDim.new(0,Element.M
 'ScrollingFrame',{Size=UDim2.new(1,0,1,0),ScrollBarThickness=0,ScrollingDirection='Y',AutomaticCanvasSize='Y',CanvasSize
 =UDim2.new(0,0,0,0),BackgroundTransparency=1,ScrollBarImageTransparency=1},{Dropdown.UIElements.UIListLayout})})})
 Dropdown.UIElements.MenuCanvas=New('Frame',{Size=UDim2.new(0,Dropdown.MenuWidth,0,300),BackgroundTransparency=1,Position
-=UDim2.new(-10,0,-10,0),Visible=false,Active=false,Parent=Config.WindUI.DropdownGui,AnchorPoint=Vector2.new(1,0)},{
+=UDim2.new(-10,0,-10,0),Visible=false,Active=false,Parent=Config.SaltyUI.DropdownGui,AnchorPoint=Vector2.new(1,0)},{
 Dropdown.UIElements.Menu,New('UISizeConstraint',{MinSize=Vector2.new(170,0),MaxSize=Vector2.new(300,400)})})
 local function RecalculateCanvasSize()Dropdown.UIElements.Menu.Frame.ScrollingFrame.CanvasSize=UDim2.fromOffset(0,
 Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y)end local function RecalculateListSize()local MaxHeight=Config.
-WindUI.DropdownGui.AbsoluteSize.Y local ContentY=Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y/Config.UIScale
+SaltyUI.DropdownGui.AbsoluteSize.Y local ContentY=Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y/Config.UIScale
 local SearchBarOffset=Dropdown.SearchBarEnabled and(Element.SearchBarHeight+(Element.MenuPadding*3))or(Element.
 MenuPadding*2)local TotalY=ContentY+SearchBarOffset if TotalY>MaxHeight then Dropdown.UIElements.MenuCanvas.Size=UDim2.
 fromOffset(Dropdown.UIElements.MenuCanvas.AbsoluteSize.X,MaxHeight)else Dropdown.UIElements.MenuCanvas.Size=UDim2.
@@ -11905,8 +11968,8 @@ Title=Config.Title,Code=Config.Code,CodeSize=Config.CodeSize or 18,Height=Config
 Locked=false,CanCopied=Config.CanCopied~=false,OnCopy=Config.OnCopy,Index=Config.Index}local CanCallback=not Code.Locked
 local CodeElement=CodeComponent.New(Code,Config.Window,Config.Parent,function()if CanCallback then local NewTitle=Code.
 Title or'code'local success,result=pcall(function()if toclipboard then toclipboard(Code.Code)end if setclipboard then
-setclipboard(Code.Code)end if Code.OnCopy then Code.OnCopy()end end)if not success then Config.WindUI:Notify({Title=
-'Error',Content='The '..NewTitle..' is not copied. Error: '..result,Icon='x',Duration=5})end end end,Config.WindUI.
+setclipboard(Code.Code)end if Code.OnCopy then Code.OnCopy()end end)if not success then Config.SaltyUI:Notify({Title=
+'Error',Content='The '..NewTitle..' is not copied. Error: '..result,Icon='x',Duration=5})end end end,Config.SaltyUI.
 UIScale)function Code:SetCode(code)CodeElement.Set(code)Code.Code=code end function Code:Set(code)return Code.SetCode(
 code)end function Code:Destroy()CodeElement.Destroy()Code=nil end function Code.UpdateShape(Tab)if Config.Window.
 NewElements then local newShape=Creator:GetElementPosition(Tab.Elements,Code.Index,Config.ParentType=='HStack'or Config.
@@ -11920,12 +11983,12 @@ clonereference or function(instance)return instance end)local UserInputService=c
 :GetService('RunService'))local Players=cloneref(game:GetService('Players'))local RenderStepped=RunService.RenderStepped
 local LocalPlayer=Players.LocalPlayer local Mouse=LocalPlayer:GetMouse()local CreateButton=__DARKLUA_BUNDLE_MODULES.
 load('s').New local CreateInput=__DARKLUA_BUNDLE_MODULES.load('t').New local Element={UICorner=9}local ActiveSlider=nil
-function Element:Colorpicker(Config,Window,WindUI,OnApply)local Colorpicker={__type='Colorpicker',Title=Config.Title,
+function Element:Colorpicker(Config,Window,SaltyUI,OnApply)local Colorpicker={__type='Colorpicker',Title=Config.Title,
 Desc=Config.Desc,Default=Config.Value or Config.Default,Callback=Config.Callback,Transparency=Config.Transparency,
 UIElements=Config.UIElements,TextPadding=10}local Connections={}local IsTransparency=Colorpicker.Transparency~=nil
 function Colorpicker:SetHSVFromRGB(Color)local H,S,V=Color3.toHSV(Color)Colorpicker.Hue=H Colorpicker.Sat=S Colorpicker.
 Vib=V end Colorpicker:SetHSVFromRGB(Colorpicker.Default)local ColorpickerModule=__DARKLUA_BUNDLE_MODULES.load('u')local
-ColorpickerFrame=ColorpickerModule.Create(nil,'Dialog',Window,WindUI,Window.UIElements.Main.Main)Colorpicker.
+ColorpickerFrame=ColorpickerModule.Create(nil,'Dialog',Window,SaltyUI,Window.UIElements.Main.Main)Colorpicker.
 ColorpickerFrame=ColorpickerFrame ColorpickerFrame.UIElements.Main.Size=UDim2.new(1,0,0,0)local Hue,Sat,Vib=Colorpicker.
 Hue,Colorpicker.Sat,Colorpicker.Vib Colorpicker.UIElements.Title=New('TextLabel',{Text=Colorpicker.Title,TextSize=20,
 FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),TextXAlignment='Left',Size=UDim2.new(0,0,0,0),AutomaticSize='Y'
@@ -12037,41 +12100,41 @@ UpdateHue(HueSlider,Colorpicker)local MinY=HueSlider.AbsolutePosition.Y local Ma
 MouseY=math.clamp(Mouse.Y,MinY,MaxY)Colorpicker.Hue=(MouseY-MinY)/(MaxY-MinY)Colorpicker:Update()end local function
 UpdateTransparency(TransparencySlider,Colorpicker)local MinY=TransparencySlider.AbsolutePosition.Y local MaxY=MinY+
 TransparencySlider.AbsoluteSize.Y local MouseY=math.clamp(Mouse.Y,MinY,MaxY)Colorpicker.Transparency=1-((MouseY-MinY)/(
-MaxY-MinY))Colorpicker:Update()end local CurInput=WindUI.GenerateGUID()table.insert(Connections,UserInputService.
+MaxY-MinY))Colorpicker:Update()end local CurInput=SaltyUI.GenerateGUID()table.insert(Connections,UserInputService.
 InputChanged:Connect(function(input)if input.UserInputType~=Enum.UserInputType.MouseMovement and input.UserInputType~=
 Enum.UserInputType.Touch then return end if ActiveSlider=='SatVib'then UpdateSatVib(Colorpicker.UIElements.SatVibMap,
 Colorpicker)elseif ActiveSlider=='Hue'then UpdateHue(HueSlider,Colorpicker)elseif ActiveSlider=='Transparency'then
 UpdateTransparency(TransparencySlider,Colorpicker)end end))table.insert(Connections,Colorpicker.UIElements.SatVibMap.
 InputBegan:Connect(function(input)if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.
-UserInputType.Touch then return end if WindUI.CurrentInput and WindUI.CurrentInput~=CurInput then return end WindUI.
+UserInputType.Touch then return end if SaltyUI.CurrentInput and SaltyUI.CurrentInput~=CurInput then return end SaltyUI.
 CurrentInput=CurInput if ActiveSlider and ActiveSlider~='SatVib'then return end ActiveSlider='SatVib'UpdateSatVib(
 Colorpicker.UIElements.SatVibMap,Colorpicker)end))table.insert(Connections,HueSlider.InputBegan:Connect(function(input)
 if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return
-end if WindUI.CurrentInput and WindUI.CurrentInput~=CurInput then return end WindUI.CurrentInput=CurInput if
+end if SaltyUI.CurrentInput and SaltyUI.CurrentInput~=CurInput then return end SaltyUI.CurrentInput=CurInput if
 ActiveSlider and ActiveSlider~='Hue'then return end ActiveSlider='Hue'UpdateHue(HueSlider,Colorpicker)end))if
 TransparencySlider then table.insert(Connections,TransparencySlider.InputBegan:Connect(function(input)if input.
 UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end if
-WindUI.CurrentInput and WindUI.CurrentInput~=CurInput then return end WindUI.CurrentInput=CurInput if ActiveSlider and
-ActiveSlider~='Transparency'then return end ActiveSlider='Transparency'UpdateTransparency(TransparencySlider,Colorpicker
-)end))end table.insert(Connections,UserInputService.InputEnded:Connect(function(input)ActiveSlider=nil if WindUI.
-CurrentInput and WindUI.CurrentInput~=CurInput then return end WindUI.CurrentInput=nil end))return Colorpicker end
-function Element:New(Config)local Colorpicker={__type='Colorpicker',Title=Config.Title or'Colorpicker',Desc=Config.Desc
-or nil,Locked=Config.Locked or false,LockedTitle=Config.LockedTitle,Default=Config.Default or Color3.new(1,1,1),Callback
-=Config.Callback or function()end,UIScale=Config.UIScale,Transparency=Config.Transparency,UIElements={},IsShowed=false}
-local CanCallback=true Colorpicker.ColorpickerFrame=__DARKLUA_BUNDLE_MODULES.load('I')({Title=Colorpicker.Title,Desc=
-Colorpicker.Desc,Parent=Config.Parent,TextOffset=40,Hover=false,Tab=Config.Tab,Index=Config.Index,Window=Config.Window,
-ElementTable=Colorpicker,ParentConfig=Config,Tags=Config.Tags})Colorpicker.UIElements.Colorpicker=Creator.NewRoundFrame(
-Element.UICorner,'Squircle',{ImageTransparency=0,Active=true,ImageColor3=Colorpicker.Default,Parent=Colorpicker.
-ColorpickerFrame.UIElements.Main,Size=UDim2.new(0,26,0,26),AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,0,0,0),
-ZIndex=2},{Creator.NewRoundFrame(Element.UICorner,'SquircleGlass',{Size=UDim2.new(1,0,1,0),ThemeTag={ImageColor3=
-'Outline'},ImageTransparency=0.55})},true)function Colorpicker:Lock()Colorpicker.Locked=true CanCallback=false return
+SaltyUI.CurrentInput and SaltyUI.CurrentInput~=CurInput then return end SaltyUI.CurrentInput=CurInput if ActiveSlider
+and ActiveSlider~='Transparency'then return end ActiveSlider='Transparency'UpdateTransparency(TransparencySlider,
+Colorpicker)end))end table.insert(Connections,UserInputService.InputEnded:Connect(function(input)ActiveSlider=nil if
+SaltyUI.CurrentInput and SaltyUI.CurrentInput~=CurInput then return end SaltyUI.CurrentInput=nil end))return Colorpicker
+end function Element:New(Config)local Colorpicker={__type='Colorpicker',Title=Config.Title or'Colorpicker',Desc=Config.
+Desc or nil,Locked=Config.Locked or false,LockedTitle=Config.LockedTitle,Default=Config.Default or Color3.new(1,1,1),
+Callback=Config.Callback or function()end,UIScale=Config.UIScale,Transparency=Config.Transparency,UIElements={},IsShowed
+=false}local CanCallback=true Colorpicker.ColorpickerFrame=__DARKLUA_BUNDLE_MODULES.load('I')({Title=Colorpicker.Title,
+Desc=Colorpicker.Desc,Parent=Config.Parent,TextOffset=40,Hover=false,Tab=Config.Tab,Index=Config.Index,Window=Config.
+Window,ElementTable=Colorpicker,ParentConfig=Config,Tags=Config.Tags})Colorpicker.UIElements.Colorpicker=Creator.
+NewRoundFrame(Element.UICorner,'Squircle',{ImageTransparency=0,Active=true,ImageColor3=Colorpicker.Default,Parent=
+Colorpicker.ColorpickerFrame.UIElements.Main,Size=UDim2.new(0,26,0,26),AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1
+,0,0,0),ZIndex=2},{Creator.NewRoundFrame(Element.UICorner,'SquircleGlass',{Size=UDim2.new(1,0,1,0),ThemeTag={ImageColor3
+='Outline'},ImageTransparency=0.55})},true)function Colorpicker:Lock()Colorpicker.Locked=true CanCallback=false return
 Colorpicker.ColorpickerFrame:Lock(Colorpicker.LockedTitle)end function Colorpicker:Unlock()Colorpicker.Locked=false
 CanCallback=true return Colorpicker.ColorpickerFrame:Unlock()end if Colorpicker.Locked then Colorpicker:Lock()end
 function Colorpicker:Update(Color,Transparency)Colorpicker.UIElements.Colorpicker.ImageTransparency=Transparency or 0
 Colorpicker.UIElements.Colorpicker.ImageColor3=Color Colorpicker.Default=Color if Transparency then Colorpicker.
 Transparency=Transparency end end function Colorpicker:Set(c,t)return Colorpicker:Update(c,t)end Creator.AddSignal(
 Colorpicker.UIElements.Colorpicker.MouseButton1Click,function()if CanCallback and not Colorpicker.IsShowed then
-Colorpicker.IsShowed=true Element:Colorpicker(Colorpicker,Config.Window,Config.WindUI,function(color,transparency)
+Colorpicker.IsShowed=true Element:Colorpicker(Colorpicker,Config.Window,Config.SaltyUI,function(color,transparency)
 Colorpicker:Update(color,transparency)Colorpicker.Default=color Colorpicker.Transparency=transparency Creator.
 SafeCallback(Colorpicker.Callback,color,transparency)end).ColorpickerFrame:Open()end end)return Colorpicker.__type,
 Colorpicker end return Element end function __DARKLUA_BUNDLE_MODULES.Z()local Creator=__DARKLUA_BUNDLE_MODULES.load('j')
@@ -12119,7 +12182,7 @@ PaddingBottom=UDim.new(0,Config.Window.ElementConfig.UIPadding/1.5)})or nil,New(
 GetPropertyChangedSignal('AbsoluteSize'):Connect(function()Main.Outline.Content.Position=UDim2.new(0,0,0,(Main.Outline.
 Top.AbsoluteSize.Y/Config.UIScale)+10)if Section.Opened then Section:Open(true)else Section.Close(true)end end)local
 ElementsModule=Config.ElementsModule ElementsModule.Load(Section,Main.Outline.Content,ElementsModule.Elements,Config.
-Window,Config.WindUI,function()if not Section.Expandable then Section.Expandable=true ChevronIconFrame.Visible=true
+Window,Config.SaltyUI,function()if not Section.Expandable then Section.Expandable=true ChevronIconFrame.Visible=true
 UpdateTitleSize()end end,ElementsModule,Config.UIScale,Config.Tab)UpdateTitleSize()function Section:SetTitle(Title)
 Section.Title=Title TitleFrame.Text=Title end function Section:SetDesc(Desc)Section.Desc=Desc if not DescFrame then
 DescFrame=createTitle(Desc,'Desc')end DescFrame.Text=Desc end function Section:Destroy()for _,element in next,Section.
@@ -12161,7 +12224,7 @@ __type='Group',Elements={},ElementFrame=nil}local GroupFrame=New('Frame',{Size=U
 =1,AutomaticSize='Y',Parent=Config.Parent},{New('UIListLayout',{FillDirection='Horizontal',HorizontalAlignment='Center',
 Padding=UDim.new(0,Config.Tab and Config.Tab.Gap or(Config.Window.NewElements and 1 or 6))})})GroupModule.ElementFrame=
 GroupFrame local ElementsModule=Config.ElementsModule ElementsModule.Load(GroupModule,GroupFrame,ElementsModule.Elements
-,Config.Window,Config.WindUI,function(CurrentElement,AllElements)local Gap=Config.Tab and Config.Tab.Gap or(Config.
+,Config.Window,Config.SaltyUI,function(CurrentElement,AllElements)local Gap=Config.Tab and Config.Tab.Gap or(Config.
 Window.NewElements and 1 or 6)local StretchableElements={}local TotalFixedWidth=0 for _,Element in next,AllElements do
 if Element.__type=='Space'then TotalFixedWidth=TotalFixedWidth+(Element.ElementFrame.Size.X.Offset or 6)elseif Element.
 __type=='Divider'then TotalFixedWidth=TotalFixedWidth+(Element.ElementFrame.Size.X.Offset or 1)else table.insert(
@@ -12177,7 +12240,7 @@ ElementFrame=nil}local HStackFrame=New('Frame',{Size=UDim2.new(1,0,0,0),Backgrou
 Parent=Config.Parent},{New('UIListLayout',{FillDirection='Horizontal',HorizontalAlignment='Center',Padding=UDim.new(0,
 Config.Tab and Config.Tab.Gap or(Config.Window.NewElements and 1 or 6))})})HStackModule.ElementFrame=HStackFrame local
 ElementsModule=Config.ElementsModule ElementsModule.Load(HStackModule,HStackFrame,ElementsModule.Elements,Config.Window,
-Config.WindUI,function(CurrentElement,AllElements)local Gap=Config.Tab and Config.Tab.Gap or(Config.Window.NewElements
+Config.SaltyUI,function(CurrentElement,AllElements)local Gap=Config.Tab and Config.Tab.Gap or(Config.Window.NewElements
 and 1 or 6)local StretchableElements={}local TotalFixedWidth=0 for _,Element in next,AllElements do if Element.__type==
 'Space'then TotalFixedWidth=TotalFixedWidth+(Element.ElementFrame.Size.X.Offset or 6)elseif Element.__type=='Divider'
 then TotalFixedWidth=TotalFixedWidth+(Element.ElementFrame.Size.X.Offset or 1)else table.insert(StretchableElements,
@@ -12194,7 +12257,7 @@ Element={}function Element:New(Config)local VStackModule={__type='VStack',Elemen
 =New('Frame',{Size=UDim2.new(1,0,0,0),BackgroundTransparency=1,AutomaticSize='Y',Parent=Config.Parent},{New(
 'UIListLayout',{FillDirection='Vertical',HorizontalAlignment='Center',Padding=UDim.new(0,Config.Tab and Config.Tab.Gap
 or(Config.Window.NewElements and 1 or 6))})})VStackModule.ElementFrame=VStackFrame local ElementsModule=Config.
-ElementsModule ElementsModule.Load(VStackModule,VStackFrame,ElementsModule.Elements,Config.Window,Config.WindUI,nil,
+ElementsModule ElementsModule.Load(VStackModule,VStackFrame,ElementsModule.Elements,Config.Window,Config.SaltyUI,nil,
 ElementsModule,Config.UIScale,Config.Tab)return VStackModule.__type,VStackModule end return Element end function
 __DARKLUA_BUNDLE_MODULES.ae()local cloneref=(cloneref or clonereference or function(instance)return instance end)local
 UserInputService=cloneref(game:GetService('UserInputService'))local Creator=__DARKLUA_BUNDLE_MODULES.load('j')local New=
@@ -12208,16 +12271,16 @@ ElementConfig.UICorner)}),New('ViewportFrame',{Name='Viewport',Size=UDim2.new(1,
 CurrentCamera=Viewport.Camera,Active=Viewport.Interactive},{Viewport.Object})})})local function IsTouchInsideViewport(
 Position)local AbsPos=Main.CanvasGroup.Viewport.AbsolutePosition local Size=Main.CanvasGroup.Viewport.AbsoluteSize
 return Position.X>=AbsPos.X and Position.X<=AbsPos.X+Size.X and Position.Y>=AbsPos.Y and Position.Y<=AbsPos.Y+Size.Y end
-local CurInput=Config.WindUI.GenerateGUID()Creator.AddSignal(Main.CanvasGroup.Viewport.MouseEnter,function()if Viewport.
-Interactive then Config.Tab.UIElements.ContainerFrame.ScrollingEnabled=false end end)Creator.AddSignal(Main.CanvasGroup.
-Viewport.InputEnded,function(Input)if Input.UserInputType==Enum.UserInputType.MouseMovement or Input.UserInputType==Enum
-.UserInputType.Touch then Config.Tab.UIElements.ContainerFrame.ScrollingEnabled=true end end)Creator.AddSignal(Main.
+local CurInput=Config.SaltyUI.GenerateGUID()Creator.AddSignal(Main.CanvasGroup.Viewport.MouseEnter,function()if Viewport
+.Interactive then Config.Tab.UIElements.ContainerFrame.ScrollingEnabled=false end end)Creator.AddSignal(Main.CanvasGroup
+.Viewport.InputEnded,function(Input)if Input.UserInputType==Enum.UserInputType.MouseMovement or Input.UserInputType==
+Enum.UserInputType.Touch then Config.Tab.UIElements.ContainerFrame.ScrollingEnabled=true end end)Creator.AddSignal(Main.
 CanvasGroup.Viewport.InputBegan,function(Input)if Viewport.Interactive then if(Input.UserInputType==Enum.UserInputType.
-MouseButton1)or(Input.UserInputType==Enum.UserInputType.Touch and not Pinching)then if Config.WindUI.CurrentInput and
-Config.WindUI.CurrentInput~=CurInput then return end Config.WindUI.CurrentInput=CurInput Dragging=true LastMousePos=
+MouseButton1)or(Input.UserInputType==Enum.UserInputType.Touch and not Pinching)then if Config.SaltyUI.CurrentInput and
+Config.SaltyUI.CurrentInput~=CurInput then return end Config.SaltyUI.CurrentInput=CurInput Dragging=true LastMousePos=
 Input.Position end end end)Creator.AddSignal(UserInputService.InputEnded,function(Input)if Viewport.Interactive then if
 Input.UserInputType==Enum.UserInputType.MouseButton1 or Input.UserInputType==Enum.UserInputType.Touch then if Config.
-WindUI.CurrentInput and Config.WindUI.CurrentInput~=CurInput then return end Config.WindUI.CurrentInput=nil Dragging=
+SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput~=CurInput then return end Config.SaltyUI.CurrentInput=nil Dragging=
 false end end end)Creator.AddSignal(UserInputService.InputChanged,function(Input)if Viewport.Interactive and Dragging
 and not Pinching then if Input.UserInputType==Enum.UserInputType.MouseMovement or Input.UserInputType==Enum.
 UserInputType.Touch then local MouseDelta=Input.Position-LastMousePos LastMousePos=Input.Position local Position=
@@ -12251,16 +12314,16 @@ ProgressBar=__DARKLUA_BUNDLE_MODULES.load('P'),Keybind=__DARKLUA_BUNDLE_MODULES.
 __DARKLUA_BUNDLE_MODULES.load('Y'),Section=__DARKLUA_BUNDLE_MODULES.load('Z'),Divider=__DARKLUA_BUNDLE_MODULES.load('S')
 ,Space=__DARKLUA_BUNDLE_MODULES.load('_'),Image=__DARKLUA_BUNDLE_MODULES.load('aa'),Group=__DARKLUA_BUNDLE_MODULES.load(
 'ab'),HStack=__DARKLUA_BUNDLE_MODULES.load('ac'),VStack=__DARKLUA_BUNDLE_MODULES.load('ad'),Viewport=
-__DARKLUA_BUNDLE_MODULES.load('ae')},Load=function(tbl,Container,Elements,Window,WindUI,OnElementCreateFunction,
+__DARKLUA_BUNDLE_MODULES.load('ae')},Load=function(tbl,Container,Elements,Window,SaltyUI,OnElementCreateFunction,
 ElementsModule,UIScale,Tab)for name,module in next,Elements do tbl[name]=function(self,config)config=config or{}config.
 Tab=Tab or tbl config.ParentType=tbl.__type config.ParentTable=tbl config.Index=#tbl.Elements+1 config.GlobalIndex=#
-Window.AllElements+1 config.Parent=Container config.Window=Window config.WindUI=WindUI config.UIScale=UIScale config.
+Window.AllElements+1 config.Parent=Container config.Window=Window config.SaltyUI=SaltyUI config.UIScale=UIScale config.
 ElementsModule=ElementsModule local _elementInstance,content=module:New(config)if config.Flag and typeof(config.Flag)==
 'string'then if Window.CurrentConfig then Window.CurrentConfig:Register(config.Flag,content)if Window.PendingConfigData
 and Window.PendingConfigData[config.Flag]then local data=Window.PendingConfigData[config.Flag]local ConfigManager=Window
 .ConfigManager if ConfigManager.Parser[data.__type]then task.defer(function()local success,err=pcall(function()
 ConfigManager.Parser[data.__type].Load(content,data)end)if success then Window.PendingConfigData[config.Flag]=nil else
-warn("[ WindUI ] Failed to apply pending config for '"..config.Flag.."': "..tostring(err))end end)end end else Window.
+warn("[ SaltyUI ] Failed to apply pending config for '"..config.Flag.."': "..tostring(err))end end)end end else Window.
 PendingFlags=Window.PendingFlags or{}Window.PendingFlags[config.Flag]=content end end local frame for key,value in next,
 content do if typeof(value)=='table'and key~='ElementFrame'and key:match('Frame$')then frame=value break end end if
 frame then content.ElementFrame=frame.UIElements.Main function content:SetTitle(title)return frame.SetTitle and frame:
@@ -12278,9 +12341,9 @@ UpdateShape(bbb)end end end end end}end function __DARKLUA_BUNDLE_MODULES.ag()lo
 or function(instance)return instance end)local Players=game:GetService('Players')local UserInputService=cloneref(game:
 GetService('UserInputService'))local Mouse=Players.LocalPlayer:GetMouse()local Creator=__DARKLUA_BUNDLE_MODULES.load('j'
 )local New=Creator.New local CreateToolTip=__DARKLUA_BUNDLE_MODULES.load('H').New local CreateScrollSlider=
-__DARKLUA_BUNDLE_MODULES.load('D').New local Window,WindUI,UIScale local TabModule={Tabs={},Containers={},SelectedTab=
+__DARKLUA_BUNDLE_MODULES.load('D').New local Window,SaltyUI,UIScale local TabModule={Tabs={},Containers={},SelectedTab=
 nil,TabCount=0,ToolTipParent=nil,TabHighlight=nil,OnChangeFunc=function(v)end}function TabModule.Init(WindowTable,
-WindUITable,ToolTipParent,TabHighlight)Window=WindowTable WindUI=WindUITable TabModule.ToolTipParent=ToolTipParent
+SaltyUITable,ToolTipParent,TabHighlight)Window=WindowTable SaltyUI=SaltyUITable TabModule.ToolTipParent=ToolTipParent
 TabModule.TabHighlight=TabHighlight return TabModule end function TabModule.New(Config,UIScale)local Tab={__type='Tab',
 Title=Config.Title or'Tab',Desc=Config.Desc,Icon=Config.Icon,IconColor=Config.IconColor,IconShape=Config.IconShape,
 IconThemed=Config.IconThemed,Locked=Config.Locked,ShowTabTitle=Config.ShowTabTitle,TabTitleAlign=Config.TabTitleAlign or
@@ -12334,8 +12397,8 @@ BackgroundTransparency=0.9,ThemeTag={BackgroundColor3='Text'},Position=UDim2.new
 Visible=Tab.ShowTabTitle or false})})TabModule.Containers[TabIndex]=Tab.UIElements.ContainerFrameCanvas TabModule.Tabs[
 TabIndex]=Tab Tab.ContainerFrame=Tab.UIElements.ContainerFrameCanvas Creator.AddSignal(Tab.UIElements.Main.
 MouseButton1Click,function()if not Tab.Locked then TabModule:SelectTab(TabIndex)end end)if Window.ScrollBarEnabled then
-CreateScrollSlider(Tab.UIElements.ContainerFrame,Tab.UIElements.ContainerFrameCanvas.ScrollSliderHolder,Window,4,WindUI)
-end local ToolTip local hoverTimer local MouseConn local IsHovering=false if Tab.Desc then Creator.AddSignal(Tab.
+CreateScrollSlider(Tab.UIElements.ContainerFrame,Tab.UIElements.ContainerFrameCanvas.ScrollSliderHolder,Window,4,SaltyUI
+)end local ToolTip local hoverTimer local MouseConn local IsHovering=false if Tab.Desc then Creator.AddSignal(Tab.
 UIElements.Main.InputBegan,function()IsHovering=true hoverTimer=task.spawn(function()task.wait(0.35)if IsHovering and
 not ToolTip then ToolTip=CreateToolTip(Tab.Desc,TabModule.ToolTipParent,true)ToolTip.Container.AnchorPoint=Vector2.new(
 0.5,0.5)local function updatePosition()if ToolTip then ToolTip.Container.Position=UDim2.new(0,Mouse.X,0,Mouse.Y-4)end
@@ -12351,7 +12414,7 @@ AbsolutePosition.Y-Tab.UIElements.ContainerFrame.AbsolutePosition.Y-Tab.UIElemen
 Offset)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()task.spawn(function()task.wait(0.48)if Tab.Elements[
 elemindex].Highlight then Tab.Elements[elemindex]:Highlight()end Tab.UIElements.ContainerFrame.ScrollingEnabled=true end
 )return Tab end local ElementsModule=__DARKLUA_BUNDLE_MODULES.load('af')ElementsModule.Load(Tab,Tab.UIElements.
-ContainerFrame,ElementsModule.Elements,Window,WindUI,nil,ElementsModule,UIScale,Tab)function Tab:LockAll()for _,element
+ContainerFrame,ElementsModule.Elements,Window,SaltyUI,nil,ElementsModule,UIScale,Tab)function Tab:LockAll()for _,element
 in next,Window.AllElements do if element.Tab and element.Tab.Index and element.Tab.Index==Tab.Index and element.Lock
 then element:Lock()end end end function Tab:UnlockAll()for _,element in next,Window.AllElements do if element.Tab and
 element.Tab.Index and element.Tab.Index==Tab.Index and element.Unlock then element:Unlock()end end end function Tab:
@@ -12521,7 +12584,7 @@ local Acrylic=__DARKLUA_BUNDLE_MODULES.load('z')local Creator=__DARKLUA_BUNDLE_M
 local Tween=Creator.Tween local CreateLabel=__DARKLUA_BUNDLE_MODULES.load('C').New local CreateButton=
 __DARKLUA_BUNDLE_MODULES.load('s').New local CreateScrollSlider=__DARKLUA_BUNDLE_MODULES.load('D').New local Tag=
 __DARKLUA_BUNDLE_MODULES.load('E')local ConfigManager=__DARKLUA_BUNDLE_MODULES.load('F')local Notified=false return
-function(Config)local Window={Title=Config.Title or'UI Library',Author=Config.Author,Icon=Config.Icon,IconSize=Config.
+function(Config)local Window={Title=Config.Title or'SaltyUI',Author=Config.Author,Icon=Config.Icon,IconSize=Config.
 IconSize or 22,IconThemed=Config.IconThemed,IconRadius=Config.IconRadius or 0,Folder=Config.Folder,Resizable=Config.
 Resizable~=false,Background=Config.Background,BackgroundImageTransparency=Config.BackgroundImageTransparency or 0,
 ShadowTransparency=Config.ShadowTransparency or 0.6,User=Config.User or{},Footer=Config.Footer or{},Topbar=Config.Topbar
@@ -12568,7 +12631,7 @@ Window.User.Enabled and-Window.Topbar.Height-42-(Window.UIPadding*2)or-Window.To
 Window.Topbar.Height),BackgroundTransparency=1,Visible=true},{New('Frame',{Name='Content',BackgroundTransparency=1,Size=
 UDim2.new(1,0,1,not Window.HideSearchBar and-39-6-Window.UIPadding or-Window.UIPadding/2),Position=UDim2.new(0,0,1,-
 Window.UIPadding/2),AnchorPoint=Vector2.new(0,1)}),Window.UIElements.SideBar})if Window.ScrollBarEnabled then
-CreateScrollSlider(Window.UIElements.SideBar,Window.UIElements.SideBarContainer.Content,Window,3,Config.WindUI)end
+CreateScrollSlider(Window.UIElements.SideBar,Window.UIElements.SideBarContainer.Content,Window,3,Config.SaltyUI)end
 Window.UIElements.MainBar=New('Frame',{Size=UDim2.new(1,-Window.UIElements.SideBarContainer.AbsoluteSize.X,1,-Window.
 Topbar.Height),Position=UDim2.new(1,0,1,0),AnchorPoint=Vector2.new(1,1),BackgroundTransparency=1},{Creator.
 NewRoundFrame(Window.UICorner-(Window.UIPadding/2),'Squircle',{Size=UDim2.new(1,0,1,0),ThemeTag={ImageColor3=
@@ -12623,10 +12686,10 @@ then IsVideoBG=true if string.find(BGVideo,'http')then local videoPath=(Window.F
 SanitizeFilename(BGVideo)..'.webm'if not isfile(videoPath)then local success,result=pcall(function()local response=game.
 HttpGet and game:HttpGet(BGVideo)or Creator.Request({Url=BGVideo,Method='GET',Headers={['User-Agent']='Roblox/Exploit'}}
 ).Body writefile(videoPath,response)end)if not success then warn(
-'[ WindUI.Window.Background ] Failed to download video: '..tostring(result))end end local success,customAsset=pcall(
+'[ SaltyUI.Window.Background ] Failed to download video: '..tostring(result))end end local success,customAsset=pcall(
 function()return getcustomasset(videoPath)end)if not success then warn(
-'[ WindUI.Window.Background ] Failed to load custom asset: '..tostring(customAsset))end warn(
-[[[ WindUI.Window.Background ] VideoFrame may not work with custom video]])BGVideo=customAsset end BGImage=New(
+'[ SaltyUI.Window.Background ] Failed to load custom asset: '..tostring(customAsset))end warn(
+[[[ SaltyUI.Window.Background ] VideoFrame may not work with custom video]])BGVideo=customAsset end BGImage=New(
 'VideoFrame',{BackgroundTransparency=1,Size=UDim2.new(1,0,1,0),Video=BGVideo,Looped=true,Volume=0},{New('UICorner',{
 CornerRadius=UDim.new(0,Window.UICorner)})})BGImage:Play()elseif BGHttpImage then local imagePath=(Window.Folder or
 'Temp')..'/assets/.'..Creator.SanitizeFilename(BGHttpImage)..GetImageExtension(BGHttpImage)if isfile and not isfile(
@@ -12651,7 +12714,7 @@ WindowAuthor local WindowIcon if Window.Author then WindowAuthor=createAuthor(Wi
 'TextLabel',{Text=Window.Title,FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),BackgroundTransparency=1,
 AutomaticSize='XY',Name='Title',TextXAlignment='Left',TextSize=16,ThemeTag={TextColor3='WindowTopbarTitle'}})Window.
 UIElements.Main=New('Frame',{Size=UDim2.new(Window.Size.X.Scale,Window.Size.X.Offset,0,0),Position=Window.Position,
-BackgroundTransparency=1,Parent=Config.Parent,AnchorPoint=Vector2.new(0.5,0.5),Active=true},{Config.WindUI.UIScaleObj,
+BackgroundTransparency=1,Parent=Config.Parent,AnchorPoint=Vector2.new(0.5,0.5),Active=true},{Config.SaltyUI.UIScaleObj,
 Window.AcrylicPaint and Window.AcrylicPaint.Frame or nil,Blur,Creator.NewRoundFrame(Window.UICorner,'Squircle',{
 ImageTransparency=1,Size=UDim2.new(1,0,1,0),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),Name=
 'Background',ThemeTag={ImageColor3='WindowBackground'}},{BGImage,BottomDragFrame,ResizeHandle}),UICorner,FullScreenIcon,
@@ -12674,14 +12737,14 @@ UDim.new(0,Window.Topbar.ButtonsType=='Default'and 9 or 0),FillDirection='Horizo
 'UIPadding',{PaddingTop=UDim.new(0,Window.UIPadding),PaddingLeft=UDim.new(0,Window.Topbar.ButtonsType=='Default'and
 Window.UIPadding or Window.UIPadding-2),PaddingRight=UDim.new(0,8),PaddingBottom=UDim.new(0,Window.UIPadding)})})})})
 Creator.AddSignal(Window.UIElements.Main.Main.Topbar.Left:GetPropertyChangedSignal('AbsoluteSize'),function()local
-LeftWidth=0 local RightWidth=Window.UIElements.Main.Main.Topbar.Right.UIListLayout.AbsoluteContentSize.X/Config.WindUI.
-UIScale LeftWidth=Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X/Config.WindUI.UIScale if Window.Topbar.
+LeftWidth=0 local RightWidth=Window.UIElements.Main.Main.Topbar.Right.UIListLayout.AbsoluteContentSize.X/Config.SaltyUI.
+UIScale LeftWidth=Window.UIElements.Main.Main.Topbar.Left.AbsoluteSize.X/Config.SaltyUI.UIScale if Window.Topbar.
 ButtonsType~='Default'then LeftWidth=LeftWidth+RightWidth+Window.UIPadding-4 end Window.UIElements.Main.Main.Topbar.
-Center.Position=UDim2.new(0,LeftWidth+(Window.UIPadding/Config.WindUI.UIScale),0.5,0)Window.UIElements.Main.Main.Topbar.
-Center.Size=UDim2.new(1,-LeftWidth-(Window.UIPadding/Config.WindUI.UIScale)-(Window.Topbar.ButtonsType=='Default'and
+Center.Position=UDim2.new(0,LeftWidth+(Window.UIPadding/Config.SaltyUI.UIScale),0.5,0)Window.UIElements.Main.Main.Topbar
+.Center.Size=UDim2.new(1,-LeftWidth-(Window.UIPadding/Config.SaltyUI.UIScale)-(Window.Topbar.ButtonsType=='Default'and
 RightWidth+Window.UIPadding or 0),1,0)end)if Window.Topbar.ButtonsType~='Default'then Creator.AddSignal(Window.
 UIElements.Main.Main.Topbar.Right:GetPropertyChangedSignal('AbsoluteSize'),function()Window.UIElements.Main.Main.Topbar.
-Left.Position=UDim2.new(0,(Window.UIElements.Main.Main.Topbar.Right.AbsoluteSize.X/Config.WindUI.UIScale)+Window.
+Left.Position=UDim2.new(0,(Window.UIElements.Main.Main.Topbar.Right.AbsoluteSize.X/Config.SaltyUI.UIScale)+Window.
 UIPadding-4,0,0)end)end function Window:CreateTopbarButton(Name,Icon,Callback,LayoutOrder,IconThemed,Color,IconSize)
 local IconFrame=Creator.Image(Icon,Icon,0,Window.Folder,'WindowTopbarIcon',Window.Topbar.ButtonsType=='Default'and true
 or false,IconThemed,'WindowTopbarButtonIcon')IconFrame.Size=Window.Topbar.ButtonsType=='Default'and UDim2.new(0,IconSize
@@ -12715,9 +12778,9 @@ ImageTransparency=0.35}):Play()else Tween(BottomDragFrame,0.2,{ImageTransparency
 UIElements.Main.Position Window.Dragging=dragging end end)if not IsVideoBG and Window.Background and typeof(Window.
 Background)=='table'then local BackgroundGradient=New('UIGradient')for key,value in next,Window.Background do
 BackgroundGradient[key]=value end Window.UIElements.BackgroundGradient=Creator.NewRoundFrame(Window.UICorner,'Squircle',
-{Size=UDim2.new(1,0,1,0),Parent=Window.UIElements.Main.Background,ImageTransparency=Window.Transparent and Config.WindUI
-.TransparencyValue or 0},{BackgroundGradient})end Window.OpenButtonMain=__DARKLUA_BUNDLE_MODULES.load('G').New(Window)
-task.spawn(function()if Window.Icon then local WindowIconContainer=New('Frame',{Size=UDim2.new(0,22,0,22),
+{Size=UDim2.new(1,0,1,0),Parent=Window.UIElements.Main.Background,ImageTransparency=Window.Transparent and Config.
+SaltyUI.TransparencyValue or 0},{BackgroundGradient})end Window.OpenButtonMain=__DARKLUA_BUNDLE_MODULES.load('G').New(
+Window)task.spawn(function()if Window.Icon then local WindowIconContainer=New('Frame',{Size=UDim2.new(0,22,0,22),
 BackgroundTransparency=1,Parent=Window.UIElements.Main.Main.Topbar.Left})WindowIcon=Creator.Image(Window.Icon,Window.
 Title,Window.IconRadius,Window.Folder,'Window',true,Window.IconThemed,'WindowTopbarIcon')WindowIcon.Parent=
 WindowIconContainer WindowIcon.Size=UDim2.new(0,Window.IconSize,0,Window.IconSize)WindowIcon.Position=UDim2.new(0.5,0,
@@ -12729,23 +12792,23 @@ then WindowAuthor=createAuthor(Window.Author)end WindowAuthor.Text=text end func
 .Out):Play()end end function Window:SetBackgroundImage(id)Window.UIElements.Main.Background.ImageLabel.Image=id end
 function Window:SetBackgroundImageTransparency(v)if BGImage and BGImage:IsA('ImageLabel')then BGImage.ImageTransparency=
 math.floor(v*10+0.5)/10 end Window.BackgroundImageTransparency=math.floor(v*10+0.5)/10 end function Window:
-SetBackgroundTransparency(v)local rounded=math.floor(tonumber(v)*10+0.5)/10 Config.WindUI.TransparencyValue=rounded
+SetBackgroundTransparency(v)local rounded=math.floor(tonumber(v)*10+0.5)/10 Config.SaltyUI.TransparencyValue=rounded
 Window:ToggleTransparency(rounded>0)end local CurrentPos local CurrentSize local iconCopy=Creator.Icon('minimize')local
 iconSquare=Creator.Icon('maximize')local FullscreenButton=Window:CreateTopbarButton('Fullscreen',Window.Topbar.
 ButtonsType=='Mac'and'rbxassetid://127426072704909'or'maximize',function()Window:ToggleFullscreen()end,(Window.Topbar.
 ButtonsType=='Default'and 998 or 999),true,Color3.fromHex('#60C762'),Window.Topbar.ButtonsType=='Mac'and 9 or nil)
 local function SetSize(isAnimation)Tween(Window.UIElements.Main,0.45,{Size=not Window.IsFullscreen and CurrentSize or
-UDim2.new(0,(Config.WindUI.ScreenGui.AbsoluteSize.X-20)/Config.WindUI.UIScale,0,(Config.WindUI.ScreenGui.AbsoluteSize.Y-
-20-52)/Config.WindUI.UIScale)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()Tween(Window.UIElements.Main,0.45,
-{Position=not Window.IsFullscreen and CurrentPos or UDim2.new(0.5,0,0.5,52/2)},Enum.EasingStyle.Quint,Enum.
+UDim2.new(0,(Config.SaltyUI.ScreenGui.AbsoluteSize.X-20)/Config.SaltyUI.UIScale,0,(Config.SaltyUI.ScreenGui.AbsoluteSize
+.Y-20-52)/Config.SaltyUI.UIScale)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()Tween(Window.UIElements.Main,
+0.45,{Position=not Window.IsFullscreen and CurrentPos or UDim2.new(0.5,0,0.5,52/2)},Enum.EasingStyle.Quint,Enum.
 EasingDirection.Out):Play()end function Window:ToggleFullscreen()local isFullscreen=Window.IsFullscreen WindowDragModule
 :Set(isFullscreen)if not isFullscreen then CurrentPos=Window.UIElements.Main.Position CurrentSize=Window.UIElements.Main
 .Size Window.CanResize=false else if Window.Resizable then Window.CanResize=true end end Window.IsFullscreen=not
-isFullscreen SetSize(true)end Creator.AddSignal(Config.WindUI.ScreenGui:GetPropertyChangedSignal('AbsoluteSize'),
+isFullscreen SetSize(true)end Creator.AddSignal(Config.SaltyUI.ScreenGui:GetPropertyChangedSignal('AbsoluteSize'),
 function()if Window.IsFullscreen then SetSize()end end)Window:CreateTopbarButton('Minimize','minus',function()if Window.
 Close then Window:Close()end end,(Window.Topbar.ButtonsType=='Default'and 997 or 998),nil,Color3.fromHex('#F4C948'))
 function Window:OnOpen(func)Window.OnOpenCallback=func end function Window:OnClose(func)Window.OnCloseCallback=func end
-function Window:OnDestroy(func)Window.OnDestroyCallback=func end if Config.WindUI.UseAcrylic then Window.AcrylicPaint.
+function Window:OnDestroy(func)Window.OnDestroyCallback=func end if Config.SaltyUI.UseAcrylic then Window.AcrylicPaint.
 AddParent(Window.UIElements.Main)end function Window:SetIconSize(Size)local NewSize if typeof(Size)=='number'then
 NewSize=UDim2.new(0,Size,0,Size)Window.IconSize=Size elseif typeof(Size)=='UDim2'then NewSize=Size Window.IconSize=Size.
 X.Offset end if WindowIcon then WindowIcon.Size=NewSize end end function Window:Open()if Window.Destroyed then return
@@ -12754,7 +12817,7 @@ end)end task.wait(0.06)Window.Closed=false Window.UIElements.Main.Size=UDim2.new
 Offset,0,100)Tween(Window.UIElements.Main,0.8,{Size=Window.Size},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 if Window.UIElements.BackgroundGradient then Tween(Window.UIElements.BackgroundGradient,0.2,{ImageTransparency=0},Enum.
 EasingStyle.Quint,Enum.EasingDirection.Out):Play()end Window.UIElements.Main.Background.ImageTransparency=1 Tween(Window
-.UIElements.Main.Background,0.4,{ImageTransparency=Window.Transparent and Config.WindUI.TransparencyValue or 0},Enum.
+.UIElements.Main.Background,0.4,{ImageTransparency=Window.Transparent and Config.SaltyUI.TransparencyValue or 0},Enum.
 EasingStyle.Exponential,Enum.EasingDirection.Out):Play()if BGImage then if BGImage:IsA('VideoFrame')then BGImage.Visible
 =true else Tween(BGImage,0.2,{ImageTransparency=Window.BackgroundImageTransparency},Enum.EasingStyle.Quint,Enum.
 EasingDirection.Out):Play()end end if Window.OpenButtonMain and Window.IsOpenButtonEnabled then Window.OpenButtonMain:
@@ -12763,197 +12826,199 @@ EasingDirection.Out):Play()Tween(BottomDragFrame,0.45,{Size=UDim2.new(0,Window.D
 ,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out):Play()WindowDragModule:Set(true)if Window.Resizable then Tween(
 ResizeHandle.ImageLabel,0.45,{ImageTransparency=0.8},Enum.EasingStyle.Exponential,Enum.EasingDirection.Out):Play()Window
 .CanResize=true end Window.CanDropdown=true Window.UIElements.Main.Visible=true Window.UIElements.Main:WaitForChild(
-'Main').Visible=true Config.WindUI:ToggleAcrylic(true)end)end function Window:Close()if Window.Destroyed then return end
-local Close={}if Window.OnCloseCallback then task.spawn(function()Creator.SafeCallback(Window.OnCloseCallback)end)end
-Config.WindUI:ToggleAcrylic(false)if Window.UIElements.Main and Window.UIElements.Main:WaitForChild('Main')then Window.
-UIElements.Main.Main.Visible=false end Window.CanDropdown=false Window.Closed=true Tween(Window.UIElements.Main,0.9,{
-Size=UDim2.new(Window.Size.X.Scale,Window.Size.X.Offset,0,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()if
-Window.UIElements.BackgroundGradient then Tween(Window.UIElements.BackgroundGradient,0.2,{ImageTransparency=1},Enum.
-EasingStyle.Quint,Enum.EasingDirection.InOut):Play()end Tween(Window.UIElements.Main.Background,0.3,{ImageTransparency=1
-},Enum.EasingStyle.Exponential,Enum.EasingDirection.InOut):Play()if BGImage then if BGImage:IsA('VideoFrame')then
-BGImage.Visible=false else Tween(BGImage,0.3,{ImageTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):
-Play()end end Tween(Blur,0.25,{ImageTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()Tween(
-BottomDragFrame,0.3,{Size=UDim2.new(0,0,0,4),ImageTransparency=1},Enum.EasingStyle.Exponential,Enum.EasingDirection.
-InOut):Play()Tween(ResizeHandle.ImageLabel,0.3,{ImageTransparency=1},Enum.EasingStyle.Exponential,Enum.EasingDirection.
-Out):Play()WindowDragModule:Set(false)Window.CanResize=false task.spawn(function()task.wait(0.4)if not Window.Closed
-then return end Window.UIElements.Main.Visible=false if Window.OpenButtonMain and not Window.Destroyed and not Window.
-IsPC and Window.IsOpenButtonEnabled then Window.OpenButtonMain:Visible(true)end end)function Close:Destroy()task.spawn(
-function()if Window.OnDestroyCallback then task.spawn(function()Creator.SafeCallback(Window.OnDestroyCallback)end)end if
-Window.AcrylicPaint and Window.AcrylicPaint.Model then Window.AcrylicPaint.Model:Destroy()end Window.Destroyed=true task
-.wait(0.4)Config.WindUI.ScreenGui:Destroy()Config.WindUI.NotificationGui:Destroy()Config.WindUI.DropdownGui:Destroy()
-Config.WindUI.TooltipGui:Destroy()Creator.DisconnectAll()return end)end return Close end function Window:Destroy()return
-Window:Close():Destroy()end function Window:Toggle()if Window.Closed then Window:Open()else Window:Close()end end
-function Window:ToggleTransparency(Value)Window.Transparent=Value Config.WindUI.Transparent=Value Window.UIElements.Main
-.Background.ImageTransparency=Value and Config.WindUI.TransparencyValue or 0 end function Window:LockAll()for _,element
-in next,Window.AllElements do if element.Lock then element:Lock()end end end function Window:UnlockAll()for _,element in
-next,Window.AllElements do if element.Unlock then element:Unlock()end end end function Window:GetLocked()local
-LockedElements={}for _,element in next,Window.AllElements do if element.Locked then table.insert(LockedElements,element)
-end end return LockedElements end function Window:GetUnlocked()local UnlockedElements={}for _,element in next,Window.
-AllElements do if element.Locked==false then table.insert(UnlockedElements,element)end end return UnlockedElements end
-function Window:GetUIScale(v)return Config.WindUI.UIScale end function Window:SetUIScale(v)Config.WindUI.UIScale=v
-Tween(Config.WindUI.UIScaleObj,0.2,{Scale=v},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()return Window end
-function Window:SetToTheCenter()Tween(Window.UIElements.Main,0.45,{Position=UDim2.new(0.5,0,0.5,0)},Enum.EasingStyle.
-Quint,Enum.EasingDirection.Out):Play()return Window end function Window:SetCurrentConfig(ConfigModule)Window.
-CurrentConfig=ConfigModule end do local Margin=40 local ViewportSize=CurrentCamera.ViewportSize local WindowSize=Vector2
-.new(Window.Size.X.Offset,Window.Size.Y.Offset)if not Window.IsFullscreen and Window.AutoScale then local AvailableWidth
-=ViewportSize.X-(Margin*2)local AvailableHeight=ViewportSize.Y-(Margin*2)local ScaleX=AvailableWidth/WindowSize.X local
-ScaleY=AvailableHeight/WindowSize.Y local RequiredScale=math.min(ScaleX,ScaleY)local MinScale=0.3 local MaxScale=1 local
-FinalScale=math.clamp(RequiredScale,MinScale,MaxScale)local CurrentScale=Window:GetUIScale()or 1 local Tolerance=0.05 if
-math.abs(FinalScale-CurrentScale)>Tolerance then Window:SetUIScale(FinalScale)end end end if Window.OpenButtonMain and
-Window.OpenButtonMain.Button then Creator.AddSignal(Window.OpenButtonMain.Button.TextButton.MouseButton1Click,function()
-Window:Open()end)end Creator.AddSignal(UserInputService.InputBegan,function(input,isProcessed)if isProcessed then return
-end if Window.ToggleKey then if input.KeyCode==Window.ToggleKey then Window:Toggle()end end end)task.spawn(function()
-Window:Open()end)function Window:EditOpenButton(OpenButtonConfig)return Window.OpenButtonMain:Edit(OpenButtonConfig)end
-if Window.OpenButton and typeof(Window.OpenButton)=='table'then Window:EditOpenButton(Window.OpenButton)end local
-TabModuleMain=__DARKLUA_BUNDLE_MODULES.load('ag')local SectionModule=__DARKLUA_BUNDLE_MODULES.load('ah')local TabModule=
-TabModuleMain.Init(Window,Config.WindUI,Config.WindUI.TooltipGui)TabModule:OnChange(function(t)Window.CurrentTab=t end)
-Window.TabModule=TabModule function Window:Tab(TabConfig)TabConfig.Parent=Window.UIElements.SideBar.Frame return
-TabModule.New(TabConfig,Config.WindUI.UIScale)end function Window:SelectTab(Tab)TabModule:SelectTab(Tab)end function
-Window:Section(SectionConfig)return SectionModule.New(SectionConfig,Window.UIElements.SideBar.Frame,Window.Folder,Config
-.WindUI.UIScale,Window)end function Window:IsResizable(v)Window.Resizable=v Window.CanResize=v end function Window:
-SetPanelBackground(v)if typeof(v)=='boolean'then Window.HidePanelBackground=v Window.UIElements.MainBar.Background.
-Visible=v if TabModule then for _,Container in next,TabModule.Containers do Container.ScrollingFrame.UIPadding.
-PaddingTop=UDim.new(0,Window.HidePanelBackground and 20 or 10)Container.ScrollingFrame.UIPadding.PaddingLeft=UDim.new(0,
-Window.HidePanelBackground and 20 or 10)Container.ScrollingFrame.UIPadding.PaddingRight=UDim.new(0,Window.
-HidePanelBackground and 20 or 10)Container.ScrollingFrame.UIPadding.PaddingBottom=UDim.new(0,Window.HidePanelBackground
-and 20 or 10)end end end end function Window:Divider()local Divider=New('Frame',{Size=UDim2.new(1,0,0,1),Position=UDim2.
-new(0.5,0,0,0),AnchorPoint=Vector2.new(0.5,0),BackgroundTransparency=0.9,ThemeTag={BackgroundColor3='Text'}})local
-MainDivider=New('Frame',{Parent=Window.UIElements.SideBar.Frame,Size=UDim2.new(1,-7,0,5),BackgroundTransparency=1},{
-Divider})return MainDivider end local DialogModule=__DARKLUA_BUNDLE_MODULES.load('u')function Window:Dialog(DialogConfig
-)local DialogTable={Title=DialogConfig.Title or'Dialog',Width=DialogConfig.Width or 320,Content=DialogConfig.Content,
-Buttons=DialogConfig.Buttons or{},TextPadding=14}local Dialog=DialogModule.Create(false,'Dialog',Window,Config.WindUI,
-Window.UIElements.Main.Main)Dialog.UIElements.Main.Size=UDim2.new(0,DialogTable.Width,0,0)local DialogTopColFrame=New(
-'Frame',{Size=UDim2.new(1,0,1,0),AutomaticSize='Y',BackgroundTransparency=1,Parent=Dialog.UIElements.Main},{New(
-'UIListLayout',{FillDirection='Vertical',Padding=UDim.new(0,Dialog.UIPadding)})})local DialogTopRowFrame=New('Frame',{
-Size=UDim2.new(1,0,0,0),AutomaticSize='Y',BackgroundTransparency=1,Parent=DialogTopColFrame},{New('UIListLayout',{
-FillDirection='Horizontal',Padding=UDim.new(0,Dialog.UIPadding),VerticalAlignment='Center'}),New('UIPadding',{PaddingTop
-=UDim.new(0,DialogTable.TextPadding/2),PaddingLeft=UDim.new(0,DialogTable.TextPadding/2),PaddingRight=UDim.new(0,
-DialogTable.TextPadding/2)})})local Icon if DialogConfig.Icon then Icon=Creator.Image(DialogConfig.Icon,DialogTable.
-Title..':'..DialogConfig.Icon,0,Window,'Dialog',true,DialogConfig.IconThemed)Icon.Size=UDim2.new(0,22,0,22)Icon.Parent=
-DialogTopRowFrame end Dialog.UIElements.UIListLayout=New('UIListLayout',{Padding=UDim.new(0,12),FillDirection='Vertical'
-,HorizontalAlignment='Left',VerticalFlex='SpaceBetween',Parent=Dialog.UIElements.Main})New('UISizeConstraint',{MinSize=
-Vector2.new(180,20),MaxSize=Vector2.new(400,math.huge),Parent=Dialog.UIElements.Main})Dialog.UIElements.Title=New(
-'TextLabel',{Text=DialogTable.Title,TextSize=20,FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),TextXAlignment=
-'Left',TextWrapped=true,RichText=true,Size=UDim2.new(1,Icon and-26-Dialog.UIPadding or 0,0,0),AutomaticSize='Y',ThemeTag
-={TextColor3='Text'},BackgroundTransparency=1,Parent=DialogTopRowFrame})if DialogTable.Content then local Content=New(
-'TextLabel',{Text=DialogTable.Content,TextSize=18,TextTransparency=0.4,TextWrapped=true,RichText=true,FontFace=Font.new(
-Creator.Font,Enum.FontWeight.Medium),TextXAlignment='Left',Size=UDim2.new(1,0,0,0),AutomaticSize='Y',LayoutOrder=2,
-ThemeTag={TextColor3='Text'},BackgroundTransparency=1,Parent=DialogTopColFrame},{New('UIPadding',{PaddingLeft=UDim.new(0
-,DialogTable.TextPadding/2),PaddingRight=UDim.new(0,DialogTable.TextPadding/2),PaddingBottom=UDim.new(0,DialogTable.
-TextPadding/2)})})end local ButtonsLayout=New('UIListLayout',{Padding=UDim.new(0,6),FillDirection='Horizontal',
-HorizontalAlignment='Center',HorizontalFlex='Fill'})local ButtonsContent=New('Frame',{Size=UDim2.new(1,0,0,36),
-AutomaticSize='None',BackgroundTransparency=1,Parent=Dialog.UIElements.Main,LayoutOrder=4},{ButtonsLayout})local Buttons
-={}for _,Button in next,DialogTable.Buttons do local ButtonFrame=CreateButton(Button.Title,Button.Icon,Button.Callback,
-Button.Variant,ButtonsContent,Dialog,true)table.insert(Buttons,ButtonFrame)ButtonFrame.Size=UDim2.new(1,0,1,0)end
-local function CheckButtonsOverflow()ButtonsLayout.FillDirection=Enum.FillDirection.Horizontal ButtonsLayout.
-HorizontalAlignment=Enum.HorizontalAlignment.Right ButtonsLayout.VerticalAlignment=Enum.VerticalAlignment.Center
-ButtonsContent.AutomaticSize=Enum.AutomaticSize.None for _,button in ipairs(Buttons)do button.Size=UDim2.new(0,0,1,0)
-button.AutomaticSize=Enum.AutomaticSize.X end wait()local totalWidth=ButtonsLayout.AbsoluteContentSize.X/Config.WindUI.
-UIScale local parentWidth=ButtonsContent.AbsoluteSize.X/Config.WindUI.UIScale if totalWidth>parentWidth then
-ButtonsLayout.FillDirection=Enum.FillDirection.Vertical ButtonsLayout.HorizontalAlignment=Enum.HorizontalAlignment.Right
-ButtonsLayout.VerticalAlignment=Enum.VerticalAlignment.Bottom ButtonsContent.AutomaticSize=Enum.AutomaticSize.Y for _,
-button in ipairs(Buttons)do button.Size=UDim2.new(1,0,0,36)button.AutomaticSize=Enum.AutomaticSize.None end else local
-availableSpace=parentWidth-totalWidth if availableSpace>0 then local smallestButton=nil local smallestWidth=math.huge
-for _,button in ipairs(Buttons)do local buttonWidth=button.AbsoluteSize.X/Config.WindUI.UIScale if buttonWidth<
-smallestWidth then smallestWidth=buttonWidth smallestButton=button end end if smallestButton then smallestButton.Size=
-UDim2.new(0,smallestWidth+availableSpace,1,0)smallestButton.AutomaticSize=Enum.AutomaticSize.None end end end end Dialog
-:Open()return Dialog end local ClickedClose=false Window:CreateTopbarButton('Close','x',function()if not ClickedClose
-then if not Window.IgnoreAlerts then ClickedClose=true Window:Dialog({Title='Close Window',Content=
+'Main').Visible=true Config.SaltyUI:ToggleAcrylic(true)end)end function Window:Close()if Window.Destroyed then return
+end local Close={}if Window.OnCloseCallback then task.spawn(function()Creator.SafeCallback(Window.OnCloseCallback)end)
+end Config.SaltyUI:ToggleAcrylic(false)if Window.UIElements.Main and Window.UIElements.Main:WaitForChild('Main')then
+Window.UIElements.Main.Main.Visible=false end Window.CanDropdown=false Window.Closed=true Tween(Window.UIElements.Main,
+0.9,{Size=UDim2.new(Window.Size.X.Scale,Window.Size.X.Offset,0,0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):
+Play()if Window.UIElements.BackgroundGradient then Tween(Window.UIElements.BackgroundGradient,0.2,{ImageTransparency=1},
+Enum.EasingStyle.Quint,Enum.EasingDirection.InOut):Play()end Tween(Window.UIElements.Main.Background,0.3,{
+ImageTransparency=1},Enum.EasingStyle.Exponential,Enum.EasingDirection.InOut):Play()if BGImage then if BGImage:IsA(
+'VideoFrame')then BGImage.Visible=false else Tween(BGImage,0.3,{ImageTransparency=1},Enum.EasingStyle.Quint,Enum.
+EasingDirection.Out):Play()end end Tween(Blur,0.25,{ImageTransparency=1},Enum.EasingStyle.Quint,Enum.EasingDirection.Out
+):Play()Tween(BottomDragFrame,0.3,{Size=UDim2.new(0,0,0,4),ImageTransparency=1},Enum.EasingStyle.Exponential,Enum.
+EasingDirection.InOut):Play()Tween(ResizeHandle.ImageLabel,0.3,{ImageTransparency=1},Enum.EasingStyle.Exponential,Enum.
+EasingDirection.Out):Play()WindowDragModule:Set(false)Window.CanResize=false task.spawn(function()task.wait(0.4)if not
+Window.Closed then return end Window.UIElements.Main.Visible=false if Window.OpenButtonMain and not Window.Destroyed and
+not Window.IsPC and Window.IsOpenButtonEnabled then Window.OpenButtonMain:Visible(true)end end)function Close:Destroy()
+task.spawn(function()if Window.OnDestroyCallback then task.spawn(function()Creator.SafeCallback(Window.OnDestroyCallback
+)end)end if Window.AcrylicPaint and Window.AcrylicPaint.Model then Window.AcrylicPaint.Model:Destroy()end Window.
+Destroyed=true task.wait(0.4)Config.SaltyUI.ScreenGui:Destroy()Config.SaltyUI.NotificationGui:Destroy()Config.SaltyUI.
+DropdownGui:Destroy()Config.SaltyUI.TooltipGui:Destroy()Creator.DisconnectAll()return end)end return Close end function
+Window:Destroy()return Window:Close():Destroy()end function Window:Toggle()if Window.Closed then Window:Open()else
+Window:Close()end end function Window:ToggleTransparency(Value)Window.Transparent=Value Config.SaltyUI.Transparent=Value
+Window.UIElements.Main.Background.ImageTransparency=Value and Config.SaltyUI.TransparencyValue or 0 end function Window:
+LockAll()for _,element in next,Window.AllElements do if element.Lock then element:Lock()end end end function Window:
+UnlockAll()for _,element in next,Window.AllElements do if element.Unlock then element:Unlock()end end end function
+Window:GetLocked()local LockedElements={}for _,element in next,Window.AllElements do if element.Locked then table.
+insert(LockedElements,element)end end return LockedElements end function Window:GetUnlocked()local UnlockedElements={}
+for _,element in next,Window.AllElements do if element.Locked==false then table.insert(UnlockedElements,element)end end
+return UnlockedElements end function Window:GetUIScale(v)return Config.SaltyUI.UIScale end function Window:SetUIScale(v)
+Config.SaltyUI.UIScale=v Tween(Config.SaltyUI.UIScaleObj,0.2,{Scale=v},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):
+Play()return Window end function Window:SetToTheCenter()Tween(Window.UIElements.Main,0.45,{Position=UDim2.new(0.5,0,0.5,
+0)},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()return Window end function Window:SetCurrentConfig(
+ConfigModule)Window.CurrentConfig=ConfigModule end do local Margin=40 local ViewportSize=CurrentCamera.ViewportSize
+local WindowSize=Vector2.new(Window.Size.X.Offset,Window.Size.Y.Offset)if not Window.IsFullscreen and Window.AutoScale
+then local AvailableWidth=ViewportSize.X-(Margin*2)local AvailableHeight=ViewportSize.Y-(Margin*2)local ScaleX=
+AvailableWidth/WindowSize.X local ScaleY=AvailableHeight/WindowSize.Y local RequiredScale=math.min(ScaleX,ScaleY)local
+MinScale=0.3 local MaxScale=1 local FinalScale=math.clamp(RequiredScale,MinScale,MaxScale)local CurrentScale=Window:
+GetUIScale()or 1 local Tolerance=0.05 if math.abs(FinalScale-CurrentScale)>Tolerance then Window:SetUIScale(FinalScale)
+end end end if Window.OpenButtonMain and Window.OpenButtonMain.Button then Creator.AddSignal(Window.OpenButtonMain.
+Button.TextButton.MouseButton1Click,function()Window:Open()end)end Creator.AddSignal(UserInputService.InputBegan,
+function(input,isProcessed)if isProcessed then return end if Window.ToggleKey then if input.KeyCode==Window.ToggleKey
+then Window:Toggle()end end end)task.spawn(function()Window:Open()end)function Window:EditOpenButton(OpenButtonConfig)
+return Window.OpenButtonMain:Edit(OpenButtonConfig)end if Window.OpenButton and typeof(Window.OpenButton)=='table'then
+Window:EditOpenButton(Window.OpenButton)end local TabModuleMain=__DARKLUA_BUNDLE_MODULES.load('ag')local SectionModule=
+__DARKLUA_BUNDLE_MODULES.load('ah')local TabModule=TabModuleMain.Init(Window,Config.SaltyUI,Config.SaltyUI.TooltipGui)
+TabModule:OnChange(function(t)Window.CurrentTab=t end)Window.TabModule=TabModule function Window:Tab(TabConfig)TabConfig
+.Parent=Window.UIElements.SideBar.Frame return TabModule.New(TabConfig,Config.SaltyUI.UIScale)end function Window:
+SelectTab(Tab)TabModule:SelectTab(Tab)end function Window:Section(SectionConfig)return SectionModule.New(SectionConfig,
+Window.UIElements.SideBar.Frame,Window.Folder,Config.SaltyUI.UIScale,Window)end function Window:IsResizable(v)Window.
+Resizable=v Window.CanResize=v end function Window:SetPanelBackground(v)if typeof(v)=='boolean'then Window.
+HidePanelBackground=v Window.UIElements.MainBar.Background.Visible=v if TabModule then for _,Container in next,TabModule
+.Containers do Container.ScrollingFrame.UIPadding.PaddingTop=UDim.new(0,Window.HidePanelBackground and 20 or 10)
+Container.ScrollingFrame.UIPadding.PaddingLeft=UDim.new(0,Window.HidePanelBackground and 20 or 10)Container.
+ScrollingFrame.UIPadding.PaddingRight=UDim.new(0,Window.HidePanelBackground and 20 or 10)Container.ScrollingFrame.
+UIPadding.PaddingBottom=UDim.new(0,Window.HidePanelBackground and 20 or 10)end end end end function Window:Divider()
+local Divider=New('Frame',{Size=UDim2.new(1,0,0,1),Position=UDim2.new(0.5,0,0,0),AnchorPoint=Vector2.new(0.5,0),
+BackgroundTransparency=0.9,ThemeTag={BackgroundColor3='Text'}})local MainDivider=New('Frame',{Parent=Window.UIElements.
+SideBar.Frame,Size=UDim2.new(1,-7,0,5),BackgroundTransparency=1},{Divider})return MainDivider end local DialogModule=
+__DARKLUA_BUNDLE_MODULES.load('u')function Window:Dialog(DialogConfig)local DialogTable={Title=DialogConfig.Title or
+'Dialog',Width=DialogConfig.Width or 320,Content=DialogConfig.Content,Buttons=DialogConfig.Buttons or{},TextPadding=14}
+local Dialog=DialogModule.Create(false,'Dialog',Window,Config.SaltyUI,Window.UIElements.Main.Main)Dialog.UIElements.Main
+.Size=UDim2.new(0,DialogTable.Width,0,0)local DialogTopColFrame=New('Frame',{Size=UDim2.new(1,0,1,0),AutomaticSize='Y',
+BackgroundTransparency=1,Parent=Dialog.UIElements.Main},{New('UIListLayout',{FillDirection='Vertical',Padding=UDim.new(0
+,Dialog.UIPadding)})})local DialogTopRowFrame=New('Frame',{Size=UDim2.new(1,0,0,0),AutomaticSize='Y',
+BackgroundTransparency=1,Parent=DialogTopColFrame},{New('UIListLayout',{FillDirection='Horizontal',Padding=UDim.new(0,
+Dialog.UIPadding),VerticalAlignment='Center'}),New('UIPadding',{PaddingTop=UDim.new(0,DialogTable.TextPadding/2),
+PaddingLeft=UDim.new(0,DialogTable.TextPadding/2),PaddingRight=UDim.new(0,DialogTable.TextPadding/2)})})local Icon if
+DialogConfig.Icon then Icon=Creator.Image(DialogConfig.Icon,DialogTable.Title..':'..DialogConfig.Icon,0,Window,'Dialog',
+true,DialogConfig.IconThemed)Icon.Size=UDim2.new(0,22,0,22)Icon.Parent=DialogTopRowFrame end Dialog.UIElements.
+UIListLayout=New('UIListLayout',{Padding=UDim.new(0,12),FillDirection='Vertical',HorizontalAlignment='Left',VerticalFlex
+='SpaceBetween',Parent=Dialog.UIElements.Main})New('UISizeConstraint',{MinSize=Vector2.new(180,20),MaxSize=Vector2.new(
+400,math.huge),Parent=Dialog.UIElements.Main})Dialog.UIElements.Title=New('TextLabel',{Text=DialogTable.Title,TextSize=
+20,FontFace=Font.new(Creator.Font,Enum.FontWeight.SemiBold),TextXAlignment='Left',TextWrapped=true,RichText=true,Size=
+UDim2.new(1,Icon and-26-Dialog.UIPadding or 0,0,0),AutomaticSize='Y',ThemeTag={TextColor3='Text'},BackgroundTransparency
+=1,Parent=DialogTopRowFrame})if DialogTable.Content then local Content=New('TextLabel',{Text=DialogTable.Content,
+TextSize=18,TextTransparency=0.4,TextWrapped=true,RichText=true,FontFace=Font.new(Creator.Font,Enum.FontWeight.Medium),
+TextXAlignment='Left',Size=UDim2.new(1,0,0,0),AutomaticSize='Y',LayoutOrder=2,ThemeTag={TextColor3='Text'},
+BackgroundTransparency=1,Parent=DialogTopColFrame},{New('UIPadding',{PaddingLeft=UDim.new(0,DialogTable.TextPadding/2),
+PaddingRight=UDim.new(0,DialogTable.TextPadding/2),PaddingBottom=UDim.new(0,DialogTable.TextPadding/2)})})end local
+ButtonsLayout=New('UIListLayout',{Padding=UDim.new(0,6),FillDirection='Horizontal',HorizontalAlignment='Center',
+HorizontalFlex='Fill'})local ButtonsContent=New('Frame',{Size=UDim2.new(1,0,0,36),AutomaticSize='None',
+BackgroundTransparency=1,Parent=Dialog.UIElements.Main,LayoutOrder=4},{ButtonsLayout})local Buttons={}for _,Button in
+next,DialogTable.Buttons do local ButtonFrame=CreateButton(Button.Title,Button.Icon,Button.Callback,Button.Variant,
+ButtonsContent,Dialog,true)table.insert(Buttons,ButtonFrame)ButtonFrame.Size=UDim2.new(1,0,1,0)end local function
+CheckButtonsOverflow()ButtonsLayout.FillDirection=Enum.FillDirection.Horizontal ButtonsLayout.HorizontalAlignment=Enum.
+HorizontalAlignment.Right ButtonsLayout.VerticalAlignment=Enum.VerticalAlignment.Center ButtonsContent.AutomaticSize=
+Enum.AutomaticSize.None for _,button in ipairs(Buttons)do button.Size=UDim2.new(0,0,1,0)button.AutomaticSize=Enum.
+AutomaticSize.X end wait()local totalWidth=ButtonsLayout.AbsoluteContentSize.X/Config.SaltyUI.UIScale local parentWidth=
+ButtonsContent.AbsoluteSize.X/Config.SaltyUI.UIScale if totalWidth>parentWidth then ButtonsLayout.FillDirection=Enum.
+FillDirection.Vertical ButtonsLayout.HorizontalAlignment=Enum.HorizontalAlignment.Right ButtonsLayout.VerticalAlignment=
+Enum.VerticalAlignment.Bottom ButtonsContent.AutomaticSize=Enum.AutomaticSize.Y for _,button in ipairs(Buttons)do button
+.Size=UDim2.new(1,0,0,36)button.AutomaticSize=Enum.AutomaticSize.None end else local availableSpace=parentWidth-
+totalWidth if availableSpace>0 then local smallestButton=nil local smallestWidth=math.huge for _,button in ipairs(
+Buttons)do local buttonWidth=button.AbsoluteSize.X/Config.SaltyUI.UIScale if buttonWidth<smallestWidth then
+smallestWidth=buttonWidth smallestButton=button end end if smallestButton then smallestButton.Size=UDim2.new(0,
+smallestWidth+availableSpace,1,0)smallestButton.AutomaticSize=Enum.AutomaticSize.None end end end end Dialog:Open()
+return Dialog end local ClickedClose=false Window:CreateTopbarButton('Close','x',function()if not ClickedClose then if
+not Window.IgnoreAlerts then ClickedClose=true Window:Dialog({Title='Close Window',Content=
 [[Do you want to close this window? You will not be able to open it again.]],Buttons={{Title='Cancel',Callback=function(
 )ClickedClose=false end,Variant='Secondary'},{Title='Close Window',Callback=function()ClickedClose=false Window:Destroy(
 )end,Variant='Primary'}}})else Window:Destroy()end end end,(Window.Topbar.ButtonsType=='Default'and 999 or 997),nil,
 Color3.fromHex('#F4695F'))function Window:Tag(TagConfig)if Window.UIElements.Main.Main.Topbar.Center.Visible==false then
 Window.UIElements.Main.Main.Topbar.Center.Visible=true end TagConfig.Window=Window return Tag:New(TagConfig,Window.
-UIElements.Main.Main.Topbar.Center.Holder)end local CurResizeInput=Config.WindUI.GenerateGUID()local function
+UIElements.Main.Main.Topbar.Center.Holder)end local CurResizeInput=Config.SaltyUI.GenerateGUID()local function
 startResizing(input)if Window.CanResize then isResizing=true FullScreenIcon.Active=true initialSize=Window.UIElements.
 Main.Size initialInputPosition=input.Position Tween(ResizeHandle.ImageLabel,0.1,{ImageTransparency=0.35}):Play()Creator.
-AddSignal(input.Changed,function()if input.UserInputState==Enum.UserInputState.End then if Config.WindUI.CurrentInput
-and Config.WindUI.CurrentInput~=CurResizeInput then return end Config.WindUI.CurrentInput=nil isResizing=false
+AddSignal(input.Changed,function()if input.UserInputState==Enum.UserInputState.End then if Config.SaltyUI.CurrentInput
+and Config.SaltyUI.CurrentInput~=CurResizeInput then return end Config.SaltyUI.CurrentInput=nil isResizing=false
 FullScreenIcon.Active=false Tween(ResizeHandle.ImageLabel,0.17,{ImageTransparency=0.8}):Play()end end)end end Creator.
 AddSignal(ResizeHandle.InputBegan,function(input)if input.UserInputType==Enum.UserInputType.MouseButton1 or input.
-UserInputType==Enum.UserInputType.Touch then if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput~=
-CurResizeInput then return end Config.WindUI.CurrentInput=CurResizeInput if Window.CanResize then startResizing(input)
+UserInputType==Enum.UserInputType.Touch then if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput~=
+CurResizeInput then return end Config.SaltyUI.CurrentInput=CurResizeInput if Window.CanResize then startResizing(input)
 end end end)Creator.AddSignal(UserInputService.InputChanged,function(input)if input.UserInputType==Enum.UserInputType.
 MouseMovement or input.UserInputType==Enum.UserInputType.Touch then if isResizing and Window.CanResize then local delta=
 input.Position-initialInputPosition local newSize=UDim2.new(0,initialSize.X.Offset+delta.X*2,0,initialSize.Y.Offset+
 delta.Y*2)newSize=UDim2.new(newSize.X.Scale,math.clamp(newSize.X.Offset,Window.MinSize.X,Window.MaxSize.X),newSize.Y.
 Scale,math.clamp(newSize.Y.Offset,Window.MinSize.Y,Window.MaxSize.Y))Tween(Window.UIElements.Main,0.08,{Size=newSize},
 Enum.EasingStyle.Quad,Enum.EasingDirection.Out):Play()Window.Size=newSize end end end)Creator.AddSignal(ResizeHandle.
-MouseEnter,function()if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput~=CurResizeInput then return end if not
-isResizing then Tween(ResizeHandle.ImageLabel,0.1,{ImageTransparency=0.35}):Play()end end)Creator.AddSignal(ResizeHandle
-.MouseLeave,function()if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput~=CurResizeInput then return end if
-not isResizing then Tween(ResizeHandle.ImageLabel,0.17,{ImageTransparency=0.8}):Play()end end)local LastUpTime=0 local
-DoubleClickWindow=0.4 local InitialPosition=nil local ClickCount=0 function onDoubleClick()Window:SetToTheCenter()end
-Creator.AddSignal(BottomDragFrame.Frame.MouseButton1Up,function()local currentTime=tick()local currentPosition=Window.
-Position ClickCount=ClickCount+1 if ClickCount==1 then LastUpTime=currentTime InitialPosition=currentPosition task.
-spawn(function()task.wait(DoubleClickWindow)if ClickCount==1 then ClickCount=0 InitialPosition=nil end end)elseif
-ClickCount==2 then if currentTime-LastUpTime<=DoubleClickWindow and currentPosition==InitialPosition then onDoubleClick(
-)end ClickCount=0 InitialPosition=nil LastUpTime=0 else ClickCount=1 LastUpTime=currentTime InitialPosition=
-currentPosition end end)if not Window.HideSearchBar then local SearchBar=__DARKLUA_BUNDLE_MODULES.load('aj')local IsOpen
-=false local CurrentSearchBar local SearchLabel=CreateLabel('Search','search',Window.UIElements.SideBarContainer,true)
-SearchLabel.Size=UDim2.new(1,-Window.UIPadding/2,0,39)SearchLabel.Position=UDim2.new(0,Window.UIPadding/2,0,0)Creator.
-AddSignal(SearchLabel.MouseButton1Click,function()if IsOpen then return end SearchBar.new(Window.TabModule,Window.
-UIElements.Main,function()IsOpen=false if Window.Resizable then Window.CanResize=true end Tween(FullScreenBlur,0.1,{
-ImageTransparency=1}):Play()FullScreenBlur.Active=false end)Tween(FullScreenBlur,0.1,{ImageTransparency=0.65}):Play()
-FullScreenBlur.Active=true IsOpen=true Window.CanResize=false end)end function Window:DisableTopbarButtons(btns)for _,b
-in next,btns do for _,i in next,Window.TopBarButtons do if i.Name==b then i.Object.Visible=false end end end end return
-Window end end end local WindUI={Window=nil,Theme=nil,Creator=__DARKLUA_BUNDLE_MODULES.load('j'),LocalizationModule=
-__DARKLUA_BUNDLE_MODULES.load('k'),NotificationModule=__DARKLUA_BUNDLE_MODULES.load('l'),Themes=nil,Transparent=false,
-TransparencyValue=0.15,UIScale=1,ConfigManager=nil,Version='0.0.0',Services=__DARKLUA_BUNDLE_MODULES.load('q'),
-OnThemeChangeFunction=nil,cloneref=nil,UIScaleObj=nil,CreateWindow=nil,CurrentInput=nil}local cloneref=(cloneref or
-clonereference or function(instance)return instance end)WindUI.cloneref=cloneref local HttpService=cloneref(game:
-GetService('HttpService'))local Players=cloneref(game:GetService('Players'))local CoreGui=cloneref(game:GetService(
-'CoreGui'))local RunService=cloneref(game:GetService('RunService'))local UserInputService=cloneref(game:GetService(
-'UserInputService'))function WindUI.GenerateGUID()return HttpService:GenerateGUID(false)end local CurInput=WindUI.
-GenerateGUID()UserInputService.InputBegan:Connect(function(Input,GameProcessed)task.defer(function()if Input.
-UserInputType==Enum.UserInputType.MouseButton1 or Input.UserInputType==Enum.UserInputType.Touch then if WindUI.
-CurrentInput and WindUI.CurrentInput~=CurInput then return end WindUI.CurrentInput=CurInput end end)end)UserInputService
-.InputEnded:Connect(function(Input,GameProcessed)if Input.UserInputType==Enum.UserInputType.MouseButton1 or Input.
-UserInputType==Enum.UserInputType.Touch then if WindUI.CurrentInput and WindUI.CurrentInput~=CurInput then return end
-WindUI.CurrentInput=nil end end)local LocalPlayer=Players.LocalPlayer or nil local Package=HttpService:JSONDecode(
-__DARKLUA_BUNDLE_MODULES.load('r'))if Package then WindUI.Version=Package.version end local KeySystem=
-__DARKLUA_BUNDLE_MODULES.load('v')local Creator=WindUI.Creator local New=Creator.New local Acrylic=
-__DARKLUA_BUNDLE_MODULES.load('z')local ProtectGui=protectgui or(syn and syn.protect_gui)or function()end local
-GUIParent=gethui and gethui()or(CoreGui or LocalPlayer:WaitForChild('PlayerGui'))local UIScaleObj=New('UIScale',{Scale=
-WindUI.UIScale})WindUI.UIScaleObj=UIScaleObj WindUI.ScreenGui=New('ScreenGui',{Name='WindUI',Parent=GUIParent,
-IgnoreGuiInset=true,ScreenInsets='None',DisplayOrder=-99999},{New('Folder',{Name='Window'}),New('Folder',{Name=
-'KeySystem'}),New('Folder',{Name='Popups'}),New('Folder',{Name='ToolTips'})})WindUI.NotificationGui=New('ScreenGui',{
-Name='WindUI/Notifications',Parent=GUIParent,IgnoreGuiInset=true})WindUI.DropdownGui=New('ScreenGui',{Name=
-'WindUI/Dropdowns',Parent=GUIParent,IgnoreGuiInset=true})WindUI.TooltipGui=New('ScreenGui',{Name='WindUI/Tooltips',
-Parent=GUIParent,IgnoreGuiInset=true})ProtectGui(WindUI.ScreenGui)ProtectGui(WindUI.NotificationGui)ProtectGui(WindUI.
-DropdownGui)ProtectGui(WindUI.TooltipGui)Creator.Init(WindUI)function WindUI:SetParent(parent)if WindUI.ScreenGui then
-WindUI.ScreenGui.Parent=parent end if WindUI.NotificationGui then WindUI.NotificationGui.Parent=parent end if WindUI.
-DropdownGui then WindUI.DropdownGui.Parent=parent end if WindUI.TooltipGui then WindUI.TooltipGui.Parent=parent end end
-math.clamp(WindUI.TransparencyValue,0,1)local Holder=WindUI.NotificationModule.Init(WindUI.NotificationGui)function
-WindUI:Notify(Config)Config.Holder=Holder.Frame Config.Window=WindUI.Window return WindUI.NotificationModule.New(Config)
-end function WindUI:SetNotificationLower(Val)Holder.SetLower(Val)end function WindUI:SetFont(FontId)Creator.UpdateFont(
-FontId)end function WindUI:OnThemeChange(func)WindUI.OnThemeChangeFunction=func end function WindUI:AddTheme(LTheme)
-WindUI.Themes[LTheme.Name]=LTheme return LTheme end function WindUI:SetTheme(Value)if WindUI.Themes[Value]then WindUI.
-Theme=WindUI.Themes[Value]Creator.SetTheme(WindUI.Themes[Value])if WindUI.OnThemeChangeFunction then WindUI.
-OnThemeChangeFunction(Value)end return WindUI.Themes[Value]end return nil end function WindUI:GetThemes()return WindUI.
-Themes end function WindUI:GetCurrentTheme()return WindUI.Theme.Name end function WindUI:GetTransparency()return WindUI.
-Transparent or false end function WindUI:GetWindowSize()return WindUI.Window.UIElements.Main.Size end function WindUI:
-Localization(LocalizationConfig)return WindUI.LocalizationModule:New(LocalizationConfig,Creator)end function WindUI:
-SetLanguage(Value)if Creator.Localization then return Creator.SetLanguage(Value)end return false end function WindUI:
-ToggleAcrylic(Value)if WindUI.Window and WindUI.Window.AcrylicPaint and WindUI.Window.AcrylicPaint.Model then WindUI.
-Window.Acrylic=Value WindUI.Window.AcrylicPaint.Model.Transparency=Value and 0.98 or 1 if Value then Acrylic.Enable()
-else Acrylic.Disable()end end end function WindUI:Gradient(stops,props)local colorSequence={}local transparencySequence=
-{}for posStr,stop in next,stops do local position=tonumber(posStr)if position then position=math.clamp(position/100,0,1)
-local color=stop.Color if typeof(color)=='string'and string.sub(color,1,1)=='#'then color=Color3.fromHex(color)end local
-transparency=stop.Transparency or 0 table.insert(colorSequence,ColorSequenceKeypoint.new(position,color))table.insert(
-transparencySequence,NumberSequenceKeypoint.new(position,transparency))end end table.sort(colorSequence,function(a,b)
-return a.Time<b.Time end)table.sort(transparencySequence,function(a,b)return a.Time<b.Time end)if#colorSequence<2 then
-table.insert(colorSequence,ColorSequenceKeypoint.new(1,colorSequence[1].Value))table.insert(transparencySequence,
+MouseEnter,function()if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput~=CurResizeInput then return end if
+not isResizing then Tween(ResizeHandle.ImageLabel,0.1,{ImageTransparency=0.35}):Play()end end)Creator.AddSignal(
+ResizeHandle.MouseLeave,function()if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput~=CurResizeInput then
+return end if not isResizing then Tween(ResizeHandle.ImageLabel,0.17,{ImageTransparency=0.8}):Play()end end)local
+LastUpTime=0 local DoubleClickWindow=0.4 local InitialPosition=nil local ClickCount=0 function onDoubleClick()Window:
+SetToTheCenter()end Creator.AddSignal(BottomDragFrame.Frame.MouseButton1Up,function()local currentTime=tick()local
+currentPosition=Window.Position ClickCount=ClickCount+1 if ClickCount==1 then LastUpTime=currentTime InitialPosition=
+currentPosition task.spawn(function()task.wait(DoubleClickWindow)if ClickCount==1 then ClickCount=0 InitialPosition=nil
+end end)elseif ClickCount==2 then if currentTime-LastUpTime<=DoubleClickWindow and currentPosition==InitialPosition then
+onDoubleClick()end ClickCount=0 InitialPosition=nil LastUpTime=0 else ClickCount=1 LastUpTime=currentTime
+InitialPosition=currentPosition end end)if not Window.HideSearchBar then local SearchBar=__DARKLUA_BUNDLE_MODULES.load(
+'aj')local IsOpen=false local CurrentSearchBar local SearchLabel=CreateLabel('Search','search',Window.UIElements.
+SideBarContainer,true)SearchLabel.Size=UDim2.new(1,-Window.UIPadding/2,0,39)SearchLabel.Position=UDim2.new(0,Window.
+UIPadding/2,0,0)Creator.AddSignal(SearchLabel.MouseButton1Click,function()if IsOpen then return end SearchBar.new(Window
+.TabModule,Window.UIElements.Main,function()IsOpen=false if Window.Resizable then Window.CanResize=true end Tween(
+FullScreenBlur,0.1,{ImageTransparency=1}):Play()FullScreenBlur.Active=false end)Tween(FullScreenBlur,0.1,{
+ImageTransparency=0.65}):Play()FullScreenBlur.Active=true IsOpen=true Window.CanResize=false end)end function Window:
+DisableTopbarButtons(btns)for _,b in next,btns do for _,i in next,Window.TopBarButtons do if i.Name==b then i.Object.
+Visible=false end end end end return Window end end end local SaltyUI={Window=nil,Theme=nil,Creator=
+__DARKLUA_BUNDLE_MODULES.load('j'),LocalizationModule=__DARKLUA_BUNDLE_MODULES.load('k'),NotificationModule=
+__DARKLUA_BUNDLE_MODULES.load('l'),Themes=nil,Transparent=false,TransparencyValue=0.15,UIScale=1,ConfigManager=nil,
+Version='0.0.0',Services=__DARKLUA_BUNDLE_MODULES.load('q'),OnThemeChangeFunction=nil,cloneref=nil,UIScaleObj=nil,
+CreateWindow=nil,CurrentInput=nil}local cloneref=(cloneref or clonereference or function(instance)return instance end)
+SaltyUI.cloneref=cloneref local HttpService=cloneref(game:GetService('HttpService'))local Players=cloneref(game:
+GetService('Players'))local CoreGui=cloneref(game:GetService('CoreGui'))local RunService=cloneref(game:GetService(
+'RunService'))local UserInputService=cloneref(game:GetService('UserInputService'))function SaltyUI.GenerateGUID()return
+HttpService:GenerateGUID(false)end local CurInput=SaltyUI.GenerateGUID()UserInputService.InputBegan:Connect(function(
+Input,GameProcessed)task.defer(function()if Input.UserInputType==Enum.UserInputType.MouseButton1 or Input.UserInputType
+==Enum.UserInputType.Touch then if SaltyUI.CurrentInput and SaltyUI.CurrentInput~=CurInput then return end SaltyUI.
+CurrentInput=CurInput end end)end)UserInputService.InputEnded:Connect(function(Input,GameProcessed)if Input.
+UserInputType==Enum.UserInputType.MouseButton1 or Input.UserInputType==Enum.UserInputType.Touch then if SaltyUI.
+CurrentInput and SaltyUI.CurrentInput~=CurInput then return end SaltyUI.CurrentInput=nil end end)local LocalPlayer=
+Players.LocalPlayer or nil local Package=HttpService:JSONDecode(__DARKLUA_BUNDLE_MODULES.load('r'))if Package then
+SaltyUI.Version=Package.version end local KeySystem=__DARKLUA_BUNDLE_MODULES.load('v')local Creator=SaltyUI.Creator
+local New=Creator.New local Acrylic=__DARKLUA_BUNDLE_MODULES.load('z')local ProtectGui=protectgui or(syn and syn.
+protect_gui)or function()end local GUIParent=gethui and gethui()or(CoreGui or LocalPlayer:WaitForChild('PlayerGui'))
+local UIScaleObj=New('UIScale',{Scale=SaltyUI.UIScale})SaltyUI.UIScaleObj=UIScaleObj SaltyUI.ScreenGui=New('ScreenGui',{
+Name='SaltyUI',Parent=GUIParent,IgnoreGuiInset=true,ScreenInsets='None',DisplayOrder=-99999},{New('Folder',{Name=
+'Window'}),New('Folder',{Name='KeySystem'}),New('Folder',{Name='Popups'}),New('Folder',{Name='ToolTips'})})SaltyUI.
+NotificationGui=New('ScreenGui',{Name='SaltyUI/Notifications',Parent=GUIParent,IgnoreGuiInset=true})SaltyUI.DropdownGui=
+New('ScreenGui',{Name='SaltyUI/Dropdowns',Parent=GUIParent,IgnoreGuiInset=true})SaltyUI.TooltipGui=New('ScreenGui',{Name
+='SaltyUI/Tooltips',Parent=GUIParent,IgnoreGuiInset=true})ProtectGui(SaltyUI.ScreenGui)ProtectGui(SaltyUI.
+NotificationGui)ProtectGui(SaltyUI.DropdownGui)ProtectGui(SaltyUI.TooltipGui)Creator.Init(SaltyUI)function SaltyUI:
+SetParent(parent)if SaltyUI.ScreenGui then SaltyUI.ScreenGui.Parent=parent end if SaltyUI.NotificationGui then SaltyUI.
+NotificationGui.Parent=parent end if SaltyUI.DropdownGui then SaltyUI.DropdownGui.Parent=parent end if SaltyUI.
+TooltipGui then SaltyUI.TooltipGui.Parent=parent end end math.clamp(SaltyUI.TransparencyValue,0,1)local Holder=SaltyUI.
+NotificationModule.Init(SaltyUI.NotificationGui)function SaltyUI:Notify(Config)Config.Holder=Holder.Frame Config.Window=
+SaltyUI.Window return SaltyUI.NotificationModule.New(Config)end function SaltyUI:SetNotificationLower(Val)Holder.
+SetLower(Val)end function SaltyUI:SetFont(FontId)Creator.UpdateFont(FontId)end function SaltyUI:OnThemeChange(func)
+SaltyUI.OnThemeChangeFunction=func end function SaltyUI:AddTheme(LTheme)SaltyUI.Themes[LTheme.Name]=LTheme return LTheme
+end function SaltyUI:SetTheme(Value)if SaltyUI.Themes[Value]then SaltyUI.Theme=SaltyUI.Themes[Value]Creator.SetTheme(
+SaltyUI.Themes[Value])if SaltyUI.OnThemeChangeFunction then SaltyUI.OnThemeChangeFunction(Value)end return SaltyUI.
+Themes[Value]end return nil end function SaltyUI:GetThemes()return SaltyUI.Themes end function SaltyUI:GetCurrentTheme()
+return SaltyUI.Theme.Name end function SaltyUI:GetTransparency()return SaltyUI.Transparent or false end function SaltyUI
+:GetWindowSize()return SaltyUI.Window.UIElements.Main.Size end function SaltyUI:Localization(LocalizationConfig)return
+SaltyUI.LocalizationModule:New(LocalizationConfig,Creator)end function SaltyUI:SetLanguage(Value)if Creator.Localization
+then return Creator.SetLanguage(Value)end return false end function SaltyUI:ToggleAcrylic(Value)if SaltyUI.Window and
+SaltyUI.Window.AcrylicPaint and SaltyUI.Window.AcrylicPaint.Model then SaltyUI.Window.Acrylic=Value SaltyUI.Window.
+AcrylicPaint.Model.Transparency=Value and 0.98 or 1 if Value then Acrylic.Enable()else Acrylic.Disable()end end end
+function SaltyUI:Gradient(stops,props)local colorSequence={}local transparencySequence={}for posStr,stop in next,stops
+do local position=tonumber(posStr)if position then position=math.clamp(position/100,0,1)local color=stop.Color if
+typeof(color)=='string'and string.sub(color,1,1)=='#'then color=Color3.fromHex(color)end local transparency=stop.
+Transparency or 0 table.insert(colorSequence,ColorSequenceKeypoint.new(position,color))table.insert(transparencySequence
+,NumberSequenceKeypoint.new(position,transparency))end end table.sort(colorSequence,function(a,b)return a.Time<b.Time
+end)table.sort(transparencySequence,function(a,b)return a.Time<b.Time end)if#colorSequence<2 then table.insert(
+colorSequence,ColorSequenceKeypoint.new(1,colorSequence[1].Value))table.insert(transparencySequence,
 NumberSequenceKeypoint.new(1,transparencySequence[1].Value))end local gradientData={Color=ColorSequence.new(
 colorSequence),Transparency=NumberSequence.new(transparencySequence)}if props then for k,v in pairs(props)do
-gradientData[k]=v end end return gradientData end function WindUI:Popup(PopupConfig)PopupConfig.WindUI=WindUI return
-__DARKLUA_BUNDLE_MODULES.load('A').new(PopupConfig,WindUI.ScreenGui.Popups)end WindUI.Themes=__DARKLUA_BUNDLE_MODULES.
-load('B')(WindUI,Creator)Creator.Themes=WindUI.Themes WindUI:SetTheme('Dark')WindUI:SetLanguage(Creator.Language)
-function WindUI:CreateWindow(Config)local CreateWindow=__DARKLUA_BUNDLE_MODULES.load('ak')if not RunService:IsStudio()
+gradientData[k]=v end end return gradientData end function SaltyUI:Popup(PopupConfig)PopupConfig.SaltyUI=SaltyUI return
+__DARKLUA_BUNDLE_MODULES.load('A').new(PopupConfig,SaltyUI.ScreenGui.Popups)end SaltyUI.Themes=__DARKLUA_BUNDLE_MODULES.
+load('B')(SaltyUI,Creator)Creator.Themes=SaltyUI.Themes SaltyUI:SetTheme('Dark')SaltyUI:SetLanguage(Creator.Language)
+function SaltyUI:CreateWindow(Config)local CreateWindow=__DARKLUA_BUNDLE_MODULES.load('ak')if not RunService:IsStudio()
 and writefile then if not isfolder('WindUI')then makefolder('WindUI')end if Config.Folder then makefolder(Config.Folder)
-else makefolder(Config.Title)end end Config.WindUI=WindUI Config.Window=WindUI.Window Config.Parent=WindUI.ScreenGui.
-Window if WindUI.Window then warn('You cannot create more than one window')return end local CanLoadWindow=true local
-Theme=WindUI.Themes[Config.Theme or'Dark']Creator.SetTheme(Theme)local hwid=gethwid or function()return Players.
+else makefolder(Config.Title)end end Config.SaltyUI=SaltyUI Config.Window=SaltyUI.Window Config.Parent=SaltyUI.ScreenGui
+.Window if SaltyUI.Window then warn('You cannot create more than one window')return end local CanLoadWindow=true local
+Theme=SaltyUI.Themes[Config.Theme or'Dark']Creator.SetTheme(Theme)local hwid=gethwid or function()return Players.
 LocalPlayer.UserId end local Filename=hwid()if Config.KeySystem then CanLoadWindow=false local function loadKeysystem()
 KeySystem.new(Config,Filename,function(c)CanLoadWindow=c end)end local keyPath=(Config.Folder or'Temp')..'/'..Filename..
 '.key'if Config.KeySystem.KeyValidator then if Config.KeySystem.SaveKey and isfile(keyPath)then local savedKey=readfile(
@@ -12962,9 +13027,9 @@ else loadKeysystem()end elseif not Config.KeySystem.API then if Config.KeySystem
 savedKey=readfile(keyPath)local isKey=(type(Config.KeySystem.Key)=='table')and table.find(Config.KeySystem.Key,savedKey)
 or tostring(Config.KeySystem.Key)==tostring(savedKey)if isKey then CanLoadWindow=true else loadKeysystem()end else
 loadKeysystem()end else if isfile(keyPath)then local fileKey=readfile(keyPath)local isSuccess=false for _,i in next,
-Config.KeySystem.API do local serviceData=WindUI.Services[i.Type]if serviceData then local args={}for _,argName in next,
-serviceData.Args do table.insert(args,i[argName])end local service=serviceData.New(table.unpack(args))local success=
+Config.KeySystem.API do local serviceData=SaltyUI.Services[i.Type]if serviceData then local args={}for _,argName in next
+,serviceData.Args do table.insert(args,i[argName])end local service=serviceData.New(table.unpack(args))local success=
 service.Verify(fileKey)if success then isSuccess=true break end end end CanLoadWindow=isSuccess if not isSuccess then
 loadKeysystem()end else loadKeysystem()end end repeat task.wait()until CanLoadWindow end local Window=CreateWindow(
-Config)WindUI.Transparent=Config.Transparent WindUI.Window=Window if Config.Acrylic then Acrylic.init()end return Window
-end return WindUI
+Config)SaltyUI.Transparent=Config.Transparent SaltyUI.Window=Window if Config.Acrylic then Acrylic.init()end return
+Window end return SaltyUI

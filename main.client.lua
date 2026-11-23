@@ -7,7 +7,7 @@ end)
 local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
 local HttpService = cloneref(game:GetService("HttpService"))
 
-local WindUI
+local SaltyUI
 
 do
 	local ok, result = pcall(function()
@@ -15,20 +15,20 @@ do
 	end)
 
 	if ok then
-		WindUI = result
+		SaltyUI = result
 	else
 		if cloneref(game:GetService("RunService")):IsStudio() then
-			WindUI = require(cloneref(ReplicatedStorage:WaitForChild("WindUI"):WaitForChild("Init")))
+			SaltyUI = require(cloneref(ReplicatedStorage:WaitForChild("SaltyUI"):WaitForChild("Init")))
 		else
-			WindUI =
-				loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/vantatest/main/dist/main.lua"))()
+			SaltyUI =
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/MrRos3/VantaTest/main/dist/main.lua"))()
 		end
 	end
 end
 
 --[[
 
-WindUI.Creator.AddIcons("solar", {
+SaltyUI.Creator.AddIcons("solar", {
     ["CheckSquareBold"] = "rbxassetid://132438947521974",
     ["CursorSquareBold"] = "rbxassetid://120306472146156",
     ["FileTextBold"] = "rbxassetid://89294979831077",
@@ -41,8 +41,8 @@ WindUI.Creator.AddIcons("solar", {
 })--]]
 
 function createPopup()
-	return WindUI:Popup({
-		Title = "Welcome to the WindUI!",
+	return SaltyUI:Popup({
+		Title = "Welcome to the SaltyUI!",
 		Icon = "bird",
 		Content = "Hello!",
 		Buttons = {
@@ -66,9 +66,9 @@ function createPopup()
 end
 
 -- */  Window  /* --
-local Window = WindUI:CreateWindow({
-	Title = "salty hub  |  WindUI Example",
-	--Author = "by salty • MrRos3",
+local Window = SaltyUI:CreateWindow({
+	Title = "salty hub  |  SaltyUI Example",
+	Author = "Salty",
 	Folder = "saltyhub",
 	Icon = "solar:folder-2-bold-duotone",
 	--Theme = "Mellowsi",
@@ -105,7 +105,7 @@ local Window = WindUI:CreateWindow({
 -- */  Tags  /* --
 do
 	Window:Tag({
-		Title = "v" .. WindUI.Version,
+		Title = "v" .. SaltyUI.Version,
 		Icon = "github",
 		Color = Color3.fromHex("#1c1c1c"),
 		Border = true,
@@ -249,7 +249,7 @@ end
 -- */  About Tab  /* --
 do
 	local AboutTab = Window:Tab({
-		Title = "About WindUI",
+		Title = "About SaltyUI",
 		Desc = "Description Example",
 		Icon = "solar:info-square-bold",
 		IconColor = Grey,
@@ -258,11 +258,11 @@ do
 	})
 
 	local AboutSection = AboutTab:Section({
-		Title = "About WindUI",
+		Title = "About SaltyUI",
 	})
 
 	AboutSection:Image({
-		Image = "https://repository-images.githubusercontent.com/880118829/22c020eb-d1b1-4b34-ac4d-e33fd88db38d",
+
 		AspectRatio = "16:9",
 		Radius = 9,
 	})
@@ -270,7 +270,7 @@ do
 	AboutSection:Space({ Columns = 3 })
 
 	AboutSection:Section({
-		Title = "What is WindUI?",
+		Title = "What is SaltyUI?",
 		TextSize = 24,
 		FontWeight = Enum.FontWeight.SemiBold,
 	})
@@ -278,7 +278,7 @@ do
 	AboutSection:Space()
 
 	AboutSection:Section({
-		Title = "WindUI is a stylish, open-source UI (User Interface) library specifically designed for Roblox Script Hubs.\nDeveloped by MrRos3 (salty).\nIt aims to provide developers with a modern, customizable, and easy-to-use toolkit for creating visually appealing interfaces within Roblox.\nThe project is primarily written in Lua (Luau), the scripting language used in Roblox.",
+		Title = "SaltyUI is a Roblox interface library with configurable windows, controls, and themes.",
 		TextSize = 18,
 		TextTransparency = 0.35,
 		FontWeight = Enum.FontWeight.Medium,
@@ -289,15 +289,15 @@ do
 	-- Default buttons
 
 	AboutTab:Button({
-		Title = "Export WindUI JSON (copy)",
+		Title = "Export SaltyUI JSON (copy)",
 		Color = Color3.fromHex("#a2ff30"),
 		Justify = "Center",
 		IconAlign = "Left",
 		Icon = "", -- removing icon
 		Callback = function()
-			tableToClipboard(WindUI)
-			WindUI:Notify({
-				Title = "WindUI JSON",
+			tableToClipboard(SaltyUI)
+			SaltyUI:Notify({
+				Title = "SaltyUI JSON",
 				Content = "Copied to Clipboard!",
 			})
 		end,
@@ -322,9 +322,6 @@ local ElementsSection = Window:Section({
 })
 local ConfigUsageSection = Window:Section({
 	Title = "Config Usage",
-})
-local OtherSection = Window:Section({
-	Title = "Other",
 })
 
 -- */  Overview Tab  /* --
@@ -549,9 +546,9 @@ do
 		Title = "Notify Button",
 		--Desc = "Button example",
 		Callback = function()
-			WindUI:Notify({
+			SaltyUI:Notify({
 				Title = "Hello",
-				Content = "Welcome to the WindUI Example!",
+				Content = "Welcome to the SaltyUI Example!",
 				Icon = "solar:bell-bold",
 				Duration = 5,
 				CanClose = false,
@@ -563,9 +560,9 @@ do
 		Title = "Notify Button 2",
 		--Desc = "Button example",
 		Callback = function()
-			WindUI:Notify({
+			SaltyUI:Notify({
 				Title = "Hello",
-				Content = "Welcome to the WindUI Example!",
+				Content = "Welcome to the SaltyUI Example!",
 				--Icon = "solar:bell-bold",
 				Duration = 5,
 				CanClose = false,
@@ -1087,7 +1084,7 @@ if not RunService:IsStudio() and writefile and printidentity() then
 			Callback = function()
 				Window.CurrentConfig = ConfigManager:Config(ConfigName)
 				if Window.CurrentConfig:Save() then
-					WindUI:Notify({
+					SaltyUI:Notify({
 						Title = "Config Saved",
 						Desc = "Config '" .. ConfigName .. "' saved",
 						Icon = "check",
@@ -1107,7 +1104,7 @@ if not RunService:IsStudio() and writefile and printidentity() then
 			Callback = function()
 				Window.CurrentConfig = ConfigManager:CreateConfig(ConfigName)
 				if Window.CurrentConfig:Load() then
-					WindUI:Notify({
+					SaltyUI:Notify({
 						Title = "Config Loaded",
 						Desc = "Config '" .. ConfigName .. "' loaded",
 						Icon = "refresh-cw",
@@ -1129,85 +1126,6 @@ if not RunService:IsStudio() and writefile and printidentity() then
 	end
 end
 
--- */  Other  /* --
-do
-	local InviteCode = "YOUR_INVITE_CODE"
-	local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
-
-	local Response = WindUI.cloneref(game:GetService("HttpService"))
-		:JSONDecode(WindUI.Creator.Request and WindUI.Creator.Request({
-			Url = DiscordAPI,
-			Method = "GET",
-			Headers = {
-				["User-Agent"] = "WindUI/Example",
-				["Accept"] = "application/json",
-			},
-		}).Body or "{}")
-
-	local DiscordTab = OtherSection:Tab({
-		Title = "Discord",
-		Border = true,
-	})
-
-	if Response and Response.guild then
-		DiscordTab:Section({
-			Title = "Join our Discord server!",
-			TextSize = 20,
-		})
-		local DiscordServerParagraph = DiscordTab:Paragraph({
-			Title = tostring(Response.guild.name),
-			Desc = tostring(Response.guild.description),
-			Image = "https://cdn.discordapp.com/icons/"
-				.. Response.guild.id
-				.. "/"
-				.. Response.guild.icon
-				.. ".png?size=1024",
-			Thumbnail = "https://cdn.discordapp.com/banners/1300692552005189632/35981388401406a4b7dffd6f447a64c4.png?size=512",
-			ImageSize = 48,
-			Buttons = {
-				{
-					Title = "Copy link",
-					Icon = "link",
-					Callback = function()
-						setclipboard("https://discord.gg/" .. InviteCode)
-					end,
-				},
-			},
-		})
-	elseif RunService:IsStudio() or not writefile then
-		DiscordTab:Paragraph({
-			Title = "Discord API is not available in Studio mode.",
-			TextSize = 20,
-			Justify = "Center",
-			Image = "solar:info-circle-bold",
-			Color = "Red",
-			Buttons = {
-				{
-					Title = "Get/Copy Invite Link",
-					Icon = "link",
-					Callback = function()
-						if setclipboard then
-							setclipboard("https://discord.gg/" .. InviteCode)
-						else
-							WindUI:Notify({
-								Title = "Discord Invite Link",
-								Content = "https://discord.gg/" .. InviteCode,
-							})
-						end
-					end,
-				},
-			},
-		})
-	else
-		DiscordTab:Paragraph({
-			Title = "Failed to fetch Discord server info.",
-			TextSize = 20,
-			Justify = "Center",
-			Image = "solar:info-circle-bold",
-			Color = "Red",
-		})
-	end
-end
 
 local Tabs = {
 	ExampleTab = Window:Tab({

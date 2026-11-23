@@ -82,7 +82,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 		Visible = false,
 		Active = false,
 		--GroupTransparency = 1, -- 0
-		Parent = Config.WindUI.DropdownGui,
+		Parent = Config.SaltyUI.DropdownGui,
 		AnchorPoint = Vector2.new(1, 0),
 	}, {
 		Dropdown.UIElements.Menu,
@@ -98,7 +98,7 @@ function DropdownMenu.New(Config, Dropdown, Element, Type)
 	end
 
 	local function RecalculateListSize()
-		local MaxHeight = Config.WindUI.DropdownGui.AbsoluteSize.Y
+		local MaxHeight = Config.SaltyUI.DropdownGui.AbsoluteSize.Y
 
 		local ContentY = Dropdown.UIElements.UIListLayout.AbsoluteContentSize.Y / Config.UIScale
 		local SearchBarOffset = Dropdown.SearchBarEnabled and (Element.SearchBarHeight + (Element.MenuPadding * 3))

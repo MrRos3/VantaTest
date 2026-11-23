@@ -17,7 +17,7 @@ type ConfigType = {
 	Focused: boolean,
 
 	Window: any, -- later
-	WindUI: any, -- later
+	SaltyUI: any, -- later
 	Tab: any, -- later
 	Parent: Instance,
 }
@@ -73,7 +73,7 @@ function Element:New(Config: ConfigType)
 			and Position.Y <= AbsPos.Y + Size.Y
 	end
 
-	local CurInput = Config.WindUI.GenerateGUID()
+	local CurInput = Config.SaltyUI.GenerateGUID()
 
 	Creator.AddSignal(Main.CanvasGroup.Viewport.MouseEnter, function()
 		if Viewport.Interactive then
@@ -96,11 +96,11 @@ function Element:New(Config: ConfigType)
 				(Input.UserInputType == Enum.UserInputType.MouseButton1)
 				or (Input.UserInputType == Enum.UserInputType.Touch and not Pinching)
 			then
-				if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
+				if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
 					return
 				end
 
-				Config.WindUI.CurrentInput = CurInput
+				Config.SaltyUI.CurrentInput = CurInput
 
 				Dragging = true
 				LastMousePos = Input.Position
@@ -114,11 +114,11 @@ function Element:New(Config: ConfigType)
 				Input.UserInputType == Enum.UserInputType.MouseButton1
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
-				if Config.WindUI.CurrentInput and Config.WindUI.CurrentInput ~= CurInput then
+				if Config.SaltyUI.CurrentInput and Config.SaltyUI.CurrentInput ~= CurInput then
 					return
 				end
 
-				Config.WindUI.CurrentInput = nil
+				Config.SaltyUI.CurrentInput = nil
 
 				Dragging = false
 			end
